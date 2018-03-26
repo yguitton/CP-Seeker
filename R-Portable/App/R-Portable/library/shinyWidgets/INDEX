@@ -1,0 +1,75 @@
+actionBttn              Awesome action button
+actionGroupButtons      Actions Buttons Group Inputs
+animateOptions          Animate options
+animations              Animation names
+awesomeCheckbox         Awesome Checkbox Input Control
+awesomeCheckboxGroup    Awesome Checkbox Group Input Control
+awesomeRadio            Awesome Radio Buttons Input Control
+checkboxGroupButtons    Buttons Group checkbox Input Control
+circleButton            Circle Action button
+closeSweetAlert         Close Sweet Alert
+colorSelectorInput      Color Selector Input
+confirmSweetAlert       Launch a confirmation dialog
+dropdown                Dropdown
+dropdownButton          Dropdown Button
+inputSweetAlert         Launch an input text dialog
+knobInput               Knob Input
+materialSwitch          Material Design Switch Input Control
+multiInput              Create a multiselect input control
+panel                   Create a panel
+pickerInput             Select picker Input Control
+prettyCheckbox          Pretty Checkbox Input
+prettyCheckboxGroup     Pretty Checkbox Group Input Control
+prettyRadioButtons      Pretty radio Buttons Input Control
+prettySwitch            Pretty Switch Input
+prettyToggle            Pretty Toggle Input
+progressBar             Progress Bars
+progressSweetAlert      Progress bar in a sweet alert
+radioGroupButtons       Buttons Group Radio Input Control
+searchInput             Search Input
+sendSweetAlert          Display a Sweet Alert to the user
+shinyWidgets            shinyWidgets: Custom inputs widgets for Shiny.
+shinyWidgetsGallery     Launch the shinyWidget Gallery
+sliderTextInput         Slider Text Input Widget
+spectrumInput           Palette Color Picker with Spectrum Library
+switchInput             Bootstrap Switch Input Control
+textInputAddon          Text with Add-on Input Control
+toggleDropdownButton    Toggle a dropdown menu
+tooltipOptions          Tooltip options
+updateAwesomeCheckbox   Change the value of an awesome checkbox input
+                        on the client
+updateAwesomeCheckboxGroup
+                        Change the value of a AwesomeCheckboxGroup
+                        input on the client
+updateAwesomeRadio      Change the value of a radio input on the client
+updateCheckboxGroupButtons
+                        Change the value of a checkboxes group buttons
+                        input on the client
+updateKnobInput         Change the value of a knob input on the client
+updateMaterialSwitch    Change the value of a materialSwitch input on
+                        the client
+updatePickerInput       Change the value of a select picker input on
+                        the client
+updatePrettyCheckbox    Change the value of a pretty checkbox on the
+                        client
+updatePrettyCheckboxGroup
+                        Change the value of a pretty checkbox on the
+                        client
+updatePrettyRadioButtons
+                        Change the value pretty radio buttons on the
+                        client
+updatePrettySwitch      Change the value of a pretty switch on the
+                        client
+updatePrettyToggle      Change the value of a pretty toggle on the
+                        client
+updateProgressBar       Update a progress bar
+updateRadioGroupButtons
+                        Change the value of a radio group buttons input
+                        on the client
+updateSliderTextInput   Change the value of a slider text input on the
+                        client
+updateSpectrumInput     Change the value of a spectrum input on the
+                        client
+updateSwitchInput       Change the value of a switch input on the
+                        client
+useSweetAlert           Load Sweet Alert dependencies
