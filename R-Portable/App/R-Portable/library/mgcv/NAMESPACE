@@ -73,7 +73,8 @@ export(anova.gam, bam, bam.update,bandchol, betar, cox.ph,concurvity,
        totalPenaltySpace,trichol,trind.generator,
        Tweedie,tw,uniquecombs, vcov.gam, vis.gam, ziP, ziplss)
 
-importFrom(grDevices,cm.colors,dev.interactive,devAskNewPage,gray,grey,heat.colors,terrain.colors,topo.colors)
+importFrom(grDevices,cm.colors,dev.interactive,devAskNewPage,gray,grey,
+           heat.colors,terrain.colors,topo.colors,axisTicks)
 importFrom(graphics,abline,axis,axTicks,box,contour,hist,image,lines,
            mtext, par, persp,plot,points,
            polygon,rect,strheight,strwidth,text,title)
@@ -85,7 +86,7 @@ influence,logLik,lm,mad,
 make.link,median,model.frame,model.offset,model.matrix,nlm,
 na.pass,napredict,na.omit,naresid,optim,pchisq,pnorm,pt,pf,
 power,predict,printCoefmat,quantile,
-qbeta,qbinom,qchisq,qnbinom,qgamma,qnorm,qpois,qqline,qqnorm,qqplot,
+qbeta,qbinom,qcauchy,qchisq,qnbinom,qgamma,qnorm,qpois,qqline,qqnorm,qqplot,
 reformulate,residuals,
 rbeta,rbinom,rgamma,rnbinom,rnorm,rpois,runif,sd,
 termplot,terms.formula,terms,uniroot,var,vcov,weights)

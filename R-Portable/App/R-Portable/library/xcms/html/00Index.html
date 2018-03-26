@@ -1,0 +1,1641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>R: LC/MS and GC/MS Data Analysis</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+<h1> LC/MS and GC/MS Data Analysis
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;xcms&rsquo; version 3.0.2</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<p style="text-align: center;">
+<a href="#A">A</a>
+<a href="#B">B</a>
+<a href="#C">C</a>
+<a href="#D">D</a>
+<a href="#E">E</a>
+<a href="#F">F</a>
+<a href="#G">G</a>
+<a href="#H">H</a>
+<a href="#I">I</a>
+<a href="#K">K</a>
+<a href="#L">L</a>
+<a href="#M">M</a>
+<a href="#N">N</a>
+<a href="#O">O</a>
+<a href="#P">P</a>
+<a href="#R">R</a>
+<a href="#S">S</a>
+<a href="#T">T</a>
+<a href="#U">U</a>
+<a href="#V">V</a>
+<a href="#W">W</a>
+<a href="#X">X</a>
+<a href="#misc">misc</a>
+</p>
+
+
+<h2><a name="A">-- A --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="absent-methods.html">absent</a></td>
+<td>Determine which peaks are absent / present in a sample class</td></tr>
+<tr><td style="width: 25%;"><a href="absent-methods.html">absent-method</a></td>
+<td>Determine which peaks are absent / present in a sample class</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">absMz</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">absMz-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absMz-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">absMz&lt;-</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">absMz&lt;--method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absMz&lt;--method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absRt</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absRt-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absRt&lt;-</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">absRt&lt;--method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">addParams</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">addParams-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">addParams&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">addParams&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">adjustedRtime</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">adjustedRtime-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">adjustedRtime&lt;-</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">adjustedRtime&lt;--method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime.html">adjustRtime</a></td>
+<td>Alignment: Retention time correction methods.</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">adjustRtime-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">adjustRtime-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">adjustRtime-obiwarp</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">adjustRtime-peakGroups</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">adjustRtimePeakGroups</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ampTh</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ampTh-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ampTh&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ampTh&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="applyAdjustedRtime.html">applyAdjustedRtime</a></td>
+<td>Replace raw with adjusted retention times</td></tr>
+<tr><td style="width: 25%;"><a href="AutoLockMass-methods.html">AutoLockMass</a></td>
+<td>Automatic parameter for Lock mass fixing 'AutoLockMass' ~~</td></tr>
+<tr><td style="width: 25%;"><a href="AutoLockMass-methods.html">AutoLockMass-method</a></td>
+<td>Automatic parameter for Lock mass fixing 'AutoLockMass' ~~</td></tr>
+<tr><td style="width: 25%;"><a href="AutoLockMass-methods.html">AutoLockMass-methods</a></td>
+<td>Automatic parameter for Lock mass fixing 'AutoLockMass' ~~</td></tr>
+</table>
+
+<h2><a name="B">-- B --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">baseValue</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">baseValue-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">baseValue&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">baseValue&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">bin-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">binSize</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">binSize-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">binSize-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">binSize-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">binSize&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">binSize&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">binSize&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">binSize&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="binYonX.html">binYonX</a></td>
+<td>Aggregate values in y for bins defined on x</td></tr>
+<tr><td style="width: 25%;"><a href="breaks_on_binSize.html">breaks_on_binSize</a></td>
+<td>Generate breaks for binning using a defined bin size.</td></tr>
+<tr><td style="width: 25%;"><a href="breaks_on_nBins.html">breaks_on_nBins</a></td>
+<td>Generate breaks for binning</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">bw</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">bw-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">bw&lt;-</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">bw&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+</table>
+
+<h2><a name="C">-- C --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="c.xcmsSet.html">c, c-methods</a></td>
+<td>Combine xcmsSet objects</td></tr>
+<tr><td style="width: 25%;"><a href="c.xcmsSet.html">c.xcmsSet</a></td>
+<td>Combine xcmsSet objects</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate-calibrant-mass.html">CalibrantMassParam</a></td>
+<td>Calibrant mass based calibration of chromatgraphic peaks</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate-calibrant-mass.html">CalibrantMassParam-class</a></td>
+<td>Calibrant mass based calibration of chromatgraphic peaks</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate.html">calibrate</a></td>
+<td>Calibrate peaks for correcting unprecise m/z values</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate-calibrant-mass.html">calibrate-method</a></td>
+<td>Calibrant mass based calibration of chromatgraphic peaks</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate.html">calibrate-method</a></td>
+<td>Calibrate peaks for correcting unprecise m/z values</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">centerSample</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">centerSample-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">centerSample&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">centerSample&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">centWave</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">CentWaveParam</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">CentWaveParam-class</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">CentWavePredIsoParam</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">CentWavePredIsoParam-class</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">centWaveWithPredIsoROIs</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">checkBack</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">checkBack-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">checkBack&lt;-</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">checkBack&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="chromatogram-method.html">chromatogram</a></td>
+<td>Extracting chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="chromatogram-method.html">chromatogram-method</a></td>
+<td>Extracting chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="chromatographic-peak-detection.html">chromatographic-peak-detection</a></td>
+<td>Chromatographic peak detection methods.</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">chromPeaks</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">chromPeaks-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">chromPeaks&lt;-</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">chromPeaks&lt;--method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">clean-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="collect-methods.html">collect</a></td>
+<td>Collect MS^n peaks into xcmsFragments</td></tr>
+<tr><td style="width: 25%;"><a href="collect-methods.html">collect-method</a></td>
+<td>Collect MS^n peaks into xcmsFragments</td></tr>
+<tr><td style="width: 25%;"><a href="collect-methods.html">collect-methods</a></td>
+<td>Collect MS^n peaks into xcmsFragments</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">consecMissedLimit</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">consecMissedLimit-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">consecMissedLimit&lt;-</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">consecMissedLimit&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">criticalValue</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">criticalValue-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">criticalValue&lt;-</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">criticalValue&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+</table>
+
+<h2><a name="D">-- D --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="xcmsRaw.html">deepCopy</a></td>
+<td>Constructor for xcmsRaw objects which reads NetCDF/mzXML files</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw.html">deepCopy-method</a></td>
+<td>Constructor for xcmsRaw objects which reads NetCDF/mzXML files</td></tr>
+<tr><td style="width: 25%;"><a href="diffreport-methods.html">diffreport</a></td>
+<td>Create report of analyte differences</td></tr>
+<tr><td style="width: 25%;"><a href="diffreport-methods.html">diffreport-method</a></td>
+<td>Create report of analyte differences</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">distance</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">distance-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">distance&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">distance&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">distFun</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">distFun-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">distFun&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">distFun&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="do_adjustRtime_peakGroups.html">do_adjustRtime_peakGroups</a></td>
+<td>Align spectrum retention times across samples using peak groups found in most samples</td></tr>
+<tr><td style="width: 25%;"><a href="do_findChromPeaks_centWaveWithPredIsoROIs.html">do_findChromPeaks_addPredIsoROIs</a></td>
+<td>Core API function for two-step centWave peak detection with isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></td>
+<td>Core API function for centWave peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="do_findChromPeaks_centWaveWithPredIsoROIs.html">do_findChromPeaks_centWaveWithPredIsoROIs</a></td>
+<td>Core API function for two-step centWave peak detection with isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="do_findChromPeaks_massifquant.html">do_findChromPeaks_massifquant</a></td>
+<td>Core API function for massifquant peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></td>
+<td>Core API function for matchedFilter peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="do_findPeaks_MSW.html">do_findPeaks_MSW</a></td>
+<td>Core API function for single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="do_groupChromPeaks_density.html">do_groupChromPeaks_density</a></td>
+<td>Core API function for peak density based chromatographic peak grouping</td></tr>
+<tr><td style="width: 25%;"><a href="do_groupChromPeaks_nearest.html">do_groupChromPeaks_nearest</a></td>
+<td>Core API function for chromatic peak grouping using a nearest neighbor approach</td></tr>
+<tr><td style="width: 25%;"><a href="do_groupPeaks_mzClust.html">do_groupPeaks_mzClust</a></td>
+<td>Core API function for peak grouping using mzClust</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropAdjustedRtime</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropAdjustedRtime-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropChromPeaks</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropChromPeaks-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropFeatureDefinitions</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropFeatureDefinitions-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropFilledChromPeaks</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">dropFilledChromPeaks-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+</table>
+
+<h2><a name="E">-- E --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="etg.html">etg</a></td>
+<td>Empirically Transformed Gaussian function</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandMz</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandMz-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandMz&lt;-</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandMz&lt;--method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandRt</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandRt-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandRt&lt;-</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">expandRt&lt;--method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="xcms-deprecated.html">extractChromatograms</a></td>
+<td>Deprecated functions in package 'xcms'</td></tr>
+<tr><td style="width: 25%;"><a href="xcms-deprecated.html">extractChromatograms-method</a></td>
+<td>Deprecated functions in package 'xcms'</td></tr>
+<tr><td style="width: 25%;"><a href="extractMsData-method.html">extractMsData</a></td>
+<td>Extract a 'data.frame' containing MS data</td></tr>
+<tr><td style="width: 25%;"><a href="extractMsData-method.html">extractMsData-method</a></td>
+<td>Extract a 'data.frame' containing MS data</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">extraPeaks</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">extraPeaks-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">extraPeaks&lt;-</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">extraPeaks&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+</table>
+
+<h2><a name="F">-- F --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorDiag</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorDiag-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorDiag&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorDiag&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorGap</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorGap-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorGap&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">factorGap&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">family</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">family-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">family&lt;-</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">family&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">featureDefinitions</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">featureDefinitions-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">featureDefinitions&lt;-</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">featureDefinitions&lt;--method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-peak-grouping-results.html">featureValues</a></td>
+<td>Accessing mz-rt feature data values</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-peak-grouping-results.html">featureValues-method</a></td>
+<td>Accessing mz-rt feature data values</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">fileIndex</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">fileIndex-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">filepaths</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">filepaths-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">filepaths&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">filepaths&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">fillChromPeaks</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">fillChromPeaks-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">FillChromPeaksParam</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">FillChromPeaksParam-class</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks-methods.html">fillPeaks</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks-methods.html">fillPeaks-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks.chrom-methods.html">fillPeaks.chrom</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks.chrom-methods.html">fillPeaks.chrom-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks.MSW-methods.html">fillPeaks.MSW</a></td>
+<td>Integrate areas of missing peaks in FTICR-MS data</td></tr>
+<tr><td style="width: 25%;"><a href="fillPeaks.MSW-methods.html">fillPeaks.MSW-method</a></td>
+<td>Integrate areas of missing peaks in FTICR-MS data</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">filterAcquisitionNum-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">filterFile-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">filterMsLevel-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">filterMz-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">filterRt-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="chromatographic-peak-detection.html">findChromPeaks</a></td>
+<td>Chromatographic peak detection methods.</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">findChromPeaks-centWave</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">findChromPeaks-centWaveWithPredIsoROIs</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">findChromPeaks-massifquant</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">findChromPeaks-matchedFilter</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">findChromPeaks-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">findChromPeaks-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">findChromPeaks-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">findChromPeaks-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">findChromPeaks-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">findChromPeaks-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findMZ.html">findMZ</a></td>
+<td>Find fragment ions in xcmsFragment objects</td></tr>
+<tr><td style="width: 25%;"><a href="findMZ.html">findMZ-method</a></td>
+<td>Find fragment ions in xcmsFragment objects</td></tr>
+<tr><td style="width: 25%;"><a href="findneutral.html">findneutral</a></td>
+<td>Find neutral losses in xcmsFragment objects</td></tr>
+<tr><td style="width: 25%;"><a href="findneutral.html">findneutral-method</a></td>
+<td>Find neutral losses in xcmsFragment objects</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-methods.html">findPeaks</a></td>
+<td>Feature detection for GC/MS and LC/MS Data - methods</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-methods.html">findPeaks-method</a></td>
+<td>Feature detection for GC/MS and LC/MS Data - methods</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-methods.html">findPeaks-methods</a></td>
+<td>Feature detection for GC/MS and LC/MS Data - methods</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">findPeaks-MSW</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.addPredictedIsotopeFeatures-methods.html">findPeaks.addPredictedIsotopeFeatures</a></td>
+<td>Feature detection based on predicted isotope features for high resolution LC/MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.addPredictedIsotopeFeatures-methods.html">findPeaks.addPredictedIsotopeFeatures-method</a></td>
+<td>Feature detection based on predicted isotope features for high resolution LC/MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.centWave-methods.html">findPeaks.centWave</a></td>
+<td>Feature detection for high resolution LC/MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.centWave-methods.html">findPeaks.centWave-method</a></td>
+<td>Feature detection for high resolution LC/MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.centWaveWithPredictedIsotopeROIs-methods.html">findPeaks.centWaveWithPredictedIsotopeROIs</a></td>
+<td>Feature detection with centWave and additional isotope features</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.centWaveWithPredictedIsotopeROIs-methods.html">findPeaks.centWaveWithPredictedIsotopeROIs-method</a></td>
+<td>Feature detection with centWave and additional isotope features</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.massifquant-methods.html">findPeaks.massifquant</a></td>
+<td>Feature detection for XC-MS data.</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.massifquant-methods.html">findPeaks.massifquant-method</a></td>
+<td>Feature detection for XC-MS data.</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.matchedFilter-xcmsRaw-method.html">findPeaks.matchedFilter</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.matchedFilter-xcmsRaw-method.html">findPeaks.matchedFilter-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.MS1-methods.html">findPeaks.MS1</a></td>
+<td>Collecting MS1 precursor peaks</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.MS1-methods.html">findPeaks.MS1-method</a></td>
+<td>Collecting MS1 precursor peaks</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.MSW-xcmsRaw-method.html">findPeaks.MSW</a></td>
+<td>Peak detection for single-spectrum non-chromatography MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks.MSW-xcmsRaw-method.html">findPeaks.MSW-method</a></td>
+<td>Peak detection for single-spectrum non-chromatography MS data</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">firstBaselineCheck</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">firstBaselineCheck-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">firstBaselineCheck&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">firstBaselineCheck&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">fitgauss</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">fitgauss-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">fitgauss-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">fitgauss&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">fitgauss&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">fitgauss&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">fwhm</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">fwhm-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">fwhm&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">fwhm&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+</table>
+
+<h2><a name="G">-- G --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapExtend</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapExtend-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapExtend&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapExtend&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapInit</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapInit-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapInit&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">gapInit&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="GenericParam.html">GenericParam</a></td>
+<td>Generic parameter class</td></tr>
+<tr><td style="width: 25%;"><a href="GenericParam.html">GenericParam-class</a></td>
+<td>Generic parameter class</td></tr>
+<tr><td style="width: 25%;"><a href="getEIC-methods.html">getEIC</a></td>
+<td>Get extracted ion chromatograms for specified m/z ranges</td></tr>
+<tr><td style="width: 25%;"><a href="getEIC-methods.html">getEIC-method</a></td>
+<td>Get extracted ion chromatograms for specified m/z ranges</td></tr>
+<tr><td style="width: 25%;"><a href="getScan-methods.html">getMsnScan</a></td>
+<td>Get m/z and intensity values for a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="getScan-methods.html">getMsnScan-method</a></td>
+<td>Get m/z and intensity values for a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="getPeaks-methods.html">getPeaks</a></td>
+<td>Get peak intensities for specified regions</td></tr>
+<tr><td style="width: 25%;"><a href="getPeaks-methods.html">getPeaks-method</a></td>
+<td>Get peak intensities for specified regions</td></tr>
+<tr><td style="width: 25%;"><a href="getScan-methods.html">getScan</a></td>
+<td>Get m/z and intensity values for a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="getScan-methods.html">getScan-method</a></td>
+<td>Get m/z and intensity values for a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="getSpec-methods.html">getSpec</a></td>
+<td>Get average m/z and intensity values for multiple mass scans</td></tr>
+<tr><td style="width: 25%;"><a href="getSpec-methods.html">getSpec-method</a></td>
+<td>Get average m/z and intensity values for multiple mass scans</td></tr>
+<tr><td style="width: 25%;"><a href="getXcmsRaw-methods.html">getXcmsRaw</a></td>
+<td>Load the raw data for one or more files in the xcmsSet</td></tr>
+<tr><td style="width: 25%;"><a href="getXcmsRaw-methods.html">getXcmsRaw-method</a></td>
+<td>Load the raw data for one or more files in the xcmsSet</td></tr>
+<tr><td style="width: 25%;"><a href="group-methods.html">group</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group-methods.html">group-method</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group-methods.html">group-methods</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group.density.html">group.density</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group.density.html">group.density-method</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group.mzClust.html">group.mzClust</a></td>
+<td>Group Peaks via High Resolution Alignment</td></tr>
+<tr><td style="width: 25%;"><a href="group.mzClust.html">group.mzClust-method</a></td>
+<td>Group Peaks via High Resolution Alignment</td></tr>
+<tr><td style="width: 25%;"><a href="group.nearest.html">group.nearest</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="group.nearest.html">group.nearest-method</a></td>
+<td>Group peaks from different samples together</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks.html">groupChromPeaks</a></td>
+<td>Correspondence: Chromatographic peak grouping methods.</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">groupChromPeaks-density</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">groupChromPeaks-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">groupChromPeaks-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">groupChromPeaks-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">groupChromPeaks-mzClust</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">groupChromPeaks-nearest</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groupidx</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groupidx-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groupidx&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groupidx&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="groupnames-methods.html">groupnames</a></td>
+<td>Generate unque names for peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="groupnames-methods.html">groupnames-method</a></td>
+<td>Generate unque names for peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groups</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groups-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groups&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">groups&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="groupval-methods.html">groupval</a></td>
+<td>Extract a matrix of peak values for each group</td></tr>
+<tr><td style="width: 25%;"><a href="groupval-methods.html">groupval-method</a></td>
+<td>Extract a matrix of peak values for each group</td></tr>
+</table>
+
+<h2><a name="H">-- H --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasAdjustedRtime</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasAdjustedRtime-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasChromPeaks</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasChromPeaks-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasFeatures</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">hasFeatures-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="highlightChromPeaks.html">highlightChromPeaks</a></td>
+<td>Add definition of chromatographic peaks to an extracted chromatogram plot</td></tr>
+</table>
+
+<h2><a name="I">-- I --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="image.xcmsRaw.html">image-method</a></td>
+<td>Plot log intensity image of a xcmsRaw object</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">impute-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">impute&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">impute&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="imputeLinInterpol.html">imputeLinInterpol</a></td>
+<td>Impute values for empty elements in a vector using linear interpolation</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">index</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">index-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">index&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">index&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">initPenalty</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">initPenalty-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">initPenalty&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">initPenalty&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">integrate-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">integrate-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">integrate&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">integrate&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">integrate&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">intensity-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate-calibrant-mass.html">isCalibrated</a></td>
+<td>Calibrant mass based calibration of chromatgraphic peaks</td></tr>
+</table>
+
+<h2><a name="K">-- K --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">kNN</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">kNN-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">kNN&lt;-</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">kNN&lt;--method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+</table>
+
+<h2><a name="L">-- L --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">levelplot</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="levelplot.xcmsRaw.html">levelplot-method</a></td>
+<td>Plot log intensity image of a xcmsRaw object</td></tr>
+<tr><td style="width: 25%;"><a href="loadRaw-methods.html">loadRaw</a></td>
+<td>Read binary data from a source</td></tr>
+<tr><td style="width: 25%;"><a href="loadRaw-methods.html">loadRaw-method</a></td>
+<td>Read binary data from a source</td></tr>
+<tr><td style="width: 25%;"><a href="loadRaw-methods.html">loadRaw-methods</a></td>
+<td>Read binary data from a source</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">localAlignment</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">localAlignment-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">localAlignment&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">localAlignment&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+</table>
+
+<h2><a name="M">-- M --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="stitch-methods.html">makeacqNum</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">makeacqNum-method</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">massifquant</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">MassifquantParam</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">MassifquantParam-class</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">matchedFilter</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">MatchedFilterParam</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">MatchedFilterParam-class</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">max-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">max&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">max&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxCharge</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxCharge-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxCharge&lt;-</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxCharge&lt;--method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">maxFeatures</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">maxFeatures-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">maxFeatures&lt;-</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">maxFeatures&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxIso</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxIso-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxIso&lt;-</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">maxIso&lt;--method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="medianFilter.html">medianFilter</a></td>
+<td>Apply a median filter to a matrix</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minFraction</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">minFraction-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minFraction-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">minFraction-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minFraction&lt;-</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">minFraction&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minFraction&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">minFraction&lt;--method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">minNoiseLevel</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">minNoiseLevel-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">minNoiseLevel&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">minNoiseLevel&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minSamples</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minSamples-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">minSamples-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minSamples&lt;-</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">minSamples&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">minSamples&lt;--method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">mslevel</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">msLevel-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">mslevel-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">mslevel-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="msn2xcmsRaw.html">msn2xcmsRaw</a></td>
+<td>Copy MSn data in an xcmsRaw to the MS slots</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">MSW</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">MSWParam</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">MSWParam-class</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="calibrate-calibrant-mass.html">mz,CalibrantMassParam</a></td>
+<td>Calibrant mass based calibration of chromatgraphic peaks</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">mz-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzCenterFun</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzCenterFun-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">mzCenterFun-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzCenterFun&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzCenterFun&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">mzCenterFun&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">MzClustParam</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">MzClustParam-class</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzdiff</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzdiff-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">mzdiff-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">mzdiff-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzdiff&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">mzdiff&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">mzdiff&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">mzdiff&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">mzIntervalExtension</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">mzIntervalExtension-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">mzIntervalExtension&lt;-</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">mzIntervalExtension&lt;--method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">mzrange</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">mzrange-method</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">mzVsRtBalance</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">mzVsRtBalance-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">mzVsRtBalance&lt;-</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">mzVsRtBalance&lt;--method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+</table>
+
+<h2><a name="N">-- N --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">nearbyPeak</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">nearbyPeak-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">nearbyPeak&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">nearbyPeak&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">NearestPeaksParam</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">NearestPeaksParam-class</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">noise</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">noise-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">noise-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">noise&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">noise&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">noise&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">normalize-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+</table>
+
+<h2><a name="O">-- O --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">ObiwarpParam</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">ObiwarpParam-class</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+</table>
+
+<h2><a name="P">-- P --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">PeakDensityParam</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">PeakDensityParam-class</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">peakGroupsMatrix</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">peakGroupsMatrix-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">peakGroupsMatrix&lt;-</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">peakGroupsMatrix&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">PeakGroupsParam</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">PeakGroupsParam-class</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="peakPlots-methods.html">peakPlots-method</a></td>
+<td>Plot a grid of a large number of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="peakPlots-methods.html">peakPlots-methods</a></td>
+<td>Plot a grid of a large number of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">peaks</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">peaks-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">peaks&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">peaks&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakScaleRange</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakScaleRange-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakScaleRange&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakScaleRange&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="peakTable-methods.html">peakTable</a></td>
+<td>Create report of aligned peak intensities</td></tr>
+<tr><td style="width: 25%;"><a href="peakTable-methods.html">peakTable-method</a></td>
+<td>Create report of aligned peak intensities</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakThr</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakThr-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakThr&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">peakThr&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">peakwidth</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">peakwidth-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">peakwidth-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">peakwidth&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">peakwidth&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">peakwidth&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">phenoData</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">phenoData-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">phenoData&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">phenoData&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="phenoDataFromPaths.html">phenoDataFromPaths</a></td>
+<td>Derive experimental design from file paths</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">pickPeaks-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="plot.xcmsEIC.html">plot, plot-methods</a></td>
+<td>Plot extracted ion chromatograms from multiple files</td></tr>
+<tr><td style="width: 25%;"><a href="plot.xcmsEIC.html">plot.xcmsEIC</a></td>
+<td>Plot extracted ion chromatograms from multiple files</td></tr>
+<tr><td style="width: 25%;"><a href="plotAdjustedRtime.html">plotAdjustedRtime</a></td>
+<td>Visualization of alignment results</td></tr>
+<tr><td style="width: 25%;"><a href="plotChrom-methods.html">plotChrom</a></td>
+<td>Plot extracted ion chromatograms from the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="plotChrom-methods.html">plotChrom-method</a></td>
+<td>Plot extracted ion chromatograms from the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="xcms-deprecated.html">plotChromatogram</a></td>
+<td>Deprecated functions in package 'xcms'</td></tr>
+<tr><td style="width: 25%;"><a href="plotChromPeakDensity.html">plotChromPeakDensity</a></td>
+<td>Plot chromatographic peak density along the retention time axis</td></tr>
+<tr><td style="width: 25%;"><a href="plotChromPeaks.html">plotChromPeakImage</a></td>
+<td>General visualizations of peak detection results</td></tr>
+<tr><td style="width: 25%;"><a href="plotChromPeaks.html">plotChromPeaks</a></td>
+<td>General visualizations of peak detection results</td></tr>
+<tr><td style="width: 25%;"><a href="plotEIC-methods.html">plotEIC</a></td>
+<td>Plot extracted ion chromatograms for specified m/z range</td></tr>
+<tr><td style="width: 25%;"><a href="plotEIC-methods.html">plotEIC-method</a></td>
+<td>Plot extracted ion chromatograms for specified m/z range</td></tr>
+<tr><td style="width: 25%;"><a href="plotMsData.html">plotMsData</a></td>
+<td>Create a plot that combines a XIC and a mz/rt 2D plot for one sample</td></tr>
+<tr><td style="width: 25%;"><a href="plotPeaks-methods.html">plotPeaks</a></td>
+<td>Plot a grid of a large number of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="plotPeaks-methods.html">plotPeaks-method</a></td>
+<td>Plot a grid of a large number of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="plotQC.html">plotQC</a></td>
+<td>Plot m/z and RT deviations for QC purposes without external reference data</td></tr>
+<tr><td style="width: 25%;"><a href="plotRaw-methods.html">plotRaw</a></td>
+<td>Scatterplot of raw data points</td></tr>
+<tr><td style="width: 25%;"><a href="plotRaw-methods.html">plotRaw-method</a></td>
+<td>Scatterplot of raw data points</td></tr>
+<tr><td style="width: 25%;"><a href="plotrt-methods.html">plotrt</a></td>
+<td>Plot retention time deviation profiles</td></tr>
+<tr><td style="width: 25%;"><a href="plotrt-methods.html">plotrt-method</a></td>
+<td>Plot retention time deviation profiles</td></tr>
+<tr><td style="width: 25%;"><a href="plotScan-methods.html">plotScan</a></td>
+<td>Plot a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="plotScan-methods.html">plotScan-method</a></td>
+<td>Plot a single mass scan</td></tr>
+<tr><td style="width: 25%;"><a href="plotSpec-methods.html">plotSpec</a></td>
+<td>Plot mass spectra from the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="plotSpec-methods.html">plotSpec-method</a></td>
+<td>Plot mass spectra from the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="plotSurf-methods.html">plotSurf</a></td>
+<td>Plot profile matrix 3D surface using OpenGL</td></tr>
+<tr><td style="width: 25%;"><a href="plotSurf-methods.html">plotSurf-method</a></td>
+<td>Plot profile matrix 3D surface using OpenGL</td></tr>
+<tr><td style="width: 25%;"><a href="plotTIC-methods.html">plotTIC</a></td>
+<td>Plot total ion count</td></tr>
+<tr><td style="width: 25%;"><a href="plotTIC-methods.html">plotTIC-method</a></td>
+<td>Plot total ion count</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFragments-class.html">plotTree</a></td>
+<td>Class xcmsFragments, a class for handling Tandem MS and MS$^n$ data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFragments-class.html">plotTree-method</a></td>
+<td>Class xcmsFragments, a class for handling Tandem MS and MS$^n$ data</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">polarity-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">polarity&lt;-</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">polarity&lt;--method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">ppm</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">ppm-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">ppm-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">ppm-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">ppm-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">ppm&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">ppm&lt;--method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">ppm&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">ppm&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">ppm&lt;--method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">prefilter</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">prefilter-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">prefilter-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">prefilter&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">prefilter&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">prefilter&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="absent-methods.html">present</a></td>
+<td>Determine which peaks are absent / present in a sample class</td></tr>
+<tr><td style="width: 25%;"><a href="absent-methods.html">present-method</a></td>
+<td>Determine which peaks are absent / present in a sample class</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processDate</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processDate-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">ProcessHistory</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">processHistory</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">ProcessHistory-class</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">processHistory-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">processHistoryTypes</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processInfo</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processInfo-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processParam</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processParam-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processType</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">processType-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="profMat-xcmsSet.html">profile-matrix</a></td>
+<td>The profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profinfo</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">profinfo-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profinfo-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profinfo&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profinfo&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="profMat-xcmsSet.html">profMat</a></td>
+<td>The profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">profMat-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="profMat-xcmsSet.html">profMat-method</a></td>
+<td>The profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="profMat-xcmsSet.html">profMat-xcmsSet</a></td>
+<td>The profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="profMedFilt-methods.html">profMedFilt</a></td>
+<td>Median filtering of the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="profMedFilt-methods.html">profMedFilt-method</a></td>
+<td>Median filtering of the profile matrix</td></tr>
+<tr><td style="width: 25%;"><a href="profMethod-methods.html">profMethod</a></td>
+<td>Get and set method for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="profMethod-methods.html">profMethod-method</a></td>
+<td>Get and set method for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profMethod-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="profMethod-methods.html">profMethod&lt;-</a></td>
+<td>Get and set method for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="profMethod-methods.html">profMethod&lt;--method</a></td>
+<td>Get and set method for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">profMz</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">profMz-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="profRange-methods.html">profRange</a></td>
+<td>Specify a subset of profile mode data</td></tr>
+<tr><td style="width: 25%;"><a href="profRange-methods.html">profRange-method</a></td>
+<td>Specify a subset of profile mode data</td></tr>
+<tr><td style="width: 25%;"><a href="profStep-methods.html">profStep</a></td>
+<td>Get and set m/z step for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="profStep-methods.html">profStep-method</a></td>
+<td>Get and set m/z step for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">profStep-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="profStep-methods.html">profStep&lt;-</a></td>
+<td>Get and set m/z step for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="profStep-methods.html">profStep&lt;--method</a></td>
+<td>Get and set m/z step for generating profile data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">progressCallback</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">progressCallback-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">progressCallback&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">progressCallback&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+</table>
+
+<h2><a name="R">-- R --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="rawEIC-methods.html">rawEIC</a></td>
+<td>Get extracted ion chromatograms for specified m/z range</td></tr>
+<tr><td style="width: 25%;"><a href="rawEIC-methods.html">rawEIC-method</a></td>
+<td>Get extracted ion chromatograms for specified m/z range</td></tr>
+<tr><td style="width: 25%;"><a href="rawMat-methods.html">rawMat</a></td>
+<td>Get a raw data matrix</td></tr>
+<tr><td style="width: 25%;"><a href="rawMat-methods.html">rawMat-method</a></td>
+<td>Get a raw data matrix</td></tr>
+<tr><td style="width: 25%;"><a href="rawMat-methods.html">rawMat-methods</a></td>
+<td>Get a raw data matrix</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">removePeaks-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">response</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">response-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">response&lt;-</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">response&lt;--method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="retcor-methods.html">retcor</a></td>
+<td>Correct retention time from different samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor-methods.html">retcor-method</a></td>
+<td>Correct retention time from different samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor-methods.html">retcor-methods</a></td>
+<td>Correct retention time from different samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.linear</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.linear-method</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.loess</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.loess-method</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.obiwarp-methods.html">retcor.obiwarp</a></td>
+<td>Align retention times across samples with Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.obiwarp-methods.html">retcor.obiwarp-method</a></td>
+<td>Align retention times across samples with Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.peakgroups</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retcor.peakgroups-methods.html">retcor.peakgroups-method</a></td>
+<td>Align retention times across samples</td></tr>
+<tr><td style="width: 25%;"><a href="retexp.html">retexp</a></td>
+<td>Set retention time window to a specified width</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">revMz</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">revMz-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ridgeLength</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ridgeLength-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ridgeLength&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">ridgeLength&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiList</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiList-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiList&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiList&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiScales</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiScales-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiScales&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">roiScales&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">rtime-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">rtrange</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">rtrange-method</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+</table>
+
+<h2><a name="S">-- S --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampclass</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampclass-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampclass&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampclass&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">sampleGroups</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">sampleGroups-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">sampleGroups-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">sampleGroups-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">sampleGroups&lt;-</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">sampleGroups&lt;--method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">sampleGroups&lt;--method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">sampleGroups&lt;--method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="sampnames-methods.html">sampnames</a></td>
+<td>Get sample names</td></tr>
+<tr><td style="width: 25%;"><a href="sampnames-methods.html">sampnames-method</a></td>
+<td>Get sample names</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampnames&lt;-</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">sampnames&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">scales</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">scales-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">scales&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">scales&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">scanrange</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">scanrange-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">scanrange-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">setAs</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="GenericParam.html">show-method</a></td>
+<td>Generic parameter class</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">show-method</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">show-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-obiwarp.html">show-method</a></td>
+<td>Align retention times across samples using Obiwarp</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">show-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="fillChromPeaks.html">show-method</a></td>
+<td>Integrate areas of missing peaks</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">show-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">show-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">show-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">show-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">show-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-density.html">show-method</a></td>
+<td>Peak grouping based on time dimension peak densities</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-mzClust.html">show-method</a></td>
+<td>High resolution peak grouping for single spectra samples</td></tr>
+<tr><td style="width: 25%;"><a href="groupChromPeaks-nearest.html">show-method</a></td>
+<td>Peak grouping based on proximity in the mz-rt space</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">show-method</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFragments-class.html">show-method</a></td>
+<td>Class xcmsFragments, a class for handling Tandem MS and MS$^n$ data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsPeaks-class.html">show-method</a></td>
+<td>A matrix of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">show-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">show-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="showError-xcmsSet-method.html">showError</a></td>
+<td>Extract processing errors</td></tr>
+<tr><td style="width: 25%;"><a href="showError-xcmsSet-method.html">showError-method</a></td>
+<td>Extract processing errors</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">sigma</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">sigma-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">sigma&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">sigma&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">smooth</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-inherited-methods.html">smooth-method</a></td>
+<td>XCMSnExp data manipulation methods inherited from MSnbase</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">smooth-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">smooth&lt;-</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">smooth&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">snthresh</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">snthresh-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">snthresh-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">snthresh-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">snthresh-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">snthresh&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">snthresh&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">snthresh&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">snthresh&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">snthresh&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">snthreshIsoROIs</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">snthreshIsoROIs-method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">snthreshIsoROIs&lt;-</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWaveWithPredIsoROIs.html">snthreshIsoROIs&lt;--method</a></td>
+<td>Two-step centWave peak detection considering also isotopes</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">sortMz</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">sortMz-method</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">span</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">span-method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">span&lt;-</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="adjustRtime-peakGroups.html">span&lt;--method</a></td>
+<td>Retention time correction based on alignment of house keeping peak groups</td></tr>
+<tr><td style="width: 25%;"><a href="specDist-methods.html">specDist</a></td>
+<td>Distance methods for xcmsSet, xcmsRaw and xsAnnotate</td></tr>
+<tr><td style="width: 25%;"><a href="specDist-methods.html">specDist-method</a></td>
+<td>Distance methods for xcmsSet, xcmsRaw and xsAnnotate</td></tr>
+<tr><td style="width: 25%;"><a href="specDist-methods.html">specDist-methods</a></td>
+<td>Distance methods for xcmsSet, xcmsRaw and xsAnnotate</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.cosine-methods.html">specDist.cosine</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.cosine-methods.html">specDist.cosine-method</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.meanMZmatch-methods.html">specDist.meanMZmatch</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.meanMZmatch-methods.html">specDist.meanMZmatch-method</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.peakCount-methods.html">specDist.peakCount</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.peakCount-methods.html">specDist.peakCount-method</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specDist.peakCount-methods.html">specDist.peakCount-methods</a></td>
+<td>a Distance function based on matching peaks</td></tr>
+<tr><td style="width: 25%;"><a href="specNoise.html">specNoise</a></td>
+<td>Calculate noise for a sparse continuum mass spectrum</td></tr>
+<tr><td style="width: 25%;"><a href="specPeaks.html">specPeaks</a></td>
+<td>Identify peaks in a sparse continuum mode spectrum</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">spectra-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">spectrapply-method</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="split.xcmsSet.html">split, split-methods</a></td>
+<td>Divide an xcmsSet object</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">split-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="split.xcmsRaw.html">split.xcmsRaw</a></td>
+<td>Divide an xcmsRaw object</td></tr>
+<tr><td style="width: 25%;"><a href="split.xcmsSet.html">split.xcmsSet</a></td>
+<td>Divide an xcmsSet object</td></tr>
+<tr><td style="width: 25%;"><a href="SSgauss.html">SSgauss</a></td>
+<td>Gaussian Model</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">steps</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">steps-method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">steps&lt;-</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-matchedFilter.html">steps&lt;--method</a></td>
+<td>Peak detection in the chromatographic time domain</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">stitch</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">stitch-method</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">stitch-methods</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">stitch.netCDF</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="stitch-methods.html">stitch.xml</a></td>
+<td>Correct gaps in data</td></tr>
+<tr><td style="width: 25%;"><a href="sub-xcmsRaw-logicalOrNumeric-missing-missing-method.html">subset-xcmsRaw</a></td>
+<td>Subset an xcmsRaw object by scans</td></tr>
+</table>
+
+<h2><a name="T">-- T --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">tuneIn</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">tuneIn-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">tuneIn&lt;-</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">tuneIn&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+</table>
+
+<h2><a name="U">-- U --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">unions</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">unions-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">unions&lt;-</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">unions&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="updateObject-xcmsSet-method.html">updateObject-method</a></td>
+<td>Update an 'xcmsSet' object</td></tr>
+<tr><td style="width: 25%;"><a href="useOriginalCode.html">useOriginalCode</a></td>
+<td>Enable usage of old xcms code</td></tr>
+</table>
+
+<h2><a name="V">-- V --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">verboseColumns</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">verboseColumns-method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">verboseColumns-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">verboseColumns-method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">verboseColumns&lt;-</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-centWave.html">verboseColumns&lt;--method</a></td>
+<td>Chromatographic peak detection using the centWave method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">verboseColumns&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findPeaks-MSW.html">verboseColumns&lt;--method</a></td>
+<td>Single-spectrum non-chromatography MS data peak detection</td></tr>
+<tr><td style="width: 25%;"><a href="verify.mzQuantML.html">verify.mzQuantML</a></td>
+<td>Verify an mzQuantML file</td></tr>
+</table>
+
+<h2><a name="W">-- W --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">withWave</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">withWave-method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">withWave&lt;-</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="findChromPeaks-massifquant.html">withWave&lt;--method</a></td>
+<td>Chromatographic peak detection using the massifquant method</td></tr>
+<tr><td style="width: 25%;"><a href="write.cdf-methods.html">write.cdf</a></td>
+<td>Save an xcmsRaw object to file</td></tr>
+<tr><td style="width: 25%;"><a href="write.cdf-methods.html">write.cdf-method</a></td>
+<td>Save an xcmsRaw object to file</td></tr>
+<tr><td style="width: 25%;"><a href="write.mzdata-methods.html">write.mzdata</a></td>
+<td>Save an xcmsRaw object to a file</td></tr>
+<tr><td style="width: 25%;"><a href="write.mzdata-methods.html">write.mzdata-method</a></td>
+<td>Save an xcmsRaw object to a file</td></tr>
+<tr><td style="width: 25%;"><a href="write.mzQuantML.html">write.mzQuantML</a></td>
+<td>Save an xcmsSet object to an PSI mzQuantML file</td></tr>
+<tr><td style="width: 25%;"><a href="write.mzQuantML.html">write.mzQuantML-method</a></td>
+<td>Save an xcmsSet object to an PSI mzQuantML file</td></tr>
+<tr><td style="width: 25%;"><a href="writeMzTab.html">writeMzTab</a></td>
+<td>Save a grouped xcmsSet object in mzTab-1.1 format file</td></tr>
+</table>
+
+<h2><a name="X">-- X --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="xcms-deprecated.html">xcms-deprecated</a></td>
+<td>Deprecated functions in package 'xcms'</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsEIC-class.html">xcmsEIC-class</a></td>
+<td>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFileSource-class.html">xcmsFileSource-class</a></td>
+<td>Base class for loading raw data from a file</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFragments.html">xcmsFragments</a></td>
+<td>Constructor for xcmsFragments objects which holds Tandem MS peaks</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFragments-class.html">xcmsFragments-class</a></td>
+<td>Class xcmsFragments, a class for handling Tandem MS and MS$^n$ data</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">XCMSnExp</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-class.html">XCMSnExp-class</a></td>
+<td>Data container storing xcms preprocessing results</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">XCMSnExp-filter</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsPapply.html">xcmsPapply</a></td>
+<td>_Deprecated_: xcmsPapply</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsPeaks-class.html">xcmsPeaks-class</a></td>
+<td>A matrix of peaks</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw.html">xcmsRaw</a></td>
+<td>Constructor for xcmsRaw objects which reads NetCDF/mzXML files</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsRaw-class.html">xcmsRaw-class</a></td>
+<td>Class xcmsRaw, a class for handling raw data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet.html">xcmsSet</a></td>
+<td>Constructor for xcmsSet objects which finds peaks in NetCDF/mzXML files</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">xcmsSet-class</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSource-methods.html">xcmsSource</a></td>
+<td>Create an 'xcmsSource' object in a flexible way</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSource-class.html">xcmsSource-class</a></td>
+<td>Virtual class for raw data sources</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsFileSource-class.html">xcmsSource-method</a></td>
+<td>Base class for loading raw data from a file</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSource-methods.html">xcmsSource-method</a></td>
+<td>Create an 'xcmsSource' object in a flexible way</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSource-methods.html">xcmsSource-methods</a></td>
+<td>Create an 'xcmsSource' object in a flexible way</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">XProcessHistory</a></td>
+<td>Tracking data processing</td></tr>
+<tr><td style="width: 25%;"><a href="ProcessHistory-class.html">XProcessHistory-class</a></td>
+<td>Tracking data processing</td></tr>
+</table>
+
+<h2><a name="misc">-- misc --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">$-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">$&lt;--method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">[-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+<tr><td style="width: 25%;"><a href="sub-xcmsRaw-logicalOrNumeric-missing-missing-method.html">[-method</a></td>
+<td>Subset an xcmsRaw object by scans</td></tr>
+<tr><td style="width: 25%;"><a href="xcmsSet-class.html">[-method</a></td>
+<td>Class xcmsSet, a class for preprocessing peak data</td></tr>
+<tr><td style="width: 25%;"><a href="XCMSnExp-filter-methods.html">[[-method</a></td>
+<td>XCMSnExp filtering and subsetting</td></tr>
+</table>
+</body></html>

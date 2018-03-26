@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extracts precursor-specific spectra from an 'MSnExp' object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for extractPrecSpectra-methods {MSnbase}"><tr><td>extractPrecSpectra-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Extracts precursor-specific spectra from an 'MSnExp' object </h2>
+
+<h3>Description</h3>
+
+<p>Extracts the MSMS spectra that originate from the precursor(s) having
+the same MZ value as defined in the<code>prec</code> argument.
+</p>
+<p>A warning will be issued of one or several of the precursor MZ values
+in <code>prec</code> are absent in the experiment precursor MZ values (i.e
+in <code>precursorMz(object)</code>).
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "MSnExp", prec = "numeric")</code></dt><dd>
+<p>Returns an <code>"<a href="MSnExp-class.html">MSnExp</a>"</code> containing MSMS spectra
+whose precursor MZ values are in <code>prec</code>. 
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+file &lt;- dir(system.file(package="MSnbase",dir="extdata"),
+            full.name=TRUE,pattern="mzXML$")
+aa &lt;- readMSData(file,verbose=FALSE)
+my.prec &lt;- precursorMz(aa)[1]
+my.prec
+bb &lt;- extractPrecSpectra(aa,my.prec)
+precursorMz(bb)
+processingData(bb)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

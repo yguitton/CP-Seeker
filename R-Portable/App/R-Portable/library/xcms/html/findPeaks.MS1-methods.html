@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Collecting MS1 precursor peaks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findPeaks.MS1-methods {xcms}"><tr><td>findPeaks.MS1-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Collecting MS1 precursor peaks</h2>
+
+<h3>Description</h3>
+
+<p>Collecting Tandem MS or MS$^n$ Mass Spectrometry
+precursor peaks as annotated in XML raw file</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><code>xcmsRaw</code> object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Some mass spectrometers can acquire MS1 and MS2 (or MS$^n$ scans)
+quasi simultaneously, e.g. in data dependent tandem MS or DDIT mode.
+</p>
+<p>Since xcmsFragments attaches <em>all</em> MS$^n$ peaks to MS1 peaks in xcmsSet,
+it is important that findPeaks and xcmsSet do not miss any MS1 precursor peak.
+</p>
+<p>To be sure that all MS1 precursor peaks are in an xcmsSet,
+findPeaks.MS1 does not do an actual peak picking, but simply uses the
+annotation stored in mzXML, mzData or mzML raw files.
+</p>
+<p>This relies on the following XML tags:
+</p>
+<p>mzData:
+<code>
+  &lt;spectrum id="463"&gt;
+        &lt;spectrumInstrument msLevel="2"&gt;
+	  &lt;cvParam cvLabel="psi" accession="PSI:1000039" name="TimeInSeconds" value="92.7743"/&gt;
+        &lt;/spectrumInstrument&gt;
+        &lt;precursor msLevel="1" spectrumRef="461"&gt;
+            &lt;cvParam cvLabel="psi" accession="PSI:1000040" name="MassToChargeRatio" value="462.091"/&gt;
+            &lt;cvParam cvLabel="psi" accession="PSI:1000042" name="Intensity" value="366.674"/&gt;
+        &lt;/precursor&gt;
+  &lt;/spectrum&gt;
+</code>
+</p>
+<p>mzXML:
+<code>
+     &lt;scan num="17" msLevel="2" retentionTime="PT1.5224S"&gt;
+     &lt;precursorMz precursorIntensity="125245"&gt;220.1828003&lt;/precursorMz&gt;
+     &lt;/scan&gt;
+   </code>
+</p>
+<p>Several mzXML and mzData converters are known to create incomplete
+files, either without intensities (they will be set to 0) or without
+the precursor retention time (then a reasonably close rt will be
+chosen. NYI).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>mz, mzmin, mzmax</code></td>
+<td>
+
+<p>annotated MS1 precursor selection mass
+</p>
+</td></tr>
+<tr valign="top"><td><code>rt, rtmin, rtmax</code></td>
+<td>
+
+<p>annotated MS1 precursor retention time
+</p>
+</td></tr>
+<tr valign="top"><td><code>into, maxo, sn</code></td>
+<td>
+
+<p>annotated MS1 precursor intensity
+</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>
+    findPeaks.MS1(object)
+    </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Steffen Neumann, <a href="mailto:sneumann@ipb-halle.de">sneumann@ipb-halle.de</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="findPeaks-methods.html">findPeaks-methods</a></code>
+<code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

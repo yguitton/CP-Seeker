@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return a variable name</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getVariableName {MSnbase}"><tr><td>getVariableName {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return a variable name</h2>
+
+<h3>Description</h3>
+
+<p>Return the name of variable <code>varname</code> in call <code>match_call</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getVariableName(match_call, varname)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>match_call</code></td>
+<td>
+<p>An object of class <code>call</code>, as returned by <code>match.call</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>varname</code></td>
+<td>
+<p>An <code>character</code> of length 1 which is looked up in <code>match_call</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>character</code> with the name of the variable passed as parameter
+<code>varname</code> in parent close of <code>match_call</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- 1
+f &lt;- function(x, y)
+ MSnbase:::getVariableName(match.call(), "x")
+f(x = a)
+f(y = a)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

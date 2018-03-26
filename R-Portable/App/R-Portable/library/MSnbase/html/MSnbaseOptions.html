@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: MSnbase options</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for MSnbaseOptions {MSnbase}"><tr><td>MSnbaseOptions {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>MSnbase options</h2>
+
+<h3>Description</h3>
+
+<p>MSnbase defined a few options globally using the standard R
+options mechanism. The current values of these options can be
+queried with <code>MSnbaseOptions</code>. The options are:
+</p>
+
+<ul>
+<li> <p><code>verbose</code>: defines a session-wide verbosity flag, that
+is used if the <code>verbose</code> argument in individual functions is
+not set.
+</p>
+</li>
+<li> <p><code>PARALLEL_THRESH</code>: defines the minimum number of spectra per file
+necessary before using parallel processing.
+</p>
+</li>
+<li> <p><code>fastLoad</code>: <code>logical(1)</code>. If <code>TRUE</code> performs faster data loading for all
+methods of <a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a> that load data from the original files (such as
+<code><a href="pSet-class.html">spectrapply()</a></code>). Users experiencing data I/O errors (observed mostly
+on macOS systems) should set this option to <code>FALSE</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+MSnbaseOptions()
+
+isMSnbaseVerbose()
+
+setMSnbaseVerbose(opt)
+
+setMSnbaseParallelThresh(opt = 1000)
+
+setMSnbaseFastLoad(opt = TRUE)
+
+isMSnbaseFastLoad()
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>opt</code></td>
+<td>
+<p>The value of the new option</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>isMSnbaseVerbose</code> is one wrapper for the verbosity flag,
+also available through <code>options("MSnbase")$verbose</code>.
+</p>
+<p>There are also setters to set options individually. When run
+without argument, the verbosity setter inverts the current value
+of the option.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>list</code> of MSnbase options and the single option
+values for the individual accessors.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read an 'mzTab' file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readMzTabData_v0.9 {MSnbase}"><tr><td>readMzTabData_v0.9 {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read an 'mzTab' file</h2>
+
+<h3>Description</h3>
+
+<p>This function can be used to create a <code>"<a href="MSnSet-class.html">MSnSet</a>"</code>
+by reading and parsing an <code>mzTab</code> file. The metadata section
+is always used to populate the <code>MSnSet</code>'s <code>experimentData</code>
+slot.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readMzTabData_v0.9(file, what = c("PRT", "PEP"),
+  verbose = isMSnbaseVerbose())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A <code>character</code> with the <code>mzTab</code> file to
+be read in.</p>
+</td></tr>
+<tr valign="top"><td><code>what</code></td>
+<td>
+<p>One of <code>"PRT"</code> or <code>"PEP"</code>, defining
+which of protein of peptide section should be parse. The metadata
+section, when available, is always used to populate the
+<code>experimentData</code> slot.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>Produce verbose output.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An instance of class <code>MSnSet</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="defunct.html">writeMzTabData</a></code> to save an
+<code>"<a href="MSnSet-class.html">MSnSet</a>"</code> as an <code>mzTab</code> file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+testfile &lt;- "https://raw.githubusercontent.com/HUPO-PSI/mzTab/master/legacy/jmztab-1.0/examples/mztab_itraq_example.txt"
+prot &lt;- readMzTabData_v0.9(testfile, "PRT")
+prot
+pep &lt;- readMzTabData_v0.9(testfile, "PEP")
+pep
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

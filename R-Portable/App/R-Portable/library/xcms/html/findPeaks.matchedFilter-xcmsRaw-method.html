@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Peak detection in the chromatographic time domain</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findPeaks.matchedFilter,xcmsRaw-method {xcms}"><tr><td>findPeaks.matchedFilter,xcmsRaw-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Peak detection in the chromatographic time domain</h2>
+
+<h3>Description</h3>
+
+<p>Find peaks in the chromatographic time domain of the
+profile matrix. For more details see
+<code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'xcmsRaw'
+findPeaks.matchedFilter(object, fwhm = 30,
+  sigma = fwhm/2.3548, max = 5, snthresh = 10, step = 0.1, steps = 2,
+  mzdiff = 0.8 - step * steps, index = FALSE, sleep = 0,
+  scanrange = numeric())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>The <code><a href="xcmsRaw-class.html">xcmsRaw</a></code> object on which peak detection
+should be performed.</p>
+</td></tr>
+<tr valign="top"><td><code>fwhm</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the full width at half maximum
+of matched filtration gaussian model peak. Only used to calculate the
+actual sigma, see below.</p>
+</td></tr>
+<tr valign="top"><td><code>sigma</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the standard deviation (width)
+of the matched filtration model peak.</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p><code>numeric(1)</code> representing the maximum number of peaks
+that are expected/will be identified per slice.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise cutoff
+to be used in the chromatographic peak detection step.</p>
+</td></tr>
+<tr valign="top"><td><code>step</code></td>
+<td>
+<p>numeric(1) specifying the width of the bins/slices in m/z
+dimension.</p>
+</td></tr>
+<tr valign="top"><td><code>steps</code></td>
+<td>
+<p><code>numeric(1)</code> defining the number of bins to be
+merged before filtration (i.e. the number of neighboring bins that will
+be joined to the slice in which filtration and peak detection will be
+performed).</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> defining the minimum difference
+in m/z for peaks with overlapping retention times</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p><code>logical(1)</code> specifying whether indicies should be
+returned instead of values for m/z and retention times.</p>
+</td></tr>
+<tr valign="top"><td><code>sleep</code></td>
+<td>
+<p>(DEPRECATED). The use of this parameter is highly discouraged,
+as it could cause problems in parallel processing mode.</p>
+</td></tr>
+<tr valign="top"><td><code>scanrange</code></td>
+<td>
+<p>Numeric vector defining the range of scans to which the
+original <code>object</code> should be sub-setted before peak detection.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A matrix, each row representing an intentified chromatographic peak,
+with columns:
+</p>
+
+<dl>
+<dt>mz</dt><dd><p>Intensity weighted mean of m/z values of the peak across
+scans.</p>
+</dd>
+<dt>mzmin</dt><dd><p>Minimum m/z of the peak.</p>
+</dd>
+<dt>mzmax</dt><dd><p>Maximum m/z of the peak.</p>
+</dd>
+<dt>rt</dt><dd><p>Retention time of the peak's midpoint.</p>
+</dd>
+<dt>rtmin</dt><dd><p>Minimum retention time of the peak.</p>
+</dd>
+<dt>rtmax</dt><dd><p>Maximum retention time of the peak.</p>
+</dd>
+<dt>into</dt><dd><p>Integrated (original) intensity of the peak.</p>
+</dd>
+<dt>intf</dt><dd><p>Integrated intensity of the filtered peak.</p>
+</dd>
+<dt>maxo</dt><dd><p>Maximum intensity of the peak.</p>
+</dd>
+<dt>maxf</dt><dd><p>Maximum intensity of the filtered peak.</p>
+</dd>
+<dt>i</dt><dd><p>Rank of peak in merged EIC (<code>&lt;= max</code>).</p>
+</dd>
+<dt>sn</dt><dd><p>Signal to noise ratio of the peak.</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith
+</p>
+
+
+<h3>References</h3>
+
+<p>Colin A. Smith, Elizabeth J. Want, Grace O'Maille, Ruben Abagyan and
+Gary Siuzdak. &quot;XCMS: Processing Mass Spectrometry Data for Metabolite
+Profiling Using Nonlinear Peak Alignment, Matching, and Identification&quot;
+<em>Anal. Chem.</em> 2006, 78:779-787.
+@family Old peak detection methods
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="findChromPeaks-matchedFilter.html">matchedFilter</a></code> for the new user interface.
+<code><a href="xcmsRaw-class.html">xcmsRaw</a></code>,
+<code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code> for the core function
+performing the peak detection.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

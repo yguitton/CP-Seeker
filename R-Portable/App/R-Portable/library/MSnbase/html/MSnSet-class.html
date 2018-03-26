@@ -1,0 +1,523 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The &quot;MSnSet&quot; Class for MS Proteomics Expression Data and...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for MSnSet-class {MSnbase}"><tr><td>MSnSet-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+The &quot;MSnSet&quot; Class for MS Proteomics Expression Data and Meta-Data
+</h2>
+
+<h3>Description</h3>
+
+<p>The <code>MSnSet</code> holds quantified expression data for MS proteomics
+data and the experimental meta-data.
+The <code>MSnSet</code> class is derived from the
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code> class and mimics the
+<code>"<a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a>"</code> class classically used for
+microarray data.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>The constructor <code>MSnSet(exprs, fData, pData)</code> can be used to
+create <code>MSnSet</code> instances. Argument <code>exprs</code> is a
+<code>matrix</code> and <code>fData</code> and <code>pData</code> must be of clas
+<code>data.frame</code> or <code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> and all
+must meet the dimensions and name validity constrains.
+</p>
+<p>Objects can also be created by calls of the form <code>new("MSnSet",
+  exprs, ...)</code>.  See also <code>"<a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a>"</code> for
+helpful information.  Expression data produced from other softwares
+can thus make use of this standardized data container to benefit
+<code>R</code> and <code>Bioconductor</code> packages. Importer functions will be
+developed to stream-line the generation of <code>"MSnSet"</code> instances
+from third-party software.
+</p>
+<p>A coercion method is also available to transform an <code>IBSpectra</code>
+object (names <code>x</code>) from the <code>isobar</code> package into an
+<code>MSnSet</code>: <code>as(x, "MSnSet")</code>.
+</p>
+<p>In the frame of the <code>MSnbase</code> package, <code>MSnSet</code> instances
+can be generated from <code>"<a href="MSnExp-class.html">MSnExp</a>"</code> experiments using
+the <code><a href="quantify-methods.html">quantify</a></code> method).
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>qual</code>:</dt><dd><p>Object of class <code>"data.frame"</code> that records
+peaks data for each of the reporter ions to be used as quality
+metrics. </p>
+</dd>
+<dt><code>processingData</code>:</dt><dd><p>Object of class
+<code>"<a href="MSnProcess-class.html">MSnProcess</a>"</code> that records all processing. </p>
+</dd>
+<dt><code>assayData</code>:</dt><dd><p>Object of class <code>"assayData"</code>
+containing a matrix with equal with column number equal to
+<code>nrow(phenoData)</code>. <code>assayData</code> must contain a matrix
+<code>exprs</code> with rows represening features (e.g., reporters ions)
+and columns representing samples. See the <code>"<a href="../../Biobase/html/class.AssayData.html">AssayData</a>"</code>
+class, <code><a href="../../Biobase/html/exprs.html">exprs</a></code> and <code><a href="../../Biobase/html/assayData.html">assayData</a></code> accessor
+for more details. This slot in indirectly inherited from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>. </p>
+</dd>
+<dt><code>phenoData</code>:</dt><dd><p>Object of class <code>"AnnotatedDataFrame"</code>
+containing experimenter-supplied variables describing sample (i.e
+the individual tags for an labelled MS experiment) (indireclty
+inherited from  <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See
+<code><a href="../../Biobase/html/phenoData.html">phenoData</a></code> and the <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>
+class for more details. </p>
+</dd>
+<dt><code>featureData</code>:</dt><dd><p>Object of class
+<code>"AnnotatedDataFrame"</code> containing variables describing
+features (spectra in our case), e.g. identificaiton data, peptide
+sequence, identification score,... (inherited indirectly from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See
+<code><a href="../../Biobase/html/featureData.html">featureData</a></code> and the <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>
+class for more details. </p>
+</dd>
+<dt><code>experimentData</code>:</dt><dd><p>Object of class
+<code>"<a href="MIAPE-class.html">MIAPE</a>"</code>, containing details of experimental
+methods (inherited from <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See
+<code><a href="../../Biobase/html/abstract.html">experimentData</a></code> and the <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>
+class for more details. </p>
+</dd>
+<dt><code>annotation</code>:</dt><dd><p> not used here. </p>
+</dd>
+<dt><code>protocolData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing
+equipment-generated variables (inherited indirectly from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See
+<code><a href="../../Biobase/html/protocolData.html">protocolData</a></code> and the <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>
+class for more details. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.Versions.html">Versions</a>"</code> describing the versions of R,
+the Biobase package, <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>,
+<code>"<a href="pSet-class.html">pSet</a>"</code> and <code>MSnSet</code> of the
+current instance. Intended for developer use and debugging (inherited
+indirectly from <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). </p>
+</dd>
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>, directly.
+Class <code>"<a href="../../Biobase/html/class.VersionedBiobase.html">VersionedBiobase</a>"</code>, by class &quot;eSet&quot;, distance 2.
+Class <code>"<a href="../../Biobase/html/class.Versioned.html">Versioned</a>"</code>, by class &quot;eSet&quot;, distance 3.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>MSnSet specific methods or over-riding it's super-class are described
+below. See also more <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code> for
+inherited methods.
+</p>
+
+
+
+
+<dl>
+<dt>acquisitionNum</dt><dd>
+<p><code>acquisitionNum(signature(object = "MSnSet"))</code>: Returns the
+a numeric vector with acquisition number of each spectrum. The vector
+names are the corresponding spectrum names.
+The information is extracted from the object's <code>featureData</code> slot.
+</p>
+</dd>
+<dt>fromFile</dt><dd>    
+<p><code>fromFile(signature(object = "MSnSet"))</code>: get the index of
+the file (in <code>fileNames(object)</code>) from which the raw
+spectra from which the corresponding feature were originally
+read. The relevant information is extracted from the object's
+<code>featureData</code> slot.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>dim</dt><dd><p><code>signature(x = "MSnSet")</code>: Returns the dimensions of
+object's assay data, i.e the number of samples and the number of
+features. </p>
+</dd>
+<dt>fileNames</dt><dd><p><code>signature(object = "MSnSet")</code>: Access file
+names in the <code>processingData</code> slot. </p>
+</dd>
+<dt>msInfo</dt><dd><p><code>signature(object = "MSnSet")</code>: Prints the MIAPE-MS
+meta-data stored in the <code>experimentData</code> slot. </p>
+</dd>
+<dt>processingData</dt><dd><p><code>signature(object = "MSnSet")</code>: Access the
+<code>processingData</code> slot. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "MSnSet")</code>: Displays object
+content as text. </p>
+</dd>
+<dt>qual</dt><dd><p><code>signature(object = "MSnSet")</code>: Access the reporter
+ion peaks description. </p>
+</dd>
+<dt>purityCorrect</dt><dd><p><code>signature(object = "MSnSet", impurities =
+	"matrix")</code>: performs reporter ions purity correction. See
+<code><a href="purityCorrect-methods.html">purityCorrect</a></code> documentation for more details. </p>
+</dd>
+<dt>normalise</dt><dd><p><code>signature(object = "MSnSet")</code>: Performs
+<code>MSnSet</code> normalisation. See <code><a href="normalise-methods.html">normalise</a></code> for more
+details. </p>
+</dd>
+<dt>t</dt><dd><p><code>signature(x = "MSnSet")</code>: Returns a transposed
+<code>MSnSet</code> object where features are now aligned along columns
+and samples along rows and the <code>phenoData</code> and
+<code>featureData</code> slots have been swapped. The
+<code>protocolData</code> slot is always dropped. </p>
+</dd>
+<dt>as(,&quot;ExpressionSet&quot;)</dt><dd><p><code>signature(x = "MSnSet")</code>: Coerce
+object from <code>MSnSet</code> to
+<code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet-class</a></code>. The <code>experimentData</code> slot is
+converted to a <code>MIAME</code> instance. It is also possible to
+coerce an <code>ExpressionSet</code> to and <code>MSnSet</code>, in which case
+the <code>experimentData</code> slot is newly initialised. </p>
+</dd>
+<dt>as(,&quot;data.frame&quot;)</dt><dd><p><code>signature(x = "MSnSet")</code>: Coerce
+object from <code>MSnSet</code> to <code>data.frame</code>. The <code>MSnSet</code>
+is transposed and the <code>PhenoData</code> slot is appended.
+See also <code>ms2df</code> below.</p>
+</dd>
+</dl>
+
+<dl>
+<dt>write.exprs</dt><dd><p>signature(x = &quot;MSnSet&quot;)</p>
+</dd></dl>
+<p>Writes expression values
+to a tab-separated file (default is <code>tmp.txt</code>). The
+<code>fDataCols</code> parameter can be used to specify which
+<code>featureData</code> columns (as column names, column number or
+<code>logical</code>) to append on the right of the expression matrix.
+The following arguments are the same as <code>write.table</code>.
+</p>
+<dl>
+<dt>combine</dt><dd><p>signature(x = &quot;MSnSet&quot;, y = &quot;MSnSet&quot;, ...)</p>
+</dd></dl>
+<p> Combines
+2 or more <code>MSnSet</code> instances according to their feature names.
+Note that the <code>qual</code> slot and the processing information are
+silently dropped. 
+</p>
+<dl>
+<dt>topN</dt><dd><p>signature(object = &quot;MSnSet&quot;, groupBy, n = 3, fun, ..., verbose =
+isMSnbaseVerbose())</p>
+</dd></dl>
+
+<p>Selects the <code>n</code> most intense features (typically peptides or
+spectra) out of all available for each set defined by
+<code>groupBy</code> (typically proteins) and creates a new instance of
+class <code>MSnSet</code>. If less than <code>n</code> features are available,
+all are selected. The <code>ncol(object)</code> features are summerised
+using <code>fun</code> (default is <code>sum</code>) prior to be ordered in
+decreasing order. Additional parameters can be passed to
+<code>fun</code> through <code>...</code>, for instance to control the
+behaviour of <code>topN</code> in case of <code>NA</code> values.
+(Works also with <code>matrix</code> instances.)
+</p>
+<p>See also the <code><a href="nQuants.html">nQuants</a></code> function to retrieve the
+actual number of retained peptides out of <code>n</code>.
+</p>
+<p>A complete use case using <code>topN</code> and <code>nQuants</code> is
+detailed in the <code>synapter</code> package vignette.
+
+</p>
+<dl>
+<dt>filterNA</dt><dd><p>signature(object = &quot;MSnSet&quot;, pNA = &quot;numeric&quot;,
+pattern = &quot;character&quot;, droplevels = &quot;logical&quot;)</p>
+</dd></dl>
+<p> This method
+subsets <code>object</code> by removing features that have (strictly)
+more than <code>pNA</code> percent of NA values. Default <code>pNA</code> is
+0, which removes any feature that exhibits missing data.
+The method can also be used with a character pattern composed of
+<code>0</code> or <code>1</code> characters only. A <code>0</code> represent a
+column/sample that is allowed a missing values, while
+columns/samples with and <code>1</code> must not have <code>NA</code>s.
+</p>
+<p>This method also accepts <code>matrix</code>
+instances. <code>droplevels</code> defines whether unused levels in the
+feature meta-data ought to be lost. Default is <code>TRUE</code>.
+See the <code>droplevels</code> method below.
+</p>
+<p>See also the <code><a href="plotNA-methods.html">is.na.MSnSet</a></code> and <code><a href="plotNA-methods.html">plotNA</a></code>
+methods for missing data exploration.
+
+</p>
+<dl>
+<dt>filterZero</dt><dd><p>signature(object = &quot;MSnSet&quot;, pNA = &quot;numeric&quot;,
+pattern = &quot;character&quot;, droplevels = &quot;logical&quot;)</p>
+</dd></dl>
+<p> As
+<code>filterNA</code>, but for zeros.
+    
+</p>
+<dl>
+<dt>log</dt><dd><p>signature(object = &quot;MSnSet&quot;, base = &quot;numeric&quot;)</p>
+</dd></dl>
+<p> Log
+transforms <code>exprs(object)</code> using
+<code>base::log</code>. <code>base</code> (defaults is <code>e='exp(1)'</code>) must
+be a positive or complex number, the base with respect to which
+logarithms are computed.
+
+</p>
+<dl>
+<dt>droplevels</dt><dd><p>signature(x = &quot;MSnSet&quot;, ...)</p>
+</dd></dl>
+<p>Drops the unused
+factor levels in the <code>featureData</code> slot. See
+<code><a href="../../base/html/droplevels.html">droplevels</a></code> for details.
+
+</p>
+<dl>
+<dt>exprsToRatios</dt><dd><p><code>signature(object = "MSnSet", log =
+	"logical")</code></p>
+</dd></dl>
+<p>calculates all possible ratios between
+<code>object</code>'s columns/samples.
+See <code><a href="exprsToRatios-methods.html">exprsToRatios</a></code> for more details.
+
+</p>
+<dl>
+<dt>impute</dt><dd><p><code>signature(object = "MSnSet", ...)</code></p>
+</dd></dl>
+
+<p>Performs data imputation on the <code>MSnSet</code> object.
+See <code><a href="impute-methods.html">impute</a></code> for more details.
+
+</p>
+<dl>
+<dt>trimws</dt><dd><p>signature(object = &quot;MSnSet&quot;, ...)</p>
+</dd></dl>
+<p>Trim leading and/or
+trailing white spaces in the feature data slot. Also available for
+<code>data.frame</code> objects. See <code>?base::<a href="../../base/html/trimws.html">trimws</a></code>
+for details.  
+</p>
+
+<p>Additional accessors for the experimental metadata
+(<code>experimentData</code> slot) are defined. See
+<code>"<a href="MIAPE-class.html">MIAPE</a>"</code> for details.
+</p>
+
+
+<h3>Plotting</h3>
+
+
+<dl>
+<dt>meanSdPlot</dt><dd><p><code>signature(object = "MSnSet")</code></p>
+</dd></dl>
+<p> Plots row
+standard deviations versus row means. See
+<code><a href="../../cellHTS2/html/cellHTS-class.html">meanSdPlot</a></code> (<code>vsn</code> package) for more details.
+
+</p>
+<dl>
+<dt>image</dt><dd><p><code>signature(x = "MSnSet", facetBy = "character",
+	sOrderBy = "character", legend = "character", low = "character",
+	high = "character", fnames = "logical", nmax =
+	"numeric")</code></p>
+</dd></dl>
+<p>Produces an heatmap of expression values in the
+<code>x</code> object. Simple horizontal facetting is enabled by
+passing a single character as <code>facetBy</code>. Arbitrary
+facetting can be performed manually by saving the return value
+of the method (see example below). Re-ordering of the samples is
+possible by providing the name of a phenotypic variable to
+<code>sOrderBy</code>. The title of the legend can be set with
+<code>legend</code> and the colours with the <code>low</code> and
+<code>high</code> arguments. If any negative value is detected in the
+data, the values are considered as log fold-changes and a
+divergent colour scale is used. Otherwise, a gradient from low
+to high is used. To scale the quantitative data in <code>x</code>
+prior to plotting, please see the <code>scale</code> method.
+</p>
+<p>When there are more than <code>nmax</code> (default is 50)
+features/rows, these are not printed. This behaviour can be
+controlled by setting <code>fnames</code> to <code>TRUE</code> (always
+print) or <code>FALSE</code> (never print). See examples below.
+</p>
+<p>The code is based on Vlad Petyuk's
+<code>vp.misc::image_msnset</code>. The previous version of this
+method is still available through the <code>image2</code> function.
+
+</p>
+<dl>
+<dt>plotNA</dt><dd><p><code>signature(object = "MSnSet", pNA =
+	"numeric")</code></p>
+</dd></dl>
+
+<p>Plots missing data for an <code>MSnSet</code> instance. <code>pNA</code> is a
+<code>numeric</code> of length 1 that specifies the percentage
+of accepted missing data values per features. This value will be
+highlighted with a point on the figure, illustrating the overall
+percentage of NA values in the full data set and the number of
+proteins retained. Default is 1/2. See also
+<code><a href="plotNA-methods.html">plotNA</a></code>.
+</p>
+<dl>
+<dt>MAplot</dt><dd><p><code>signature(object = "MSnSet", log.it = "logical",
+    	base = "numeric", ...)</code></p>
+</dd></dl>
+
+<p>Produces MA plots (Ratio as a function
+of average intensity) for the samples in <code>object</code>. If
+<code>ncol(object) == 2</code>, then one MA plot is produced using the
+<code><a href="../../affy/html/MAplot.html">ma.plot</a></code> function from the <code>affy</code> package. If
+<code>object</code> has more than 2 columns, then
+<code><a href="../../affy/html/mva.pairs.html">mva.pairs</a></code>. <code>log.it</code> specifies is the data
+should be log-transformed (default is <code>TRUE</code>) using
+<code>base</code>. Further <code>...</code> arguments will be passed to the
+respective functions.
+
+</p>
+<dl>
+<dt>addIdentificationData</dt><dd><p><code>signature(object = "MSnSet", ...)</code>:
+Adds identification data to a <code>MSnSet</code> instance.
+See <code><a href="addIdentificationData-methods.html">addIdentificationData</a></code> documentation for
+more details and examples. </p>
+</dd>
+<dt>removeNoId</dt><dd><p><code>signature(object = "MSnSet", fcol =
+	"pepseq", keep = NULL)</code>: Removes non-identified features. See
+<code><a href="removeNoId-methods.html">removeNoId</a></code> documentation for more details and
+examples. </p>
+</dd>
+<dt>removeMultipleAssignment</dt><dd><p><code>signature(object = "MSnSet",
+	fcol = "nprot")</code>: Removes protein groups (or feature belong to
+protein groups) with more than one member. The latter is defined
+by extracting a feature variable (default is
+<code>"nprot"</code>). Also removes non-identified features/ </p>
+</dd>
+<dt>idSummary</dt><dd><p><code>signature(object = "MSnSet", ...)</code>: Prints a
+summary that lists the percentage of identified features per file
+(called <code>coverage</code>). </p>
+</dd>
+</dl>
+
+
+
+<h3>Functions</h3>
+
+
+<dl>
+<dt>updateFvarLabels</dt><dd><p>signature(object, label, sep)</p>
+</dd></dl>
+
+<p>This function updates <code>object</code>'s featureData variable labels
+by appending <code>label</code>. By default, <code>label</code> is the
+variable name and the separator <code>sep</code> is <code>.</code>.
+</p>
+<dl>
+<dt>updateSampleNames</dt><dd><p>signature(object, label, sep)</p>
+</dd></dl>
+
+<p>This function updates <code>object</code>'s sample names by appending
+<code>label</code>. By default, <code>label</code> is the variable name and
+the separator <code>sep</code> is <code>.</code>.
+</p>
+<dl>
+<dt>updateFeatureNames</dt><dd><p>signature(object, label, sep)</p>
+</dd></dl>
+
+<p>This function updates <code>object</code>'s feature names by appending
+<code>label</code>. By default, <code>label</code> is the variable name and
+the separator <code>sep</code> is <code>.</code>.
+</p>
+<dl>
+<dt>ms2df</dt><dd><p>signature(x, fcols)</p>
+</dd></dl>
+<p>Coerces the <code>MSnSet</code> instance
+to a <code>data.frame</code>. The direction of the data is retained and
+the feature variable labels that match <code>fcol</code> are appended to
+the expression values. See also <code>as(x, "data.frame")</code> above.
+
+
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>, <code>"<a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a>"</code> and
+<code><a href="quantify-methods.html">quantify</a></code>. <code>MSnSet</code> quantitation values and
+annotation can be exported to a file with
+<code><a href="write.exprs.html">write.exprs</a></code>. See <code><a href="readMSnSet.html">readMSnSet</a></code> to
+create and <code>MSnSet</code> using data available in a spreadsheet or
+<code>data.frame</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(msnset)
+msnset &lt;- msnset[10:15]
+
+exprs(msnset)[1, c(1, 4)] &lt;- NA
+exprs(msnset)[2, c(1, 2)] &lt;- NA
+is.na(msnset)
+featureNames(filterNA(msnset, pNA = 1/4))
+featureNames(filterNA(msnset, pattern = "0110"))
+
+M &lt;- matrix(rnorm(12), 4)
+pd &lt;- data.frame(otherpdata = letters[1:3])
+fd &lt;- data.frame(otherfdata = letters[1:4])
+x0 &lt;- MSnSet(M, fd, pd)
+sampleNames(x0)
+
+M &lt;- matrix(rnorm(12), 4)
+colnames(M) &lt;- LETTERS[1:3]
+rownames(M) &lt;- paste0("id", LETTERS[1:4])
+pd &lt;- data.frame(otherpdata = letters[1:3])
+rownames(pd) &lt;- colnames(M)
+fd &lt;- data.frame(otherfdata = letters[1:4])
+rownames(fd) &lt;- rownames(M)
+x &lt;- MSnSet(M, fd, pd)
+sampleNames(x)
+
+
+## Visualisation
+
+library("pRolocdata")
+data(dunkley2006)
+image(dunkley2006)
+## Changing colours
+image(dunkley2006, high = "darkgreen")
+image(dunkley2006, high = "darkgreen", low = "yellow")
+## Forcing feature names
+image(dunkley2006, fnames = TRUE)
+## Facetting
+image(dunkley2006, facetBy = "replicate")
+p &lt;- image(dunkley2006)
+library("ggplot2") ## for facet_grid
+p + facet_grid(replicate ~ membrane.prep, scales = 'free', space = 'free')
+p + facet_grid(markers ~ replicate)
+## Fold-changes
+dd &lt;- dunkley2006
+exprs(dd) &lt;- exprs(dd) - 0.25
+image(dd)
+image(dd, low = "green", high = "red")
+## Feature names are displayed by default for smaller data
+dunkley2006 &lt;- dunkley2006[1:25, ]
+image(dunkley2006)
+image(dunkley2006, legend = "hello")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

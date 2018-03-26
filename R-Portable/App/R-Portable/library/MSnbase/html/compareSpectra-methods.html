@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compare Spectra of an 'MSnExp' or 'Spectrum' instances</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for compareSpectra-methods {MSnbase}"><tr><td>compareSpectra-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Compare Spectra of an 'MSnExp' or 'Spectrum' instances </h2>
+
+<h3>Description</h3>
+
+<p>This method compares spectra (<code>Spectrum</code> instances) pairwise
+or all spectra of an experiment (<code>MSnExp</code> instances). Currently
+the comparison is based on the number of common peaks <code>fun = "common"</code>,
+the Pearson correlation <code>fun = "cor"</code>, the dot product
+<code>fun = "dotproduct"</code> or a user-defined function.
+</p>
+<p>For <code>fun = "common"</code> the <code>tolerance</code> (default <code>25e-6</code>)
+can be set and the tolerance can be defined to be relative (default
+<code>relative = TRUE</code>) or absolute (<code>relative = FALSE</code>). To
+compare spectra with <code>fun = "cor"</code> and <code>fun = "dotproduct"</code>,
+the spectra need to be binned. The <code>binSize</code> argument (in Dalton)
+controls the binning precision. Please see <code><a href="bin-methods.html">bin</a></code> for
+details.
+</p>
+<p>Instead of these three predefined functions for <code>fun</code> a
+user-defined comparison function can be supplied. This function takes
+two <code><a href="Spectrum-class.html">Spectrum</a></code> objects as the first two arguments
+and <code>...</code> as third argument. The function must return a single
+<code>numeric</code> value. See the example section.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object1 = "MSnExp", object2 = "missing", fun =
+	"character", ...)</code></dt><dd><p>Compares all spectra in an <code>MSnExp</code>
+object. The <code>...</code> arguments are passed to the internal
+functions. Returns a <code>matrix</code> of dimension
+<code>length(object1)</code> by <code>length(object1)</code>. </p>
+</dd>
+<dt><code>signature(object1 = "Spectrum", object2 = "Spectrum", fun =
+	"character", ...)</code></dt><dd><p> Compares two <code>Spectrum</code> objects. See the
+above explanation for <code>fun</code> and <code>...</code>. Returns a single
+<code>numeric</code> value. </p>
+</dd>
+</dl>
+ 
+
+
+<h3>Author(s)</h3>
+
+<p>Sebastian Gibb &lt;mail@sebastiangibb.de&gt;
+</p>
+
+
+<h3>References</h3>
+
+<p>Stein, S. E., &amp; Scott, D. R. (1994).
+Optimization and testing of mass spectral library search algorithms for
+compound identification.
+Journal of the American Society for Mass Spectrometry, 5(9), 859-866.
+doi: http://dx.doi.org/10.1016/1044-0305(94)87009-8
+</p>
+<p>Lam, H., Deutsch, E. W., Eddes, J. S., Eng, J. K., King, N., Stein, S. E.
+and Aebersold, R. (2007)
+Development and validation of a spectral library searching method for peptide
+identification from MS/MS.
+Proteomics, 7: 655-667.
+doi: http://dx.doi.org/10.1002/pmic.200600625
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="bin-methods.html">bin</a></code>, <code><a href="clean-methods.html">clean</a></code>, <code><a href="pickPeaks-method.html">pickPeaks</a></code>,
+<code><a href="smooth-methods.html">smooth</a></code>, <code><a href="removePeaks-methods.html">removePeaks</a></code> and <code><a href="trimMz-methods.html">trimMz</a></code>
+for other spectra processing methods.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+s1 &lt;- new("Spectrum2", mz=1:10, intensity=1:10)
+s2 &lt;- new("Spectrum2", mz=1:10, intensity=10:1)
+compareSpectra(s1, s2)
+compareSpectra(s1, s2, fun="cor", binSize=2)
+compareSpectra(s1, s2, fun="dotproduct")
+
+## define our own (useless) comparison function (it is just a basic example)
+equalLength &lt;- function(x, y, ...) {
+  return(peaksCount(x)/(peaksCount(y)+.Machine$double.eps))
+}
+compareSpectra(s1, s2, fun=equalLength)
+compareSpectra(s1, new("Spectrum2", mz=1:5, intensity=1:5), fun=equalLength)
+compareSpectra(s1, new("Spectrum2"), fun=equalLength)
+
+data(itraqdata)
+compareSpectra(itraqdata[1:5], fun="cor")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

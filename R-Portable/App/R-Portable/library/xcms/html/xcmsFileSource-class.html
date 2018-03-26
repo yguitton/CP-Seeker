@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Base class for loading raw data from a file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsFileSource-class {xcms}"><tr><td>xcmsFileSource-class {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Base class for loading raw data from a file</h2>
+
+<h3>Description</h3>
+
+<p>Data sources which read data from a file should inherit from this
+class. The <code>xcms</code> package provides classes to read from
+<code>netCDF</code>, <code>mzData</code>, <code>mzXML</code>, and <code>mzML</code> files
+using <code>xcmsFileSource</code>.
+</p>
+<p>This class should be considered virtual and will not work if passed to
+<code><a href="loadRaw-methods.html">loadRaw-methods</a></code>. The reason it is not explicitly
+virtual is that there does not appear to be a way for a class to be
+both virtual and have a data part (which lets functions treat objects
+as if they were character strings).
+</p>
+<p>This class validates that a file exists at the path given.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p><code>xcmsFileSource</code> objects should not be instantiated directly.
+Instead, create subclasses and instantiate those.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.Data</code>:</dt><dd><p>Object of class <code>"character"</code>. File path
+of a file from which to read raw data as the object's data part</p>
+</dd>
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="../../methods/html/BasicClasses.html">character</a>"</code>, from data part.
+Class <code>"<a href="xcmsSource-class.html">xcmsSource</a>"</code>, directly.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>xcmsSource</code></dt><dd>
+<p><code>signature(object = "character")</code>: Create an
+<code>xcmsFileSource</code> object referencing the given file name.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Daniel Hackney <a href="mailto:dan@haxney.org">dan@haxney.org</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSource-class.html">xcmsSource</a></code></p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

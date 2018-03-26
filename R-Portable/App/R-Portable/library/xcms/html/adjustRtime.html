@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Alignment: Retention time correction methods.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for adjustRtime {xcms}"><tr><td>adjustRtime {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Alignment: Retention time correction methods.</h2>
+
+<h3>Description</h3>
+
+<p>The <code>adjustRtime</code> method(s) perform retention time
+correction (alignment) between chromatograms of different samples. These
+methods are part of the modernized <code>xcms</code> user interface.
+</p>
+<p>The implemented retention time adjustment methods are:
+</p>
+
+<dl>
+<dt>peakGroups</dt><dd><p>retention time correction based on aligment of
+features (peak groups) present in most/all samples.
+See <code><a href="adjustRtime-peakGroups.html">adjustRtime-peakGroups</a></code> for more details.</p>
+</dd>
+<dt>obiwarp</dt><dd><p>alignment based on the complete mz-rt data. This method
+does not require any identified peaks or defined features. See
+<code><a href="adjustRtime-obiwarp.html">adjustRtime-obiwarp</a></code> for more details.</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="retcor-methods.html">retcor</a></code> for the <em>old</em> retention time correction 
+methods.
+<code><a href="plotAdjustedRtime.html">plotAdjustedRtime</a></code> for visualization of alignment results.
+</p>
+<p>Other retention time correction methods: <code><a href="adjustRtime-obiwarp.html">adjustRtime-obiwarp</a></code>,
+<code><a href="adjustRtime-peakGroups.html">adjustRtime-peakGroups</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

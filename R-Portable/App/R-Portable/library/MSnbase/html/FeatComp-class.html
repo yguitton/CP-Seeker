@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class '&quot;FeatComp&quot;'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for FeatComp-class {MSnbase}"><tr><td>FeatComp-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class <code>"FeatComp"</code></h2>
+
+<h3>Description</h3>
+
+<p>Comparing feature names of two comparable <code>MSnSet</code> instances.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created with <code>compfnames</code>. The method compares the
+feature names of two objects of class <code>"MSnSet"</code>. It prints a
+summary matrix of common and unique feature names and invisibly
+returns a list of <code>FeatComp</code> instances.
+</p>
+<p>The function will compute the common and unique features for all
+feature names of the two input objects (<code>featureNames(x)</code> and
+<code>feautreNames(y)</code>) as well as distinct subsets as defined in the
+<code>fcol1</code> and <code>fcol2</code> feautre variables.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>name</code>:</dt><dd><p>Object of class <code>"character"</code> defining the
+name of the compared features. By convention, <code>"all"</code> is used
+when all feature names are used; otherwise, the respective levels of
+the feature variables <code>fcol1</code> and <code>fcol2</code>. </p>
+</dd>
+<dt><code>common</code>:</dt><dd><p>Object of class <code>"character"</code> with the common
+feature names. </p>
+</dd>
+<dt><code>unique1</code>:</dt><dd><p>Object of class <code>"character"</code> with the
+features unique to the first <code>MSnSet</code> (<code>x</code> in
+<code>compfname</code>). </p>
+</dd>
+<dt><code>unique2</code>:</dt><dd><p>Object of class <code>"character"</code> with the
+features unique to the seconn <code>MSnSet</code> (<code>y</code> in
+<code>compfname</code>). </p>
+</dd>
+<dt><code>all</code>:</dt><dd><p>Object of class <code>"logical"</code> defining if all
+features of only a subset were compared. One expects that
+<code>name == "all"</code> when <code>all</code> is <code>TRUE</code>. </p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+<p>Accessors <code>names</code>, <code>common</code>, <code>unique1</code> and
+<code>unique2</code> can be used to access the respective <code>FeatComp</code>
+slots.
+</p>
+
+<dl>
+<dt>compfnames</dt><dd><p><code>signature(x = "MSnSet", y = "MSnSet", fcol1
+	= "character", fcol2 = "character", simplify = "logical",
+	verbose = "logical")</code>: creates the <code>FeatComp</code> comparison
+object for instances <code>x</code> and <code>y</code>. The feature
+variables to be considered to details feature comparison can be
+defined by <code>fcol1</code> (default is <code>"markers"</code> and
+<code>fcol2</code> for <code>x</code> and <code>y</code> respectively). Setting
+either to <code>NULL</code> will only consider all feature names; in
+such case, of <code>simplify</code> is <code>TRUE</code> (default), an
+<code>FeatComp</code> object is returned instead of a list of length
+1. The <code>verbose</code> logical controls if a summary table needs
+to be printed (default is <code>TRUE</code>). </p>
+</dd>
+<dt>compfnames</dt><dd><p><code>signature(x = "list", y = "missing", ...)</code>:
+when <code>x</code> is a list of <code>MSnSet</code> instances,
+<code>compfnames</code> is applied to all element pairs of
+<code>x</code>. Additional parameters <code>fcol1</code>, <code>fcol2</code>,
+<code>simplify</code> and <code>verbose</code> are passed to the pairwise
+comparison method. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "FeatComp")</code>: prints a summary
+of the <code>object</code>. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt; and Thomas Naake
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="averageMSnSet.html">averageMSnSet</a></code> to compuate an average <code>MSnSet</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("pRolocdata")
+data(tan2009r1)
+data(tan2009r2)
+x &lt;- compfnames(tan2009r1, tan2009r2)
+x[[1]]
+x[2:3]
+head(common(x[[1]]))
+
+data(tan2009r3)
+tanl &lt;- list(tan2009r1, tan2009r2, tan2009r3)
+xx &lt;- compfnames(tanl, fcol1 = NULL)
+length(xx)
+tail(xx)
+
+all.equal(xx[[15]],
+          compfnames(tan2009r2, tan2009r3, fcol1 = NULL))
+str(sapply(xx, common))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

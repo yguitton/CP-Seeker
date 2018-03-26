@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Core API function for two-step centWave peak detection with...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_findChromPeaks_centWaveWithPredIsoROIs {xcms}"><tr><td>do_findChromPeaks_centWaveWithPredIsoROIs {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Core API function for two-step centWave peak detection with isotopes</h2>
+
+<h3>Description</h3>
+
+<p>The <code>do_findChromPeaks_centWaveWithPredIsoROIs</code> performs a
+two-step centWave based peak detection: chromatographic peaks are
+identified using centWave followed by a prediction of the location of
+the identified peaks' isotopes in the mz-retention time space. These
+locations are fed as <em>regions of interest</em> (ROIs) to a subsequent
+centWave run. All non overlapping peaks from these two peak detection
+runs are reported as the final list of identified peaks.
+</p>
+<p>The <code>do_findChromPeaks_centWaveAddPredIsoROIs</code> performs
+centWave based peak detection based in regions of interest (ROIs)
+representing predicted isotopes for the peaks submitted with argument
+<code>peaks.</code>. The function returns a matrix with the identified peaks
+consisting of all input peaks and peaks representing predicted isotopes
+of these (if found by the centWave algorithm).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_findChromPeaks_centWaveWithPredIsoROIs(mz, int, scantime, valsPerSpect,
+  ppm = 25, peakwidth = c(20, 50), snthresh = 10, prefilter = c(3, 100),
+  mzCenterFun = "wMean", integrate = 1, mzdiff = -0.001,
+  fitgauss = FALSE, noise = 0, verboseColumns = FALSE, roiList = list(),
+  firstBaselineCheck = TRUE, roiScales = NULL, snthreshIsoROIs = 6.25,
+  maxCharge = 3, maxIso = 5, mzIntervalExtension = TRUE,
+  polarity = "unknown")
+
+do_findChromPeaks_addPredIsoROIs(mz, int, scantime, valsPerSpect, ppm = 25,
+  peakwidth = c(20, 50), snthresh = 6.25, prefilter = c(3, 100),
+  mzCenterFun = "wMean", integrate = 1, mzdiff = -0.001,
+  fitgauss = FALSE, noise = 0, verboseColumns = FALSE, peaks. = NULL,
+  maxCharge = 3, maxIso = 5, mzIntervalExtension = TRUE,
+  polarity = "unknown")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>Numeric vector with the individual m/z values from all scans/
+spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>int</code></td>
+<td>
+<p>Numeric vector with the individual intensity values from all
+scans/spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>scantime</code></td>
+<td>
+<p>Numeric vector of length equal to the number of
+spectra/scans of the data representing the retention time of each scan.</p>
+</td></tr>
+<tr valign="top"><td><code>valsPerSpect</code></td>
+<td>
+<p>Numeric vector with the number of values for each
+spectrum.</p>
+</td></tr>
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal tolerated m/z deviation in
+consecutive scans in parts per million (ppm) for the initial ROI
+definition.</p>
+</td></tr>
+<tr valign="top"><td><code>peakwidth</code></td>
+<td>
+<p><code>numeric(2)</code> with the expected approximate
+peak width in chromatographic space. Given as a range (min, max)
+in seconds.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p>For <code>do_findChromPeaks_addPredIsoROIs</code>:
+numeric(1) defining the signal to noise threshold for the centWave
+algorithm. For <code>do_findChromPeaks_centWaveWithPredIsoROIs</code>:
+numeric(1) defining the signal to noise threshold for the initial
+(first) centWave run.</p>
+</td></tr>
+<tr valign="top"><td><code>prefilter</code></td>
+<td>
+<p><code>numeric(2)</code>: <code>c(k, I)</code> specifying the prefilter
+step for the first analysis step (ROI detection). Mass traces are only
+retained if they contain at least <code>k</code> peaks with intensity
+<code>&gt;= I</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mzCenterFun</code></td>
+<td>
+<p>Name of the function to calculate the m/z center of the
+chromatographic peak. Allowed are: <code>"wMean"</code>: intensity weighted
+mean of the peak's m/z values, <code>"mean"</code>: mean of the peak's m/z
+values, <code>"apex"</code>: use the m/z value at the peak apex,
+<code>"wMeanApex3"</code>: intensity weighted mean of the m/z value at the
+peak apex and the m/z values left and right of it and <code>"meanApex3"</code>:
+mean of the m/z value of the peak apex and the m/z values left and right
+of it.</p>
+</td></tr>
+<tr valign="top"><td><code>integrate</code></td>
+<td>
+<p>Integration method. For <code>integrate = 1</code> peak limits
+are found through descent on the mexican hat filtered data, for
+<code>integrate = 2</code> the descent is done on the real data. The latter
+method is more accurate but prone to noise, while the former is more
+robust, but less exact.</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> representing the minimum difference in m/z
+dimension for peaks with overlapping retention times; can be negatove to
+allow overlap.</p>
+</td></tr>
+<tr valign="top"><td><code>fitgauss</code></td>
+<td>
+<p><code>logical(1)</code> whether or not a Gaussian should be fitted
+to each peak.</p>
+</td></tr>
+<tr valign="top"><td><code>noise</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to set a minimum intensity required
+for centroids to be considered in the first analysis step (centroids with
+intensity <code>&lt; noise</code> are omitted from ROI detection).</p>
+</td></tr>
+<tr valign="top"><td><code>verboseColumns</code></td>
+<td>
+<p><code>logical(1)</code> whether additional peak meta data
+columns should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>roiList</code></td>
+<td>
+<p>An optional list of regions-of-interest (ROI) representing
+detected mass traces. If ROIs are submitted the first analysis step is
+omitted and chromatographic peak detection is performed on the submitted
+ROIs. Each ROI is expected to have the following elements specified:
+<code>scmin</code> (start scan index), <code>scmax</code> (end scan index),
+<code>mzmin</code> (minimum m/z), <code>mzmax</code> (maximum m/z), <code>length</code>
+(number of scans), <code>intensity</code> (summed intensity). Each ROI should
+be represented by a <code>list</code> of elements or a single row
+<code>data.frame</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>firstBaselineCheck</code></td>
+<td>
+<p><code>logical(1)</code>. If <code>TRUE</code> continuous
+data within regions of interest is checked to be above the first baseline.</p>
+</td></tr>
+<tr valign="top"><td><code>roiScales</code></td>
+<td>
+<p>Optional numeric vector with length equal to <code>roiList</code>
+defining the scale for each region of interest in <code>roiList</code> that
+should be used for the centWave-wavelets.</p>
+</td></tr>
+<tr valign="top"><td><code>snthreshIsoROIs</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio
+cutoff to be used in the second centWave run to identify peaks for
+predicted isotope ROIs.</p>
+</td></tr>
+<tr valign="top"><td><code>maxCharge</code></td>
+<td>
+<p><code>integer(1)</code> defining the maximal isotope charge.
+Isotopes will be defined for charges <code>1:maxCharge</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIso</code></td>
+<td>
+<p><code>integer(1)</code> defining the number of isotope peaks that
+should be predicted for each peak identified in the first centWave run.</p>
+</td></tr>
+<tr valign="top"><td><code>mzIntervalExtension</code></td>
+<td>
+<p><code>logical(1)</code> whether the mz range for the
+predicted isotope ROIs should be extended to increase detection of low
+intensity peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>polarity</code></td>
+<td>
+<p><code>character(1)</code> specifying the polarity of the data.
+Currently not used, but has to be <code>"positive"</code>, <code>"negative"</code> or
+<code>"unknown"</code> if provided.</p>
+</td></tr>
+<tr valign="top"><td><code>peaks.</code></td>
+<td>
+<p>A matrix or <code>xcmsPeaks</code> object such as one returned by
+a call to <code>link{do_findChromPeaks_centWave}</code> or
+<code>link{findPeaks.centWave}</code> (both with <code>verboseColumns = TRUE</code>)
+with the peaks for which isotopes should be predicted and used for an
+additional peak detectoin using the centWave method. Required columns
+are: <code>"mz"</code>, <code>"mzmin"</code>, <code>"mzmax"</code>, <code>"scmin"</code>,
+<code>"scmax"</code>, <code>"scale"</code> and <code>"into"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For more details on the centWave algorithm see
+<code><a href="findChromPeaks-centWave.html">centWave</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix, each row representing an identified chromatographic peak.
+All non-overlapping peaks identified in both centWave runs are reported.
+The matrix columns are:
+</p>
+
+<dl>
+<dt>mz</dt><dd><p>Intensity weighted mean of m/z values of the peaks across scans.</p>
+</dd>
+<dt>mzmin</dt><dd><p>Minimum m/z of the peaks.</p>
+</dd>
+<dt>mzmax</dt><dd><p>Maximum m/z of the peaks.</p>
+</dd>
+<dt>rt</dt><dd><p>Retention time of the peak's midpoint.</p>
+</dd>
+<dt>rtmin</dt><dd><p>Minimum retention time of the peak.</p>
+</dd>
+<dt>rtmax</dt><dd><p>Maximum retention time of the peak.</p>
+</dd>
+<dt>into</dt><dd><p>Integrated (original) intensity of the peak.</p>
+</dd>
+<dt>intb</dt><dd><p>Per-peak baseline corrected integrated peak intensity.</p>
+</dd>
+<dt>maxo</dt><dd><p>Maximum intensity of the peak.</p>
+</dd>
+<dt>sn</dt><dd><p>Signal to noise ratio, defined as <code>(maxo - baseline)/sd</code>,
+<code>sd</code> being the standard deviation of local chromatographic noise.</p>
+</dd>
+<dt>egauss</dt><dd><p>RMSE of Gaussian fit.</p>
+</dd>
+</dl>
+
+<p>Additional columns for <code>verboseColumns = TRUE</code>:
+</p>
+
+<dl>
+<dt>mu</dt><dd><p>Gaussian parameter mu.</p>
+</dd>
+<dt>sigma</dt><dd><p>Gaussian parameter sigma.</p>
+</dd>
+<dt>h</dt><dd><p>Gaussian parameter h.</p>
+</dd>
+<dt>f</dt><dd><p>Region number of the m/z ROI where the peak was localized.</p>
+</dd>
+<dt>dppm</dt><dd><p>m/z deviation of mass trace across scans in ppm.</p>
+</dd>
+<dt>scale</dt><dd><p>Scale on which the peak was localized.</p>
+</dd>
+<dt>scpos</dt><dd><p>Peak position found by wavelet analysis (scan number).</p>
+</dd>
+<dt>scmin</dt><dd><p>Left peak limit found by wavelet analysis (scan number).</p>
+</dd>
+<dt>scmax</dt><dd><p>Right peak limit found by wavelet analysis (scan numer).</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Hendrik Treutler, Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other core peak detection functions: <code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code>,
+<code><a href="do_findChromPeaks_massifquant.html">do_findChromPeaks_massifquant</a></code>,
+<code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code>,
+<code><a href="do_findPeaks_MSW.html">do_findPeaks_MSW</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

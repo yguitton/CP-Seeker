@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combines features in an 'MSnSet' object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for combineFeatures {MSnbase}"><tr><td>combineFeatures {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Combines features in an <code>MSnSet</code> object </h2>
+
+<h3>Description</h3>
+
+<p>This function combines the features in an
+<code>"<a href="MSnSet-class.html">MSnSet</a>"</code> instance applying a summarisation
+function (see <code>fun</code> argument) to sets of features as
+defined by a factor (see <code>groupBy</code> argument).
+Note that the feature names are automatically updated based on the
+<code>groupBy</code> parameter.
+</p>
+<p>The coefficient of variations are automatically computed and collated
+to the featureData slot. See <code>cv</code> and <code>cv.norm</code> arguments
+for details.
+</p>
+<p>NB: All the functions available as <code>fun</code> take a <code>na.rm</code>
+argument. This argument is <code>FALSE</code> by default. This will have as
+effect that <code>NA</code> get propagated at the higher level. It is
+generally advised to set <code>na.rm = TRUE</code>. See the example below.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+combineFeatures(object, groupBy, fun = c("mean", "median",
+"weighted.mean", "sum", "medpolish", "iPQF", "NTR"), redundancy.handler =
+c("unique", "multiple"), cv = TRUE, cv.norm = "sum", verbose =
+isMSnbaseVerbose(), ...)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p> An instance of class <code>"<a href="MSnSet-class.html">MSnSet</a>"</code>
+whose features will be summerised. </p>
+</td></tr>
+<tr valign="top"><td><code>groupBy</code></td>
+<td>
+<p> A <code>factor</code>, <code>character</code>, <code>numeric</code> or a
+<code>list</code> of the above defining how to summerise the features. The
+list must be of length <code>nrow(object)</code>. Each element of the list
+is a vector describing the feature mapping. If the list can be
+named, its names must match <code>fetureNames(object)</code>. See
+<code>redundancy.handler</code> for details about the latter.</p>
+</td></tr>
+<tr valign="top"><td><code>fun</code></td>
+<td>
+<p> The summerising function. Currently, mean, median,
+weighted mean, sum, median polish, iPQF (see
+<code><a href="iPQF.html">iPQF</a></code> for details) and NTR (see <code><a href="NTR.html">NTR</a></code>
+for details) are implemented, but user-defined functions can also be
+supplied. </p>
+</td></tr>
+<tr valign="top"><td><code>redundancy.handler</code></td>
+<td>
+<p> If <code>groupBy</code> is a <code>list</code>, one of
+<code>"unique"</code> (default) or <code>"multiple"</code> (ignored otherwise)
+defining how to handle peptides that can be associated to multiple
+higher-level features (proteins) upon combination. Using
+<code>"unique"</code> will only consider uniquely matching features
+(features matching multiple proteins will be discarded).
+<code>"multiple"</code> will allow matching to multiple proteins and each
+feature will be repeatedly tallied for each possible matching
+protein. </p>
+</td></tr>
+<tr valign="top"><td><code>cv</code></td>
+<td>
+<p> A <code>logical</code> defining if feature coefficients of
+variation should be computed and stored as feature
+meta-data. Default is <code>TRUE</code>. </p>
+</td></tr>
+<tr valign="top"><td><code>cv.norm</code></td>
+<td>
+<p> A <code>character</code> defining how to normalise the
+feature intensitites prior to CV calculation. Default is
+<code>sum</code>. Use <code>none</code> to keep intensities as is. See
+<code><a href="featureCV.html">featureCV</a></code> for more details. </p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p> A <code>logical</code> indicating whether verbose output is
+to be printed out. </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> Additional arguments for the <code>fun</code> function. </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A new <code>"<a href="MSnSet-class.html">MSnSet</a>"</code> instance is returned with
+<code>ncol</code> (i.e. number of samples) is unchanged, but <code>nrow</code>
+(i.e. the number od features) is now equals to the number of levels in
+<code>groupBy</code>. The feature metadata (<code>featureData</code> slot) is
+updated accordingly and only the first occurrence of a feature in
+the original feature meta-data is kept.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>References</h3>
+
+<p>iPQF: a new peptide-to-protein summarization method using peptide
+spectra characteristics to improve protein quantification. Fischer M,
+Renard BY.  Bioinformatics. 2016 Apr
+1;32(7):1040-7. doi:10.1093/bioinformatics/btv675. Epub 2015 Nov
+20. PubMed PMID:26589272.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="featureCV.html">featureCV</a></code> to calculate coefficient of variation,
+<code><a href="nFeatures.html">nFeatures</a></code> to document the number of features per group
+in the feature data, and the <code><a href="aggvar.html">aggvar</a></code> to explore
+variability within protein groups.
+</p>
+<p><code><a href="iPQF.html">iPQF</a></code> for iPQF summarisation.
+</p>
+<p><code><a href="NTR.html">NTR</a></code> for normalisation to reference summarisation.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(msnset)
+msnset &lt;- msnset[11:15, ]
+exprs(msnset)
+
+## arbitrary grouping into two groups
+grp &lt;- as.factor(c(1, 1, 2, 2, 2))
+msnset.comb &lt;- combineFeatures(msnset, grp, "sum")
+dim(msnset.comb)
+exprs(msnset.comb)
+fvarLabels(msnset.comb)
+
+## grouping with a list
+grpl &lt;- list(c("A", "B"), "A", "A", "C", c("C", "B"))
+## optional naming
+names(grpl) &lt;- featureNames(msnset)
+exprs(combineFeatures(msnset, grpl, fun = "sum", redundancy.handler = "unique"))
+exprs(combineFeatures(msnset, grpl, fun = "sum", redundancy.handler = "multiple"))
+
+## missing data
+exprs(msnset)[4, 4] &lt;-
+    exprs(msnset)[2, 2] &lt;- NA
+exprs(msnset)
+## NAs propagate in the 115 and 117 channels
+exprs(combineFeatures(msnset, grp, "sum"))
+## NAs are removed before summing
+exprs(combineFeatures(msnset, grp, "sum", na.rm = TRUE))
+
+## using iPQF
+data(msnset2)
+res &lt;- combineFeatures(msnset2,
+                       groupBy = fData(msnset2)$accession,
+                       redundancy.handler = "unique",
+                       fun = "iPQF",
+                       low.support.filter = FALSE,
+                       ratio.calc = "sum",
+                       method.combine = FALSE)
+head(exprs(res))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

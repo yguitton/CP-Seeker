@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class 'MSmap'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for MSmap-class {MSnbase}"><tr><td>MSmap-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class <code>MSmap</code></h2>
+
+<h3>Description</h3>
+
+<p>A class to store mass spectrometry data maps, i.e intensities
+collected along the M/Z and retention time space during a mass
+spectrometry acquisition.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created with the <code>MSmap</code> constructor. The
+constructor has the following arguments:
+</p>
+
+<dl>
+<dt>object</dt><dd><p>An object created by <code>mzR::openMSfile</code>.</p>
+</dd>
+<dt>scans</dt><dd><p>A <code>numeric</code> indicating the scan indices to be
+extracted from <code>object</code> to create the MS map. If missing, all
+MS1 spectra will be used. </p>
+</dd>
+<dt>lowMz</dt><dd><p>A <code>numeric</code> of length 1 defining the lower bound
+of the M/Z range of the MS map. </p>
+</dd>
+<dt>highMz</dt><dd><p>A <code>numeric</code> of length 1 defining the upper bound
+of the M/Z range of the MS map. </p>
+</dd>
+<dt>resMz</dt><dd><p>The resolution along the M/Z range. </p>
+</dd>
+<dt>hd</dt><dd><p>An optional <code>data.frame</code> as produced by
+<code>mzR::header(object)</code>. If missing, will be computer within
+the function. </p>
+</dd>
+<dt>zeroIsNA</dt><dd><p>Set 0 intensities to <code>NA</code>. This can be used
+to clarify the 3 dimensional plot produce by <code>plot3D</code>.</p>
+</dd>
+</dl>
+
+
+
+<h3>Slots</h3>
+
+  
+
+<dl>
+<dt><code>call</code>:</dt><dd><p>Object of class <code>"call"</code> - the call used to
+generate the instance. </p>
+</dd>
+<dt><code>map</code>:</dt><dd><p>Object of class <code>"matrix"</code> containing the
+actual MS map. </p>
+</dd>
+<dt><code>mz</code>:</dt><dd><p>Object of class <code>"numeric"</code> with the M/Z
+sampling bins. </p>
+</dd>
+<dt><code>res</code>:</dt><dd><p>Object of class <code>"numeric"</code> storing the the M/Z
+resolution used to create the map. </p>
+</dd>
+<dt><code>rt</code>:</dt><dd><p>Object of class <code>"numeric"</code> with the
+retention times of the map spectra. </p>
+</dd>
+<dt><code>ms</code>:</dt><dd><p>Object of class <code>"numeric"</code> with the MS
+levels of the spectra. </p>
+</dd>    
+<dt><code>t</code>:</dt><dd><p>Object of class <code>"logical"</code> indicating if the
+instance has been transposed. </p>
+</dd>
+<dt><code>filename</code>:</dt><dd><p>Object of class <code>"character"</code>
+specifying the filename of the original raw MS data.  </p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>coerce</dt><dd><p><code>signature(from = "MSmap", to = "data.frame")</code>:
+convert the <code>MSmap</code> instance in a <code>data.frame</code>. Useful
+for plotting with <code>lattice</code> or <code>ggplot2</code>. </p>
+</dd>
+<dt>fileName</dt><dd><p><code>signature(object = "MSmap")</code>: returns the raw
+data filename. </p>
+</dd> 
+<dt>msLevel</dt><dd><p><code>signature(object = "MSmap")</code>: returns the MS
+level of the map spectra. </p>
+</dd>
+<dt>msMap</dt><dd><p><code>signature(object = "MSmap")</code>: returns the actual
+map <code>matrix</code>. </p>
+</dd>
+<dt>mz</dt><dd><p><code>signature(object = "MSmap", ...)</code>: returns the M/Z values
+of the map. Additional arguments are currently ignored. </p>
+</dd>
+<dt>rtime</dt><dd><p><code>signature(object = "MSmap", ...)</code>: returns retention
+time values of the map. Additional arguments are currently ignored.</p>
+</dd>	
+<dt>mzRes</dt><dd><p><code>signature(object = "MSmap")</code>: returns the
+resolution with which the sample along the M/Z range was done. </p>
+</dd>
+<dt>dim</dt><dd><p><code>signature(x = "MSmap")</code>: returns the dimensions of
+the map. <code>ncol</code> and <code>nrow</code> return the number of columns
+and rows respectively. </p>
+</dd>
+<dt>t</dt><dd><p><code>signature(x = "MSmap")</code>: transposes the map. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "MSmap")</code>: prints a summary of
+the map. </p>
+</dd>
+<dt>plot</dt><dd><p><code>signature(x = "MSmap", allTicks = "logical")</code>:
+produces an image of the map using <code>lattice::levelplot</code>. By
+default, <code>allTicks</code> is <code>TRUE</code> and all M/Z and retention
+times ticks of drawn. If set to <code>FALSE</code>, only 10 ticks in
+each dimension are plotted. </p>
+</dd>
+<dt>plot3D</dt><dd><p><code>signature(object = "MSmap", rgl = "logical")</code>:
+produces an three dimensional view of the map using
+<code>lattice::cloude(..., type = "h")</code>. If <code>rgl</code> is
+<code>TRUE</code>, the map is visualised on a <code>rgl</code> device and can
+be rotated with the mouse. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Not run: 
+    ## downloads the data
+    library("rpx")
+    px1 &lt;- PXDataset("PXD000001")
+    (i &lt;- grep("TMT.+mzML", pxfiles(px1), value = TRUE))
+    mzf &lt;- pxget(px1, i)
+
+    ## reads the data 
+    ms &lt;- openMSfile(mzf)
+    hd &lt;- header(ms)
+
+    ## a set of spectra of interest: MS1 spectra eluted
+    ## between 30 and 35 minutes retention time
+    ms1 &lt;- which(hd$msLevel == 1)
+    rtsel &lt;- hd$retentionTime[ms1] / 60 &gt; 30 &amp;
+        hd$retentionTime[ms1] / 60 &lt; 35
+
+    ## the map
+    M &lt;- MSmap(ms, ms1[rtsel], 521, 523, .005, hd)
+
+    plot(M, aspect = 1, allTicks = FALSE)
+    plot3D(M)
+    if (require("rgl") &amp; interactive())
+        plot3D(M, rgl = TRUE)
+
+    ## With some MS2 spectra
+    i &lt;- ms1[which(rtsel)][1]
+    j &lt;- ms1[which(rtsel)][2]
+    M2 &lt;- MSmap(ms, i:j, 100, 1000, 1, hd)
+    plot3D(M2)
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

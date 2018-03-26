@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Performs reporter ions purity correction</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for purityCorrect-methods {MSnbase}"><tr><td>purityCorrect-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Performs reporter ions purity correction </h2>
+
+<h3>Description</h3>
+
+<p>Manufacturers sometimes provide purity correction values indicating
+the percentages of each reporter ion that have masses differing by
++/- n Da from the nominal reporter ion mass due to isotopic
+variants. This correction is generally applied after reporter peaks
+quantitation.
+</p>
+<p>Purity correction here is applied using <code>solve</code> from the
+<code>base</code> package using the purity correction values as coefficient of
+the linear system and the reporter quantities as the right-hand side
+of the linear system. 'NA' values are ignored and negative
+intensities after correction are also set to 'NA'.
+</p>
+<p>A more elaborated purity correction method is described in
+Shadforth <em>et al.</em>, i-Tracker: for quantitative proteomics using
+iTRAQ. BMC Genomics. 2005 Oct 20;6:145. (PMID 16242023). 
+</p>
+<p>Function <code>makeImpuritiesMatrix(x, filename, edit = TRUE)</code> helps
+the user to create such a matrix. The function can be used in two ways.
+If given an integer <code>x</code>, it is used as the dimension of the
+square matrix (i.e the number of reporter ions). For TMT6-plex and
+iTRAQ4-plex, default values taken from manufacturer's certification
+sheets are used as templates, but batch specific values should be used
+whenever possible. Alternatively, the <code>filename</code> of a <code>csv</code>
+spreadsheet can be provided. The sheet should define the correction
+factors as illustrated below (including reporter names in the first
+column and header row) and the corresponding correction matrix is
+calculated. Examples of such <code>csv</code> files are available in the
+package's <code>extdata</code> directory. Use
+<code>dir(system.file("extdata", package = "MSnbase"), pattern =
+    "PurityCorrection", full.names = TRUE)</code> to locate them.
+If <code>edit = TRUE</code>, the the matrix can be edited before
+it is returned.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p> An object of class <code>"<a href="MSnSet-class.html">MSnSet</a>"</code>. </p>
+</td></tr>
+<tr valign="top"><td><code>impurities</code></td>
+<td>
+<p> A square 'matrix' of dim equal to ncol(object) 
+defining the correction coefficients to be applied.
+The reporter ions should be ordered along the columns
+and the relative percentages along the rows.
+</p>
+<p>As an example, below is the correction factors as provided in an ABI
+iTRAQ 4-plex certificate of analysis:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+      reporter </td><td style="text-align: right;"> % of -2 </td><td style="text-align: right;"> % of -1 </td><td style="text-align: right;"> % of +1 </td><td style="text-align: right;"> % of +2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      114 </td><td style="text-align: right;"> 0.0 </td><td style="text-align: right;"> 1.0 </td><td style="text-align: right;"> 5.9 </td><td style="text-align: right;"> 0.2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      115 </td><td style="text-align: right;"> 0.0 </td><td style="text-align: right;"> 2.0 </td><td style="text-align: right;"> 5.6 </td><td style="text-align: right;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      116 </td><td style="text-align: right;"> 0.0 </td><td style="text-align: right;"> 3.0 </td><td style="text-align: right;"> 4.5 </td><td style="text-align: right;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      117 </td><td style="text-align: right;"> 0.1 </td><td style="text-align: right;"> 4.0 </td><td style="text-align: right;"> 3.5 </td><td style="text-align: right;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+    </td>
+</tr>
+
+</table>
+
+<p>The impurity table will be
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: right;">
+      0.929 </td><td style="text-align: right;"> 0.059 </td><td style="text-align: right;"> 0.002 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.020 </td><td style="text-align: right;"> 0.923 </td><td style="text-align: right;"> 0.056 </td><td style="text-align: right;"> 0.001 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.030 </td><td style="text-align: right;"> 0.924 </td><td style="text-align: right;"> 0.045 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.040 </td><td style="text-align: right;"> 0.923 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">      
+    </td>
+</tr>
+
+</table>
+
+<p>where, the diagonal is computed as 100 - sum of rows of the
+original table and subsequent cells are directly filled in.
+</p>
+<p>Similarly, for TMT 6-plex tags, we observe
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+      reporter </td><td style="text-align: right;"> % of -3 </td><td style="text-align: right;"> % of -2 </td><td style="text-align: right;"> % of -1 </td><td style="text-align: right;"> % of +1 % </td><td style="text-align: right;"> % of +2 </td><td style="text-align: right;"> % of +3 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      126 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 6.1 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      127 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0.5 </td><td style="text-align: right;"> 6.7 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      128 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 1.1 </td><td style="text-align: right;"> 4.2 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      129 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 1.7 </td><td style="text-align: right;"> 4.1 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      130 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 1.6 </td><td style="text-align: right;"> 2.1 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      131 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0.2 </td><td style="text-align: right;"> 3.2 </td><td style="text-align: right;"> 2.8 </td><td style="text-align: right;"> 0 </td><td style="text-align: right;"> 0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+    </td>
+</tr>
+
+</table>
+
+<p>and obtain the following impurity correction matrix
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: right;">
+      0.939 </td><td style="text-align: right;"> 0.061 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.005 </td><td style="text-align: right;"> 0.928 </td><td style="text-align: right;"> 0.067 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.011 </td><td style="text-align: right;"> 0.947 </td><td style="text-align: right;"> 0.042 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.017 </td><td style="text-align: right;"> 0.942 </td><td style="text-align: right;"> 0.041 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.016 </td><td style="text-align: right;"> 0.963 </td><td style="text-align: right;"> 0.021 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+      0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.002 </td><td style="text-align: right;"> 0.032 </td><td style="text-align: right;"> 0.938 </td>
+</tr>
+<tr>
+ <td style="text-align: right;">
+    </td>
+</tr>
+
+</table>
+
+<p>For iTRAQ 8-plex, given the following correction factors (to make
+such a matrix square, if suffices to add -4, -3, +3 and +4 columns
+filled with zeros):
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+      TAG </td><td style="text-align: left;"> -2 </td><td style="text-align: left;"> -1 </td><td style="text-align: left;"> +1 </td><td style="text-align: left;"> +2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      113 </td><td style="text-align: left;">	0 </td><td style="text-align: left;">	2.5 </td><td style="text-align: left;"> 3 </td><td style="text-align: left;">	0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      114 </td><td style="text-align: left;">	0 </td><td style="text-align: left;">	1 </td><td style="text-align: left;"> 5.9 </td><td style="text-align: left;">	0.2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      115 </td><td style="text-align: left;">	0 </td><td style="text-align: left;">	2 </td><td style="text-align: left;"> 5.6 </td><td style="text-align: left;">	0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      116 </td><td style="text-align: left;">	0 </td><td style="text-align: left;">	3 </td><td style="text-align: left;"> 4.5 </td><td style="text-align: left;">	0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      117 </td><td style="text-align: left;">	0.1 </td><td style="text-align: left;"> 4 </td><td style="text-align: left;">	 3.5 </td><td style="text-align: left;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      118 </td><td style="text-align: left;">	0.1 </td><td style="text-align: left;"> 2 </td><td style="text-align: left;">	3 </td><td style="text-align: left;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      119 </td><td style="text-align: left;">	0.1 </td><td style="text-align: left;"> 2 </td><td style="text-align: left;">	4 </td><td style="text-align: left;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      121 </td><td style="text-align: left;">	0.1 </td><td style="text-align: left;"> 2 </td><td style="text-align: left;">	3 </td><td style="text-align: left;"> 0.1 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+    </td>
+</tr>
+
+</table>
+
+<p>we calculate the impurity correction matrix shown below
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+                      </td><td style="text-align: right;"> 113   </td><td style="text-align: right;"> 114   </td><td style="text-align: right;"> 115   </td><td style="text-align: right;"> 116   </td><td style="text-align: right;"> 117   </td><td style="text-align: right;"> 118   </td><td style="text-align: right;"> 119   </td><td style="text-align: right;"> 121 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 113 </td><td style="text-align: right;"> 0.944 </td><td style="text-align: right;"> 0.030 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 114 </td><td style="text-align: right;"> 0.010 </td><td style="text-align: right;"> 0.929 </td><td style="text-align: right;"> 0.059 </td><td style="text-align: right;"> 0.002 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 115 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.020 </td><td style="text-align: right;"> 0.923 </td><td style="text-align: right;"> 0.056 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 116 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.030 </td><td style="text-align: right;"> 0.924 </td><td style="text-align: right;"> 0.045 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 117 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.040 </td><td style="text-align: right;"> 0.923 </td><td style="text-align: right;"> 0.035 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 118 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.020 </td><td style="text-align: right;"> 0.948 </td><td style="text-align: right;"> 0.030 </td><td style="text-align: right;"> 0.001 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 119 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.020 </td><td style="text-align: right;"> 0.938 </td><td style="text-align: right;"> 0.040 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 121 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.000 </td><td style="text-align: right;"> 0.001 </td><td style="text-align: right;"> 0.020 </td><td style="text-align: right;"> 0.948 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+    </td>
+</tr>
+
+</table>
+
+<p>Finally, for a TMT 10-plex impurity matrix
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+      .   </td><td style="text-align: left;"> -2 </td><td style="text-align: left;"> -1 </td><td style="text-align: left;"> 1 </td><td style="text-align: left;"> 2 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      126 </td><td style="text-align: left;">  0.0 </td><td style="text-align: left;"> 0.00 </td><td style="text-align: left;"> 4.69 (127C) </td><td style="text-align: left;"> 0.0 (128N) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      127N </td><td style="text-align: left;"> 0.0 </td><td style="text-align: left;"> 0.40 </td><td style="text-align: left;"> 6.50 (128N) </td><td style="text-align: left;"> 0.0 (128C) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      127C </td><td style="text-align: left;"> 0.0 </td><td style="text-align: left;"> 0.20 (126) </td><td style="text-align: left;"> 4.60 (128C) </td><td style="text-align: left;"> 0.3 (129N) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      128N </td><td style="text-align: left;"> 0.0 </td><td style="text-align: left;"> 0.90 (127N) </td><td style="text-align: left;"> 4.70 (129N) </td><td style="text-align: left;"> 0.2 (129C) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      128C </td><td style="text-align: left;"> 0.1 (126) </td><td style="text-align: left;"> 0.53 (127C) </td><td style="text-align: left;"> 2.59 (129C) </td><td style="text-align: left;"> 0.0 (130N) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      129N </td><td style="text-align: left;"> 0.0 (127N) </td><td style="text-align: left;"> 0.73 (128N) </td><td style="text-align: left;"> 2.49 (130N) </td><td style="text-align: left;"> 0.0 (130C) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      129C </td><td style="text-align: left;"> 0.0 (127C) </td><td style="text-align: left;"> 1.30 (128C) </td><td style="text-align: left;"> 2.50 (130C) </td><td style="text-align: left;"> 0.0 (131) </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      130N </td><td style="text-align: left;"> 0.0 (128N) </td><td style="text-align: left;"> 1.20 (129N) </td><td style="text-align: left;"> 2.80 (131) </td><td style="text-align: left;"> 2.7 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      130C </td><td style="text-align: left;"> 0.1 (128C) </td><td style="text-align: left;"> 2.90 (129C) </td><td style="text-align: left;"> 2.90 </td><td style="text-align: left;"> 0.0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      131 </td><td style="text-align: left;">  0.0 (129N) </td><td style="text-align: left;"> 2.36 (130N) </td><td style="text-align: left;"> 1.43 </td><td style="text-align: left;"> 0.0 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+    </td>
+</tr>
+
+</table>
+
+<p>the impurity correction matrix is
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+      .              </td><td style="text-align: left;"> 126 </td><td style="text-align: left;"> 127N </td><td style="text-align: left;"> 127C </td><td style="text-align: left;"> 128N </td><td style="text-align: left;"> 128C </td><td style="text-align: left;"> 129N </td><td style="text-align: left;"> 129C </td><td style="text-align: left;"> 130N </td><td style="text-align: left;"> 130C </td><td style="text-align: left;"> 131 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 126 </td><td style="text-align: left;">  0.9531 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0469 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 127N </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.931 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0650 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 127C </td><td style="text-align: left;"> 0.0020 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.9490 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0460 </td><td style="text-align: left;"> 0.0030 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 128N </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.009 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.9420 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0470 </td><td style="text-align: left;"> 0.0020 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 128C </td><td style="text-align: left;"> 0.0010 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0053 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.9678 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0259 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 129N </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0073 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.9678 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0249 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 129C </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0130 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.9620 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.025 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 130N </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0120 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.9330 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0280 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 130C </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0010 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0290 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.941 </td><td style="text-align: left;"> 0.0000 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+      % reporter 131 </td><td style="text-align: left;">  0.0000 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0000 </td><td style="text-align: left;"> 0.0236 </td><td style="text-align: left;"> 0.000 </td><td style="text-align: left;"> 0.9621 </td>
+</tr>
+<tr>
+ <td style="text-align: left;">      
+		   
+    </td>
+</tr>
+
+</table>
+
+<p>These examples are provided as defaults impurity correction matrices
+in <code>makeImpuritiesMatrix</code>.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "MSnSet", impurities = "matrix")</code></dt><dd>
+</dd>
+</dl>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## quantifying full experiment
+data(msnset)
+impurities &lt;- matrix(c(0.929,0.059,0.002,0.000,
+                       0.020,0.923,0.056,0.001,
+                       0.000,0.030,0.924,0.045,
+                       0.000,0.001,0.040,0.923),
+                     nrow=4, byrow = TRUE)
+## or, using makeImpuritiesMatrix()
+## Not run: impurities &lt;- makeImpuritiesMatrix(4)
+msnset.crct &lt;- purityCorrect(msnset, impurities)
+head(exprs(msnset))
+head(exprs(msnset.crct))
+processingData(msnset.crct)
+
+## default impurity matrix for iTRAQ 8-plex
+makeImpuritiesMatrix(8, edit = FALSE)
+
+## default impurity matrix for TMT 10-plex
+makeImpuritiesMatrix(10, edit = FALSE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>
