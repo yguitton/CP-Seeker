@@ -1,8 +1,8 @@
 Package: plotly
 Title: Create Interactive Web Graphics via 'plotly.js'
-Version: 4.7.1
+Version: 4.7.1.9000
 Authors@R: c(person("Carson", "Sievert", role = c("aut", "cre"),
-    email = "cpsievert1@gmail.com"),
+    email = "cpsievert1@gmail.com", comment = c(ORCID = "0000-0002-4958-2844")),
     person("Chris", "Parmer", role = "aut",
     email = "chris@plot.ly"),
     person("Toby", "Hocking", role = "aut",
@@ -19,7 +19,7 @@ Authors@R: c(person("Carson", "Sievert", role = c("aut", "cre"),
 License: MIT + file LICENSE
 Description: Easily translate 'ggplot2' graphs to an interactive web-based version and/or create custom web-based visualizations directly from R. Once uploaded to a 'plotly' account, 'plotly' graphs (and the data behind them) can be viewed and modified in a web browser.
 URL: https://plot.ly/r, https://cpsievert.github.io/plotly_book/,
-        https://github.com/ropensci/plotly
+        https://github.com/ropensci/plotly#readme
 BugReports: https://github.com/ropensci/plotly/issues
 Depends: R (>= 3.2.0), ggplot2 (>= 2.2.1)
 Imports: tools, scales, httr, jsonlite, magrittr, digest, viridisLite,
@@ -30,11 +30,11 @@ Suggests: MASS, maps, ggthemes, GGally, testthat, knitr, devtools,
         shiny (>= 0.14), curl, rmarkdown, Rserve, RSclient, Cairo,
         broom, webshot, listviewer, dendextend, sf, RSelenium, png,
         IRdisplay
+Remotes: tidyverse/ggplot2
 LazyData: true
 RoxygenNote: 6.0.1
-NeedsCompilation: no
-Packaged: 2017-07-28 15:49:30 UTC; cpsievert
-Author: Carson Sievert [aut, cre],
+Roxygen: list(markdown = TRUE)
+Author: Carson Sievert [aut, cre] (0000-0002-4958-2844),
   Chris Parmer [aut],
   Toby Hocking [aut],
   Scott Chamberlain [aut],
@@ -43,6 +43,14 @@ Author: Carson Sievert [aut, cre],
   Pedro Despouy [aut],
   Plotly Technologies Inc. [cph]
 Maintainer: Carson Sievert <cpsievert1@gmail.com>
-Repository: CRAN
-Date/Publication: 2017-07-29 05:16:25 UTC
-Built: R 3.4.4; ; 2018-03-22 02:54:11 UTC; windows
+Built: R 3.4.2; ; 2018-03-27 07:40:21 UTC; windows
+RemoteType: github
+RemoteHost: https://api.github.com
+RemoteRepo: plotly
+RemoteUsername: ropensci
+RemoteRef: master
+RemoteSha: 5cdf4711d2451bb2b3c3c6f4260ba3561eff29d3
+GithubRepo: plotly
+GithubUsername: ropensci
+GithubRef: master
+GithubSHA1: 5cdf4711d2451bb2b3c3c6f4260ba3561eff29d3

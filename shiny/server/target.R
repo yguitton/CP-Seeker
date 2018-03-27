@@ -89,16 +89,19 @@ output$targetEIC <- renderPlotly({
 	mzRange <- matrix(sapply(mzs, function(mz) c(mz-(mz*data$tolPpm)/10^6, mz+(mz*data$tolPpm)/10^6)), ncol=2, byrow=TRUE)
 	chrom <- chromatogram(xraw, mz=mzRange, rt=c(min(data$rtMin)*60-60, max(data$rtMax)*60+60), aggregationFun='sum', missing=0, BPPARAM=SnowParam())@.Data
 	# get scan where the intensity is at the maximum
-	# i <- which(max(sapply(chrom, function(x) max(x@intensity))) == sapply(chrom, function(x) max(x@intensity)))
-	# points <- data.frame(rtime=chrom[[i]]@rtime, intensity=chrom[[i]]@intensity)
-	# points <- points[which(points$rtime >= data$rtMin*60 & points$rtime <= data$rtMax*60), ]
-	# eic <- eic %>% add_trace(x=points$rtime/60, y=points$intensity, size=I(1), fill='tozeroy', 
-		# showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(points$intensity, digits=0), 
-			# '<br />Retention Time: ', round(points$rtime/60, digits=2)))
+	i <- which(max(sapply(chrom, function(x) max(x@intensity))) == sapply(chrom, function(x) max(x@intensity)))
+	points <- data.frame(rtime=chrom[[i]]@rtime, intensity=chrom[[i]]@intensity)
+	points <- points[which(points$rtime >= data$rtMin*60 & points$rtime <= data$rtMax*60), ]
+	eic <- eic %>% add_trace(x=points$rtime/60, y=points$intensity, size=I(1), fill='tozeroy', 
+		showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(points$intensity, digits=0), 
+			'<br />Retention Time: ', round(points$rtime/60, digits=2)))
+	# traces
 	for(i in 1:length(chrom)) eic <- eic %>% 
 		add_trace(mode='lines+markers', size=I(1), x=chrom[[i]]@rtime/60, y=chrom[[i]]@intensity, size=I(1), 
 			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[i]]@intensity, digits=0), 
 				'<br />Retention Time: ', round(chrom[[i]]@rtime/60, digits=2)))
+	# plotlyProxy('targetEIC', session) %>% 
+		# plotlyProxyInvoke('restyle', list('marker.color', 'black', list(1:length(chrom)), list(1:60, (length(chrom[[1]]@rtime)-60):length(chrom[[1]]@rtime))))
 	updateNumericInput(session, 'targetPpm', 'tol mz (ppm)', value=data$tolPpm, min=0, max=50)
 	updateNumericInput(session, 'targetRtMin', 'rt min (min)', value=data$rtMin, min=0, max=25)
 	updateNumericInput(session, 'targetRtMax', 'rt max (min)', value=data$rtMax, min=0, max=25)

@@ -57,9 +57,6 @@ filter_	reexports
 filter_.plotly	plotly_data
 geom2trace	geom2trace
 get_figure	get_figure
-get_l	get_l
-get_x	get_x
-get_y	get_y
 gg2list	gg2list
 ggplotly	ggplotly
 group2NA	group2NA

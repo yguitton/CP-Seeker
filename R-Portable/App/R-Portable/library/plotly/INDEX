@@ -16,9 +16,6 @@ event_data              Access plotly user input event data in shiny
 export                  Export a plotly graph to a static file
 geom2trace              Convert a "basic" geoms to a plotly.js trace.
 get_figure              Request a figure object
-get_l                   Obtain number of points comprising a geometry
-get_x                   Obtain x coordinates of sf geometry/geometries
-get_y                   Obtain y coordinates of sf geometry/geometries
 gg2list                 Convert a ggplot to a list.
 ggplotly                Convert ggplot2 to plotly
 group2NA                Separate groups with missing values

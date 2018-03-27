@@ -4,7 +4,7 @@ Title: Run Code 'With' Temporarily Modified Global State
 Version: 2.1.2
 Authors@R: c(
     person("Jim", "Hester", , "james.f.hester@gmail.com", role = c("aut", "cre")),
-    person("Kirill", "MÃ¼ller", , "krlmlr+r@mailbox.org", role = "aut"),
+    person("Kirill", "Müller", , "krlmlr+r@mailbox.org", role = "aut"),
     person("Kevin", "Ushey", email = "kevinushey@gmail.com", role = c("aut")),
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = "aut"),
     person("Winston", "Chang", role = "aut"),
@@ -23,22 +23,29 @@ Imports: stats, graphics, grDevices
 Suggests: testthat, covr, lattice, DBI, RSQLite, methods, knitr,
         rmarkdown
 RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)
 Collate: 'local_.R' 'with_.R' 'collate.R' 'connection.R' 'db.R'
         'defer.R' 'wrap.R' 'devices.R' 'dir.R' 'env.R' 'file.R'
         'libpaths.R' 'locale.R' 'makevars.R' 'namespace.R' 'options.R'
         'par.R' 'path.R' 'seed.R' 'sink.R' 'tempfile.R' 'torture.R'
         'utils.R' 'with.R'
 VignetteBuilder: knitr
-NeedsCompilation: no
-Packaged: 2018-03-15 13:59:37 UTC; jhester
 Author: Jim Hester [aut, cre],
-  Kirill MÃ¼ller [aut],
+  Kirill Müller [aut],
   Kevin Ushey [aut],
   Hadley Wickham [aut],
   Winston Chang [aut],
   Richard Cotton [ctb],
   RStudio [cph]
 Maintainer: Jim Hester <james.f.hester@gmail.com>
-Repository: CRAN
-Date/Publication: 2018-03-15 22:39:56 UTC
-Built: R 3.4.4; ; 2018-03-21 22:40:55 UTC; windows
+Built: R 3.4.2; ; 2018-03-27 07:39:54 UTC; windows
+RemoteType: github
+RemoteHost: https://api.github.com
+RemoteRepo: withr
+RemoteUsername: jimhester
+RemoteRef: master
+RemoteSha: 79d7b0da9f08e853b3195101c09d291f98bba5f3
+GithubRepo: withr
+GithubUsername: jimhester
+GithubRef: master
+GithubSHA1: 79d7b0da9f08e853b3195101c09d291f98bba5f3
