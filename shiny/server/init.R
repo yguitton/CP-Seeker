@@ -14,6 +14,13 @@ dbSendQueries <- function(con,sql){
     lapply(sql, dummyfunction, con)
 }
 
+if(!file.exists(sqlitePath)){
+	print('create database')
+	db <- dbConnect(SQLite(), sqlitePath)
+	dbSendQueries(db, sqlFromFile('../createDatabase.sql'))
+	dbDisconnect(db)
+}
+
 #----------------------------------------------------------------------------------------------
 # shinyFiles is incompatible with R v3.4
 # Two functions are overridden file.info() (base package) and fileGetter() (shinyFiles package) 
