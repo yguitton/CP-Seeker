@@ -66,4 +66,16 @@ output$targetTableScore <- renderDataTable({
 		$cell.toggleClass('selected');
 		//table.cell(message.row, message.column).data(message.score);
 	};
+	Shiny.addCustomMessageHandler('targetTableScoreUpdate', update);
+	function update(message){
+		console.log('update score table');
+		table.cell(message.row, message.column).data(message.score);
+	};
+	Shiny.addCustomMessageHandler('targetTableScoreDelete', deleteCell);
+	function deleteCell(message){
+		console.log('delete score table');
+		table.cell(message.row, message.column).data(null);
+		table.$('td:selected').css('background-color', null);
+		table.$('td:selected').removeClass('selected');
+	};
 "))

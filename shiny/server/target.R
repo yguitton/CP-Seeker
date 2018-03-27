@@ -89,12 +89,12 @@ output$targetEIC <- renderPlotly({
 	mzRange <- matrix(sapply(mzs, function(mz) c(mz-(mz*data$tolPpm)/10^6, mz+(mz*data$tolPpm)/10^6)), ncol=2, byrow=TRUE)
 	chrom <- chromatogram(xraw, mz=mzRange, rt=c(min(data$rtMin)*60-60, max(data$rtMax)*60+60), aggregationFun='sum', missing=0, BPPARAM=SnowParam())@.Data
 	# get scan where the intensity is at the maximum
-	i <- which(max(sapply(chrom, function(x) max(x@intensity))) == sapply(chrom, function(x) max(x@intensity)))
-	points <- data.frame(rtime=chrom[[i]]@rtime, intensity=chrom[[i]]@intensity)
-	points <- points[which(points$rtime >= data$rtMin*60 & points$rtime <= data$rtMax*60), ]
-	eic <- eic %>% add_trace(x=points$rtime/60, y=points$intensity, size=I(1), fill='tozeroy', 
-		showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(points$intensity, digits=0), 
-			'<br />Retention Time: ', round(points$rtime/60, digits=2)))
+	# i <- which(max(sapply(chrom, function(x) max(x@intensity))) == sapply(chrom, function(x) max(x@intensity)))
+	# points <- data.frame(rtime=chrom[[i]]@rtime, intensity=chrom[[i]]@intensity)
+	# points <- points[which(points$rtime >= data$rtMin*60 & points$rtime <= data$rtMax*60), ]
+	# eic <- eic %>% add_trace(x=points$rtime/60, y=points$intensity, size=I(1), fill='tozeroy', 
+		# showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(points$intensity, digits=0), 
+			# '<br />Retention Time: ', round(points$rtime/60, digits=2)))
 	# traces
 	for(i in 1:length(chrom)) eic <- eic %>% 
 		add_trace(mode='lines+markers', size=I(1), x=chrom[[i]]@rtime/60, y=chrom[[i]]@intensity, size=I(1), 
@@ -140,11 +140,12 @@ observeEvent(input$targetSubmit, {
 		where molecule == %s and sample == "%s" group by observed;',
 		molecule, input$targetFile))
 	dbDisconnect(db)
-	actualize$graph <- if(actualize$graph) FALSE else TRUE
 	hide('loader')
 	shinyjs::show('app-content')
-	print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAuc))
-	session$sendCustomMessage('targetTableSelect', list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAuc))
+	print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAUC))
+	session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation))
+	session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=res$score))
+	session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=res$sumOfAUC))
 })
 
 deleteTargetROI <- function(file, adduct, C, Cl){
@@ -162,5 +163,7 @@ observeEvent(input$targetDelete, {
 	if(input$targetTable_cell_selected$C == 0) return(sendSweetAlert(session, title='You have to select a cell!', type='error'))
 	cell <- input$targetTable_cell_selected
 	deleteTargetROI(input$targetFile, input$targetAdduct, cell$C, cell$Cl)
-	actualize$graph <- if(actualize$graph) FALSE else TRUE
+	session$sendCustomMessage('targetTablePpmDelete', list(row=cell$C-8, column=cell$Cl-3))
+	session$sendCustomMessage('targetTableScoreDelete', list(row=cell$C-8, column=cell$Cl-3))
+	session$sendCustomMessage('targetTableIntoDelete', list(row=cell$C-8, column=cell$Cl-3))
 })

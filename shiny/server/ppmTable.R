@@ -69,4 +69,17 @@ ordering=FALSE, buttons=htmlwidgets::JS('
 		$cell.toggleClass('selected');
 		//table.cell(message.row, message.column).data(message.ppm);
 	};
+	Shiny.addCustomMessageHandler('targetTablePpmUpdate', update);
+	function update(message){
+		console.log('update ppm table');
+		table.cell(message.row, message.column).data(message.ppm);
+	};
+	Shiny.addCustomMessageHandler('targetTablePpmDelete', deleteCell);
+	function deleteCell(message){
+		console.log('delete ppm table');
+		table.cell(message.row, message.column).data(null);
+		table.cell(message.row, message.column).nodes().to$().css('background-color', '');
+		table.$('td:selected').removeClass('selected');
+		Shiny.onInputChange('targetTable_cell_selected', {C:0, Cl:0});
+	};
 "))

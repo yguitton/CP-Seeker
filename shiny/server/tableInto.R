@@ -62,4 +62,15 @@ output$targetTableInto <- renderDataTable({
 		$cell.toggleClass('selected');
 		//table.cell(message.row, message.column).data(message.sumOfAuc);
 	};
+	Shiny.addCustomMessageHandler('targetTableIntoUpdate', update);
+	function update(message){
+		console.log('update into table');
+		table.cell(message.row, message.column).data(message.into);
+	};
+	Shiny.addCustomMessageHandler('targetTableIntoDelete', deleteCell);
+	function deleteCell(message){
+		console.log('delete into table');
+		table.cell(message.row, message.column).data(null);
+		table.$('td:selected').removeClass('selected');
+	};
 "))
