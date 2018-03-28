@@ -24,17 +24,14 @@ observeEvent(input$filemzXMLAdd, {
 		path <- as.character(files[i, 'datapath'])
 		incProgress(amount=0, detail=name)
 		xml_data <- xmlToList(path)
-		print('polarity in file:')
-		print(xml_data$msRun)
-		polarity <- if(is.null(xml_data$msRun)) 'positive' else if(xml_data$msRun$scan$.attrs['polarity'] == '-') 'negative' else 'positive'
-		sample <- paste(polarity, file_path_sans_ext(name))
+		sample <- paste(file_path_sans_ext(name))
 		if(sample %in% fileAlreadyAdd) success[i] <- paste(name, 'already imported in project')
 		else if(sample %in% samples()$sample){
 			success[i]<- paste(name, 'already in the database in the project', samples()[which(samples()$sample == name), 'project'])
 		}
 		else{
-			file.copy(path, file.path(dirOutput, polarity, name))
-			addFile(sample=sample, path=file.path(dirOutput, polarity, name), project=input$projectAddFile, polarity=polarity)
+			file.copy(path, file.path(dirOutput, name))
+			addFile(sample=sample, path=file.path(dirOutput, name), project=input$projectAddFile)
 			success[i] <- paste(name, 'Success!')
 		}
 		incProgress(1)

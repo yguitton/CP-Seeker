@@ -25,7 +25,7 @@ observeEvent(input$fileRawAdd, {
 		name <- as.character(files[i, 'name'])
 		path <- as.character(files[i, 'datapath'])
 		incProgress(amount=0, detail=name)
-		sample <- paste(polarity, file_path_sans_ext(name))
+		sample <- paste(file_path_sans_ext(name))
 		if(sample %in% fileAlreadyAdd) success[i] <- paste(name, 'already imported in project')
 		else if(sample %in% samples()$sample) success[i]<- paste(name, 'already in the database in the project', samples()[which(samples()$sample == name), 'project'])
 		else{
@@ -45,26 +45,26 @@ observeEvent(input$fileRawAdd, {
 msConvert <- function(path, polarity, name, success, project){
 	tryCatch({
 		query <- sprintf('""%s" "%s" -o "%s" --mzXML --32 --zlib --filter "peakPicking true 1" --filter "polarity %s""', 
-			converter, path, file.path(getwd(), dirOutput, polarity), polarity) 
+			converter, path, file.path(getwd(), dirOutput), polarity) 
 		shell(query)
 		if(!file.info(path)$isdir){
 			query <- sprintf('""%s" --scanTrailers "%s" > "%s""',
-				thermo, path, file.path(getwd(), dirOutput, polarity, 
+				thermo, path, file.path(getwd(), dirOutput, 
 					paste(file_path_sans_ext(name), '.txt', sep='')))
 			shell(query)
-			addFile(sample=paste(polarity, file_path_sans_ext(name)), 
-				path=file.path(getwd(), dirOutput, polarity, 
+			addFile(sample=paste(file_path_sans_ext(name)), 
+				path=file.path(getwd(), dirOutput,  
 					paste(file_path_sans_ext(name), '.mzXML', sep='')), 
-				project=project, polarity=polarity, 
-				txtFile=file.path(getwd(), dirOutput, polarity, 
+				project=project, 
+				txtFile=file.path(getwd(), dirOutput, 
 					paste(file_path_sans_ext(name), '.txt', sep='')))
 				return(c(success, paste(name, 'Sucess!')))
 		}
 		else{
-			addFile(sample=paste(polarity, file_path_sans_ext(name)), 
-				path=file.path(getwd(), dirOutput, polarity, 
+			addFile(sample=paste(file_path_sans_ext(name)), 
+				path=file.path(getwd(), dirOutput, 
 					paste(file_path_sans_ext(name), '.mzXML', sep='')), 
-				project=project, polarity=polarity)
+				project=project)
 			return(c(success, paste(name, 'Sucess!')))
 		}
 	}, error=function(e){

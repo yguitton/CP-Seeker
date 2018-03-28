@@ -1,8 +1,9 @@
 #record file in db
-addFile <- function(sample, path, project, polarity, txtFile=NULL){
+addFile <- function(sample, path, project, txtFile=NULL){
 	db <- dbConnect(SQLite(), sqlitePath)
 	xml_data <- xmlToList(path)
 	rawPath <- if(!is.null(xml_data$msRun))	xml_data$msRun$parentFile[1] else xml_data$mzML$fileDescription$sourceFileList[1]$sourceFile$.attrs['location']
+	print('add file in DB')
 	if(!is.null(xml_data$msRun)){
 		msManufacturer <- xml_data$msRun$msInstrument$msManufacturer[2]
 		msIonisation <- xml_data$msRun$msInstrument$msIonisation[2]
@@ -23,22 +24,25 @@ addFile <- function(sample, path, project, polarity, txtFile=NULL){
 			numberOfScanRange <- line[[1]][length(line[[1]])]
 			line <- strsplit(lines[35], "  ")
 			scanRange <- line[[1]][length(line[[1]])]    
-			queries <- c(sprintf('insert into sample (sample, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity, method, resolution, agcTarget, maximumIT, numberOfScanRange, scanRange) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");',	sample, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity, method, resolution, agcTarget, maximumIT, numberOfScanRange, scanRange), sprintf('insert into project_sample (project, sample) values (%s, "%s");', project, sample))
-			if(length(queries) == 2){
-				dbSendQueries(db, queries)
+			query <- sprintf('insert into sample (sample, project, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity, method, resolution, agcTarget, maximumIT, numberOfScanRange, scanRange) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");',
+				sample, project, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, 'negative', method, resolution, agcTarget, maximumIT, numberOfScanRange, scanRange)
+			if(length(query) == 1){
+				dbSendQuery(db, query)
 				dbDisconnect(db)
 				return()
 			}
 		}
-		queries <- c(sprintf('insert into sample (sample, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");', sample, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity), sprintf('insert into project_sample (project, sample) values (%s, "%s");', project, sample))
-		if(length(queries) == 2){
-			dbSendQueries(db, queries)
+		query <- sprintf('insert into sample (sample, project, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");', 
+			sample, project, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, 'negative')
+		if(length(query) == 1){
+			dbSendQuery(db, query)
 			dbDisconnect(db)
 			return()
 		}
 	}
-	queries <- c(sprintf('insert into sample (sample, path, rawPath, polarity) values ("%s", "%s", "%s", "%s");', sample, path, rawPath, polarity), sprintf('insert into project_sample (project, sample) values (%s, "%s");', project, sample))
-	dbSendQueries(db, queries)
+	query <- sprintf('insert into sample (sample, project, path, rawPath, polarity) values ("%s", "%s", "%s", "%s", "%s");', 
+		sample, project, path, rawPath, 'negative')
+	dbSendQuery(db, query)
 	dbDisconnect(db)
 }
 
