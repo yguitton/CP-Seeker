@@ -37,7 +37,7 @@ observeEvent(input$targetFullSubmit, {
 	for(molecule in molecules){
 		data <- theoric[which(theoric$molecule == molecule), c('mz', 'abd')]
 		sapply(1:length(xraws), function(x) 
-			recordTarget(db=db, sample=input$targetFullFiles[x], xraw=xraws[[x]], 
+			targetROI(db=db, sample=input$targetFullFiles[x], xraw=xraws[[x]], 
 				molecule=molecule, data=data[order(data$abd, decreasing=TRUE), ], rt=input$targetFullRt*60, 
 				tolPpm=input$targetFullPpm, tolAbd=input$targetFullTolAbd, 
 				threshold=input$targetFullThreshold))

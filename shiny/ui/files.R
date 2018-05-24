@@ -5,6 +5,6 @@ tabItem(tabName = 'Files',
 	),
 	box(width=6, 'Informations',
 		uiOutput('uiFileInfo'),
-		DT::dataTableOutput("tableInfoConversion")
+		dataTableOutput("tableInfoConversion")
 	)
 )

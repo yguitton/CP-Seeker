@@ -1,10 +1,3 @@
-library(shinydashboard)
-library(shinyWidgets)
-library(shinyjs)
-library(plotly)
-library(shinyFiles)
-library(DT)
-
 header <- dashboardHeader(
 	title = "Target ROI"
 )
@@ -21,9 +14,10 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
 	tags$head(
-		tags$link(rel = "sylesheet", type = "text/css", href = "shinyCSS.css"),
+		tags$link(rel = "stylesheet", type = "text/css", href = "shinyCSS.css"),
 		useShinyjs(),
-		tags$script(src = "shinyJS.js")
+		tags$script(src = "shinyJS.js"),
+		tags$script(src = "shinyWidgets/sweetAlert/js/sweetalert.min.js")
 	),
 	tags$div(id = "loader"),
 	hidden(div(id='app-content',

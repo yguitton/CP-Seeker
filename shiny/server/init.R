@@ -19,6 +19,9 @@ if(!file.exists(sqlitePath)){
 	db <- dbConnect(SQLite(), sqlitePath)
 	dbSendQueries(db, sqlFromFile('../createDatabase.sql'))
 	dbDisconnect(db)
+} else{
+	hide('loader')
+	show('app-content')
 }
 
 #----------------------------------------------------------------------------------------------
