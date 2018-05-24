@@ -1,9 +1,64 @@
+output$uiFileProjectmzXML <- renderUI({
+	tagList(
+		tags$script(HTML("
+			var content = \"<input type='text' class='bss-input' onKeyDown='event.stopPropagation();' onKeyPress='addSelectInpKeyPress(this,event)' onClick='event.stopPropagation()' placeholder='Add item'> <span class='glyphicon glyphicon-plus addnewicon' onClick='addSelectItem(this,event,1);'></span>\";
+				var divider = $('<option/>')
+					.addClass('divider')
+					.data('divider', true);
+				var addoption = $('<option/>', {class: 'addItem'})
+					.data('content', content);
+				$('#fileProject')
+					.append(divider)
+					.append(addoption)
+					.selectpicker('refresh');
+		")),
+	pickerInput('fileProject', 'Select a project', choices=unique(samples()$project)))
+})
+
+output$uiFileProjectRaw <- renderUI({
+	tagList(
+		tags$script(HTML("
+			var content = \"<input type='text' class='bss-input' onKeyDown='event.stopPropagation();' onKeyPress='addSelectInpKeyPress(this,event)' onClick='event.stopPropagation()' placeholder='Add item'> <span class='glyphicon glyphicon-plus addnewicon' onClick='addSelectItem(this,event,1);'></span>\";
+				var divider = $('<option/>')
+					.addClass('divider')
+					.data('divider', true);
+				var addoption = $('<option/>', {class: 'addItem'})
+					.data('content', content);
+				$('#fileProject')
+					.append(divider)
+					.append(addoption)
+					.selectpicker('refresh');
+		")),
+	pickerInput('fileProject', 'Select a project', choices=unique(samples()$project)))
+})
+
 #record file in db
 addFile <- function(sample, path, project, txtFile=NULL){
+	file <- readMSData(path, msLevel=1, mode='onDisk')
+	#test the converted file
+	polarity <- unique(polarity(file))
+	if(length(polarity) == 1 & polarity == 1){
+		file.remove(path)
+		if(!is.null(txtFile)) file.remove(txtFile)
+		return('is in positive polarity!')
+	}
+	else if(length(polarity) > 1){
+		# cut the file
+		spectras <- which(polarity(file) == 0)
+		file <- file[spectras]
+		file.remove(path)
+		writeMSData(file, path, outformat='mzxml', copy=TRUE)
+	}
+	if(FALSE %in% isCentroided(file)){
+		file.remove(path)
+		if(!is.null(txtFile)) file.remove(txtFile)
+		return('is not centroided!')
+	}
+	# record in DB
 	db <- dbConnect(SQLite(), sqlitePath)
 	xml_data <- xmlToList(path)
-	rawPath <- if(!is.null(xml_data$msRun))	xml_data$msRun$parentFile[1] else xml_data$mzML$fileDescription$sourceFileList[1]$sourceFile$.attrs['location']
-	print('add file in DB')
+	rawPath <- if(!is.null(xml_data$msRun))	xml_data$msRun$parentFile[1] 
+		else xml_data$mzML$fileDescription$sourceFileList[1]$sourceFile$.attrs['location']
 	if(!is.null(xml_data$msRun)){
 		msManufacturer <- xml_data$msRun$msInstrument$msManufacturer[2]
 		msIonisation <- xml_data$msRun$msInstrument$msIonisation[2]
@@ -29,7 +84,7 @@ addFile <- function(sample, path, project, txtFile=NULL){
 			if(length(query) == 1){
 				dbSendQuery(db, query)
 				dbDisconnect(db)
-				return()
+				return('imported')
 			}
 		}
 		query <- sprintf('insert into sample (sample, project, path, rawPath, msManufacturer, msIonisation, acquisition, conversion, msLevel, polarity) values ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");', 
@@ -37,18 +92,14 @@ addFile <- function(sample, path, project, txtFile=NULL){
 		if(length(query) == 1){
 			dbSendQuery(db, query)
 			dbDisconnect(db)
-			return()
+			return('imported')
 		}
 	}
 	query <- sprintf('insert into sample (sample, project, path, rawPath, polarity) values ("%s", "%s", "%s", "%s", "%s");', 
 		sample, project, path, rawPath, 'negative')
 	dbSendQuery(db, query)
 	dbDisconnect(db)
+	return('imported')
 }
 
-#for choosen the project where to add file
-output$selectProjectAddFile <- renderUI({
-	selectizeInput("projectAddFile", "Select a project", 
-		choices=unique(samples()$project), options=list(create=TRUE))
-})
 

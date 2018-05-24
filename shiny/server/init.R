@@ -81,4 +81,6 @@ unlockBinding("file.info", getNamespace("base"))
 assign("file.info",file.info,getNamespace("base"))	
 
 
-output$uiSelectProject <- renderUI({ selectInput('selectProject', 'Select a project', choices=unique(samples()$project), multiple=FALSE) })
+output$uiSelectProject <- renderUI({
+	selectInput('selectProject', 'Select a project', choices=unique(samples()$project), multiple=FALSE) 
+})

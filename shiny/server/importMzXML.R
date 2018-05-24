@@ -1,22 +1,12 @@
-shinyFileChoose(input, 'fileImportmzXML', roots=getVolumes(), filetypes=c('mzML', 'mzXML'))
-observeEvent(input$fileImportmzXML, {
-	showModal(modalDialog(easyClose=TRUE, title='Choose a project',
-		uiOutput('selectProjectAddFile'),
-		footer=actionButton('filemzXMLAdd', 'Valid')
-	))
-})
+shinyFileChoose(input, 'fileChoosemzXMLModal', roots=getVolumes(), filetypes=c('mzML', 'mzXML'))
 
-observeEvent(input$filemzXMLAdd, {
-	removeModal()
-	if(input$projectAddFile == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
+observeEvent(input$fileChoosemzXML, {
+	if(input$fileProject == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
+	toggleModal(session, 'fileProjectmzXMLModal')
 	hide('app-content')
-	shinyjs::show('loader')
-	print('IMPORT MZXML')
-	print(paste('input$projectAddFile:', input$projectAddFile))
-	files <- parseFilePaths(getVolumes(), input$fileImportmzXML)
-	print('files:')
-	print(files)
-	fileAlreadyAdd <- samples()[which(samples()$project == input$projectAddFile), 'sample']
+	show('loader')
+	files <- parseFilePaths(getVolumes(), input$fileChoosemzXMLModal)
+	fileAlreadyAdd <- samples()[which(samples()$project == input$fileProject), 'sample']
 	success <- c()
 	withProgress(message='importation', value=0, max=nrow(files), {
 	for(i in 1:nrow(files)){
@@ -31,13 +21,15 @@ observeEvent(input$filemzXMLAdd, {
 		}
 		else{
 			file.copy(path, file.path(dirOutput, name))
-			addFile(sample=sample, path=file.path(dirOutput, name), project=input$projectAddFile)
-			success[i] <- paste(name, 'Success!')
+			success[i] <- paste(name, addFile(sample=sample, path=file.path(dirOutput, name), project=input$fileProject))
 		}
 		incProgress(1)
 	}})
 	actualize$samples <- TRUE
+	print(success)
+	type <- if(TRUE %in% sapply(success, function(x) !grepl('imported', x))) 'warning'
+		else 'success'
 	hide('loader')
 	shinyjs::show('app-content')
-	sendSweetAlert(session, title=paste(success, collapse='; '), type='success')
+	sendSweetAlert(session, title='Importation', text=paste(success, collapse='; '), type=type)
 })

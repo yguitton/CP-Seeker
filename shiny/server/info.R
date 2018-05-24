@@ -1,5 +1,6 @@
+samples_d <- samples %>% debounce(1000)
 output$uiFileInfo <- renderUI({
-	choices <- if(is.null(input$selectProject)) c()
+	choices <- if(is.null(input$selectProject)) samples()$sample
 		else samples()[which(samples()$project == input$selectProject), 'sample']
 	pickerInput('fileDTInfo', 'Choose a file', choices=choices, multiple=FALSE)
 })

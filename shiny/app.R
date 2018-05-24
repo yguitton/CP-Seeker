@@ -6,12 +6,14 @@ library(xcms)
 library(XML)
 library(tools)
 library(shinyjs)
+library(shinyBS)
 library(pracma)
 library(stringr)
 library(shinyWidgets)
 library(shinyFiles)
 library(openxlsx)
 library(shinydashboard)
+library(htmlwidgets)
 
 ui <- source('ui.R', local=TRUE)$value
 

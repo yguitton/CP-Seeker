@@ -1,25 +1,14 @@
-shinyFileChoose(input, 'fileImportRaw', roots=getVolumes(), filetypes=c('raw'))
-#the conversion event
-observeEvent(input$fileImportRaw, {
-	showModal(modalDialog(easyClose=TRUE, title='Choose a project',
-		uiOutput('selectProjectAddFile'),
-		footer=actionButton('fileRawAdd', 'Valid')
-	))
-})
+shinyFileChoose(input, 'fileChooseRawModal', roots=getVolumes(), filetypes=c('raw'))
 
-observeEvent(input$fileRawAdd, {
-	removeModal()
-	if(input$projectAddFile == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
+observeEvent(input$fileChooseRaw, {
+	if(input$fileProject == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
+	toggleModal(session, 'fileProjectRawModal')
 	hide('app-content')
 	shinyjs::show('loader')
-	print('IMPORT RAW')
-	print(paste('input$projectAddFile:', input$projectAddFile))
-	files <- parseFilePaths(getVolumes()(), input$fileImportRaw)
-	print('files:')
-	print(files)
+	files <- parseFilePaths(getVolumes()(), input$fileChooseRawModal)
 	polarity <- 'negative'
 	success <- c()
-	fileAlreadyAdd <- samples()[which(samples()$project == input$projectAddFile), 'sample']
+	fileAlreadyAdd <- samples()[which(samples()$project == input$fileProject), 'sample']
 	withProgress(message='conversion', value=0, max=nrow(files), {
 	for(i in 1:nrow(files)){
 		name <- as.character(files[i, 'name'])
@@ -29,46 +18,48 @@ observeEvent(input$fileRawAdd, {
 		if(sample %in% fileAlreadyAdd) success[i] <- paste(name, 'already imported in project')
 		else if(sample %in% samples()$sample) success[i]<- paste(name, 'already in the database in the project', samples()[which(samples()$sample == name), 'project'])
 		else{
-			success <- msConvert(path, polarity, name=name, 
-				success=success, project=input$projectAddFile)
+			success[i] <- paste(name, msConvert(path, polarity, name=name, 
+				project=input$fileProject))
 			incProgress(amount=1)
 		}
 	}
 	})
+	type <- if(TRUE %in% sapply(success, function(x) !grepl('imported', x))) 'warning'
+		else 'success'
 	actualize$samples <- TRUE
+	print(success)
 	hide('loader')
 	shinyjs::show('app-content')
-	sendSweetAlert(session, title=paste(success, collapse='; '), type='success')
+	sendSweetAlert(session, title='Conversion', text=paste(success, collapse='; '), type=type)
 })
 
 #the function for the conversion
-msConvert <- function(path, polarity, name, success, project){
+msConvert <- function(path, polarity, name, project){
 	tryCatch({
 		query <- sprintf('""%s" "%s" -o "%s" --mzXML --32 --zlib --filter "peakPicking true 1" --filter "polarity %s""', 
 			converter, path, file.path(getwd(), dirOutput), polarity) 
 		shell(query)
+		if(!file.exists(file.path(getwd(), dirOutput, paste(file_path_sans_ext(name), '.mzXML', sep='')))) return('failed (missing .dll?)')
 		if(!file.info(path)$isdir){
 			query <- sprintf('""%s" --scanTrailers "%s" > "%s""',
 				thermo, path, file.path(getwd(), dirOutput, 
 					paste(file_path_sans_ext(name), '.txt', sep='')))
 			shell(query)
-			addFile(sample=paste(file_path_sans_ext(name)), 
+			txtFile <- file.path(getwd(), dirOutput, paste(file_path_sans_ext(name), '.txt', sep=''))
+			if(!file.exists(txtFile)) txtFile <- NULL
+			success <- addFile(sample=paste(file_path_sans_ext(name)), 
 				path=file.path(getwd(), dirOutput,  
 					paste(file_path_sans_ext(name), '.mzXML', sep='')), 
-				project=project, 
-				txtFile=file.path(getwd(), dirOutput, 
-					paste(file_path_sans_ext(name), '.txt', sep='')))
-				return(c(success, paste(name, 'Sucess!')))
+				project=project, txtFile=txtFile)
 		}
 		else{
-			addFile(sample=paste(file_path_sans_ext(name)), 
+			success <- addFile(sample=paste(file_path_sans_ext(name)), 
 				path=file.path(getwd(), dirOutput, 
 					paste(file_path_sans_ext(name), '.mzXML', sep='')), 
 				project=project)
-			return(c(success, paste(name, 'Sucess!')))
 		}
-	}, error=function(e){
-		success <- c(success, paste(name, e, sep=' : '))
 		return(success)
+	}, error=function(e){
+		return('failed (missing .dll?)')
 	})
 }

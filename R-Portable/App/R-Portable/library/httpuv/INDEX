@@ -6,8 +6,9 @@ rawToBase64             Convert raw vector to Base64-encoded string
 runServer               Run a server
 service                 Process requests
 startDaemonizedServer   Create an HTTP/WebSocket daemonized server
-                        (experimental)
+                        (deprecated)
 startServer             Create an HTTP/WebSocket server
+stopAllServers          Stop all applications
 stopDaemonizedServer    Stop a running daemonized server in Unix
-                        environments
-stopServer              Stop a running server
+                        environments (deprecated)
+stopServer              Stop a server

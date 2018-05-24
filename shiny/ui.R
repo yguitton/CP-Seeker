@@ -17,15 +17,17 @@ body <- dashboardBody(
 		tags$link(rel = "stylesheet", type = "text/css", href = "shinyCSS.css"),
 		useShinyjs(),
 		tags$script(src = "shinyJS.js"),
+		tags$script(src = "addItemsPicker.js"),
 		tags$script(src = "shinyWidgets/sweetAlert/js/sweetalert.min.js")
 	),
-	tags$div(id = "loader"),
+	div(id = "loader"),
 	hidden(div(id='app-content',
 		tabItems(
 			source(file.path("ui", "files.R"), local=TRUE)$value,
 			source(file.path("ui", "targetFull.R"), local=TRUE)$value,
 			source(file.path("ui", "target.R"), local=TRUE)$value
-	)
+	),
+	source(file.path("ui", "importFileModal.R"), local=TRUE)$value
 )))
 	
 

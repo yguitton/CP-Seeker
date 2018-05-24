@@ -12,6 +12,7 @@ service	service
 startDaemonizedServer	startDaemonizedServer
 startPipeServer	startServer
 startServer	startServer
+stopAllServers	stopAllServers
 stopDaemonizedServer	stopDaemonizedServer
 stopServer	stopServer
 WebSocket	WebSocket-class
