@@ -1,11 +1,19 @@
-shinyFileChoose(input, 'fileChoosemzXMLModal', roots=getVolumes(), filetypes=c('mzML', 'mzXML'))
+shinyFileChoose(input, 'fileImportmzXML', roots=getVolumes(), filetypes=c('mzML', 'mzXML'))
 
-observeEvent(input$fileChoosemzXML, {
+observeEvent(input$fileImportmzXML, {
+	showModal(modalDialog(easyClose=FALSE, title='Choose a project',
+		uiOutput('uiFileProject'),
+		footer=actionBttn('filemzXMLAdd', 'Valid', style='stretch', color='primary')
+	))
+})
+
+observeEvent(input$filemzXMLAdd, {
 	if(input$fileProject == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
-	toggleModal(session, 'fileProjectmzXMLModal')
+	removeModal()
 	hide('app-content')
 	show('loader')
-	files <- parseFilePaths(getVolumes(), input$fileChoosemzXMLModal)
+	tryCatch({
+	files <- parseFilePaths(getVolumes(), input$fileImportmzXML)
 	fileAlreadyAdd <- samples()[which(samples()$project == input$fileProject), 'sample']
 	success <- c()
 	withProgress(message='importation', value=0, max=nrow(files), {
@@ -13,23 +21,52 @@ observeEvent(input$fileChoosemzXML, {
 		name <- as.character(files[i, 'name'])
 		path <- as.character(files[i, 'datapath'])
 		incProgress(amount=0, detail=name)
-		xml_data <- xmlToList(path)
-		sample <- paste(file_path_sans_ext(name))
-		if(sample %in% fileAlreadyAdd) success[i] <- paste(name, 'already imported in project')
-		else if(sample %in% samples()$sample){
-			success[i]<- paste(name, 'already in the database in the project', samples()[which(samples()$sample == name), 'project'])
-		}
-		else{
-			file.copy(path, file.path(dirOutput, name))
-			success[i] <- paste(name, addFile(sample=sample, path=file.path(dirOutput, name), project=input$fileProject))
-		}
+		success[i] <- recordmzXML(name, path, fileAlreadyAdd, samples()$sample, input$fileProject)
 		incProgress(1)
 	}})
 	actualize$samples <- TRUE
-	print(success)
 	type <- if(TRUE %in% sapply(success, function(x) !grepl('imported', x))) 'warning'
 		else 'success'
 	hide('loader')
 	shinyjs::show('app-content')
-	sendSweetAlert(session, title='Importation', text=paste(success, collapse='; '), type=type)
+	print(success)
+	sendSweetAlert(session, title='Importation', text=HTML(paste(success, collapse='\n'), type=type))
+	}, error=function(e){
+		actualize$samples <- TRUE
+		hide('loader')
+		shinyjs::show('app-content')
+		print(e)
+		return(sendSweetAlert(session, title='Importation failed', text=paste(e), type='error'))
+	})
 })
+
+recordmzXML <- function(name, path, inProject, inDB, project){
+	# get info about file
+	file <- readMSData(path, msLevel=1, mode='onDisk')
+	if(FALSE %in% isCentroided(file)) return(paste(name, 'is not centroided'))
+	# get the polarity
+	polarity <- unique(polarity(file))
+	print(polarity)
+	if(length(polarity) > 1){
+		# cut the file
+		print('cut file')
+		negative_spectras <- which(polarity(file) == 0)
+		tmpdir <- tempdir(check=TRUE)
+		writeMSData(file[negative_spectras], file.path(tmpdir, name), outformat='mzxml', copy=TRUE)
+		success <- recordmzXML2(name, file.path(tmpdir, name), inProject, inDB, project)
+		file.remove(file.path(tmpdir, name))
+	}
+	else if(polarity == 1) return(paste(name, 'is in positive'))
+	else success <- recordmzXML2(name, path, inProject, inDB, project)
+	return(paste(name, success))
+}
+
+recordmzXML2 <- function(name, path, inProject, inDB, project){
+	polarity <- 'negative'
+	sample <- file_path_sans_ext(name)
+	if(sample %in% inProject) return('imported')
+	else if(sample %in% inDB) return('already in an another project')
+	success <- addFile(sample, path, project)
+	if(success == 'imported') file.copy(path, file.path(dirOutput, name))
+	return(success)
+}

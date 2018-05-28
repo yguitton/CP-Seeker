@@ -11,11 +11,17 @@ Description: Provides functionality for client-side navigation of
     need to "download" files to a temporary location. Both file and folder
     selection as well as file saving is available.
 License: GPL (>= 2)
-Imports: tools, shiny (>= 0.11), htmltools, RJSONIO
+Imports: tools, shiny (>= 0.11), htmltools, jsonlite
 Collate: 'aaa.R' 'filechoose.R' 'dirchoose.R' 'filesave.R'
 RoxygenNote: 5.0.1
-NeedsCompilation: no
-Packaged: 2016-08-28 16:20:42 UTC; Thomas
-Repository: CRAN
-Date/Publication: 2016-08-28 18:53:11
-Built: R 3.4.4; ; 2018-03-22 00:19:43 UTC; windows
+Built: R 3.4.2; ; 2018-05-28 14:44:37 UTC; windows
+RemoteType: github
+RemoteHost: https://api.github.com
+RemoteRepo: shinyFiles
+RemoteUsername: thomasp85
+RemoteRef: master
+RemoteSha: 72505019ab6b771bd3b7e2450714b6cc5fc12061
+GithubRepo: shinyFiles
+GithubUsername: thomasp85
+GithubRef: master
+GithubSHA1: 72505019ab6b771bd3b7e2450714b6cc5fc12061

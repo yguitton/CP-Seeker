@@ -1,11 +1,18 @@
-shinyFileChoose(input, 'fileChooseRawModal', roots=getVolumes(), filetypes=c('raw'))
+shinyFileChoose(input, 'fileImportRaw', roots=getVolumes(), filetypes=c('raw'))
 
-observeEvent(input$fileChooseRaw, {
+observeEvent(input$fileImportRaw, {
+	showModal(modalDialog(easyClose=FALSE, title='Choose a project',
+		uiOutput('uiFileProject'),
+		footer=actionBttn('fileRawAdd', 'Valid', style='stretch', color='primary')
+	))
+})
+
+observeEvent(input$fileRawAdd, {
 	if(input$fileProject == '') return(sendSweetAlert(session, title='You have to choose a project!', type='error'))
-	toggleModal(session, 'fileProjectRawModal')
+	removeModal()
 	hide('app-content')
 	shinyjs::show('loader')
-	files <- parseFilePaths(getVolumes()(), input$fileChooseRawModal)
+	files <- parseFilePaths(getVolumes()(), input$fileImportRaw)
 	polarity <- 'negative'
 	success <- c()
 	fileAlreadyAdd <- samples()[which(samples()$project == input$fileProject), 'sample']
