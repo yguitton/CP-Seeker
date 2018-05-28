@@ -60,6 +60,6 @@ msConvert <- function(path, polarity, name, project){
 		}
 		return(success)
 	}, error=function(e){
-		return('failed (missing .dll?)')
+		return(paste(e))
 	})
 }

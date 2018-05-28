@@ -1,54 +1,58 @@
 #the files
 output$uiTargetFullSelectFiles <- renderUI({
-	selectInput("targetFullFiles", "Select file(s)", choices=samples()[which(samples()$project == input$selectProject), 'sample'], multiple=TRUE)
+	pickerInput("targetFullFiles", "Select file(s)", choices=samples()[which(samples()$project == input$selectProject), 'sample'], multiple=TRUE,
+		options=list(`actions-box`=TRUE, `live-search`=TRUE))
 })
 
 #the Target event
 observeEvent(input$targetFullSubmit, {
 	if(length(input$targetFullFiles) == 0) return(sendSweetAlert(session, title='You have to choose at least one file!', type='error'))
-	hide('app-content')
-	shinyjs::show('loader')
+	else if(input$targetFullPrefilterL == '') return(sendSweetAlert(session, title='You need to specified the prefilter level', type="error"))
+	else if(input$targetFullTolAbd == '') return(sendSweetAlert(session, title='You need to specified the abundance tolerance', type='error'))
+	tryCatch({
+		hide('app-content')
+		show('loader')
+		recordParametersTargetFull(input$targetFullFiles, input$targetFullAdduct, input$targetFullPpm, input$targetFullTolAbd,
+			input$targetFullPrefilterS, input$targetFullPrefilterL)
+		db <- dbConnect(SQLite(), sqlitePath)
+		query <- sprintf('select * from theoric inner join molecule on theoric.molecule = molecule.id where adduct == "%s";',
+			input$targetFullAdduct)
+		data <- dbGetQuery(db, query)
+		dbDisconnect(db)
+		files <- readMSData(samples()[which(samples()$sample %in% input$targetFullFiles), 'path'], 
+			centroided=TRUE, msLevel=1, mode='onDisk')
+		targetROI(files, data, input$targetFullPpm, input$targetFullPrefilterS, input$targetFullPrefilterL, tolAbd)
+		actualize$graph <- if(actualize$graph) FALSE else TRUE
+		hide('loader')
+		shinyjs::show('app-content')
+	}, error=function(e){
+		hide('loader')
+		show('app-content')
+		sendSweetAlert(session, title='Error targeting', text=paste(e), type='error')
+	})
+})
+
+recordParametersTargetFull <- function(files, adduct, ppm, tolAbd, prefilterS, prefilterL){
 	db <- dbConnect(SQLite(), sqlitePath)
 	# create the param for each file or update it
 	query <- sprintf('select sample from param where sample in (%s) and adduct == "%s";', 
-		paste('"', input$targetFullFiles, '"', collapse=', ', sep=''), input$targetFullAdduct)
+		paste('"', files, '"', collapse=', ', sep=''), adduct)
 	toUpdate <- dbGetQuery(db, query)$sample
 	sapply(toUpdate, function(x) dbSendQuery(db, sprintf(
-		'update param set ppmTol = %s, rtMin = %s, rtMax = %s, threshold = %s, abdTol = %s where sample == "%s" and adduct == "%s";',
-		input$targetFullPpm, input$targetFullRt[1], input$targetFullRt[2], input$targetFullThreshold, input$targetFullTolAbd, x, input$targetFullAdduct)))
+		'update param set ppmTol = %s, abdTol = %s, prefilterS = %s, prefilterL = %s where sample == "%s" and adduct == "%s";',
+		ppm, tolAbd, prefilterS, prefilterL, x, adduct)))
 	sapply(input$targetFullFiles[which(!input$targetFullFiles %in% toUpdate)], function(x) dbSendQuery(db, sprintf(
-		'insert into param (ppmTol, rtMin, rtMax, threshold, abdTol, sample, adduct) values (%s, %s, %s, %s, %s, "%s", "%s");',
-		input$targetFullPpm, input$targetFullRt[1], input$targetFullRt[2], input$targetFullThreshold, input$targetFullTolAbd, x, input$targetFullAdduct)))
+		'insert into param (ppmTol, abdTol, sample, adduct, prefilterS, prefilterL) values (%s, %s, "%s", "%s", %s, %s);',
+		ppm, tolAbd, x, adduct, prefilterS, prefilterL)))
 	queries <- c(
-		sprintf('delete from measured where observed in (select id from observed where sample in (%s) and molecule in (select id from molecule where adduct == "%s"));',
-			paste('"', input$targetFullFiles, '"', sep='', collapse=', '), input$targetFullAdduct),
+		sprintf('delete from measured where observed in (select id from observed where sample in (%s) 
+			and molecule in (select id from molecule where adduct == "%s"));',
+			paste('"', files, '"', sep='', collapse=', '), adduct),
 		sprintf('delete from observed where sample in (%s) and molecule in (select id from molecule where adduct == "%s");',
-			paste('"', input$targetFullFiles, '"', sep='', collapse=', '), input$targetFullAdduct))
-	dbSendQueries(db, queries)	
-	query <- sprintf('select id from molecule where adduct == "%s";',
-		input$targetFullAdduct)
-	molecules <- dbGetQuery(db, query)$id
-	query <- sprintf('select mz, abd, molecule from theoric where molecule in (select molecule from molecule where adduct == "%s");',
-		input$targetFullAdduct)
-	theoric <- dbGetQuery(db, query)
-	xraws <- sapply(samples()[which(samples()$sample %in% input$targetFullFiles), 'path'], function(file) 
-		readMSData(file, centroided=TRUE, msLevel=1, mode='onDisk'))
-	withProgress(message='target chloroparaffins', value=0, max=length(molecules), {
-	for(molecule in molecules){
-		data <- theoric[which(theoric$molecule == molecule), c('mz', 'abd')]
-		sapply(1:length(xraws), function(x) 
-			targetROI(db=db, sample=input$targetFullFiles[x], xraw=xraws[[x]], 
-				molecule=molecule, data=data[order(data$abd, decreasing=TRUE), ], rt=input$targetFullRt*60, 
-				tolPpm=input$targetFullPpm, tolAbd=input$targetFullTolAbd, 
-				threshold=input$targetFullThreshold))
-		incProgress(amount=1)
-	}
-	})
+			paste('"', files, '"', sep='', collapse=', '), adduct))
+	dbSendQueries(db, queries)
 	dbDisconnect(db)
-	actualize$graph <- if(actualize$graph) FALSE else TRUE
-	hide('loader')
-	shinyjs::show('app-content')
-})
+}
 
 output$targetFullGraph <- renderPlotly({
 	actualize$graph
@@ -66,22 +70,21 @@ output$targetFullGraph <- renderPlotly({
 				), list('zoom3d', 'pan3d', 'resetCameraDefault3d', 'orbitRotation', 'tableRotation')
 			)
 		)
-	if(is.null(input$targetFullFiles)) return(graph)
-	if(length(input$targetFullFiles) == 0) return(graph)
+	if(is.null(input$targetFullFiles) | is.null(input$targetFullAdduct)) return(graph)
+	else if(length(input$targetFullFiles) == 0 | input$targetFullAdduct == '') return(graph)
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('select formula, sum(auc), adduct from measured inner join observed on observed.id = measured.observed inner join molecule on molecule.id = observed.molecule group by observed having sample in (%s);',
-		paste('"', input$targetFullFiles, '"', sep='', collapse=', '))
+	query <- sprintf('select sum(auc), formula from measured inner join observed on observed.id = measured.observed 
+		inner join molecule on molecule.id = observed.molecule 
+		where sample in (%s) and adduct == "%s" group by formula;',
+		paste('"', input$targetFullFiles, '"', sep='', collapse=', '), input$targetFullAdduct)
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
 	if(nrow(data) == 0) return(graph)
-	data$C <- as.numeric(str_extract_all(str_extract_all(data$formula, 'C[[:digit:]]+'), '[[:digit:]]+'))
-	data$Cl <- as.numeric(str_extract_all(str_extract_all(data$formula, 'Cl[[:digit:]]+'), '[[:digit:]]+'))
-	for(adduct in unique(data$adduct)) graph <- graph %>% 
-		add_trace(x=data[which(data$adduct == adduct), 'Cl'], y=data[which(data$adduct == adduct), 'C'], 
-			z=data[which(data$adduct == adduct), 'sum(auc)']*0.5, size=I(1), name=adduct,
-			error_z=list(thickness=0, symmetric=TRUE, type='data', array=data[which(data$adduct == adduct), 'sum(auc)']*0.5), 
-				hoverinfo='text', text=paste0('Adduct: ', adduct, '<br />C: ', data[which(data$adduct == adduct), 'C'], 
-				'<br />Cl: ', data[which(data$adduct == adduct), 'Cl'], 
-				'<br />Intensity :', formatC(data[which(data$adduct == adduct), 'sum(auc)'], format='e', digits=2)))
-	return(graph)
+	data$C <- sapply(strsplit(data$formula, 'H'), function(x) as.numeric(strsplit(x[1], 'C')[[1]][2]))
+	data$Cl <- sapply(strsplit(data$formula, 'Cl'), function(x) as.numeric(x[2]))
+	z <- matrix(0, nrow=36-8, ncol=30-4)
+	for(row in 1:nrow(data)){
+		z[data[row, 'C']-8, data[row, 'Cl']-4] <- data[row, 'sum(auc)']
+	}
+	graph <- plot_ly(x=8:36, y=4:30, z=z) %>% add_surface()
 })

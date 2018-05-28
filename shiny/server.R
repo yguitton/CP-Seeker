@@ -1,6 +1,5 @@
 shinyServer(function(input, output, session) {
 
-normalizePath('.')
 sqlitePath <- "database.db"
 converter <- file_path_as_absolute('../pwiz/msconvert.exe')
 thermo <- file_path_as_absolute('../pwiz/ThermoRawMetaDump.exe')

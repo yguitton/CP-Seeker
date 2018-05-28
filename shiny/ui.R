@@ -26,15 +26,18 @@ body <- dashboardBody(
 			source(file.path("ui", "files.R"), local=TRUE)$value,
 			source(file.path("ui", "targetFull.R"), local=TRUE)$value,
 			source(file.path("ui", "target.R"), local=TRUE)$value
-	),
-	source(file.path("ui", "importFileModal.R"), local=TRUE)$value
-)))
-	
-
-shinyUI(fillPage(
-	dashboardPage(
-		header,
-		sidebar,
-		body
+		),
+		source(file.path("ui", "importFileModal.R"), local=TRUE)$value
 	)
 ))
+	
+
+shinyUI(
+	fillPage(
+		dashboardPage(
+			header,
+			sidebar,
+			body
+		)
+	)
+)

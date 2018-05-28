@@ -1,59 +1,81 @@
-recordTarget <- function(db, sample, xraw, molecule, data, rt, tolPpm, tolAbd, threshold){
-	res <- targetMasses(xraw, data$mz, tolPpm, rt, threshold)
-	AUC <- res$AUC
-	if(length(AUC) < 2) return()
-	else print('FIND')
-	deviationPpm <- res$deviationPpm
-	mzObserved <- res$mzObserved
-	observed <- sapply(AUC, function(x) round((x*100)/AUC[1], digits=2))
-	score <- computeScore(data$abd, observed, tolAbd)
-	query <- sprintf('insert into observed (molecule, tolPpm, rtMin, rtMax, threshold, tolAbd, score, ppmDeviation, sample) values (%s, %s, %s, %s, %s, %s, %s, %s, "%s");',
-		molecule, tolPpm, round(rt[1]/60, digits=2), round(rt[2]/60, digits=2), threshold, tolAbd, score, round(mean(deviationPpm), digits=2), sample)
-	dbSendQuery(db, query)
-	observedId <- dbGetQuery(db, 'select last_insert_rowid() from observed;')$last_insert_rowid[1]
-	query <- sprintf('insert into measured (observed, mz, auc, abd) values %s;',
-		paste(sapply(1:length(observed), function(x)
-			sprintf('(%s, %s, %s, %s)',
-				observedId, mzObserved[[x]], AUC[[x]], observed[[x]])),
-		sep='', collapse=', '))
-	dbSendQuery(db, query)
-}
-
-targetMasses <- function(xraw, mzs, tolPpm, rt, threshold){
-	AUC <- c()
-	mzList <- c()
-	deviationPpm <- c()
-	for(i in 1:length(mzs)){
-		mz <- mzs[i]
-		mzRange <- c(mz-(mz*tolPpm)/10**6, mz+(mz*tolPpm)/10**6)
-		points <- extractMsData(xraw, mz=mzRange, rt=rt)[[1]]
-		points <- points[which(points$i >= threshold), ]
-		#compute the area
-		tmpAUC <- trapz(points$rt, points$i)
-		#test if the intensity decrease
-		if(tmpAUC == 0) return(list(AUC=AUC, mzObserved=mzList, deviationPpm=deviationPpm))
-		else if(tmpAUC > 0 & i == 1) mzObserved <- points[which(points$i == max(points$i)), 'mz']
-		else if(tmpAUC >= AUC[i - 1]*1.2) return(list(AUC=AUC, mzObserved=mzList, deviationPpm=deviationPpm))
-		else mzObserved <- points[which(points$i == max(points$i)), 'mz']
-		if(mzObserved == -Inf) return(list(AUC=AUC, mzObserved=mzList, deviationPpm=deviationPpm))
-		else{
-			AUC <- c(AUC, tmpAUC)
-			mzList <- c(mzList, mzObserved)
-			deviationPpm <- c(deviationPpm, round(abs((mzObserved - mz) / mz * 10**6), digits=2))
+targetROI <- function(files, data, ppm, prefilterS, prefilterL, tolAbd){
+	# first search basepeaks of chloroparaffins
+	mzs <- data[which(data$abd == 100), 'mz']
+	tol <- mzs * ppm / 10**6
+	chroms <- chromatogram(files, mz=data.frame(mzmin=mzs-tol, mzmax=mzs+tol), missing=0)
+	scans <- apply(chroms, c(1, 2), function(x) findScans(x[[1]], prefilterS, prefilterL))
+	# then integrate in each file!
+	index <- split(1:length(files), sapply(strsplit(names(rtime(files)), '\\.'), function(x) x[1]))
+	files <- sapply(index, function(x) files[x])
+	for(col in 1:ncol(scans)){
+		i <- which(!sapply(scans[, col], is.null))
+		if(length(i) == 0) next
+		formulas <- data[which(data$mz %in% mzs[i] & data$abd == 100), 'formula']
+		subData <- data[which(data$formula %in% formulas), ]
+		subData <- cbind(subData, mzmin=subData$mz-tol[i], mzmax=subData$mz+tol[i],
+			rtmin=rep(rtime(files[[col]])[sapply(scans[i, col], min)], each=5),
+			rtmax=rep(rtime(files[[col]])[sapply(scans[i, col], max)], each=5))
+		chroms <- chromatogram(files[[col]], mz=subData[, c('mzmin', 'mzmax')], rt=subData[, c('rtmin', 'rtmax')], missing=0)
+		for(j in seq(1, nrow(chroms), by=5)){
+			res <- integrateROI(files[[col]], chroms[j:(j+4), ], subData[j:(j+4), 'mz'], prefilterS, prefilterL)
+			if(nrow(res) < 2) next
+			ppmDeviation <- mean(res$mz)
+			res$abd <- res$AUC*100/max(res$AUC)
+			score <- computeScore(subData[j:(j+4), 'abd'], res$abd, tolAbd)
+			sample <- strsplit(as.character(phenoData(files[[col]])@data$sampleNames), '\\.mzXML$')[[1]][1]
+			recordTarget(res, subData[j, 'molecule'], ppm, tolAbd, score, ppmDeviation, sample, prefilterS, prefilterL)
 		}
 	}
-	return(list(AUC=AUC, mzObserved=mzList, deviationPpm=deviationPpm))	
 }
+	
+findScans <- function(chrom, prefilterS, prefilterL){
+	scans <- which(chrom@intensity >= prefilterL)
+	if(length(scans) == 0) return(NULL)
+	# split scans into a suite
+	scans <- split(scans, cumsum(c(TRUE, diff(scans) != 1)))
+	maxScans <- max(listLen(scans))
+	if(maxScans < prefilterS) return(NULL)
+	scans <- scans[which(listLen(scans) == maxScans)]
+	if(length(scans) > 1){
+		sumI <- sapply(scans, function(x) sum(chrom@intensity[x]))
+		scans <- scans[which(listLen(scans) == maxScans)]
+	}
+	scans <- scans[[1]]
+	return(scans)
+}
+
+integrateROI <- function(file, chroms, mzs, prefilterS, prefilterL, res=data.frame()){
+	chrom <- if(is.null(nrow(chroms))) chroms else chroms[1, 1]
+	scans <- findScans(chrom, prefilterS, prefilterL)
+	if(is.null(scans)) return(res)
+	AUC <- trapz(chrom@rtime[scans], chrom@intensity[scans])
+	if(nrow(res) > 0) if(AUC > res[nrow(res), 'AUC'] * 1.2) return(res)
+	scans <- sapply(strsplit(names(scans), 'S'), function(x) as.numeric(x[2]))
+	mzObserved <- unlist(mz(file[scans]))
+	mzObserved <- mzObserved[which.min(abs(mzObserved - mzs[1]))]
+	res <- rbind(res, data.frame(mz=mzObserved, AUC=AUC, rtmin=rtime(file)[scans[1]], rtmax=rtime(file)[scans[2]], abd=0))
+	if(length(mzs > 1))	res <- integrateROI(file, chroms[2:nrow(chroms), ], mzs[-1], prefilterS, prefilterL, res)
+	return(res)
+}
+
 
 computeScore <- function(theoric, observed, tolAbd){
 	weight <- sapply(1:length(observed), function(x) theoric[x] / sum(theoric))
-	observed <- sapply(1:length(observed), function(x) if(x < 2) observed[x] else (observed[x] * 100) / observed[x-1])
-	theoric <- sapply(1:length(observed), function(x) if(x < 2) theoric[x] else (theoric[x] * 100) / theoric[x-1])
-	# deltaMz <- sapply(deviationPpm, function(x) x/tolPpm)
 	deltaAbundance <- sapply(1:length(observed), function(x) abs((observed[x] - theoric[x]) / tolAbd))
-	# deviation <- sqrt(deltaMz**2 + deltaAbundance**2)
 	deviation <- deltaAbundance
 	deviation[which(deviation > 1)] <- 1
 	score <- 100 * (1 - sum(deviation * weight))
 	return(round(score, digits=0))
+}
+
+recordTarget <- function(res, molecule, ppm, tolAbd, score, ppmDeviation, sample, prefilterS, prefilterL){
+	db <- dbConnect(SQLite(), sqlitePath)
+	query <- sprintf('insert into observed (molecule, tolPpm, tolAbd, score, sample, ppmDeviation, prefilterS, prefilterL) values
+		(%s, %s, %s, %s, "%s", %s, %s, %s);',
+		molecule, ppm, tolAbd, score, sample, ppmDeviation, prefilterS, prefilterL)
+	dbSendQuery(db, query)
+	id <- dbGetQuery(db, 'select last_insert_rowid();')$last_insert_rowid[1]
+	apply(res, 1, function(x) dbSendQuery(db, sprintf('insert into measured (observed, mz, auc, abd, rtmin, rtmax) values (%s, %s, %s, %s, %s, %s);',
+		id, x['mz'], x['AUC'], x['abd'], x['rtmin'], x['rtmax'])))
+	dbDisconnect(db)
 }
