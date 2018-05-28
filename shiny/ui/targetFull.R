@@ -6,7 +6,7 @@ tabItem(tabName = 'TargetFull',
 		sliderInput('targetFullPrefilterS', 'prefilter step', min=1, max=10, value=3),
 		column(width=6, numericInput('targetFullPrefilterL', 'prefilter level', value=10000)),
 		column(width=6, numericInput('targetFullTolAbd', 'abundance tol (%)', value=20, min=0, max=100, step=1)),
-		div(style='text-align:center;', actionBttn("targetFullSubmit", "Submit", style='unite', color='primary'))
+		div(style='text-align:center;', actionBttn("targetFullSubmit", "Submit", style='unite'))
 	),
 	box(width=9,
 		plotlyOutput('targetFullGraph', height='800px')

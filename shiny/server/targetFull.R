@@ -82,9 +82,10 @@ output$targetFullGraph <- renderPlotly({
 	if(nrow(data) == 0) return(graph)
 	data$C <- sapply(strsplit(data$formula, 'H'), function(x) as.numeric(strsplit(x[1], 'C')[[1]][2]))
 	data$Cl <- sapply(strsplit(data$formula, 'Cl'), function(x) as.numeric(x[2]))
-	z <- matrix(0, nrow=36-8, ncol=30-4)
+	z <- matrix(0, nrow=36, ncol=30)
 	for(row in 1:nrow(data)){
-		z[data[row, 'C']-8, data[row, 'Cl']-4] <- data[row, 'sum(auc)']
+		z[data[row, 'C'], data[row, 'Cl']] <- data[row, 'sum(auc)']
 	}
-	graph <- plot_ly(x=8:36, y=4:30, z=z) %>% add_surface()
+	graph <- plot_ly(x=0:36, y=0:30, z=z) %>% add_surface() %>%
+		layout(scene=list(xaxis=list(title='Cl', autorange='reversed', rangemode='tozero'), yaxis=list(title='C', rangemode='tozero'), zaxis=list(title='Intensity')))
 })
