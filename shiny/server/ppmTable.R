@@ -1,6 +1,6 @@
 targetTableFunctionPpmDeviation <- function(file, adduct){
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('select formula, ppmDeviation, adduct from observed inner join molecule on molecule.id = observed.molecule where sample == "%s" and adduct == "%s";',
+	query <- sprintf('select formula, ppmDeviation from observed inner join molecule on molecule.id = observed.molecule where sample == "%s" and adduct == "%s";',
 		file, adduct)
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
@@ -14,27 +14,20 @@ targetTableFunctionPpmDeviation <- function(file, adduct){
 }
 
 output$targetTablePpmDeviation <- renderDataTable({
-	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return(c())
-	if(input$targetFile == '' | input$targetAdduct == '') return(c())
-	input$targetPpm
+	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return(data.frame())
+	if(input$targetFile == '' | input$targetAdduct == '' | input$targetPpm == '') return(data.frame())
 	res <- targetTableFunctionPpmDeviation(input$targetFile, input$targetAdduct)
-}, selection='none', extensions=c('Scroller', 'Buttons'), options=list(dom='Bfrtip', scrollX=TRUE, scrollY=550, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, 
-ordering=FALSE, buttons=htmlwidgets::JS('
-	[
-		{
-			text: "Export to excel",
-			action:function(e, table, node, config){
-				document.getElementById("targetDownload").click();
-			}
-		}
-	]
-'), initComplete=htmlwidgets::JS(paste("
+	res <- apply(res, c(1, 2), function(x) round(x, digits=2))
+}, selection='none', extensions='Scroller', class="display cell-border compact", options=list(dom='frtip', 
+scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, ordering=FALSE, initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();
-		var $cell = api.cell(", 
-		if(is.null(isolate(input$targetTable_cell_selected))) "-1, -1" else paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
-		").nodes().to$();
-		$cell.addClass('selected');
+		if(", input$targetTable_cell_selected$C, " != 0){
+			var $cell = api.cell(", 
+				paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
+				").nodes().to$();
+			$cell.addClass('selected');
+		}
 		var ppm = Number(document.getElementById('targetPpm').value);
 		api.cells().every(function(){
 			if(this.data() != null & this.index().column != 0 & this.data() <= ppm){
@@ -46,7 +39,6 @@ ordering=FALSE, buttons=htmlwidgets::JS('
 		});
 	}
 "))), callback = htmlwidgets::JS("
-	Shiny.onInputChange('targetTable_cell_selected', {C:0, Cl:0});
 	table.on('click', 'tbody td', function(){
 		if(table.cell(this).data() != null){
 			if ( $(this).hasClass('selected') ) {
@@ -66,7 +58,7 @@ ordering=FALSE, buttons=htmlwidgets::JS('
 		console.log('ppm');
 		table.$('td.selected').removeClass('selected');
 		var $cell = table.cell(message.row, message.column).nodes().to$();
-		$cell.toggleClass('selected');
+		$cell.addClass('selected');
 		//table.cell(message.row, message.column).data(message.ppm);
 	};
 	Shiny.addCustomMessageHandler('targetTablePpmUpdate', update);

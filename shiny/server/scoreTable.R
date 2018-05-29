@@ -1,6 +1,6 @@
 targetTableFunctionScore <- function(file, adduct){
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('select formula, score, adduct from observed inner join molecule on molecule.id = observed.molecule where sample == "%s" and adduct == "%s";',
+	query <- sprintf('select formula, score from observed inner join molecule on molecule.id = observed.molecule where sample == "%s" and adduct == "%s";',
 		file, adduct)
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
@@ -15,24 +15,19 @@ targetTableFunctionScore <- function(file, adduct){
 
 output$targetTableScore <- renderDataTable({
 	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return(c())
-	if(input$targetFile == '' | input$targetAdduct == '') return(c())	
+	if(input$targetFile == '' | input$targetAdduct == '' | input$targetTolAbd == '') return(c())
 	res <- targetTableFunctionScore(input$targetFile, input$targetAdduct)
-}, selection='none', extensions=c('Scroller', 'Buttons'), options=list(dom='Bfrtip', scrollX=TRUE, scrollY=550, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, ordering=FALSE, buttons=htmlwidgets::JS('
-	[
-		{
-			text: "Export to excel",
-			action:function(e, table, node, config){
-				document.getElementById("targetDownload").click();
-			}
-		}
-	]
-'), initComplete=htmlwidgets::JS(paste("
+	res <- apply(res, c(1, 2), function(x) round(x, digits=2))
+}, selection='none', extensions='Scroller', options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, 
+	deferRender=TRUE, bFilter=FALSE, ordering=FALSE, class="display cell-border compact", initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();
-		var $cell = api.cell(", 
-		if(is.null(isolate(input$targetTable_cell_selected))) "-1, -1" else paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
-		").nodes().to$();
-		$cell.addClass('selected');
+		if(", input$targetTable_cell_selected$C, " != 0){
+			var $cell = api.cell(", 
+				paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
+				").nodes().to$();
+			$cell.addClass('selected');
+		}
 		var tol = 100 - document.getElementById('targetTolAbd').value;
 		api.cells().every(function(){
 			if(this.data() != null & this.index().column != 0 & this.data() >= tol){

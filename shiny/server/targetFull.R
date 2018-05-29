@@ -39,10 +39,10 @@ recordParametersTargetFull <- function(files, adduct, ppm, tolAbd, prefilterS, p
 		paste('"', files, '"', collapse=', ', sep=''), adduct)
 	toUpdate <- dbGetQuery(db, query)$sample
 	sapply(toUpdate, function(x) dbSendQuery(db, sprintf(
-		'update param set ppmTol = %s, abdTol = %s, prefilterS = %s, prefilterL = %s where sample == "%s" and adduct == "%s";',
+		'update param set tolPpm = %s, tolAbd = %s, prefilterS = %s, prefilterL = %s where sample == "%s" and adduct == "%s";',
 		ppm, tolAbd, prefilterS, prefilterL, x, adduct)))
 	sapply(input$targetFullFiles[which(!input$targetFullFiles %in% toUpdate)], function(x) dbSendQuery(db, sprintf(
-		'insert into param (ppmTol, abdTol, sample, adduct, prefilterS, prefilterL) values (%s, %s, "%s", "%s", %s, %s);',
+		'insert into param (tolPpm, tolAbd, sample, adduct, prefilterS, prefilterL) values (%s, %s, "%s", "%s", %s, %s);',
 		ppm, tolAbd, x, adduct, prefilterS, prefilterL)))
 	queries <- c(
 		sprintf('delete from measured where observed in (select id from observed where sample in (%s) 

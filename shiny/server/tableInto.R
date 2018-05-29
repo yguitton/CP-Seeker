@@ -1,6 +1,29 @@
+computeSumAUC <- function(file, adduct, C, Cl){
+	if(is.null(C) | is.null(Cl) | is.null(file) | is.null(adduct)) return(0)
+	if(file == '' | adduct == '') return(0)
+	db <- dbConnect(SQLite(), sqlitePath)
+	query <- sprintf('select formula, sum(auc) from measured inner join observed 
+		on observed.id = measured.observed inner join molecule on molecule.id = observed.molecule 
+			where sample == "%s" and adduct == "%s" group by observed;',
+		file, adduct)
+	data <- dbGetQuery(db, query)
+	dbDisconnect(db)
+	if(nrow(data) == 0) return(0)
+	data$C <- as.numeric(str_extract_all(str_extract_all(data$formula, 'C[[:digit:]]+'), '[[:digit:]]+'))
+	data$Cl <- as.numeric(str_extract_all(str_extract_all(data$formula, 'Cl[[:digit:]]+'), '[[:digit:]]+'))
+	res <- sum(data[which(data$C >= C[1] & data$C <= C[2] & data$Cl >= Cl[1] & data$Cl <= Cl[2]), 'sum(auc)'])
+	return(formatC(res, format='e', digits=2))
+}
+
+output$targetSumAUC <- renderText({
+	return(paste('Sum of AUC:', computeSumAUC(input$targetFile, input$targetAdduct, input$targetC, input$targetCl)))	
+})
+
 targetTableFunctionInto <- function(file, adduct){
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('select formula, sum(auc), adduct from measured inner join observed on observed.id = measured.observed inner join molecule on molecule.id = observed.molecule group by observed having sample == "%s" and adduct == "%s";',
+	query <- sprintf('select formula, sum(auc) from measured inner join observed 
+		on observed.id = measured.observed inner join molecule on molecule.id = observed.molecule 
+			group by observed having sample == "%s" and adduct == "%s";',
 		file, adduct)
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
@@ -9,7 +32,6 @@ targetTableFunctionInto <- function(file, adduct){
 	res <- as.data.frame(matrix(NA, nrow=29, ncol=27))
 	colnames(res) <- paste0('Cl', 4:30)
 	rownames(res) <- paste0('C', 8:36)
-#	for(row in 1:nrow(data)) res[data[row, 'C']-7, data[row, 'Cl']-3] <- format(data[row, 'sum(auc)'], format='e', digits=2)
 	for(row in 1:nrow(data)) res[data[row, 'C']-7, data[row, 'Cl']-3] <- data[row, 'sum(auc)']
 	return(res)
 }
@@ -19,27 +41,18 @@ output$targetTableInto <- renderDataTable({
 	if(input$targetFile == '' | input$targetAdduct == '') return(c())	
 	res <- targetTableFunctionInto(input$targetFile, input$targetAdduct)
 	res <- apply(res, c(1, 2), function(x) if(!is.na(x)) formatC(x, format='e', digits=2) else NA)
-}, selection='none', extensions=c('Scroller', 'Buttons'), options=list(dom='Bfrtip', scrollX=TRUE, scrollY=450, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, ordering=FALSE, buttons=htmlwidgets::JS('
-	[
-		{
-			text: "Export to excel",
-			action:function(e, table, node, config){
-				document.getElementById("targetDownload").click();
-			}
-		}
-	]
-'), initComplete=htmlwidgets::JS(paste("
+}, selection='none', extensions='Scroller', options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, 
+	deferRender=TRUE, bFilter=FALSE, ordering=FALSE, class='display cell-bordered compact', initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();
-		var $cell = api.cell(", 
-		if(is.null(isolate(input$targetTable_cell_selected))) "-1, -1" else paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
-		").nodes().to$();
-		$cell.addClass('selected');
+		if(", input$targetTable_cell_selected$C, " != 0){
+			var $cell = api.cell(", 
+				paste(isolate(input$targetTable_cell_selected$C)-8, isolate(input$targetTable_cell_selected$Cl)-3, sep=', '), 
+				").nodes().to$();
+			$cell.addClass('selected');
+		}
 	}
 "))), callback = htmlwidgets::JS("
-	table.on('change', '#targetTable_cell_selected', function(){
-		var $cell = table.cell(this.value[1]-8, this.value[2])
-	})
 	table.on('click', 'tbody td', function(){
 		if(table.cell(this).data() != null){
 			if ( $(this).hasClass('selected') ) {

@@ -4,7 +4,7 @@ output$uiTargetFile <- renderUI({
 		input$selectProject)
 	files <- dbGetQuery(db, query)[, 1]
 	dbDisconnect(db)
-	pickerInput("targetFile", "Select file", choices=files, multiple=FALSE)
+	pickerInput("targetFile", "Select file", choices=files, multiple=FALSE, options=list(`live-search`=TRUE))
 })
 
 output$uiTargetAdduct <- renderUI({
@@ -18,29 +18,28 @@ output$uiTargetAdduct <- renderUI({
 	pickerInput('targetAdduct', 'Select adduct', choices=choices)
 })
 
-computeSumAUC <- function(file, adduct, C, Cl){
-	if(is.null(C) | is.null(Cl) | is.null(file) | is.null(adduct)) return(0)
-	if(file == '' | adduct == '') return(0)
+observeEvent(c(input$targetFile, input$targetAdduct, input$targetTable_cell_selected), {
+	if(is.null(input$targetFile) | is.null(input$targetAdduct) | is.null(input$targetTable_cell_selected)) return()
+	else if((input$targetFile == '' | input$targetAdduct == '') & input$targetTable_cell_selected$C == 0) return()
+	print(input$targetTable_cell_selected)
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('select formula, sum(auc) from measured inner join observed on observed.id = measured.observed inner join molecule on molecule.id = observed.molecule where sample == "%s" and adduct == "%s" group by observed;',
-		file, adduct)
-	data <- dbGetQuery(db, query)
+	query <- if(input$targetTable_cell_selected$C != 0) sprintf('
+			select * from observed where sample == "%s" and molecule == 
+				(select id from molecule where adduct == "%s" and formula like "%s");', 
+			input$targetFile, input$targetAdduct, paste('C', input$targetTable_cell_selected$C, '%Cl',input$targetTable_cell_selected$Cl, sep='', collapse=''))
+		else sprintf('select * from param where sample == "%s";', input$targetFile)
+	param <- dbGetQuery(db, query)
 	dbDisconnect(db)
-	if(nrow(data) == 0) return(0)
-	data$C <- as.numeric(str_extract_all(str_extract_all(data$formula, 'C[[:digit:]]+'), '[[:digit:]]+'))
-	data$Cl <- as.numeric(str_extract_all(str_extract_all(data$formula, 'Cl[[:digit:]]+'), '[[:digit:]]+'))
-	res <- sum(data[which(data$C >= C[1] & data$C <= C[2] & data$Cl >= Cl[1] & data$Cl <= Cl[2]), 'sum(auc)'])
-	return(formatC(res, format='e', digits=2))
-}
-
-output$targetSumAUC <- renderText({
-	return(paste('Sum of AUC:', computeSumAUC(input$targetFile, input$targetAdduct, input$targetC, input$targetCl)))	
-})
-
-observeEvent(input$targetTable_cell_selected, {
-	session$sendCustomMessage('targetTableSelectPpm', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
-	session$sendCustomMessage('targetTableSelectScore', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
-	session$sendCustomMessage('targetTableSelectAUC', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
+	print(param)
+	updateNumericInput(session, 'targetPpm', 'Tol mz (ppm)', value=param$tolPpm, min=0, max=50)
+	updateNumericInput(session, 'targetPrefilterS', 'Prefilter level', value=param$prefilterL)
+	updateNumericInput(session, 'targetPrefilterL', 'Prefilter step', value=param$prefilterS)
+	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=param$tolAbd, min=0, max=100)
+	if(input$targetTable_cell_selected$C != 0){
+		session$sendCustomMessage('targetTableSelectPpm', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
+		session$sendCustomMessage('targetTableSelectScore', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
+		session$sendCustomMessage('targetTableSelectAUC', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
+	}
 })
 
 output$targetDownload <- downloadHandler(
@@ -72,7 +71,7 @@ output$targetDownload <- downloadHandler(
 
 output$targetEIC <- renderPlotly({
 	actualize$graph
-	eic <- plot_ly(source='targetEIC', type='scatter', mode='markers') %>% 
+	eic <- plot_ly(source='targetEIC', type='scatter', mode='lines') %>% 
 		layout(xaxis=list(title='retentionTime'), yaxis=list(title='Intensity', rangemode='tozero'), showlegend=TRUE) %>% 
 		config(scrollZoom=TRUE, showLink=TRUE, displaylogo=FALSE, 
 			modeBarButtons=list(list(list(
@@ -83,38 +82,28 @@ output$targetEIC <- renderPlotly({
 				)), list('zoom2d', 'select2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 	cell <- input$targetTable_cell_selected
 	if(is.null(cell)) return(eic)
-	if(cell$C == 0) return(eic)
+	else if(cell$C == 0) return(eic)
 	db <- dbConnect(SQLite(), sqlitePath)
 	xraw <- readMSData(samples()[which(samples()$sample == input$targetFile), 'path'], centroided=TRUE, msLevel=1, mode='onDisk')
-	query <- sprintf('select mz from measured where observed == (select id from observed where sample == "%s" and molecule == (
+	query <- sprintf('select mz, rtmin, rtmax from measured where observed == (select id from observed where sample == "%s" and molecule == (
 		select id from molecule where adduct == "%s" and formula like "%s"));',
-		input$targetFile, input$targetAdduct, paste('%C', cell$C, '%Cl', cell$Cl, '%', sep='', collapse=''))
-	mzs <- dbGetQuery(db, query)$mz
-	query <- sprintf('select * from observed where sample == "%s" and molecule == (select id from molecule where adduct == "%s" and formula like "%s");',
 		input$targetFile, input$targetAdduct, paste('%C', cell$C, '%Cl', cell$Cl, '%', sep='', collapse=''))
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
-	mzRange <- matrix(sapply(mzs, function(mz) c(mz-(mz*data$tolPpm)/10^6, mz+(mz*data$tolPpm)/10^6)), ncol=2, byrow=TRUE)
-	chrom <- chromatogram(xraw, mz=mzRange, rt=c(min(data$rtMin)*60-60, max(data$rtMax)*60+60), aggregationFun='sum', missing=0, BPPARAM=SnowParam())@.Data
-	# get scan where the intensity is at the maximum
-	# i <- which(max(sapply(chrom, function(x) max(x@intensity))) == sapply(chrom, function(x) max(x@intensity)))
-	# points <- data.frame(rtime=chrom[[i]]@rtime, intensity=chrom[[i]]@intensity)
-	# points <- points[which(points$rtime >= data$rtMin*60 & points$rtime <= data$rtMax*60), ]
-	# eic <- eic %>% add_trace(x=points$rtime/60, y=points$intensity, size=I(1), fill='tozeroy', 
-		# showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(points$intensity, digits=0), 
-			# '<br />Retention Time: ', round(points$rtime/60, digits=2)))
-	# traces
-	for(i in 1:length(chrom)) eic <- eic %>% 
-		add_trace(mode='lines+markers', size=I(1), x=chrom[[i]]@rtime/60, y=chrom[[i]]@intensity, size=I(1), 
+	mzRange <- matrix(sapply(data$mz, function(mz) c(mz-(mz*input$targetPpm)/10**6, mz+(mz*input$targetPpm)/10**6)), ncol=2, byrow=TRUE)
+	chrom <- chromatogram(xraw, mz=rbind(mzRange[1, ], mzRange), 
+		rt=rbind(c(rtmin=0, rtmax=max(rtime(xraw))), data[, c('rtmin', 'rtmax')]), 
+		aggregationFun='sum', missing=0, BPPARAM=SnowParam())@.Data
+	eic <- eic %>%
+		add_trace(x=chrom[[1]]@rtime/60, y=chrom[[1]]@intensity, 
+			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[1]]@intensity, digits=0), 
+				'<br />Retention Time: ', round(chrom[[1]]@rtime/60, digits=2)), line=list(dash='dash', width=4, color='rgb(0,0,0)'))
+	for(i in 2:length(chrom)) eic <- eic %>% 
+		add_trace(x=chrom[[i]]@rtime/60, y=chrom[[i]]@intensity, 
 			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[i]]@intensity, digits=0), 
-				'<br />Retention Time: ', round(chrom[[i]]@rtime/60, digits=2)))
-	# plotlyProxy('targetEIC', session) %>% 
-		# plotlyProxyInvoke('restyle', list('marker.color', 'black', list(1:length(chrom)), list(1:60, (length(chrom[[1]]@rtime)-60):length(chrom[[1]]@rtime))))
-	updateNumericInput(session, 'targetPpm', 'tol mz (ppm)', value=data$tolPpm, min=0, max=50)
-	updateNumericInput(session, 'targetRtMin', 'rt min (min)', value=data$rtMin, min=0, max=25)
-	updateNumericInput(session, 'targetRtMax', 'rt max (min)', value=data$rtMax, min=0, max=25)
-	updateNumericInput(session, 'targetThreshold', 'threshold', value=data$threshold, min=0, max=25)
-	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=data$tolAbd, min=0, max=25)
+				'<br />Retention Time: ', round(chrom[[i]]@rtime/60, digits=2)), line=list(width=3))
+	eic <- eic %>% add_trace(mode='markers', x=chrom[[1]]@rtime/60, y=chrom[[1]]@intensity, showlegend=FALSE, marker=list(size=0.001)) %>%
+		layout(xaxis=list(range=c(min(data$rtmin)-60, max(data$rtmax)+60))) 
 	return(eic)
 })
 
@@ -129,40 +118,68 @@ observeEvent(event_data(event='plotly_selected', source='targetEIC'), {
 })
 
 observeEvent(input$targetSubmit, {
-	if(input$targetTable_cell_selected$C == 0) return(sendSweetAlert(session, title='You have to select a cell!', type='error'))
+	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return(sendSweetAlert(session, title='Error', type='error'))
+	else if(input$targetFile == '') return(sendSweetAlert(session, title='You have to select a file', type='error'))
+	else if(input$targetAdduct == '') return(sendSweetAlert(session, title='You have to select an adduct!', type='error'))
+	else if(input$targetTable_cell_selected$C == 0) return(sendSweetAlert(session, title='You have to select a cell!', type='error'))
+	else if(input$targetRtMin == '' | input$targetRtMax == '' | input$targetRtMax <= input$targetRtMin) return(
+		sendSweetAlert(session, title='You have to select a rt range!', type='error'))
+	else if(input$targetPpm == '') return(sendSweetAlert(session, title='Ppm is incorrect!', type='error'))
+	else if(input$targetPrefilterL == '') return(sendSweetAlert(session, title='Prefilter level is incorrect!', type='error'))
+	else if(input$targetPrefilterS == '') return(sendSweetAlert(session, title='Prefilter step is incorrect!', type='error'))
+	else if(input$targetTolAbd == '') return(sendSweetAlert(session, title='Tol abd is incorrect!', type='error'))
 	hide('app-content')
 	shinyjs::show('loader')
+	tryCatch({
 	cell <- input$targetTable_cell_selected
 	deleteTargetROI(input$targetFile, input$targetAdduct, cell$C, cell$Cl)
+	file <- readMSData(samples()[which(samples()$sample == input$targetFile), 'path'], centroided=TRUE, msLevel=1, mode='onDisk')
 	db <- dbConnect(SQLite(), sqlitePath)
-	xraw <- readMSData(samples()[which(samples()$sample == input$targetFile), 'path'], centroided=TRUE, msLevel=1, mode='onDisk')
-	query <- sprintf('select id from molecule where adduct == "%s" and formula like "%s";',
-		input$targetAdduct, paste('%C', cell$C, '%Cl', cell$Cl, '%', sep='', collapse=''))
-	molecule <- dbGetQuery(db, query)$id	
-	query <- sprintf('select mz, abd from theoric where molecule == %s order by abd desc;',
-		molecule)
-	data <- dbGetQuery(db, query)	
-	recordTarget(db, input$targetFile, xraw, molecule, data, c(input$targetRtMin*60, input$targetRtMax*60), input$targetPpm, input$targetTolAbd, input$targetThreshold)
-	res <- dbGetQuery(db, 
-		sprintf('select ppmDeviation, score, sum(auc) as sumOfAUC from measured inner join observed on observed.id = measured.observed 
-		where molecule == %s and sample == "%s" group by observed;',
-		molecule, input$targetFile))
+	query <- sprintf('select * from theoric inner join molecule on theoric.molecule = molecule.id 
+		where adduct == "%s" and formula like "%s";',
+			input$targetFullAdduct, paste('C', cell$C, '%Cl', cell$Cl, sep='', collapse=''))
+	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
+	tol <- data$mz * input$targetPpm /10**6
+	mzRange <- data.frame(mzmin=data$mz-tol, mzmax=data$mz+tol)
+	rtRange <- data.frame(rtmin=rep(input$targetRtMin*60, each=5), rtmax=rep(input$targetRtMax*60, each=5))
+	chrom <- chromatogram(file, mz=mzRange, rt=rtRange, missing=0)
+	res <- integrateROI(file, chrom, data$mz, input$targetPrefilterS, input$targetPrefilterL)
+	if(nrow(res) > 2){
+		session$sendCustomMessage('targetTablePpmDelete', list(row=cell$C-8, column=cell$Cl-3))
+		session$sendCustomMessage('targetTableScoreDelete', list(row=cell$C-8, column=cell$Cl-3))
+		session$sendCustomMessage('targetTableIntoDelete', list(row=cell$C-8, column=cell$Cl-3))
+	} else{
+		res$abd <- res$AUC*100/max(res$AUC)
+		ppmDeviation <- mean(res$ppmDeviation)
+		score <- computeScore(data$abd, res$abd, input$targetTolAbd)
+		sumAUC <- sum(res$AUC)
+		recordTarget(res, data[1, 'molecule'], input$targetPm, 
+			input$targetTolAbd, score, ppmDeviation, input$targetFile, input$targetPrefilterS, input$targetPrefilterL)
+		print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAUC))
+		session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=ppmDeviation))
+		session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=score))
+		session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=sumOfAUC))
+	}
 	hide('loader')
 	shinyjs::show('app-content')
-	print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAUC))
-	session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation))
-	session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=res$score))
-	session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=res$sumOfAUC))
+	}, error=function(e){
+		hide('loader')
+		shinyjs::show('app-content')
+		return(sendSweetAlert(session, title='Error on targeting', text=paste(e), type='error'))
+	})
 })
 
 deleteTargetROI <- function(file, adduct, C, Cl){
 	db <- dbConnect(SQLite(), sqlitePath)
 	queries <- c(
-		sprintf('delete from measured where observed == (select id from observed where sample == "%s" and molecule == (select id from molecule where adduct == "%s" and formula like "%s"));',
-		file, adduct, paste('%C', C, '%Cl', Cl, '%', sep='', collapse='')),
-		sprintf('delete from observed where sample == "%s" and molecule == (select id from molecule where adduct == "%s" and formula like "%s");',
-		file, adduct, paste('%C', C, '%Cl', Cl, '%', sep='', collapse='')))
+		sprintf('delete from measured where observed == (
+			select id from observed where sample == "%s" and molecule == (
+				select id from molecule where adduct == "%s" and formula like "%s"));',
+			file, adduct, paste('%C', C, '%Cl', Cl, '%', sep='', collapse='')),
+		sprintf('delete from observed where sample == "%s" and molecule == (
+			select id from molecule where adduct == "%s" and formula like "%s");',
+			file, adduct, paste('%C', C, '%Cl', Cl, '%', sep='', collapse='')))
 	dbSendQueries(db, queries)
 	dbDisconnect(db)
 }

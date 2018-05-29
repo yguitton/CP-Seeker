@@ -13,14 +13,14 @@ targetROI <- function(files, data, ppm, prefilterS, prefilterL, tolAbd){
 		formulas <- data[which(data$mz %in% mzs[i] & data$abd == 100), 'formula']
 		subData <- data[which(data$formula %in% formulas), ]
 		subData <- cbind(subData, mzmin=subData$mz-tol[i], mzmax=subData$mz+tol[i],
-			rtmin=rep(rtime(files[[col]])[sapply(scans[i, col], min)], each=5),
-			rtmax=rep(rtime(files[[col]])[sapply(scans[i, col], max)], each=5))
+			rtmin=rep(rtime(files[[col]])[scans[i, col][1]], each=5),
+			rtmax=rep(rtime(files[[col]])[scans[i, col][2]], each=5))
 		chroms <- chromatogram(files[[col]], mz=subData[, c('mzmin', 'mzmax')], rt=subData[, c('rtmin', 'rtmax')], missing=0)
 		for(j in seq(1, nrow(chroms), by=5)){
 			res <- integrateROI(files[[col]], chroms[j:(j+4), ], subData[j:(j+4), 'mz'], prefilterS, prefilterL)
 			if(nrow(res) < 2) next
-			ppmDeviation <- mean(res$mz)
 			res$abd <- res$AUC*100/max(res$AUC)
+			ppmDeviation <- mean(res$ppmDeviation)
 			score <- computeScore(subData[j:(j+4), 'abd'], res$abd, tolAbd)
 			sample <- strsplit(as.character(phenoData(files[[col]])@data$sampleNames), '\\.mzXML$')[[1]][1]
 			recordTarget(res, subData[j, 'molecule'], ppm, tolAbd, score, ppmDeviation, sample, prefilterS, prefilterL)
@@ -41,19 +41,20 @@ findScans <- function(chrom, prefilterS, prefilterL){
 		scans <- scans[which(listLen(scans) == maxScans)]
 	}
 	scans <- scans[[1]]
-	return(scans)
+	# add the last scan
+	return(c(min(scans)-1, max(scans)+1))
 }
 
 integrateROI <- function(file, chroms, mzs, prefilterS, prefilterL, res=data.frame()){
 	chrom <- if(is.null(nrow(chroms))) chroms else chroms[1, 1]
 	scans <- findScans(chrom, prefilterS, prefilterL)
 	if(is.null(scans)) return(res)
-	AUC <- trapz(chrom@rtime[scans], chrom@intensity[scans])
+	AUC <- trapz(chrom@rtime[scans[1]:scans[2]], chrom@intensity[scans[1]:scans[2]])
 	if(nrow(res) > 0) if(AUC > res[nrow(res), 'AUC'] * 1.2) return(res)
 	scans <- sapply(strsplit(names(scans), 'S'), function(x) as.numeric(x[2]))
-	mzObserved <- unlist(mz(file[scans]))
+	mzObserved <- unlist(mz(file[scans[1]:scans[2]]))
 	mzObserved <- mzObserved[which.min(abs(mzObserved - mzs[1]))]
-	res <- rbind(res, data.frame(mz=mzObserved, AUC=AUC, rtmin=rtime(file)[scans[1]], rtmax=rtime(file)[scans[2]], abd=0))
+	res <- rbind(res, data.frame(mz=mzObserved, AUC=AUC, rtmin=rtime(file)[scans[1]], rtmax=rtime(file)[scans[2]], abd=0, ppmDeviation=(mzObserved-mzs[1])/mzs[1]))
 	if(length(mzs > 1))	res <- integrateROI(file, chroms[2:nrow(chroms), ], mzs[-1], prefilterS, prefilterL, res)
 	return(res)
 }
