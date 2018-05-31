@@ -27,13 +27,13 @@ observeEvent(c(input$targetFile, input$targetAdduct, input$targetTable_cell_sele
 			select * from observed where sample == "%s" and molecule == 
 				(select id from molecule where adduct == "%s" and formula like "%s");', 
 			input$targetFile, input$targetAdduct, paste('C', input$targetTable_cell_selected$C, '%Cl',input$targetTable_cell_selected$Cl, sep='', collapse=''))
-		else sprintf('select * from param where sample == "%s";', input$targetFile)
+		else sprintf('select * from param where sample == "%s" and adduct == "%s";', input$targetFile, input$targetAdduct)
 	param <- dbGetQuery(db, query)
 	dbDisconnect(db)
 	print(param)
 	updateNumericInput(session, 'targetPpm', 'Tol mz (ppm)', value=param$tolPpm, min=0, max=50)
-	updateNumericInput(session, 'targetPrefilterS', 'Prefilter level', value=param$prefilterL)
-	updateNumericInput(session, 'targetPrefilterL', 'Prefilter step', value=param$prefilterS)
+	updateNumericInput(session, 'targetPrefilterL', 'Prefilter level', value=param$prefilterL)
+	updateNumericInput(session, 'targetPrefilterS', 'Prefilter step', value=param$prefilterS)
 	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=param$tolAbd, min=0, max=100)
 	if(input$targetTable_cell_selected$C != 0){
 		session$sendCustomMessage('targetTableSelectPpm', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
@@ -103,7 +103,7 @@ output$targetEIC <- renderPlotly({
 			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[i]]@intensity, digits=0), 
 				'<br />Retention Time: ', round(chrom[[i]]@rtime/60, digits=2)), line=list(width=3))
 	eic <- eic %>% add_trace(mode='markers', x=chrom[[1]]@rtime/60, y=chrom[[1]]@intensity, showlegend=FALSE, marker=list(size=0.001)) %>%
-		layout(xaxis=list(range=c(min(data$rtmin)-60, max(data$rtmax)+60))) 
+		layout(xaxis=list(range=c(min(data$rtmin)/60-1, max(data$rtmax)/60+1))) 
 	return(eic)
 })
 
@@ -137,7 +137,7 @@ observeEvent(input$targetSubmit, {
 	db <- dbConnect(SQLite(), sqlitePath)
 	query <- sprintf('select * from theoric inner join molecule on theoric.molecule = molecule.id 
 		where adduct == "%s" and formula like "%s";',
-			input$targetFullAdduct, paste('C', cell$C, '%Cl', cell$Cl, sep='', collapse=''))
+			input$targetAdduct, paste('C', cell$C, '%Cl', cell$Cl, sep='', collapse=''))
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
 	tol <- data$mz * input$targetPpm /10**6
@@ -145,7 +145,8 @@ observeEvent(input$targetSubmit, {
 	rtRange <- data.frame(rtmin=rep(input$targetRtMin*60, each=5), rtmax=rep(input$targetRtMax*60, each=5))
 	chrom <- chromatogram(file, mz=mzRange, rt=rtRange, missing=0)
 	res <- integrateROI(file, chrom, data$mz, input$targetPrefilterS, input$targetPrefilterL)
-	if(nrow(res) > 2){
+	browser()
+	if(nrow(res) < 2){
 		session$sendCustomMessage('targetTablePpmDelete', list(row=cell$C-8, column=cell$Cl-3))
 		session$sendCustomMessage('targetTableScoreDelete', list(row=cell$C-8, column=cell$Cl-3))
 		session$sendCustomMessage('targetTableIntoDelete', list(row=cell$C-8, column=cell$Cl-3))
@@ -154,16 +155,17 @@ observeEvent(input$targetSubmit, {
 		ppmDeviation <- mean(res$ppmDeviation)
 		score <- computeScore(data$abd, res$abd, input$targetTolAbd)
 		sumAUC <- sum(res$AUC)
-		recordTarget(res, data[1, 'molecule'], input$targetPm, 
+		recordTarget(res, data[1, 'molecule'], input$targetPpm, 
 			input$targetTolAbd, score, ppmDeviation, input$targetFile, input$targetPrefilterS, input$targetPrefilterL)
 		print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAUC))
-		session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=ppmDeviation))
-		session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=score))
-		session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=sumOfAUC))
+		session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=round(ppmDeviation, digits=2)))
+		session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=round(score, digits=2)))
+		session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=formatC(sumAUC, format='e', digits=2)))
 	}
 	hide('loader')
 	shinyjs::show('app-content')
 	}, error=function(e){
+		print(e)
 		hide('loader')
 		shinyjs::show('app-content')
 		return(sendSweetAlert(session, title='Error on targeting', text=paste(e), type='error'))

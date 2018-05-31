@@ -66,7 +66,8 @@ recordmzXML2 <- function(name, path, inProject, inDB, project){
 	sample <- file_path_sans_ext(name)
 	if(sample %in% inProject) return('imported')
 	else if(sample %in% inDB) return('already in an another project')
+	file.copy(path, file.path(dirOutput, name))
+	path <- file.path(dirOutput, name)
 	success <- addFile(sample, path, project)
-	if(success == 'imported') file.copy(path, file.path(dirOutput, name))
 	return(success)
 }

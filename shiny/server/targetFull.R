@@ -21,11 +21,12 @@ observeEvent(input$targetFullSubmit, {
 		dbDisconnect(db)
 		files <- readMSData(samples()[which(samples()$sample %in% input$targetFullFiles), 'path'], 
 			centroided=TRUE, msLevel=1, mode='onDisk')
-		targetROI(files, data, input$targetFullPpm, input$targetFullPrefilterS, input$targetFullPrefilterL, tolAbd)
+		targetROI(files, data, input$targetFullPpm, input$targetFullPrefilterS, input$targetFullPrefilterL, input$targetFullTolAbd)
 		actualize$graph <- if(actualize$graph) FALSE else TRUE
 		hide('loader')
 		shinyjs::show('app-content')
 	}, error=function(e){
+		print(e)
 		hide('loader')
 		show('app-content')
 		sendSweetAlert(session, title='Error targeting', text=paste(e), type='error')
