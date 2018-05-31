@@ -33,7 +33,7 @@ tabItem(tabName='Target',
 					actionBttn('targetDelete', 'Delete', style='unite', color='warning')
 				),
 				tags$td(style="vertical-align:100%; width:4%; text-align:center;", 
-					actionBttn('targetDownload', '', style='unite', icon=icon('download'))
+					downloadButton('targetDownload', '', class="bttn-jelly bttn-md bttn-default bttn-no-outline", icon=icon('download'))
 				)
 			)
 		)

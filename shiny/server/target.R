@@ -18,16 +18,29 @@ output$uiTargetAdduct <- renderUI({
 	pickerInput('targetAdduct', 'Select adduct', choices=choices)
 })
 
-observeEvent(c(input$targetFile, input$targetAdduct, input$targetTable_cell_selected), {
-	if(is.null(input$targetFile) | is.null(input$targetAdduct) | is.null(input$targetTable_cell_selected)) return()
-	else if((input$targetFile == '' | input$targetAdduct == '') & input$targetTable_cell_selected$C == 0) return()
+observeEvent(c(input$targetFile, input$targetAdduct), {
+	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return()
+	else if(input$targetFile == '' | input$targetAdduct == '') return()
+	db <- dbConnect(SQLite(), sqlitePath)
+	query <- sprintf('select * from param where sample == "%s" and adduct == "%s";', input$targetFile, input$targetAdduct)
+	param <- dbGetQuery(db, query)
+	dbDisconnect(db)
+	updateNumericInput(session, 'targetPpm', 'Tol mz (ppm)', value=param$tolPpm, min=0, max=50)
+	updateNumericInput(session, 'targetPrefilterL', 'Prefilter level', value=param$prefilterL)
+	updateNumericInput(session, 'targetPrefilterS', 'Prefilter step', value=param$prefilterS)
+	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=param$tolAbd, min=0, max=100)
+	runjs("Shiny.onInputChange('targetTable_cell_selected', {C:0, Cl:0});")
+})
+
+
+observeEvent(input$targetTable_cell_selected, {
+	if(is.null(input$targetTable_cell_selected)) return()
+	else if(input$targetTable_cell_selected$C == 0) return()
 	print(input$targetTable_cell_selected)
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- if(input$targetTable_cell_selected$C != 0) sprintf('
-			select * from observed where sample == "%s" and molecule == 
+	query <- sprintf('select * from observed where sample == "%s" and molecule == 
 				(select id from molecule where adduct == "%s" and formula like "%s");', 
 			input$targetFile, input$targetAdduct, paste('C', input$targetTable_cell_selected$C, '%Cl',input$targetTable_cell_selected$Cl, sep='', collapse=''))
-		else sprintf('select * from param where sample == "%s" and adduct == "%s";', input$targetFile, input$targetAdduct)
 	param <- dbGetQuery(db, query)
 	dbDisconnect(db)
 	print(param)

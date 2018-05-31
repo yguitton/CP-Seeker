@@ -1,7 +1,7 @@
 CREATE TABLE "Measured" ("id" INTEGER PRIMARY KEY  NOT NULL ,"observed" INTEGER NOT NULL ,"mz" FLOAT NOT NULL ,"auc" FLOAT NOT NULL ,"abd" FLOAT NOT NULL , "rtmin" float, "rtmax" float);
 CREATE TABLE "molecule" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "formula" TEXT NOT NULL , "adduct" TEXT NOT NULL , "form_adduct" TEXT NOT NULL );
 CREATE TABLE "observed" ("id" INTEGER PRIMARY KEY  NOT NULL ,"molecule" INTEGER NOT NULL ,"tolPpm" INTEGER NOT NULL ,"tolAbd" INTEGER NOT NULL ,"score" FLOAT NOT NULL ,"sample" TEXT,"ppmDeviation" float DEFAULT (0) , "prefilterS" integer, "prefilterL" integer);
-CREATE TABLE "param" ("param" INTEGER PRIMARY KEY  NOT NULL ,"ppmTol" INTEGER NOT NULL ,"abdTol" INTEGER NOT NULL ,"sample" TEXT NOT NULL ,"adduct" TEXT NOT NULL , "prefilterS" integer, "prefilterL" integer);
+CREATE TABLE "param" ("param" INTEGER PRIMARY KEY  NOT NULL ,"tolPpm" INTEGER NOT NULL ,"tolAbd" INTEGER NOT NULL ,"sample" TEXT NOT NULL ,"adduct" TEXT NOT NULL , "prefilterS" integer, "prefilterL" integer);
 CREATE TABLE "sample" ("sample" varchar(45) PRIMARY KEY ,"path" text NOT NULL ,"project" varchar(45) not null, "rawPath" text NOT NULL ,"msManufacturer" varchar(45),"msIonisation" varchar(45),"acquisition" varchar(45),"conversion" varchar(45),"centroided" integer,"msLevel" integer,"polarity" varchar(45),"method" varchar(45),"resolution" float,"agcTarget" varchar(45),"maximumIT" varchar(45),"numberOfScanRange" integer,"scanRange" varchar(45));
 CREATE TABLE "theoric" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "mz" FLOAT NOT NULL , "abd" FLOAT NOT NULL , "molecule" INTEGER NOT NULL );
 INSERT INTO "molecule" VALUES(1,'C8H14Cl4','[M+CH3COO]-','C10H17Cl4O2');
