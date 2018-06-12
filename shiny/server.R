@@ -1,5 +1,22 @@
 shinyServer(function(input, output, session) {
 
+options(shiny.maxRequestSize=2000*1024^2)
+library(RSQLite)
+library(DT)
+library(plotly)
+library(xcms)
+library(XML)
+library(tools)
+library(shinyjs)
+library(shinyBS)
+library(pracma)
+library(stringr)
+library(shinyWidgets)
+library(shinyFiles)
+library(openxlsx)
+library(shinydashboard)
+library(htmlwidgets)
+
 sqlitePath <- "database.db"
 converter <- file_path_as_absolute('../pwiz/msconvert.exe')
 thermo <- file_path_as_absolute('../pwiz/ThermoRawMetaDump.exe')

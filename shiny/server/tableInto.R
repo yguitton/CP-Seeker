@@ -41,7 +41,7 @@ output$targetTableInto <- renderDataTable({
 	if(input$targetFile == '' | input$targetAdduct == '') return(c())	
 	res <- targetTableFunctionInto(input$targetFile, input$targetAdduct)
 	res <- apply(res, c(1, 2), function(x) if(!is.na(x)) formatC(x, format='e', digits=2) else NA)
-}, selection='none', extensions='Scroller', options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, 
+}, selection='none', extensions='Scroller', class="display cell-border compact", options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.8, scroller=TRUE, 
 	deferRender=TRUE, bFilter=FALSE, ordering=FALSE, class='display cell-bordered compact', initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();

@@ -18,7 +18,7 @@ output$targetTableScore <- renderDataTable({
 	if(input$targetFile == '' | input$targetAdduct == '' | input$targetTolAbd == '') return(c())
 	res <- targetTableFunctionScore(input$targetFile, input$targetAdduct)
 	res <- apply(res, c(1, 2), function(x) round(x, digits=2))
-}, selection='none', extensions='Scroller', options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, 
+}, selection='none', extensions='Scroller', class="display cell-border compact", options=list(dom='frtip', scrollX=TRUE, scrollY=input$dimension[2]/1.6, scroller=TRUE, 
 	deferRender=TRUE, bFilter=FALSE, ordering=FALSE, class="display cell-border compact", initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();

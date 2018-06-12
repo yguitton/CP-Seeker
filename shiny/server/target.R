@@ -158,7 +158,6 @@ observeEvent(input$targetSubmit, {
 	rtRange <- data.frame(rtmin=rep(input$targetRtMin*60, each=5), rtmax=rep(input$targetRtMax*60, each=5))
 	chrom <- chromatogram(file, mz=mzRange, rt=rtRange, missing=0)
 	res <- integrateROI(file, chrom, data$mz, input$targetPrefilterS, input$targetPrefilterL)
-	browser()
 	if(nrow(res) < 2){
 		session$sendCustomMessage('targetTablePpmDelete', list(row=cell$C-8, column=cell$Cl-3))
 		session$sendCustomMessage('targetTableScoreDelete', list(row=cell$C-8, column=cell$Cl-3))
@@ -170,7 +169,7 @@ observeEvent(input$targetSubmit, {
 		sumAUC <- sum(res$AUC)
 		recordTarget(res, data[1, 'molecule'], input$targetPpm, 
 			input$targetTolAbd, score, ppmDeviation, input$targetFile, input$targetPrefilterS, input$targetPrefilterL)
-		print(list(row=cell$C-8, column=cell$Cl-3, ppm=res$ppmDeviation, score=res$score, auc=res$sumOfAUC))
+		print(list(row=cell$C-8, column=cell$Cl-3, ppm=ppmDeviation, score=score, auc=sumAUC))
 		session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=round(ppmDeviation, digits=2)))
 		session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=round(score, digits=2)))
 		session$sendCustomMessage('targetTableIntoUpdate', list(row=cell$C-8, column=cell$Cl-3, into=formatC(sumAUC, format='e', digits=2)))

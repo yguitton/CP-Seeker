@@ -20,7 +20,7 @@ output$targetTablePpmDeviation <- renderDataTable({
 	res <- targetTableFunctionPpmDeviation(input$targetFile, input$targetAdduct)
 	res <- apply(res, c(1, 2), function(x) round(x, digits=2))
 }, selection='none', extensions='Scroller', class="display cell-border compact", options=list(dom='frtip', 
-scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, ordering=FALSE, initComplete=htmlwidgets::JS(paste("
+scrollX=TRUE, scrollY=input$dimension[2]/1.6, scroller=TRUE, deferRender=TRUE, bFilter=FALSE, ordering=FALSE, initComplete=htmlwidgets::JS(paste("
 	function(){
 		var api = this.api();
 		if(", input$targetTable_cell_selected$C, " != 0){

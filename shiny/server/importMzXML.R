@@ -1,4 +1,5 @@
-shinyFileChoose(input, 'fileImportmzXML', roots=getVolumes(), filetypes=c('mzML', 'mzXML'))
+shinyFileChoose(input, 'fileImportmzXML', roots=getVolumes(), filetypes=c('mzML', 'mzXML'), 
+	defaultRoot=names(getVolumes()()[1]))
 
 observeEvent(input$fileImportmzXML, {
 	showModal(modalDialog(easyClose=FALSE, title='Choose a project',
@@ -43,7 +44,7 @@ observeEvent(input$filemzXMLAdd, {
 recordmzXML <- function(name, path, inProject, inDB, project){
 	# get info about file
 	file <- readMSData(path, msLevel=1, mode='onDisk')
-	if(FALSE %in% isCentroided(file)) return(paste(name, 'is not centroided'))
+	# if(FALSE %in% isCentroided(file)) return(paste(name, 'is not centroided'))
 	# get the polarity
 	polarity <- unique(polarity(file))
 	print(polarity)
