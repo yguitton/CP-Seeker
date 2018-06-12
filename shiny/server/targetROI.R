@@ -19,6 +19,7 @@ targetROI <- function(files, data, ppm, prefilterS, prefilterL, tolAbd){
 		subData[which(is.na(subData$rtmax)), 'rtmax'] <- rtime(files[[col]])[length(files[[col]])]
 		chroms <- chromatogram(files[[col]], mz=subData[, c('mzmin', 'mzmax')], rt=subData[, c('rtmin', 'rtmax')], missing=0)
 		for(j in seq(1, nrow(chroms), by=5)){
+			print(j)
 			res <- integrateROI(files[[col]], chroms[j:(j+4), ], subData[j:(j+4), 'mz'], prefilterS, prefilterL)
 			if(nrow(res) < 2) next
 			res$abd <- res$AUC*100/max(res$AUC)
@@ -62,7 +63,7 @@ integrateROI <- function(file, chroms, mzs, prefilterS, prefilterL, res=data.fra
 	mzObserved <- unlist(mz(file[min(scans):max(scans)]))
 	mzObserved <- mzObserved[which.min(abs(mzObserved - mzs[1]))]
 	res <- rbind(res, data.frame(mz=mzObserved, AUC=AUC, rtmin=rtime(file)[scans[1]], rtmax=rtime(file)[scans[2]], abd=0, ppmDeviation=abs(mzObserved-mzs[1])/mzs[1]*10**6))
-	if(length(mzs > 1))	res <- integrateROI(file, chroms[2:nrow(chroms), ], mzs[-1], prefilterS, prefilterL, res)
+	if(length(mzs) > 1)	res <- integrateROI(file, chroms[2:nrow(chroms), ], mzs[-1], prefilterS, prefilterL, res)
 	return(res)
 }
 

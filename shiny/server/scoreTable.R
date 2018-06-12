@@ -31,10 +31,10 @@ output$targetTableScore <- renderDataTable({
 		var tol = 100 - document.getElementById('targetTolAbd').value;
 		api.cells().every(function(){
 			if(this.data() != null & this.index().column != 0 & this.data() >= tol){
-				this.nodes().to$().css('background-color', 'green');
+				this.nodes().to$().css('background-color', '#b7ecb8');
 			}
 			else if(this.data() != null & this.index().column != 0){
-				this.nodes().to$().css('background-color', 'red');
+				this.nodes().to$().css('background-color', '#f08080');
 			}
 		});
 	}

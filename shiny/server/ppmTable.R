@@ -13,6 +13,7 @@ targetTableFunctionPpmDeviation <- function(file, adduct){
 	return(res)
 }
 
+
 output$targetTablePpmDeviation <- renderDataTable({
 	if(is.null(input$targetFile) | is.null(input$targetAdduct)) return(data.frame())
 	if(input$targetFile == '' | input$targetAdduct == '' | input$targetPpm == '') return(data.frame())
@@ -31,10 +32,10 @@ scrollX=TRUE, scrollY=input$dimension[2]/1.5, scroller=TRUE, deferRender=TRUE, b
 		var ppm = Number(document.getElementById('targetPpm').value);
 		api.cells().every(function(){
 			if(this.data() != null & this.index().column != 0 & this.data() <= ppm){
-				this.nodes().to$().css('background-color', 'green');
+				this.nodes().to$().css('background-color', '#b7ecb8');
 			}
 			else if(this.data() != null & this.index().column != 0){
-				this.nodes().to$().css('background-color', 'red');
+				this.nodes().to$().css('background-color', '#f08080');
 			}
 		});
 	}
