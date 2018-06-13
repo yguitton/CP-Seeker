@@ -1,90 +1,93 @@
-targetROI <- function(files, data, ppm, prefilterS, prefilterL, tolAbd){
-	# first search basepeaks of chloroparaffins
-	mzs <- data[which(data$abd == 100), 'mz']
-	tol <- mzs * ppm / 10**6
-	chroms <- chromatogram(files, mz=data.frame(mzmin=mzs-tol, mzmax=mzs+tol), missing=0)
-	scans <- apply(chroms, c(1, 2), function(x) findScans(x[[1]], prefilterS, prefilterL))
-	# then integrate in each file!
-	index <- split(1:length(files), sapply(strsplit(names(rtime(files)), '\\.'), function(x) x[1]))
-	files <- sapply(index, function(x) files[x])
-	for(col in 1:ncol(scans)){
-		i <- which(!sapply(scans[, col], is.null))
-		if(length(i) == 0) next
-		formulas <- data[which(data$mz %in% mzs[i] & data$abd == 100), 'formula']
-		subData <- data[which(data$formula %in% formulas), ]
-		subData <- cbind(subData, mzmin=subData$mz-rep(tol[i], each=5), mzmax=subData$mz+rep(tol[i], each=5),
-			rtmin=rep(rtime(files[[col]])[sapply(scans[i, col], min)], each=5),
-			rtmax=rep(rtime(files[[col]])[sapply(scans[i, col], max)], each=5))
-		# in case if the max scans is equal to number of spectras + 1
-		subData[which(is.na(subData$rtmax)), 'rtmax'] <- rtime(files[[col]])[length(files[[col]])]
-		chroms <- chromatogram(files[[col]], mz=subData[, c('mzmin', 'mzmax')], rt=subData[, c('rtmin', 'rtmax')], missing=0)
-		for(j in seq(1, nrow(chroms), by=5)){
-			print(j)
-			res <- integrateROI(files[[col]], chroms[j:(j+4), ], subData[j:(j+4), 'mz'], prefilterS, prefilterL)
-			if(nrow(res) < 2) next
-			res$abd <- res$AUC*100/max(res$AUC)
-			ppmDeviation <- mean(res$ppmDeviation)
-			score <- computeScore(subData[j:(j+4), 'abd'], res$abd, tolAbd)
-			sample <- strsplit(as.character(phenoData(files[[col]])@data$sampleNames), '\\.mzXML$')[[1]][1]
-			print(res)
-			recordTarget(res, subData[j, 'molecule'], ppm, tolAbd, score, ppmDeviation, sample, prefilterS, prefilterL)
+targetROIs <- function(sample, adduct, file, data, rtmin, rtmax, ppm, prefilterS, prefilterL, noise, snthresh, tolAbd){
+	print(data[1, 'molecule'])
+	res <- data.frame(mz=c(), AUC=c(), scans=c(), deviation=c())
+	for(mz in data$mz){
+		row <- targetROI(file, mz, rtmin, rtmax, ppm, prefilterS, prefilterL, noise, snthresh)
+		if(is.null(row)) break
+		else res <- rbind(res, row)
+		if(mz == data$mz[1]){
+			scans <- as.numeric(strsplit(res[1, 'scans'], ', ')[[1]])
+			scmin <- scans[1] - length(scans) / 2
+			scmax <- scans[length(scans)] + length(scans) / 2
+			if(scmin < 1) scmin <- 1
+			if(scmax > max(scanIndex(file))) scmax <- max(scanIndex(file))
+			rtmin <- rtime(file)[scmin]
+			rtmax <- rtime(file)[scmax]
 		}
 	}
+	if(nrow(res) < 2) return(NULL)
+	res$abd <- res$AUC * 100 / res[1, "AUC"]
+	weight <- res$AUC / sum(res$AUC)
+	delta <- sapply(1:nrow(res), function(i) abs(res[i, 'mz']-data[i, 'mz']) / tolAbd)
+	delta[which(delta > 1)] <- 1
+	score <- 100 * (1 - sum(delta * weight))
+	if(score == 0) return(NULL)
+	print(res)
+	recordROIs(sample, data, res, ppm, prefilterS, prefilterL, noise, snthresh, tolAbd, score)
+	return(res)
 }
 	
-findScans <- function(chrom, prefilterS, prefilterL){
-	scans <- which(chrom@intensity >= prefilterL)
+targetROI <- function(file, mz, rtmin, rtmax, ppm, prefilterS, prefilterL, noise, snthresh){
+	tolMZ <- mz * ppm / 10**6
+	eic <- chromatogram(file, mz=c(mz-tolMZ, mz+tolMZ), rt=c(rtmin, rtmax), missing=0)[1, 1]
+	# eic <- chromatogram(file, mz=c(mz-tolMZ, mz+tolMZ), missing=0)[1, 1]
+	# plot(eic)
+	# 1st search an ROI (continuous points)
+	# scans don't represent the real scans, just the ids in the eic@intensity!!!
+	ids_scans <- which(eic@intensity > noise)
+	scans <- as.numeric(sapply(strsplit(names(ids_scans), 'F1.S'), function(x) x[2]))
 	if(length(scans) == 0) return(NULL)
 	# split scans into a suite
-	scans <- split(scans, cumsum(c(TRUE, diff(scans) != 1)))
-	maxScans <- max(listLen(scans))
-	if(maxScans < prefilterS) return(NULL)
-	scans <- scans[which(listLen(scans) == maxScans)]
-	if(length(scans) > 1){
-		sumI <- sapply(scans, function(x) sum(chrom@intensity[x]))
-		scans <- scans[which(listLen(scans) == maxScans)]
-	}
-	scans <- scans[[1]]
-	# add the last scan
-	res <- if(min(scans) == 1) 1 else min(scans)-1
-	res <- c(res, max(scans)+1)
-	return(res)
+	scans <- split(scans, cumsum(c(TRUE, diff(scans) > 2)))
+	ids_scans <- split(ids_scans, cumsum(c(TRUE, diff(ids_scans) > 2)))
+	ids <- sapply(ids_scans, function(x) substractNoise(eic, x, noise, snthresh))
+	scans <- scans[ids]
+	ids_scans <- ids_scans[ids]
+	if(length(scans) == 0) return(NULL)
+	ids <- sapply(scans, function(x) testROI(file, x, mz, tolMZ, prefilterS, prefilterL))
+	scans <- scans[ids]
+	ids_scans <- ids_scans[ids]
+	if(length(scans) == 0) return(NULL)
+	AUC <- trapz(eic@rtime[unlist(ids_scans)], eic@intensity[unlist(ids_scans)])
+	mzs <- unlist(mz(file[unlist(scans)]))
+	scans <- lapply(scans, function(x) 
+		c(if(min(x) != 1) min(x)-1, x, 
+			if(max(x) != max(scanIndex(file)))max(x)+1))
+	mzObserved <- mzs[which.min(abs(mzs - mz))]
+	deviation <- abs(mzObserved - mz) / mz * 10**6
+	scans <- paste(unlist(scans), collapse=', ')
+	return(data.frame(mz=mzObserved, AUC=AUC, scans=scans, deviation=deviation, stringsAsFactors=FALSE))
+}
+	
+
+# 2nd get hits of the mass
+testROI <- function(file, scans, mz, tolMZ, prefilterS, prefilterL){
+	points <- data.frame(mz=unlist(mz(file[scans])), intensity=unlist(intensity(file[scans])))
+	points <- points[which(points$intensity > prefilterL), ]
+	points <- points[which(points$mz >= mz-tolMZ & points$mz <= mz+tolMZ), ]
+	nrow(points) > prefilterS
 }
 
-integrateROI <- function(file, chroms, mzs, prefilterS, prefilterL, res=data.frame()){
-	chrom <- if(is.null(nrow(chroms))) chroms else chroms[1, 1]
-	scans <- findScans(chrom, prefilterS, prefilterL)
-	if(is.null(scans)) return(res)
-	else if(scans[2] > length(chrom@intensity)) scans[2] <- length(chrom@intensity)
-	AUC <- trapz(chrom@rtime[scans[1]:scans[2]], chrom@intensity[scans[1]:scans[2]])
-	if(nrow(res) > 0) if(AUC > res[nrow(res), 'AUC'] * 1.2) return(res)
-	scans <- sapply(strsplit(names(chrom@rtime[scans[1]:scans[2]]), 'S'), function(x) as.numeric(x[2]))
-	scans <- c(min(scans), max(scans))
-	mzObserved <- unlist(mz(file[min(scans):max(scans)]))
-	mzObserved <- mzObserved[which.min(abs(mzObserved - mzs[1]))]
-	res <- rbind(res, data.frame(mz=mzObserved, AUC=AUC, rtmin=rtime(file)[scans[1]], rtmax=rtime(file)[scans[2]], abd=0, ppmDeviation=abs(mzObserved-mzs[1])/mzs[1]*10**6))
-	if(length(mzs) > 1)	res <- integrateROI(file, chroms[2:nrow(chroms), ], mzs[-1], prefilterS, prefilterL, res)
-	return(res)
+# 3rd
+substractNoise <- function(eic, scans, noise, snthresh){
+	# noise <- mean(eic@intensity[which(eic@intensity > 0)]) + noise
+	outer <- eic@intensity[-scans]
+	outer <- outer[which(outer > noise)]
+	if(length(outer) < 2) return(TRUE)
+	baseline <- mean(outer)
+	sdnoise <- sd(outer)
+	(max(eic@intensity[scans]) - baseline) / sdnoise > snthresh
 }
 
-
-computeScore <- function(theoric, observed, tolAbd){
-	weight <- sapply(1:length(observed), function(x) theoric[x] / sum(theoric))
-	deltaAbundance <- sapply(1:length(observed), function(x) abs((observed[x] - theoric[x]) / tolAbd))
-	deviation <- deltaAbundance
-	deviation[which(deviation > 1)] <- 1
-	score <- 100 * (1 - sum(deviation * weight))
-	return(round(score, digits=0))
-}
-
-recordTarget <- function(res, molecule, ppm, tolAbd, score, ppmDeviation, sample, prefilterS, prefilterL){
+recordROIs <- function(sample, data, res, ppm, prefilterS, prefilterL, noise, snthresh, tolAbd, score){
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('insert into observed (molecule, tolPpm, tolAbd, score, sample, ppmDeviation, prefilterS, prefilterL) values
-		(%s, %s, %s, %s, "%s", %s, %s, %s);',
-		molecule, ppm, tolAbd, score, sample, ppmDeviation, prefilterS, prefilterL)
+	query <- sprintf('insert into observed (molecule, ppm, tolAbd, score, sample, ppmDeviation, prefilterS, prefilterL, noise, snthresh) values
+		(%s, %s, %s, %s, "%s", %s, %s, %s, %s, %s);',
+		data[1, 'molecule'], ppm, tolAbd, score, sample, mean(res$deviation), prefilterS, prefilterL, noise, snthresh)
 	dbSendQuery(db, query)
 	id <- dbGetQuery(db, 'select last_insert_rowid();')$last_insert_rowid[1]
-	apply(res, 1, function(x) dbSendQuery(db, sprintf('insert into measured (observed, mz, auc, abd, rtmin, rtmax) values (%s, %s, %s, %s, %s, %s);',
-		id, x['mz'], x['AUC'], x['abd'], x['rtmin'], x['rtmax'])))
+	apply(res, 1, function(x) dbSendQuery(db, sprintf('insert into measured 
+		(observed, mz, auc, abd, scans) values (%s, %s, %s, %s, "%s");',
+		id, x['mz'], x['AUC'], x['abd'], x['scans'])))
 	dbDisconnect(db)
 }

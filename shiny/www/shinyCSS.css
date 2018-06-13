@@ -1,5 +1,5 @@
-.shiny-notification-panel{
-	width: 100%;
+#shiny-notification-panel{
+	width: 50%;
 }
 
 .shiny-progress-notification .progress{

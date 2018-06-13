@@ -26,6 +26,12 @@ tabItem(tabName='Target',
 				tags$td(style="width:7.5%;",
 					numericInput('targetTolAbd', 'tol abd (%)', value=20, min=0, max=100)
 				),
+				tags$td(style="width:7.5%;",
+					numericInput('targetNoise', 'noise', value=0)
+				),
+				tags$td(style="width:7.5%;",
+					numericInput('targetSnthresh', 'snthresh', value=4)
+				),
 				tags$td(style="vertical-align:100%; width:10%; text-align:center;",
 					actionBttn('targetSubmit', 'Re-integrate', style='unite')
 				),

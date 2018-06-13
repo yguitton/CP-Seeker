@@ -29,6 +29,8 @@ observeEvent(c(input$targetFile, input$targetAdduct), {
 	updateNumericInput(session, 'targetPrefilterL', 'Prefilter level', value=param$prefilterL)
 	updateNumericInput(session, 'targetPrefilterS', 'Prefilter step', value=param$prefilterS)
 	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=param$tolAbd, min=0, max=100)
+	updateNumericInput(session, 'targetNoise', 'noise', value=param$noise)
+	updateNumericInput(session, 'targetSnthresh', 'snthresh', value=param$snthresh)
 	runjs("Shiny.onInputChange('targetTable_cell_selected', {C:0, Cl:0});")
 })
 
@@ -48,6 +50,8 @@ observeEvent(input$targetTable_cell_selected, {
 	updateNumericInput(session, 'targetPrefilterL', 'Prefilter level', value=param$prefilterL)
 	updateNumericInput(session, 'targetPrefilterS', 'Prefilter step', value=param$prefilterS)
 	updateNumericInput(session, 'targetTolAbd', 'tol abd (%)', value=param$tolAbd, min=0, max=100)
+	updateNumericInput(session, 'targetNoise', 'noise', value=param$noise)
+	updateNumericInput(session, 'targetSnthresh', 'snthresh', value=param$snthresh)
 	if(input$targetTable_cell_selected$C != 0){
 		session$sendCustomMessage('targetTableSelectPpm', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
 		session$sendCustomMessage('targetTableSelectScore', list(row=input$targetTable_cell_selected$C-8, column=input$targetTable_cell_selected$Cl-3))
@@ -98,23 +102,27 @@ output$targetEIC <- renderPlotly({
 	else if(cell$C == 0) return(eic)
 	db <- dbConnect(SQLite(), sqlitePath)
 	xraw <- readMSData(samples()[which(samples()$sample == input$targetFile), 'path'], centroided=TRUE, msLevel=1, mode='onDisk')
-	query <- sprintf('select mz, rtmin, rtmax from measured where observed == (select id from observed where sample == "%s" and molecule == (
+	query <- sprintf('select mz, scans from measured where observed == (select id from observed where sample == "%s" and molecule == (
 		select id from molecule where adduct == "%s" and formula like "%s"));',
 		input$targetFile, input$targetAdduct, paste('%C', cell$C, '%Cl', cell$Cl, '%', sep='', collapse=''))
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
 	mzRange <- matrix(sapply(data$mz, function(mz) c(mz-(mz*input$targetPpm)/10**6, mz+(mz*input$targetPpm)/10**6)), ncol=2, byrow=TRUE)
+	scans <- lapply(strsplit(data$scans, ', '), as.numeric)
+	ids_scans <- lapply(scans, function(x) x-min(x)+1)
+	rtmin <- sapply(scans, function(x) rtime(xraw)[min(x)])
+	rtmax <- sapply(scans, function(x) rtime(xraw)[max(x)])
 	chrom <- chromatogram(xraw, mz=rbind(mzRange[1, ], mzRange), 
-		rt=rbind(c(rtmin=0, rtmax=max(rtime(xraw))), data[, c('rtmin', 'rtmax')]), 
+		rt=matrix(c(rtmin=c(0, rtmin), rtmax=c(max(rtime(xraw)), rtmax)), ncol=2), 
 		aggregationFun='sum', missing=0, BPPARAM=SnowParam())@.Data
 	eic <- eic %>%
 		add_trace(x=chrom[[1]]@rtime/60, y=chrom[[1]]@intensity, 
 			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[1]]@intensity, digits=0), 
 				'<br />Retention Time: ', round(chrom[[1]]@rtime/60, digits=2)), line=list(dash='dash', width=4, color='rgb(0,0,0)'))
 	for(i in 2:length(chrom)) eic <- eic %>% 
-		add_trace(x=chrom[[i]]@rtime/60, y=chrom[[i]]@intensity, 
-			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[i]]@intensity, digits=0), 
-				'<br />Retention Time: ', round(chrom[[i]]@rtime/60, digits=2)), line=list(width=3))
+		add_trace(x=chrom[[i]]@rtime[ids_scans[[i-1]]]/60, y=chrom[[i]]@intensity[ids_scans[[i-1]]], 
+			showlegend=FALSE, hoverinfo='text', text=paste('Intensity: ', round(chrom[[i]]@intensity[ids_scans[[i-1]]], digits=0), 
+				'<br />Retention Time: ', round(chrom[[i]]@rtime[ids_scans[[i-1]]]/60, digits=2)), line=list(width=3))
 	eic <- eic %>% add_trace(mode='markers', x=chrom[[1]]@rtime/60, y=chrom[[1]]@intensity, showlegend=FALSE, marker=list(size=0.001)) %>%
 		layout(xaxis=list(range=c(min(data$rtmin)/60-1, max(data$rtmax)/60+1))) 
 	return(eic)
@@ -141,6 +149,9 @@ observeEvent(input$targetSubmit, {
 	else if(input$targetPrefilterL == '') return(sendSweetAlert(session, title='Prefilter level is incorrect!', type='error'))
 	else if(input$targetPrefilterS == '') return(sendSweetAlert(session, title='Prefilter step is incorrect!', type='error'))
 	else if(input$targetTolAbd == '') return(sendSweetAlert(session, title='Tol abd is incorrect!', type='error'))
+	else if(!is.numeric(input$targetNoise)) return(sendSweetAlert(session, title='Noise is not numeric', type='error'))
+	else if(!is.numeric(input$targetSnthresh)) return(sendSweetAlert(session, title='Snthresh is not numeric', type='error'))
+	
 	hide('app-content')
 	shinyjs::show('loader')
 	tryCatch({
@@ -153,22 +164,19 @@ observeEvent(input$targetSubmit, {
 			input$targetAdduct, paste('C', cell$C, '%Cl', cell$Cl, sep='', collapse=''))
 	data <- dbGetQuery(db, query)
 	dbDisconnect(db)
-	tol <- data$mz * input$targetPpm /10**6
-	mzRange <- data.frame(mzmin=data$mz-tol, mzmax=data$mz+tol)
-	rtRange <- data.frame(rtmin=rep(input$targetRtMin*60, each=5), rtmax=rep(input$targetRtMax*60, each=5))
-	chrom <- chromatogram(file, mz=mzRange, rt=rtRange, missing=0)
-	res <- integrateROI(file, chrom, data$mz, input$targetPrefilterS, input$targetPrefilterL)
-	if(nrow(res) < 2){
+	res <- targetROIs(input$targetFile, input$targetAdduct, file, data, input$targetRtMin*60, input$targetRtMax*60, 
+		input$targetPpm, input$targetPrefilterS, input$targetPrefilterL, input$targetNoise, input$targetSnthresh, input$targetTolAbd)
+	if(is.null(res)){
 		session$sendCustomMessage('targetTablePpmDelete', list(row=cell$C-8, column=cell$Cl-3))
 		session$sendCustomMessage('targetTableScoreDelete', list(row=cell$C-8, column=cell$Cl-3))
 		session$sendCustomMessage('targetTableIntoDelete', list(row=cell$C-8, column=cell$Cl-3))
 	} else{
-		res$abd <- res$AUC*100/max(res$AUC)
-		ppmDeviation <- mean(res$ppmDeviation)
-		score <- computeScore(data$abd, res$abd, input$targetTolAbd)
+		ppmDeviation <- mean(res$deviation)
+		weight <- res$AUC / sum(res$AUC)
+		delta <- sapply(1:nrow(res), function(i) abs(res[i, 'mz']-data[i, 'mz']) / input$targetTolAbd)
+		delta[which(delta > 1)] <- 1
+		score <- 100 * (1 - sum(delta * weight))
 		sumAUC <- sum(res$AUC)
-		recordTarget(res, data[1, 'molecule'], input$targetPpm, 
-			input$targetTolAbd, score, ppmDeviation, input$targetFile, input$targetPrefilterS, input$targetPrefilterL)
 		print(list(row=cell$C-8, column=cell$Cl-3, ppm=ppmDeviation, score=score, auc=sumAUC))
 		session$sendCustomMessage('targetTablePpmUpdate', list(row=cell$C-8, column=cell$Cl-3, ppm=round(ppmDeviation, digits=2)))
 		session$sendCustomMessage('targetTableScoreUpdate', list(row=cell$C-8, column=cell$Cl-3, score=round(score, digits=2)))

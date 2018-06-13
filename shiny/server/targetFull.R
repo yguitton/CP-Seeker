@@ -7,44 +7,56 @@ output$uiTargetFullSelectFiles <- renderUI({
 #the Target event
 observeEvent(input$targetFullSubmit, {
 	if(length(input$targetFullFiles) == 0) return(sendSweetAlert(session, title='You have to choose at least one file!', type='error'))
-	else if(input$targetFullPrefilterL == '') return(sendSweetAlert(session, title='You need to specified the prefilter level', type="error"))
-	else if(input$targetFullTolAbd == '') return(sendSweetAlert(session, title='You need to specified the abundance tolerance', type='error'))
-	tryCatch({
+	else if(!is.numeric(input$targetFullPrefilterL)) return(sendSweetAlert(session, title='You need to specified the prefilter level', type="error"))
+	else if(!is.numeric(input$targetFullTolAbd)) return(sendSweetAlert(session, title='You need to specified the abundance tolerance', type='error'))
+	else if(!is.numeric(input$targetFullNoise)) return(sendSweetAlert(session, title='Noise is not numeric', type='error'))
+	else if(!is.numeric(input$targetFullSnthresh)) return(sendSweetAlert(session, title='Snthresh is not numeric', type='error'))
+	# tryCatch({
 		hide('app-content')
 		show('loader')
 		recordParametersTargetFull(input$targetFullFiles, input$targetFullAdduct, input$targetFullPpm, input$targetFullTolAbd,
-			input$targetFullPrefilterS, input$targetFullPrefilterL)
+			input$targetFullPrefilterS, input$targetFullPrefilterL, input$targetFullNoise, input$targetFullSnthresh, input$targetFullRt[1], input$targetFullRt[2])
 		db <- dbConnect(SQLite(), sqlitePath)
 		query <- sprintf('select * from theoric inner join molecule on theoric.molecule = molecule.id where adduct == "%s";',
 			input$targetFullAdduct)
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
-		files <- readMSData(samples()[which(samples()$sample %in% input$targetFullFiles), 'path'], 
-			centroided=TRUE, msLevel=1, mode='onDisk')
-		targetROI(files, data, input$targetFullPpm, input$targetFullPrefilterS, input$targetFullPrefilterL, input$targetFullTolAbd)
+		withProgress(message='target', value=0, max=nrow(data) * length(input$targetFullFiles), {
+		for(sample in input$targetFullFiles){
+			file <- readMSData(samples()[which(samples()$sample == sample), 'path'], 
+				centroided=TRUE, msLevel=1, mode='onDisk')
+			for(molecule in unique(data[which(!data$molecule %in% 574:649), 'molecule'])){
+				targetROIs(sample, input$targetFullAdduct, file, data[which(data$molecule == molecule), ], 
+					input$targetFullRt[1]*60, input$targetFullRt[2]*60, input$targetFullPpm, input$targetFullPrefilterS, 
+					input$targetFullPrefilterL, input$targetFullNoise, input$targetFullSnthresh, input$targetFullTolAbd)
+				incProgress(amount=1)
+			}
+		}})
 		actualize$graph <- if(actualize$graph) FALSE else TRUE
 		hide('loader')
 		shinyjs::show('app-content')
-	}, error=function(e){
-		print(e)
-		hide('loader')
-		show('app-content')
-		sendSweetAlert(session, title='Error targeting', text=paste(e), type='error')
-	})
+	# }, error=function(e){
+		# print(e)
+		# hide('loader')
+		# show('app-content')
+		# sendSweetAlert(session, title='Error targeting', text=paste(e), type='error')
+	# })
 })
 
-recordParametersTargetFull <- function(files, adduct, ppm, tolAbd, prefilterS, prefilterL){
+recordParametersTargetFull <- function(files, adduct, ppm, tolAbd, prefilterS, prefilterL, noise, snthresh, rtmin, rtmax){
 	db <- dbConnect(SQLite(), sqlitePath)
 	# create the param for each file or update it
 	query <- sprintf('select sample from param where sample in (%s) and adduct == "%s";', 
 		paste('"', files, '"', collapse=', ', sep=''), adduct)
 	toUpdate <- dbGetQuery(db, query)$sample
 	sapply(toUpdate, function(x) dbSendQuery(db, sprintf(
-		'update param set tolPpm = %s, tolAbd = %s, prefilterS = %s, prefilterL = %s where sample == "%s" and adduct == "%s";',
-		ppm, tolAbd, prefilterS, prefilterL, x, adduct)))
+		'update param set tolPpm = %s, tolAbd = %s, prefilterS = %s, prefilterL = %s, 
+			noise = %s, snthresh = %s, rtmin = %s, rtmax = %s where sample == "%s" and adduct == "%s";',
+		ppm, tolAbd, prefilterS, prefilterL, noise, snthresh, rtmin, rtmax, x, adduct)))
 	sapply(input$targetFullFiles[which(!input$targetFullFiles %in% toUpdate)], function(x) dbSendQuery(db, sprintf(
-		'insert into param (tolPpm, tolAbd, sample, adduct, prefilterS, prefilterL) values (%s, %s, "%s", "%s", %s, %s);',
-		ppm, tolAbd, x, adduct, prefilterS, prefilterL)))
+		'insert into param (tolPpm, tolAbd, sample, adduct, prefilterS, prefilterL, noise, snthresh, rtmin, rtmax) 
+			values (%s, %s, "%s", "%s", %s, %s, %s, %s, %s, %s);',
+		ppm, tolAbd, x, adduct, prefilterS, prefilterL, noise, snthresh, rtmin, rtmax)))
 	queries <- c(
 		sprintf('delete from measured where observed in (select id from observed where sample in (%s) 
 			and molecule in (select id from molecule where adduct == "%s"));',
