@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: bsTypeahead</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bsTypeahead {shinyBS}"><tr><td>bsTypeahead {shinyBS}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>bsTypeahead</h2>
+
+<h3>Description</h3>
+
+<p><code>typeaheadInput</code> creates a textinput with type ahead function buttons.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bsTypeahead(inputId, label, value = "", choices, items = 8, minLength = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>inputId</code></td>
+<td>
+<p>Input variable to assign the control's value to</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>Display label for the control</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>Initial value</p>
+</td></tr>
+<tr valign="top"><td><code>choices</code></td>
+<td>
+<p>Array of strings to match against. Can also be JavaScript
+function. Use htmlwidgets::JS() to indicate JavaScript. The length of <code>choices</code> must no exceed 131370.</p>
+</td></tr>
+<tr valign="top"><td><code>items</code></td>
+<td>
+<p>The max number of items to display in the dropdown. Can also be
+set to 'all'</p>
+</td></tr>
+<tr valign="top"><td><code>minLength</code></td>
+<td>
+<p>The minimum character length needed before triggering
+autocomplete suggestions. You can set it to 0 so suggestion are shown even
+when there is no text when lookup function is called.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p><code>updateTypeaheadInput</code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>shinyBS</em> version 0.62 <a href="00Index.html">Index</a>]</div>
+</body></html>
