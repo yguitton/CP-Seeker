@@ -2,9 +2,9 @@ header <- dashboardHeader(
 	title = "targetROI"
 )
 
-sidebar <- dashboardSidebar()
+sidebar <- dashboardSidebar(disable=TRUE)
 
-body <- dashboardBody(
+body <- dashboardBody(fluidPage(
 	tags$head(
 		includeCSS("www/shinyCSS.css"),
 		# tags$link(rel = "stylesheet", type = "text/css", href = "shinyWidgets/sweetAlert/css/sweetalert.min.css"),
@@ -19,12 +19,20 @@ body <- dashboardBody(
 	
 	source('ui/loadXlsx.R', local=TRUE)$value,
 	
+	box(title="3D", width=6, 
+		plotlyOutput('tetrahedras')
+	),
+
+	box(title="map", width=12, 
+		plotlyOutput('map')
+	),
+	
 	bsModal("chooseXlsxTag", "Choose tag", trigger="tog", size="small", close.button=FALSE,
 		uiOutput('uiXlsxTag'),
 		footer = actionBttn('xlsxTagValid', label="Valid")
 	)
 	
-)
+))
 
 shinyUI(
 	dashboardPage(
