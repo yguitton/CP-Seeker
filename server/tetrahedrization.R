@@ -233,10 +233,17 @@ contourPolyhedras <- function(triangles, zVal){
 	edges <- keep(edges, function(edge) all(edge$z == zVal))
 	edges2 <- map(edges, function(x) x[, 1:2] %>% bind_rows(data.frame(x=NA, y=NA)))
 	edges2 <- reduce(edges2, bind_rows)
+	
+	# for barycenter computation
+	centroid <- reduce(edges, bind_rows)[, 1:2] %>% unique %>% summarise(x=mean(x), y=mean(y))
 
 	plot_ly(type="scatter", mode="lines", data=edges2, x=~x, y=~y, hoverinfo="text", 
 		text=paste("Carbons:", edges2$x %>% round(digits=2), "<br />Chlorines:", edges2$y %>% round(digits=2))) %>% 
+		add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", 
+			text=paste("Carbons:", centroid$x %>% round(digits=2), "<br />Chlorines:", centroid$y %>% round(digits=2))) %>%
+		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40) %>%
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
+			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>%
+		config(edits=list(annotationTail=TRUE))
 }

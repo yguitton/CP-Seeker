@@ -21,7 +21,7 @@ observeEvent(input$launch, {
 		tetras <- res$tetras
 		triangles <- res$triangles
 		print(paste('Volume :', computeVolumePolyhedra(tetras)))
-		zVal <- getZCut(tetras)
+		zVal <- getZCut(tetras, input$vTarget, input$vDigits)
 		print(paste('Zcut :', zVal))
 		
 		values$triangles <- triangles
