@@ -15,6 +15,13 @@ body <- dashboardBody(
 		useShinyFeedback(),
 		useToastr(),
 		useSweetAlert()
+	),
+	
+	source('ui/loadXlsx.R', local=TRUE)$value,
+	
+	bsModal("chooseXlsxTag", "Choose tag", trigger="tog", size="small", close.button=FALSE,
+		uiOutput('uiXlsxTag'),
+		footer = actionBttn('xlsxTagValid', label="Valid")
 	)
 	
 )

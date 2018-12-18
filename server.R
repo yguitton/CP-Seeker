@@ -8,6 +8,10 @@ session$onSessionEnded(function() {
 	# q('no')
 })
 
+values <- reactiveValues()
+
 source('server/func.R', local=TRUE)$value
+
+source('server/loadXlsx.R', local=TRUE)$value
 
 })	
