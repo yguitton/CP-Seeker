@@ -45,7 +45,7 @@ output$uiXlsxTab <- renderUI({
 	pickerInput('xlsxTab', label=NULL, choices=sheets)
 })
 
-output$xlsxContent <- renderDataTable({
+xlsxContent <- reactive({
 	print('----------------- XLSX CONTENT ---------------------')
 	print(list(xlsxPath = values$xlsxPath, sheet = input$xlsxTab))
 	data <- tryCatch({
@@ -70,27 +70,37 @@ output$xlsxContent <- renderDataTable({
 	})
 	print('----------------- END XLSX CONTENT ---------------------')
 	data
-}, selection=list(target="column", mode="multiple"), filter='top', extensions=c('Scroller'), options=list(
+})
+
+output$xlsxContent <- renderDataTable(xlsxContent(), selection=list(target="column", mode="multiple"), 
+filter='top', extensions=c('Scroller'), options=list(
 	dom='Bfrtip', scrollX=TRUE, scroller=TRUE, scrollY="400px"), callback=htmlwidgets::JS("
 	table.on('click', 'tbody td', function(){
 		var cell = table.cell(this).index();
 		// zzz is just to force the shiny observer
 		if($(table.cell(this).node()).hasClass('selected')) Shiny.onInputChange('xlsxColumn_remove', 
-			{zzz: Math.random(), id: cell.column, data: []});
+			{zzz: Math.random(), id: cell.column});
 		else{
 			// check if the number of columns >= 3
 			var nbCol = table.$('td.selected').length / table.rows().data().length;
 			if(nbCol >= 3){
 				toastr['error']('cannot select more than 4 column!');
 				e.stopImmediatePropagation();
-			} else Shiny.onInputChange('xlsxColumn_add', {zzz: Math.random(), id: cell.column, data: table.column(cell.column).data().toArray()});
+			} else Shiny.onInputChange('xlsxColumn_add', {zzz: Math.random(), id: cell.column});
 		}
 	});
 "))
 
 observeEvent(input$xlsxColumn_add, {
-	toggleModal(session, 'chooseXlsxTag', toggle='toggle')
+	showModal(chooseXlsxTag())
 })
+
+chooseXlsxTag <- function(){
+	modalDialog(title='Choose the tag in the list',
+		uiOutput('uiXlsxTag'),
+		footer = actionBttn('xlsxTagValid', label="Valid")
+	)
+}
 
 values$C <- list(id=0, data=NULL)
 values$Cl <- list(id=0, data=NULL)
@@ -133,10 +143,10 @@ observeEvent(input$xlsxTagValid, {
 	print('-------------- XLSX TAG VALID -----------------')
 	print(list(file=values$xlsxPath, sheet=input$xlsxTab, 
 		column=input$xlsxColumn_add$id, tag=input$xlsxTag))
-	toggleModal(session, 'chooseXlsxTag', toggle='close')
+	removeModal()
 	tryCatch({
 		column <- input$xlsxColumn_add$id
-		data <- input$xlsxColumn_add$data %>% unlist
+		data <- xlsxContent()[, column]
 		if(column == 0) stop("column doesn't exist !!!!")
 		else if(length(data) == 0) stop('no data on column !!!')
 		else if(!input$xlsxTag %in% c('C', 'Cl', 'profile')) stop("tag doesn't exist !!!")

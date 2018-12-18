@@ -20,16 +20,11 @@ body <- dashboardBody(fluidPage(
 	source('ui/loadXlsx.R', local=TRUE)$value,
 	
 	box(title="3D", width=6, 
-		plotlyOutput('tetrahedras')
+		plotlyOutput('tetrahedras', height="600px")
 	),
 
 	box(title="map", width=12, 
-		plotlyOutput('map')
-	),
-	
-	bsModal("chooseXlsxTag", "Choose tag", trigger="tog", size="small", close.button=FALSE,
-		uiOutput('uiXlsxTag'),
-		footer = actionBttn('xlsxTagValid', label="Valid")
+		plotlyOutput('map', height="800px")
 	)
 	
 ))

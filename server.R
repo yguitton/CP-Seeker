@@ -14,4 +14,8 @@ source('server/func.R', local=TRUE)$value
 
 source('server/loadXlsx.R', local=TRUE)$value
 
+source('server/profils.R', local=TRUE)$value
+
+source('server/tetrahedrization.R', local=TRUE)$value
+
 })	
