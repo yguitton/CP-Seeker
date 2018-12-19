@@ -44,5 +44,6 @@ observeEvent(input$launch, {
 
 output$tetrahedras <- renderPlotly(drawTriCut(values$triangles, values$zVal))
 
-output$map <- renderPlotly(contourPolyhedras(values$triangles, values$zVal))
+output$map <- renderPlotly(contourPolyhedras(values$triangles, values$zVal, 
+	data.frame(x=values$C$data, y=values$Cl$data, z=values$profile$data) %>% summarise(x=sum(x*z), y=sum(y*z))))
 

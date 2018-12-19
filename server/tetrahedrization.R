@@ -193,7 +193,7 @@ getZCut <- function(tetras, vTarget=90, digits=2){
 	return(zVal)
 }
 
-contourPolyhedras <- function(triangles, zVal){
+contourPolyhedras <- function(triangles, zVal, centroid){
 	if(is.null(triangles) | is.null(zVal)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
@@ -234,14 +234,14 @@ contourPolyhedras <- function(triangles, zVal){
 	edges2 <- map(edges, function(x) x[, 1:2] %>% bind_rows(data.frame(x=NA, y=NA)))
 	edges2 <- reduce(edges2, bind_rows)
 	
-	# for barycenter computation
-	centroid <- reduce(edges, bind_rows)[, 1:2] %>% unique %>% summarise(x=mean(x), y=mean(y))
-
-	plot_ly(type="scatter", mode="lines", data=edges2, x=~x, y=~y, hoverinfo="text", 
-		text=paste("Carbons:", edges2$x %>% round(digits=2), "<br />Chlorines:", edges2$y %>% round(digits=2))) %>% 
+	
+	p <- plot_ly(type="scatter", mode="lines", data=edges2, x=~x, y=~y, hoverinfo="text", 
+		text=paste("Carbons:", edges2$x %>% round(digits=2), "<br />Chlorines:", edges2$y %>% round(digits=2)))
+	if(!is.null(centroid)) p <- p %>% 
 		add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", 
 			text=paste("Carbons:", centroid$x %>% round(digits=2), "<br />Chlorines:", centroid$y %>% round(digits=2))) %>%
-		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40) %>%
+		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
+	p %>%
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>%
