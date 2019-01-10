@@ -1,0 +1,402 @@
+%\VignetteIndexEntry{A quick tour through rawDiag}
+\documentclass[nojss]{jss}
+
+\usepackage{thumbpdf,lmodern}
+
+\usepackage[T1]{fontenc} % Use modern font encodings
+\usepackage{listings}
+
+\author{Christian Trachsel\\FGCZ
+  \And 
+  Tobias Kockmann\\FGCZ
+  \And
+  Christian Panse\\FGCZ}
+\title{An Introduction to the \pkg{rawDiag} R Package}
+
+\Plainauthor{Christian Trachsel, Tobias Kockmann, Christian Panse}
+
+\Plaintitle{Diagnostoc plots}
+
+\Shorttitle{rawDiag}
+
+\Keywords{proteomics, mass spectrometry, visualization, method optimization, R-package}
+
+\Plainkeywords{proteomics, mass spectrometry, visualization, method optimization, R-package}
+
+\Abstract{
+\pkg{rawDiag} is an R package which provides the user with visualizations of
+mass spectrometry data characteristics, coming from LC-MS/MS proteomics
+experiments. The plots implemented
+in this package allow the user to check LC-MS/MS method parameters and
+facilitates the optimization thereof. The package is developed, tested and used
+at the Functional Genomics Center Zurich. 
+The package is optimized for reading Thermo Fisher Scientific raw files, but any other mass
+spectrometry vendor data format is supported over the open standards using the
+\pkg{mzR} package.
+\pkg{rawDiag} can be run on modern laptop infrastructure with sufficient speed,
+but for large datasets, a server infrastructure is beneficial.  
+}
+
+\Address{
+  Christian Trachsel, Tobias Kockmann, Christian Panse\\
+  Functional Genomics Center Zurich\\
+  Swiss Federal Institute of Technology in Zurich~\texttt{|}~University of Zurich\\
+  Winterthurerstr. 190, CH-8057 Zurich, Switzerland\\
+  \\
+  Telephone: +41-44-63-53912\\
+  E-mail: \email{cp@fgcz.ethz.ch}\\
+  URL: \url{http://www.fgcz.ch}
+}
+
+
+\begin{document}
+
+\SweaveOpts{width = 6, height = 5}
+<<echo = FALSE, eval = TRUE>>=
+options(prompt = "R> ", continue = "+  ", width = 70, useFancyQuotes = FALSE)
+library(tidyverse)
+@
+
+
+\SweaveOpts{concordance = TRUE}
+
+\section{Introduction}
+Mass spectrometry is a well-accepted and widespread method in life sciences. 
+An important task that needs to be performed prior to acquisition of any data set 
+is the optimization of the applied mass spectrometry method.
+\pkg{rawDiag} \citep{TrachselJPR} builds on the idea of the discontinued
+software rawMeat
+(Vast Scientific). 
+Our software allows a mass spectrometrist to analyze raw
+files in a short amount of time and produces diagnostic plots of LC-MS/MS run
+chararcteristics as result. 
+These visualizations are helpful for the optimization of the instrument method
+towards the sample at hand.
+
+Our R package can read directly from the instrument raw data and keeps the data 
+in a \code{data.frame} object where each row represents a scan event and each
+column contains LC-MS/MS run parameters. 
+The resulting R \code{data.frame} is structured as tidy data based on
+\citet{Wickham2014}.
+\pkg{rawDiag} is optimized to work with
+Thermo Fisher Scientific raw files. The
+package calls a \proglang{C\#} executable that generates the required
+\code{data.frame} on the fly directly from a
+raw file using the New RawFileReader .Net assembly \citep{RawFileReader}.
+However, any other mass spectrometry data format is also supported via the open 
+standards using the R package \pkg{mzR} \citep{mzR}. This requires
+a conversion of the data to e.g. mzML prior to loading into the R session with the addapter function 
+\code{as.rawDiag.mzR}. Examples for reading data is explained in section~\ref{section:read} of this
+vignette.
+A number of R helper functions reshape and subset the data and pass the desired
+data-frames to \pkg{ggplot2} \citep{Hadley2009} for visualization. 
+Different kinds of visualizations (Trellis-like, violin plots, overlay plots) help to compare result
+between different runs. Mass spectrometry data can be inspected interactively running the
+software as an R shiny instance. Additionally, pdf reports can be generated
+using a customizable \pkg{rmarkdown} file.
+
+Processing speed of the software on a modern laptop infrastructure is sufficient
+to provide the user with
+results already a few minutes after the mass spectrometry data was acquired (a single
+file containing $\approx 80'000$ individual
+spectra is processed in less than 50 sec on a 2018 MacBook). A large scale performance benchmark can be found in section~\ref{section:bench}.
+
+All necessary steps can be done with the R command line or by using the shiny
+application.
+ 
+The diagnostic visualization are peptide ID free and rely on data logged by the 
+instrument directly in the raw data file. This makes the software slim and fast
+and does not require additional data analysis pipeline.
+
+\section{Getting started} 
+
+help can be found by checking the documentation.
+
+<<eval=FALSE>>=
+help(package="rawDiag")
+@
+
+attach the package
+<<>>=
+library(rawDiag)
+@
+
+\section{Getting the Data}
+\label{section:read}
+
+\subsection{Utility Functions}
+
+We first load the demonstration
+data shipped with the package. 
+Please note, the raw data are available through
+\href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=b231e78d674345798ebe50e46a9a3a93}{MassIVE MSV000082389}.
+
+load sample data:
+<<>>=
+data(WU163763)
+stopifnot(is.rawDiag(WU163763))
+@
+
+<<WU163763>>=
+data("WU163763")
+is.rawDiag(WU163763)
+names(WU163763)
+@
+
+\subsection{Using The New RawFileReader}
+
+The function \code{read.raw} uses the .Net assembly \citep{RawFileReader} based executable to directly extract the information out of the mass spectrometry meassurement file. The \proglang{C\#}
+source code as well as the compiler and linker options for a Linux build is provided as a docker recipe (see \texttt{inst/docker/Dockerfile}. We use R for the implementation and read the data using the pipe command
+
+The following code snippet demonstrates the use of the \code{read.raw} function to extract data from a tiny example raw file:
+
+<<RawFileReader, eval = TRUE>>=
+rawfile <- file.path(path.package(package = "rawDiag"),
+                     "extdata", 'sample.raw')
+system.time(RAW <- read.raw(file = rawfile))
+summary.rawDiag(RAW)
+@
+
+reading all parameters
+<<RawFileReader2, eval = TRUE>>=
+dim(RAW)
+RAW <- read.raw(file = rawfile, rawDiag = FALSE)
+dim(RAW)
+@
+
+
+Additional information can be found using the R man pages. 
+
+<<eval = FALSE>>=
+?read.raw
+@
+
+\subsection{Reading the Open Proteomics Standard Files}
+
+The package also ships with an adapter function \code{rawDiag:::as.rawDiag.mzR}
+which enables the support of open file standards by using the Bioconductor 
+\pkg{mzR} package \citep{mzR}.
+
+The following example code shows the access on a mzML file.
+<<mzR>>=
+library(mzR); 
+
+mzML <- "04_S174020_5000_5010.mzML"
+mzML <- file.path(path.package(package = "rawDiag"), "extdata", mzML)
+system.time(RAW <- rawDiag:::as.rawDiag.mzR(openMSfile(mzML)))
+summary.rawDiag(RAW)
+RAW$scanNumber
+@
+
+
+\section{Usage}
+
+In the following section we demonstrate how the software can be used for the
+optimization of one parameter in an LC-MS/MS method. For this we load the data included in the package:
+
+<<usage>>=
+data(WU163763)
+stopifnot(is.rawDiag(WU163763))
+@
+
+This was recorded to investigate the optimal number of MS2 scans between
+two consecutive MS1 scans on a Q-Exactive HF-X mass spectrometer. A commercially available HeLa digest was measured with a generic starting method and two modified methods. Each method was analyzed three times in randomized order. For demonstration purposes, we first filter the data for a single injection per method, which reduces potential overplotting issues at the same time. The filtering is done with the following code snippet:
+
+
+<<label=filter, eval=TRUE>>=
+  library(tidyverse)
+df <- dplyr::filter(WU163763, 
+  filename == "04_S174020" |
+  filename == "05_S174020" |
+  filename == "09_S174020")
+@
+
+Our generic starting method is performing 18 MS2 scans for each MS1 scan. With the
+known time needed for a single scan on the used instrument we can calculate
+the cycle time (time required to scan one MS1 and 18 MS2 scans).
+In our case we find the cycle time to be
+$\approx$ 0.6 second. For a 120 min chromatography with expected peak width of
+20-30 seconds, this would result in 30-50 MS1 points per peak. In other words
+the instrument would spend too much time recording MS1 compared 
+to MS2. The hypothesis for an optimized method is that we need to give the instrument the opportunity to performe more MS2 scan between two MS1 scans. Therefore we addapted the methods to perform 36 and 72 MS2 scans
+respectively. Inorder to check the effect of these modifications, data needs to be recorded with the three methods. After the data is recorded we can visualize and analyse the results with the dignostic
+plots of this package.
+
+The first parameter we want to check is the TIC or base peak. With this plot we can
+see if the data was recorded properly and if the signal response of the sample
+is the same over the three injections.
+
+\begin{figure}
+<<label=TIC, fig = TRUE, echo=TRUE, include=TRUE, warnings=TRUE>>=
+print(gp <- PlotTicBasepeak(df, method = "overlay"))
+@
+\caption{TIC and Base Peak Plot -- This plot shows the overlay of the total ion chromatogram (TIC) and the base peak chromatogram of the three used mass spectrometry runs. In all three injections, the TIC and base peak response is close to identical which indicated that both the liquid chromatography as well as the mass spectrometry signal response for the three measurements was similar.}
+\label{figure:TIC}
+\end{figure}
+
+As shown in Figure~\ref{figure:TIC}, the signal response and chromatography is ok for the three injections as they are almost identical. This indicates a stable chromatography and an similar signal response of the three measurements. This behaviour is the pre-requisit for comparing the three runs with each other. In case of large deviations, affected runs would need to be excluded from further analysis or the data set should be re-analyzed. 
+As next point, we want to check the actual cycle time
+of the three measurements. Please note, here we also make use of the
+grammar of graphics \citep{Hadley2009}
+implementation of \pkg{ggplot2} by modifiying the plot appearance on the fly. 
+We move grey box indicating the faceting labels from the standard position on the right side 
+of to the top. This is achieved by adding the additional
+\code{facet\_wrap}
+statement after the initial call of the plot function.
+
+\begin{figure}
+<<label=PlotCycleTime, fig = TRUE, echo=TRUE, include=TRUE, warnings=TRUE>>=
+print(gp <- PlotCycleTime(df, method = "trellis") +
+  facet_wrap(~ filename, ncol =1))
+@
+\caption{Cycle Time Plot -- This plot displays the empirical cycle time for each recorded duty cycle in a method as a dot plot. The blue line represents a fitted trend using a gam model. The red dashed line is indicating the 95th quantile.}
+\label{figure:cycletime}
+\end{figure} 
+
+In Figure~\ref{figure:cycletime} we can see the the cycle time for the top 18 method (file: 09\_S174020) is
+arround 0.6 seconds during the elution phase of the peptides. This is in good agreemnet with our theoretically calculated value. The red dashed line in this plot indicates the 95th quantile. As initially mentioned,
+the generic starting method is producing too many MS1 data points under the used chromatography settings. This is verified by the empirical cycle time. The cycle time of the top
+36 (file: 04\_S174020) and top 72 (file: 05\_S174020) methods respectively
+have cycle times of 1.1 second and 2 seconds respectively. With the used
+chromatography we produce $\approx$20-30 MS1 point for the top 36 and
+$\approx$10-15 MS1 points for the top 72 method per chromatographic feature. The value from the top 72 mehtod is is a better value compared to the value of the initial method. 10-15 MS1 data points are considered as a good balance between time spent on MS1 and MS2 scans and allow a deep sampling of the peptides in the sample. 
+The next thing to check is if the instrument is actually using the available
+MS2 capacity. For this, we plot the cycle load (the actually performed MS2 scans
+for each MS1 scan).
+
+\begin{figure} 
+<<label=PlotCycleLoad, fig = TRUE, echo=TRUE, include=TRUE, warnings=TRUE>>=
+print(gp <- PlotCycleLoad(df, method = "trellis"))
+@
+\caption{Cycle load plot -- The plot shows number of MS2 scans performed after each MS1 scan. The value should be at or close to the maximum during the main peptide elution phase. In all three mehtods this is the case. If the value would be lower, this would indicate that the method is not well addapted towards a) the sample complexity or b) the amount of sample injected.
+}
+\label{figure:cycleload}
+\end{figure}
+
+From Figure~\ref{figure:cycleload}, we can see that all methods actually use the maximum available number of MS2 scans during the main peptide elution phase. The blue line is representing the trend as a fitted gam model. The fact that the top 72 method uses all the available MS2 slots, indicates that the two other methods are not optimally analyzing the investigated sample. The complexity is too high for these two methods and after selecting the precursors for MS2 fragmentationt at any give time during the peptide elution, there are still many other potential candidates available which are not fragmented. However, we can not endless increase the amount of MS2 scans, since we want to maintain a certain cycle time. In order to have more than 72 MS2 scans we would need to switch to shorter individual scans. But this would limit the amount of time the instrument has to collect the ions needed for each individual scan. A to low amount for this parameter (injection time on Orbitrap instruments) would lead to bad fragmentation spectra quality and as a direct result to a lower amount of identified peptides. To check if the three used mehtods are still operating in an acceptable injection time regime, we use the \code{PlotInjectionTime} function. 
+
+\begin{figure}
+<<label=PlotInjectionTime, fig = TRUE, echo=TRUE, include=TRUE, warnings=TRUE>>=
+print(gp <- PlotInjectionTime(subset(df, MSOrder %in% "Ms2"), 
+    method = "violin") 
+  )
+@
+\caption{Injection Time Plot -- The plot shows the injection time density of each mass spectrometry file as a violin plot. The higher the maximum number of MS2 scans is in the method, the more the density is shifted towards the maximum injection time value.
+}
+\label{figure:IT}
+\end{figure}
+
+From Figure~\ref{figure:IT} one can see that the injection time distribution is shiftet towards longer injection times, the more MS2 scans are available. This behaviour is kind of expected, since the instrument is picking more lower abundat ions to fill all the available MS2 slots in the top 36 and top 72 methods. From the plot itself the distribution indicated that the top 72 method is still operating in a acceptable range. 
+
+At this point, we can now perform a database search with the three files to check if we identify more peptide and proteins with the two optimized methods. We can also use this additional data to check if the quality of the spectrs is starting to decrease and if further optimizations are required on the mehtods. All the described steps executed on the command line in an R session can also be performed in an interactive Shiny environment.
+To start the Shiny application (see Figure~\ref{figure:shiny}) type the following into your R shell:
+
+<<shiny, eval=FALSE>>=
+# install.packages("shiny"); install.packages("DT")
+library(shiny)
+rawDiag_shiny <- system.file('shiny', 'demo', package = 'rawDiag')
+shiny::runApp(rawDiag_shiny, display.mode = 'normal')
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\columnwidth]{rawDiag_shiny}
+\caption{Running the \pkg{rawDiag} shiny application.}
+\label{figure:shiny}
+\end{figure}
+
+
+\newpage
+\section{Benchmark}
+\label{section:bench}
+As described in \citet{TrachselJPR} we performed a benchmark on different plattforms using a larger data set by the following code snippet.
+<<eval = FALSE>>= 
+library(parallel)
+
+f <- list.files()
+f <- f[grep("raw$", f)]
+
+b <- lapply(1, function(x){rawDiag:::benchmark_raw(f,
+  exe="~/RiderProjects/fgcz-raw/bin/Debug/fgcz_raw.exe")})
+
+b <- plyr::rbind.fill(lapply(b, plyr::rbind.fill))
+
+b$overall.runtime <- as.integer(format(b$end.time, "%s")) - 
+  as.integer(format(b$start.time, "%s"))
+
+b$system <- "Linux"
+b.Linux <- b
+save(b.Linux, file='benchmark.RData')
+@
+  
+
+We performed the benchmark using the proteomeXchange PXD006932 data set.
+The performance metrics are visulized in Figures~\ref{figure:benchmark}.
+<<label=benchmark-time, eval = TRUE, fig = TRUE, width = 6, height = 5, echo = FALSE, include = FALSE>>=
+rawDiag:::.technote_benchmark_figure_1() 
+@
+<<label=benchmark-throuput, eval = TRUE, fig = TRUE, width = 6, height = 5, echo = FALSE, include = FALSE>>=
+rawDiag:::.technote_benchmark_figure_2()
+@
+
+\begin{figure}
+\centering
+\includegraphics[width=0.49\columnwidth]{primer-benchmark-time}
+\includegraphics[width=0.49\columnwidth]{primer-benchmark-throuput}
+
+\caption{Benchmark -- The left plot shows the overall logarithmic 
+scaled runtime of 128 raw files.  The graphic on the right side shows 
+the derived IO throughput as scan information per second. The 
+plots illustrate that both systems, server, and laptop, can analyze 
+95GB of instrument data within less than three minutes.
+}
+ 
+\label{figure:benchmark}
+\end{figure}
+
+\section{Developer notes}
+\subsection{Build R package}
+
+
+To build the R package including the vignettes files requires the Thermo dll-files~\citep{RawFileReader} have to be placed next to the executable \texttt{fgcz\_raw.exe} in the package's \texttt{exec} directory prior to the build process.
+
+
+A code snippet on how to register the .Net assemblies on a Linux system is shown below:
+
+
+\begin{lstlisting}[breaklines=true, language=R, tabsize=2,numbers=left, basicstyle= \ttfamily\scriptsize,caption={code snippet register .Net assemblies.}, numbersep=5pt, linerange={1-40}, label={cs:reg}]
+cd /tmp/ \
+  && unzip /tmp/ThermoRawFileReader_linux.4.0.22.nupkg \
+  && gacutil -i lib/ThermoFisher.CommonCore.BackgroundSubtraction.dll \
+  && gacutil -i lib/ThermoFisher.CommonCore.Data.dll \
+  && gacutil -i lib/ThermoFisher.CommonCore.RawFileReader.dll
+\end{lstlisting}
+
+
+An example of how to compile and link the \proglang{C\#} code for the \code{read.raw} wrapper function accessing Thermo instrument files on a Linux platform using the mono enviroment is shown below.
+
+
+\begin{lstlisting}[breaklines=true, language=R, tabsize=2,numbers=left, basicstyle= \ttfamily\scriptsize,caption={compile and link \proglang{C\#} code on Linux.}, numbersep=5pt, linerange={1-40}, label={cs:msc}]
+mcs /out:fgcz_raw.exe \
+  fgcz_raw.cs /r:lib/ThermoFisher.CommonCore.Data.dll \
+  /r:lib/ThermoFisher.CommonCore.MassPrecisionEstimator.dll \
+  /r:lib/ThermoFisher.CommonCore.RawFileReader.dll /target:exe 
+\end{lstlisting}
+
+
+\subsection{Known issues}
+\begin{itemize}
+\item the used \code{system2} function on windows R version 3.5.0 is not writting into a file. 
+\end{itemize}
+
+\section{Session information}
+An overview of the package versions used to produce this document are shown
+below.
+
+<<sessioninfo, results=tex, echo=FALSE>>=
+toLatex(sessionInfo())
+@
+
+\bibliography{rawDiag}
+
+\end{document}

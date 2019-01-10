@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: benchmark of 'read.raw'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for benchmark_raw {rawDiag}"><tr><td>benchmark_raw {rawDiag}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>benchmark of <code>read.raw</code></h2>
+
+<h3>Description</h3>
+
+<p>benchmarks the <code>read.raw</code> function's IO. This 
+function has been used for generating <a href="benchmark.html">benchmark</a> data set.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+benchmark_raw(f, maxncpu = c(16, 32, 64),
+  exe = file.path(path.package(package = "rawDiag"), "exec", "fgcz_raw.exe"),
+  rdata = tempfile(fileext = ".RData"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>set of files</p>
+</td></tr>
+<tr valign="top"><td><code>maxncpu</code></td>
+<td>
+<p>maximal number of cores used for the benchmark</p>
+</td></tr>
+<tr valign="top"><td><code>exe</code></td>
+<td>
+<p>the executable for reading the rawfiles</p>
+</td></tr>
+<tr valign="top"><td><code>rdata</code></td>
+<td>
+<p>file extrention of the tempfile</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a nested list object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Christian Panse &lt;cp@fgcz.ethz.ch&gt;, 2017, 2018
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="http://planetorbitrap.com/rawfilereader#.WyThDK3QPmE">http://planetorbitrap.com/rawfilereader#.WyThDK3QPmE</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+ f &lt;- f[grep("raw$",f&lt;-list.files())]
+ benchmark_raw(f, maxncpu = 8, exe='~/bin/fgcz_raw.exe', mono=TRUE, rdata='/tmp/b2.RData')
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rawDiag</em> version 0.0.10 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,31 @@
+PlotAll                 PlotAll applies all available rawDiag plot
+                        functions to a given rawDiag object
+PlotChargeState         charge state overview
+PlotCycleLoad           cycle.load plot
+PlotCycleTime           cycle time
+PlotInjectionTime       injection.time
+PlotLockMassCorrection
+                        lock mass correction plot
+PlotMassDistribution    mass distribution plot
+PlotMassHeatmap         mass heatmap
+PlotMzDistribution      mz distribution
+PlotPrecursorHeatmap    PrecursorMass versus StartTime hexagons MS2
+PlotScanFrequency       scan frequency plot
+PlotScanTime            scan event
+PlotTicBasepeak         TIC and Base Peak plot function
+ScanFrequMovingOver     Calculate moving average of scan frequency
+WU163763                MassIVE MSV000082389 / bfabric WU163763
+as.rawDiag              Force an Object to Belong to a Class 'rawDiag'
+as.rawDiag.mzR          mzR reader method
+benchmark               benchmark
+benchmark_raw           benchmark of 'read.raw'
+calc.cycle.time         Calculate MS Cycle Time
+fillNAgaps              Fill NA values with last previous value
+is.rawDiag              Is an Object from a rawDiag class?
+plot.XIC                plot extracted ion chromatogram
+plot.peaklist           plot a peaklist
+read.raw                mass spec reader function
+read.tdf                Reading Bruker tdf files
+readScans               read scan of scanids
+readXICs                Extracts XIC of a given mass vector
+summary.rawDiag         rawDiag Summaries

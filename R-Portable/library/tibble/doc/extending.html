@@ -12,7 +12,6 @@
 
 <meta name="author" content="Kirill Müller, Hadley Wickham" />
 
-<meta name="date" content="2018-01-22" />
 
 <title>Extending tibble</title>
 
@@ -70,7 +69,6 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Extending tibble</h1>
 <h4 class="author"><em>Kirill Müller, Hadley Wickham</em></h4>
-<h4 class="date"><em>2018-01-22</em></h4>
 
 
 
@@ -138,7 +136,7 @@ print.latlon &lt;-<span class="st"> </span><span class="cf">function</span>(x, .
   <span class="kw">invisible</span>(x)
 }
 
-<span class="kw">latlon</span>(<span class="fl">32.7102978</span>, <span class="op">-</span><span class="fl">117.1704058</span>)</code></pre></div>
+<span class="kw">latlon</span>(<span class="fl">32.7102978</span>, <span class="fl">-117.1704058</span>)</code></pre></div>
 <pre><code>## 32°43'N 117°10'W</code></pre>
 <p>More methods are needed to make this class fully compatible with data frames, see e.g. the <a href="https://github.com/tidyverse/hms/">hms</a> package for a more complete example.</p>
 </div>
@@ -151,7 +149,7 @@ data &lt;-<span class="st"> </span><span class="kw">tibble</span>(
   <span class="dt">year  =</span> <span class="dv">2017</span><span class="op">:</span><span class="dv">2019</span>,
   <span class="dt">loc   =</span> <span class="kw">latlon</span>(
     <span class="kw">c</span>(<span class="fl">28.3411783</span>, <span class="fl">32.7102978</span>, <span class="ot">NA</span>),
-    <span class="kw">c</span>(<span class="op">-</span><span class="fl">81.5480348</span>, <span class="op">-</span><span class="fl">117.1704058</span>, <span class="ot">NA</span>)
+    <span class="kw">c</span>(<span class="op">-</span><span class="fl">81.5480348</span>, <span class="fl">-117.1704058</span>, <span class="ot">NA</span>)
   ),
   <span class="dt">paths =</span> <span class="kw">list</span>(
     loc[<span class="dv">1</span>],
@@ -162,11 +160,11 @@ data &lt;-<span class="st"> </span><span class="kw">tibble</span>(
 
 data</code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   venue          year loc                      paths       
-##   &lt;chr&gt;         &lt;int&gt; &lt;S3: latlon&gt;             &lt;list&gt;      
-## 1 rstudio::conf  2017 -81.5480348+28.3411783i  &lt;S3: latlon&gt;
-## 2 rstudio::conf  2018 -117.1704058+32.7102978i &lt;S3: latlon&gt;
-## 3 rstudio::conf  2019 &lt;NA&gt;                     &lt;S3: latlon&gt;</code></pre>
+##   venue          year loc              paths       
+##   &lt;chr&gt;         &lt;int&gt; &lt;S3: latlon&gt;     &lt;list&gt;      
+## 1 rstudio::conf  2017 28°20'N  81°33'W &lt;S3: latlon&gt;
+## 2 rstudio::conf  2018 32°43'N 117°10'W &lt;S3: latlon&gt;
+## 3 rstudio::conf  2019             &lt;NA&gt; &lt;S3: latlon&gt;</code></pre>
 <p>(The <code>paths</code> column is a list that contains arbitrary data, in our case <code>latlon</code> vectors. A list column is a powerful way to attach hierarchical or unstructured data to an observation in a data frame.)</p>
 <p>The output has three main problems:</p>
 <ol style="list-style-type: decimal">
@@ -187,11 +185,11 @@ type_sum.latlon &lt;-<span class="st"> </span><span class="cf">function</span>(x
 <p>Because the value shown there doesn’t depend on the data, we just return a constant. (For date-times, the column info will eventually contain information about the timezone, see <a href="https://github.com/r-lib/pillar/pull/53">#53</a>.)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data</code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   venue          year loc                      paths 
-##   &lt;chr&gt;         &lt;int&gt; &lt;geo&gt;                    &lt;list&gt;
-## 1 rstudio::conf  2017 -81.5480348+28.3411783i  &lt;geo&gt; 
-## 2 rstudio::conf  2018 -117.1704058+32.7102978i &lt;geo&gt; 
-## 3 rstudio::conf  2019 &lt;NA&gt;                     &lt;geo&gt;</code></pre>
+##   venue          year loc              paths 
+##   &lt;chr&gt;         &lt;int&gt; &lt;geo&gt;            &lt;list&gt;
+## 1 rstudio::conf  2017 28°20'N  81°33'W &lt;geo&gt; 
+## 2 rstudio::conf  2018 32°43'N 117°10'W &lt;geo&gt; 
+## 3 rstudio::conf  2019             &lt;NA&gt; &lt;geo&gt;</code></pre>
 </div>
 <div id="rendering-the-value" class="section level2">
 <h2>Rendering the value</h2>
@@ -233,12 +231,12 @@ data</code></pre></div>
 <p>If there is not enough space to render the values, the formatted values are truncated with an ellipsis. This doesn’t currently apply to our class, because we haven’t specified a minimum width for our values:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(data, <span class="dt">width =</span> <span class="dv">35</span>)</code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   venue      year loc             
-##   &lt;chr&gt;     &lt;int&gt; &lt;geo&gt;           
-## 1 rstudio:…  2017 28°20'N  81°33'W
-## 2 rstudio:…  2018 32°43'N 117°10'W
-## 3 rstudio:…  2019      NA         
-## # ... with 1 more variable:
+##   venue  year loc             
+##   &lt;chr&gt; &lt;int&gt; &lt;geo&gt;           
+## 1 rstu…  2017 28°20'N  81°33'W
+## 2 rstu…  2018 32°43'N 117°10'W
+## 3 rstu…  2019      NA         
+## # … with 1 more variable:
 ## #   paths &lt;list&gt;</code></pre>
 <p>If we specify a minimum width when constructing the shaft, the <code>loc</code> column will be truncated:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom pillar pillar_shaft</span>
@@ -251,11 +249,11 @@ pillar_shaft.latlon &lt;-<span class="st"> </span><span class="cf">function</spa
 
 <span class="kw">print</span>(data, <span class="dt">width =</span> <span class="dv">35</span>)</code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   venue     year         loc paths
-##   &lt;chr&gt;    &lt;int&gt;       &lt;geo&gt; &lt;lis&gt;
-## 1 rstudio…  2017 28°20'N  8… &lt;geo&gt;
-## 2 rstudio…  2018 32°43'N 11… &lt;geo&gt;
-## 3 rstudio…  2019          NA &lt;geo&gt;</code></pre>
+##   venue     year          loc paths
+##   &lt;chr&gt;    &lt;int&gt;        &lt;geo&gt; &lt;lis&gt;
+## 1 rstudio…  2017 28°20'N  81… &lt;geo&gt;
+## 2 rstudio…  2018 32°43'N 117… &lt;geo&gt;
+## 3 rstudio…  2019           NA &lt;geo&gt;</code></pre>
 <p>This may be useful for character data, but for lat-lon data we may prefer to show full degrees and remove the minutes if the available space is not enough to show accurate values. A more sophisticated implementation of the <code>pillar_shaft()</code> method is required to achieve this:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom pillar pillar_shaft</span>
 <span class="co">#' @export</span>
@@ -302,11 +300,11 @@ data</code></pre></div>
 ## 3 rstudio::conf  2019 NA               &lt;geo&gt;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(data, <span class="dt">width =</span> <span class="dv">35</span>)</code></pre></div>
 <pre><code>## # A tibble: 3 x 4
-##   venue     year loc         paths
-##   &lt;chr&gt;    &lt;int&gt; &lt;geo&gt;       &lt;lis&gt;
-## 1 rstudio…  2017 28°N  82°W  &lt;geo&gt;
-## 2 rstudio…  2018 33°N 117°W  &lt;geo&gt;
-## 3 rstudio…  2019 NA          &lt;geo&gt;</code></pre>
+##   venue     year loc          paths
+##   &lt;chr&gt;    &lt;int&gt; &lt;geo&gt;        &lt;lis&gt;
+## 1 rstudio…  2017 28°N  82°W   &lt;geo&gt;
+## 2 rstudio…  2018 33°N 117°W   &lt;geo&gt;
+## 3 rstudio…  2019 NA           &lt;geo&gt;</code></pre>
 </div>
 <div id="adding-color" class="section level2">
 <h2>Adding color</h2>
@@ -362,29 +360,30 @@ data</code></pre></div>
 ## 3 rstudio::conf  2019      NA          &lt;geo [1]&gt;</code></pre>
 <p>This is picked up by the default implementation of <code>obj_sum()</code>, which then shows the type and the length in brackets. If your object is built on top of an atomic vector the default will be adequate. You, will, however, need to provide an <code>obj_sum()</code> method for your class if your object is vectorised and built on top of a list.</p>
 <p>An example of an object of this type in base R is <code>POSIXlt</code>: it is a list with 9 components.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x &lt;-<span class="st"> </span><span class="kw">as.POSIXlt</span>(<span class="kw">Sys.time</span>() <span class="op">+</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">60</span>, <span class="dv">3600</span>)) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">time &lt;-<span class="st"> </span><span class="kw">as.POSIXlt</span>(<span class="st">&quot;2018-12-20 23:29:51&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;CET&quot;</span>)
+x &lt;-<span class="st"> </span><span class="kw">as.POSIXlt</span>(time <span class="op">+</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">60</span>, <span class="dv">3600</span>))
 <span class="kw">str</span>(<span class="kw">unclass</span>(x))</code></pre></div>
 <pre><code>## List of 11
-##  $ sec   : num [1:3] 52 52 52
-##  $ min   : int [1:3] 58 59 58
-##  $ hour  : int [1:3] 0 0 1
-##  $ mday  : int [1:3] 22 22 22
-##  $ mon   : int [1:3] 0 0 0
+##  $ sec   : num [1:3] 51 51 51
+##  $ min   : int [1:3] 29 30 29
+##  $ hour  : int [1:3] 23 23 0
+##  $ mday  : int [1:3] 20 20 21
+##  $ mon   : int [1:3] 11 11 11
 ##  $ year  : int [1:3] 118 118 118
-##  $ wday  : int [1:3] 1 1 1
-##  $ yday  : int [1:3] 21 21 21
+##  $ wday  : int [1:3] 4 4 5
+##  $ yday  : int [1:3] 353 353 354
 ##  $ isdst : int [1:3] 0 0 0
 ##  $ zone  : chr [1:3] &quot;CET&quot; &quot;CET&quot; &quot;CET&quot;
 ##  $ gmtoff: int [1:3] 3600 3600 3600
-##  - attr(*, &quot;tzone&quot;)= chr [1:3] &quot;&quot; &quot;CET&quot; &quot;CEST&quot;</code></pre>
+##  - attr(*, &quot;tzone&quot;)= chr [1:3] &quot;CET&quot; &quot;CET&quot; &quot;CEST&quot;</code></pre>
 <p>But it pretends to be a vector with 3 elements:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x</code></pre></div>
-<pre><code>## [1] &quot;2018-01-22 00:58:52 CET&quot; &quot;2018-01-22 00:59:52 CET&quot;
-## [3] &quot;2018-01-22 01:58:52 CET&quot;</code></pre>
+<pre><code>## [1] &quot;2018-12-20 23:29:51 CET&quot; &quot;2018-12-20 23:30:51 CET&quot;
+## [3] &quot;2018-12-21 00:29:51 CET&quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">length</span>(x)</code></pre></div>
 <pre><code>## [1] 3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(x)</code></pre></div>
-<pre><code>##  POSIXlt[1:3], format: &quot;2018-01-22 00:58:52&quot; &quot;2018-01-22 00:59:52&quot; ...</code></pre>
+<pre><code>##  POSIXlt[1:3], format: &quot;2018-12-20 23:29:51&quot; &quot;2018-12-20 23:30:51&quot; ...</code></pre>
 <p>So we need to define a method that returns a character vector the same length as <code>x</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom pillar obj_sum</span>
 <span class="co">#' @export</span>
@@ -413,8 +412,8 @@ obj_sum.POSIXlt &lt;-<span class="st"> </span><span class="cf">function</span>(x
 })</code></pre></div>
 <p>However, if we look at the file we’ll notice strange things: The output contains ANSI escapes!</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">readLines</span>(<span class="st">&quot;latlon.txt&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;28\033[90m°\033[39m20\033[90m'\033[39mN  81\033[90m°\033[39m33\033[90m'\033[39mW&quot;
-## [2] &quot;32\033[90m°\033[39m43\033[90m'\033[39mN 117\033[90m°\033[39m10\033[90m'\033[39mW&quot;
+<pre><code>## [1] &quot;28\033[38;5;246m°\033[39m20\033[38;5;246m'\033[39mN  81\033[38;5;246m°\033[39m33\033[38;5;246m'\033[39mW&quot;
+## [2] &quot;32\033[38;5;246m°\033[39m43\033[38;5;246m'\033[39mN 117\033[38;5;246m°\033[39m10\033[38;5;246m'\033[39mW&quot;
 ## [3] &quot;     \033[31mNA\033[39m         &quot;</code></pre>
 <p>We can turn them off by passing <code>crayon = FALSE</code> to the expectation, but we need to run twice again:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(testthat)
@@ -429,10 +428,12 @@ obj_sum.POSIXlt &lt;-<span class="st"> </span><span class="cf">function</span>(x
 ## * `print(eval_tidy(object))` has changed from known value recorded in 'latlon.txt'.
 ## 3/3 mismatches
 ## x[1]: &quot;28°20'N  81°33'W&quot;
-## y[1]: &quot;28\033[90m°\033[39m20\033[90m'\033[39mN  81\033[90m°\033[39m33\033[90m'\033[39mW&quot;
+## y[1]: &quot;28\033[38;5;246m°\033[39m20\033[38;5;246m'\033[39mN  81\033[38;5;246m°\03
+## y[1]: 3[39m33\033[38;5;246m'\033[39mW&quot;
 ## 
 ## x[2]: &quot;32°43'N 117°10'W&quot;
-## y[2]: &quot;32\033[90m°\033[39m43\033[90m'\033[39mN 117\033[90m°\033[39m10\033[90m'\033[39mW&quot;
+## y[2]: &quot;32\033[38;5;246m°\033[39m43\033[38;5;246m'\033[39mN 117\033[38;5;246m°\03
+## y[2]: 3[39m10\033[38;5;246m'\033[39mW&quot;
 ## 
 ## x[3]: &quot;     NA         &quot;
 ## y[3]: &quot;     \033[31mNA\033[39m         &quot;</code></pre>
@@ -471,17 +472,19 @@ obj_sum.POSIXlt &lt;-<span class="st"> </span><span class="cf">function</span>(x
 <pre><code>## Error: Test failed: 'latlon pillar matches known output'
 ## * `print(eval_tidy(object))` has changed from known value recorded in 'latlon.txt'.
 ## 3/3 mismatches
-## x[1]: &quot;28\033[90m°\033[39m20\033[90m'\033[39mN  81\033[90m°\033[39m33\033[90m'\033[39mW&quot;
+## x[1]: &quot;28\033[38;5;246m°\033[39m20\033[38;5;246m'\033[39mN  81\033[38;5;246m°\03
+## x[1]: 3[39m33\033[38;5;246m'\033[39mW&quot;
 ## y[1]: &quot;28°20'N  81°33'W&quot;
 ## 
-## x[2]: &quot;32\033[90m°\033[39m43\033[90m'\033[39mN 117\033[90m°\033[39m10\033[90m'\033[39mW&quot;
+## x[2]: &quot;32\033[38;5;246m°\033[39m43\033[38;5;246m'\033[39mN 117\033[38;5;246m°\03
+## x[2]: 3[39m10\033[38;5;246m'\033[39mW&quot;
 ## y[2]: &quot;32°43'N 117°10'W&quot;
 ## 
 ## x[3]: &quot;     \033[31mNA\033[39m         &quot;
 ## y[3]: &quot;     NA         &quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">readLines</span>(<span class="st">&quot;latlon.txt&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;28\033[90m°\033[39m20\033[90m'\033[39mN  81\033[90m°\033[39m33\033[90m'\033[39mW&quot;
-## [2] &quot;32\033[90m°\033[39m43\033[90m'\033[39mN 117\033[90m°\033[39m10\033[90m'\033[39mW&quot;
+<pre><code>## [1] &quot;28\033[38;5;246m°\033[39m20\033[38;5;246m'\033[39mN  81\033[38;5;246m°\033[39m33\033[38;5;246m'\033[39mW&quot;
+## [2] &quot;32\033[38;5;246m°\033[39m43\033[38;5;246m'\033[39mN 117\033[38;5;246m°\033[39m10\033[38;5;246m'\033[39mW&quot;
 ## [3] &quot;     \033[31mNA\033[39m         &quot;</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">readLines</span>(<span class="st">&quot;latlon-bw.txt&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;28°20'N  81°33'W&quot; &quot;32°43'N 117°10'W&quot; &quot;     NA         &quot;</code></pre>

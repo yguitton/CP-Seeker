@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: benchmark</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for benchmark {rawDiag}"><tr><td>benchmark {rawDiag}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+benchmark 
+</h2>
+
+<h3>Description</h3>
+
+<p>a data set for benchmarking the throuput of <code>read.raw</code> and <code>as.rawDiag.mzR</code> functions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>data("benchmark")</pre>
+
+
+<h3>Format</h3>
+
+<p>Three data frames.
+</p>
+
+<dl>
+<dt><code>b.Linux</code></dt><dd><p>performed  <code><a href="benchmark_raw.html">benchmark_raw</a></code> on a Linux server</p>
+</dd>
+<dt><code>b.Apple</code></dt><dd><p>on a apple laptop</p>
+</dd>
+<dt><code>X.Linux</code></dt><dd><p>performed  <code>rawDiag:::benchmark_mzR</code> on a Linux server</p>
+</dd>
+</dl>
+
+
+
+<h3>Details</h3>
+
+<p>As benchmark data, we downloaded the raw files described in
+pmid29183128 on the filesystem availbale through
+<a href="http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD006932">proteomeXchange PXD006932</a>.
+For the benchmark we limited the input to 128 files,
+corresponding to two times the available number of processor cores of
+the Linux system. 
+For comparison to the open file standards using the mzR package <code>mzR</code>,
+we converted the raw files into mzML files using  version ProteoWizard 3.0.11252
+64-bit on Windows 10.
+</p>
+
+
+<h3>Source</h3>
+
+<p>the benchmark was performed on the following public available data
+<a href="http://proteomecentral.proteomexchange.org/cgi/GetDataset?ID=PXD006932">proteomeXchange PXD006932</a>.
+</p>
+
+
+<h3>References</h3>
+
+
+<ul>
+<li><p><a href="http://planetorbitrap.com/rawfilereader#.WyThDK3QPmE">http://planetorbitrap.com/rawfilereader#.WyThDK3QPmE</a>
+</p>
+</li></ul>
+
+
+
+<h3>See Also</h3>
+
+<p><code><a href="benchmark_raw.html">benchmark_raw</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(benchmark)
+length(unique(b.Linux$nrow))
+round(sum(unique(b.Linux$file.size)) / 1024^3)
+format(sum(unique(b.Linux$nrow)), scientific=FALSE, big.mark = "'")
+rawDiag:::.technote_benchmark_figure_1()
+rawDiag:::.technote_benchmark_figure_2()
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rawDiag</em> version 0.0.10 <a href="00Index.html">Index</a>]</div>
+</body></html>

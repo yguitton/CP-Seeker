@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: mass distribution plot</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for PlotMassDistribution {rawDiag}"><tr><td>PlotMassDistribution {rawDiag}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>mass distribution plot</h2>
+
+<h3>Description</h3>
+
+<p>plots the mass frequency in dependency to the charge state
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+PlotMassDistribution(x, method = "trellis")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a <code><a href="../../base/html/data.frame.html">data.frame</a></code> fullfilling the <code><a href="is.rawDiag.html">is.rawDiag</a></code> column naming criteria.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>a character 'trellis', 'violin' or 'overlay'.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a ggplot object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ library(ggplot2)
+ data(WU163763)
+ 
+ PlotMassDistribution(WU163763, method = 'trellis') +
+   facet_wrap(~ filename, ncol = 3)
+ 
+ PlotMassDistribution(WU163763, method = 'violin') +
+   theme(legend.position = 'none')
+   
+ PlotMassDistribution(WU163763, method = 'overlay') +
+   theme(legend.position = 'none')  
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>rawDiag</em> version 0.0.10 <a href="00Index.html">Index</a>]</div>
+</body></html>
