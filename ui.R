@@ -6,7 +6,11 @@ header <- dashboardHeader(
 	))
 )
 
-sidebar <- dashboardSidebar(disable=TRUE
+sidebar <- dashboardSidebar(
+	sidebarMenu(id='tabs', 
+		menuItem('Projects & Files', icon=icon('cog'), tabName='projectFiles'),
+		menuItem('Tetrahedras', icon=icon('bar-chart-o'), tabName='tetras')
+	)
 )
 
 body <- dashboardBody(fluidPage(
@@ -22,17 +26,15 @@ body <- dashboardBody(fluidPage(
 		useSweetAlert()
 	),
 	
-	source('ui/loadXlsx.R', local=TRUE)$value,
+	tabItems(
+		
+		source('ui/projectFiles.R', local=TRUE)$value,
+		
+		source('ui/tetras.R', local=TRUE)$value
+		
+		
 	
-	box(title="3D", width=6, 
-		plotlyOutput('tetrahedras', height="600px")
-	),
-
-	box(title="map", width=12, 
-		plotlyOutput('map', height="800px")
-	)
-	
-))
+)))
 
 shinyUI(
 	dashboardPage(
