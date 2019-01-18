@@ -16,9 +16,6 @@ box(width=6,
 	column(width=8, 
 		verbatimTextOutput('xlsxPath', placeholder=TRUE)
 	),
-	column(width=2,
-		uiOutput('uiXlsxTab')
-	),
-	dataTableOutput('xlsxContent'),
-	tags$div(style="text-align:center;", actionBttn('launch', 'launch'))
+	tags$div(style="text-align:center;", actionBttn('launch', 'launch')),
+	dataTableOutput('xlsxContent') %>% withSpinner()
 )

@@ -99,8 +99,8 @@ tetrahedrization <- function(data){
 			))
 		}
 		
-		tetrasTmp2 <- modify_if(tetrasTmp, function(x) any(x$z > 0), function(x) rbind(x[-1, ], data.frame(x=x[2, 'x'], y=x[2, 'y'], z=0)))
-		tetrasTmp3 <- modify_if(tetrasTmp2, function(x) any(x$z > 0), function(x) rbind(x[-1, ], data.frame(x=x[2, 'x'], y=x[2, 'y'], z=0)))
+		tetrasTmp2 <- map(tetrasTmp, function(x) rbind(x[-1, ], data.frame(x=x[2, 'x'], y=x[2, 'y'], z=0)))
+		tetrasTmp3 <- map(tetrasTmp2, function(x) rbind(x[-1, ], data.frame(x=x[2, 'x'], y=x[2, 'y'], z=0)))
 		
 		tetrasTmp <- append(tetrasTmp, tetrasTmp2)
 		tetrasTmp <- append(tetrasTmp, tetrasTmp3)
@@ -115,6 +115,7 @@ tetrahedrization <- function(data){
 		
 		pbVal <- pbVal + 1
 		updateProgressBar(session, id="pb", title="Tetrahedrization", value=round(pbVal * 100 / pbMax, digits=2))
+		# print(round(pbVal * 100 / pbMax, digits=2))
 		
 	}}
 	return(list(tetras=tetras, triangles=triangles))
@@ -179,18 +180,19 @@ getZCut <- function(tetras, vTarget=90, digits=2){
 	vT <- computeVolumePolyhedra(tetras)
 	vTarget <- round(vT * vTarget / 100, digits=digits)
 	vCurr <- 0
-	zVal <- reduce(tetras, function(a, b) max(c(a, b$z)), .init=0)
-	zInc <- zVal
+	zHigh <- reduce(tetras, function(a, b) max(c(a, b$z)), .init=0)
+	zDown <- 0
 	while(vCurr != vTarget){
-		zInc <- zInc / 2
-		if(vCurr > vTarget) zVal <- zVal + zInc
-		else zVal <- zVal - zInc
+		zMed <- (zHigh + zDown) / 2
 		# tetrasTmp <- reduce(lapply(tetras, function(tetra) splitTetra(tetra, zVal)), append, .init=list())
 		vCurr <- round(reduce(tetras, function(a, b) 
-			a + computeVolumePolyhedra(splitTetra(b, zVal)), .init=0), digits=digits)
+			a + computeVolumePolyhedra(splitTetra(b, zMed)), .init=0), digits=digits)
+		if(vCurr > vTarget) zDown <- zMed
+		else zHigh <- zMed
 		updateProgressBar(session, id="pb", title=paste("current volume:", round(vCurr * 100 / vT, digits=digits), '%'), value=100)
+		# print(paste("current volume:", round(vCurr * 100 / vT, digits=digits), '%'), value=100)
 	}
-	return(zVal)
+	return(zMed)
 }
 
 contourPolyhedras <- function(triangles, zVal, centroid){
@@ -244,6 +246,5 @@ contourPolyhedras <- function(triangles, zVal, centroid){
 	p %>%
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>%
-		config(edits=list(annotationTail=TRUE))
+			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) 
 }

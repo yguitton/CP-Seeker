@@ -8,7 +8,7 @@ header <- dashboardHeader(
 
 sidebar <- dashboardSidebar(
 	sidebarMenu(id='tabs', 
-		menuItem('Projects & Files', icon=icon('cog'), tabName='projectFiles'),
+		# menuItem('Projects & Files', icon=icon('cog'), tabName='projectFiles'),
 		menuItem('Tetrahedras', icon=icon('bar-chart-o'), tabName='tetras')
 	)
 )

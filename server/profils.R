@@ -6,14 +6,11 @@ maxCl <- 30
 
 observeEvent(input$launch, {
 	print('--------------------- TETRAHEDRIZATION ----------------------')
-	print(list(C=values$C$id, Cl=values$Cl$id, profile=values$profile$id))
+	print(list(C=values$C, Cl=values$Cl, profile=values$profile))
 	progressSweetAlert(session, 'pb', title="Initialization", value=0, display_pct=TRUE)
 	tryCatch({
-		if(values$C$id == 0 | is.null(values$C$data) | length(values$C$data) == 0) custom_stop('minor_error', 'wrong initialization of the column "C"')
-		else if(values$Cl$id == 0 | is.null(values$Cl$data) | length(values$Cl$data) == 0) custom_stop('minor_error', 'wrong initialization of the column "Cl"')
-		else if(values$profile$id == 0 | is.null(values$profile$data) | length(values$profile$data) == 0) custom_stop('minor_error', 'wrong initialization of the column "profile"')
-		
-		data <- data.frame(x=values$C$data, y=values$Cl$data, z=values$profile$data) %>% arrange(desc(z))
+		if(is.null(values$C) | is.null(values$Cl) | is.null(values$profile)) custom_stop('minor_error', 'You need to load a file with the profile data')
+		data <- data.frame(x=values$C, y=values$Cl, z=values$profile) %>% arrange(desc(z))
 		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
 		data <- distMatrix(data)
 		updateProgressBar(session, id="pb", title="Tetrahedrization", value=0)
@@ -45,5 +42,5 @@ observeEvent(input$launch, {
 output$tetrahedras <- renderPlotly(drawTriCut(values$triangles, values$zVal))
 
 output$map <- renderPlotly(contourPolyhedras(values$triangles, values$zVal, 
-	data.frame(x=values$C$data, y=values$Cl$data, z=values$profile$data) %>% summarise(x=sum(x*z), y=sum(y*z))))
+	data.frame(x=values$C, y=values$Cl, z=values$profile) %>% summarise(x=sum(x*z), y=sum(y*z))))
 
