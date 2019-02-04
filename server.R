@@ -9,6 +9,12 @@ session$onSessionEnded(function() {
 })
 
 values <- reactiveValues()
+updateOutput <- reactiveValues()
+
+minC <- 4
+maxC <- 36
+minCl <- 2
+maxCl <- 30
 
 source('server/func.R', local=TRUE)$value
 
@@ -17,5 +23,9 @@ source('server/loadXlsx.R', local=TRUE)$value
 source('server/profils.R', local=TRUE)$value
 
 source('server/tetrahedrization.R', local=TRUE)$value
+
+source('server/projectFiles.R', local=TRUE)$value
+
+source('server/target.R', local=TRUE)$value
 
 })	

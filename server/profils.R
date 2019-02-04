@@ -1,19 +1,16 @@
 values$triangles <- NULL
 values$zVal <- NULL
 
-maxC <- 36
-maxCl <- 30
-
 observeEvent(input$launch, {
 	print('--------------------- TETRAHEDRIZATION ----------------------')
 	print(list(C=values$C, Cl=values$Cl, profile=values$profile))
-	progressSweetAlert(session, 'pb', title="Initialization", value=0, display_pct=TRUE)
+	progressSweetAlert(session, 'pb', title="Initialization", 100, striped=TRUE)
 	tryCatch({
 		if(is.null(values$C) | is.null(values$Cl) | is.null(values$profile)) custom_stop('minor_error', 'You need to load a file with the profile data')
 		data <- data.frame(x=values$C, y=values$Cl, z=values$profile) %>% arrange(desc(z))
 		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
 		data <- distMatrix(data)
-		updateProgressBar(session, id="pb", title="Tetrahedrization", value=0)
+		updateProgressBar(session, id="pb", title="Tetrahedrization", value=100)
 		res <- tetrahedrization(data)
 		tetras <- res$tetras
 		triangles <- res$triangles

@@ -2,7 +2,7 @@ observeEvent(input$xlsxChoose,{
 	print('------------- XLSX CHOOSE --------------')
 	tryCatch({
 	values$xlsxPath <- choose.files(caption="Select xlsx file", multi=FALSE, 
-		filter=matrix(c("xlsx", "*.xlsx", "xlsm", "*.xlsm"), 2, 2, byrow=TRUE))
+		filter=matrix(c("xlsx", "*.xls*"), 1, 2, byrow=TRUE))
 	# test if a file was correctly give
 	print(paste('xlsx path choosen:', values$xlsxPath))
 	if(length(values$xlsxPath) == 0) custom_stop('minor_error', 'incorrect path')
