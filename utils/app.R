@@ -27,6 +27,10 @@ setWinProgressBar(pb, 1.00, label = "Starting app")
 
 close(pb)
 
+# load enviPat data
+data(isotopes)
+data(adducts)
+
 options(stringsAsFactors=FALSE)
 shiny::runApp("./", launch.browser = launch_browser)
 

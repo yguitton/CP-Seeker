@@ -8,6 +8,8 @@ if(is.null(config$user_browser)) stop('Missing use_browser in file config.cfg')
 if(is.null(reg_paths$chrome)) stop('Missing chrome in file reg_paths.json')
 if(is.null(reg_paths$ie)) stop('Missing ie in file reg_paths.json')
 if(is.null(reg_paths$ff)) stop('Missing ff in file reg_paths.json')
+if(is.null(reg_paths$sqlitePath)) stop('Missing sqlitePath in file reg_paths.json')
+if(is.null(reg_paths$rawPath)) stop('Missing rawPath in file reg_paths.json')
 
 for(i in 1:length(reg_paths)){
 	name <- names(reg_paths[i])
@@ -15,6 +17,7 @@ for(i in 1:length(reg_paths)){
 	path <- reg_paths[[i]]
 	path <- gsub('\\\\', '/', path)
 	if(!file.exists(path)) stop(sprintf('%s not found at %s', name, file_path_as_absolute(path)))
+	else if(name == "rawPath") next
 	else reg_paths[[i]] <- file_path_as_absolute(reg_paths[[i]])
 }
 
@@ -24,3 +27,5 @@ user_browser <- config$user_browser
 chrome <- reg_paths$chrome
 ie <- reg_paths$ie
 ff <- reg_paths$ff
+sqlitePath <- reg_paths$sqlitePath
+rawPath <- reg_paths$rawPath

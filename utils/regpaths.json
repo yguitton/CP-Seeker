@@ -2,5 +2,7 @@
 "r": "R-Portable",
 "chrome": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
 "ie": "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE",
-"ff": "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"
+"ff": "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+"sqlitePath": "database.sqlite",
+"rawPath": "rawFiles"
 }
