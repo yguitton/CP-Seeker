@@ -98,9 +98,9 @@ targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=N
 		scans <- scans[which(lengths(scans) > minScans)]
 		if(length(scans) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		
-		baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
+		baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans))%/%2), 
 			endrule="median", algorithm="Turlach")
-		baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15	*nrow(data2))))),
+		baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans))%/%2), 
 			endrule="median", algorithm="Turlach")
 				
 		for(i in 1:length(scans)){
@@ -135,7 +135,7 @@ targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=N
 			rois <- rois %>% bind_rows(data.frame(mzO=c(eics[[1]]$mass, eics[[2]]$mass),
 				rtmin=c(data1[min(scans1), 'x'], data2[min(scans2), 'x']),
 				rtmax=c(data1[max(scans1), 'x'], data2[max(scans2), 'x']),
-				auc=c(auc1, auc2), abd_deviation=abs(abdTheo - c(100, abdObs)), snthresh=c(snthresh1, snthresh2)))
+				auc=c(auc1, auc2), abd_deviation=(1-abs(abdTheo - abdObs)/abdTheo)*100, snthresh=c(snthresh1, snthresh2)))
 		}
 		# for printing the eics
 		# print(

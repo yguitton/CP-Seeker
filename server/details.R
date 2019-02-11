@@ -51,6 +51,7 @@ output$detailsTable <- renderDataTable({
 		print(query)
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
+		updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data[1, 'ppm'], min=0, step=1)
 		data$abd_deviation <- round(data$abd_deviation)
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- data[row, 'abd_deviation']
@@ -95,6 +96,25 @@ output$detailsTable <- renderDataTable({
 		})
 	"))
 	
+observeEvent(input$detailsTable_selected, {
+	if(is.null(input$project)) return()
+	else if(is.null(input$detailsSample)) return()
+	else if(is.null(input$detailsAdduct)) return()
+	else if(is.null(input$detailsTable_selected)) return()
+	else if(input$project == "") return()
+	else if(input$detailsSample == "") return()
+	else if(input$detailsAdduct == "") return()
+	else if(length(input$detailsTable_selected) == 0) return()
+	db <- dbConnect(SQLite(), sqlitePath)
+	ppm <- dbGetQuery(db, sprintf('select distinct(ppm) from observed where C == %s and Cl == %s and 
+		project_sample == (select project_sample from project_sample where project == "%s" and 
+			sample == "%s" and adduct == "%s");', input$detailsTable_selected$C, 
+			input$detailsTable_selected$Cl, input$project, input$detailsSample, 
+			input$detailsAdduct))$ppm[1]
+	dbDisconnect(db)
+	if(!is.na(ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=ppm, min=0, step=1)
+})	
+
 output$detailsEic <- renderPlotly({
 	print('------------------- DETAILS EIC -------------------')
 	print(list(project=input$project, sample=input$detailsSample, 
@@ -154,7 +174,7 @@ output$detailsEic <- renderPlotly({
 				which(data1$x >= A[x, 'rtmin'] & data1$x <= A[x, 'rtmax']))
 			for(i in 1:length(scans1)) eicPlot1 <- eicPlot1 %>% add_trace(mode='none', 
 				data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
-			baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
+			baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans1))%/%2), 
 				endrule="median", algorithm="Turlach")
 			eicPlot1 <- eicPlot1 %>% add_lines(x=data1$x, y=baseline1, color=I('red'), showlegend=FALSE, legendgroup="group1")
 		}
@@ -170,7 +190,7 @@ output$detailsEic <- renderPlotly({
 				which(data2$x >= A2[x, 'rtmin'] & data2$x <= A2[x, 'rtmax']))
 			for(i in 1:length(scans2)) eicPlot2 <- eicPlot2 %>% add_trace(mode='none', 
 				data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
-			baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15*nrow(data2))))), 
+			baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans2))%/%2), 
 				endrule="median", algorithm="Turlach")
 			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, legendgroup="group2")
 		}
@@ -213,7 +233,7 @@ observeEvent(event_data(event='plotly_selected'), {
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct)
 		abd_deviation <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
-			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara$abundance,
+			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara$abundance[2],
 			chloropara[, 'm.z'], chloropara[1, 'formula'])
 			
 		session$sendCustomMessage("updateDetailsTable", abd_deviation)
@@ -279,9 +299,9 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, ab
 	scans1 <- which(data1$x >= rtmin & data1$x <= rtmax)
 	scans2 <- which(data2$x >= rtmin & data2$x <= rtmax)
 	
-	baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
+	baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans1))%/%2), 
 		endrule="median", algorithm="Turlach")
-	baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15	*nrow(data2))))),
+	baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans2))%/%2), 
 		endrule="median", algorithm="Turlach")
 		
 	auc1 <- trapz(data1[scans1, 'y'])
@@ -298,13 +318,13 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, ab
 	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
 				snthresh, abd_deviation, C, Cl) values %s;', paste('(', mzs, ', "', formula,
 					'", ', rtmin, ', ', rtmax, ', ', c(auc1, auc2), ', ', project_sample, ', ', 
-					tolPpm, ', ', c(snthresh1, snthresh2), ', ', abs(abdTheo - c(100, abdObs)), 
+					tolPpm, ', ', c(snthresh1, snthresh2), ', ', (1-abs(abdTheo - abdObs)/abdTheo)*100, 
 					', ', C, ', ', Cl, ')', collapse=', ', sep=''))
 	print(query)
 	dbSendQuery(db, query)
 	dbDisconnect(db)
 	
-	round(abs(abdTheo[2] - abdObs))
+	round((1-abs(abdTheo - abdObs)/abdTheo)*100)
 }
 
 observeEvent(input$detailsErase, {
