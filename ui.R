@@ -10,6 +10,7 @@ sidebar <- dashboardSidebar(
 	sidebarMenu(id='tabs', 
 		menuItem('Projects & Files', icon=icon('cog'), tabName='projectFiles'),
 		menuItem('Target chloropara', icon=icon('tasks'), tabName='target'),
+		menuItem('Details', icon=icon('table'), tabName='details'),
 		menuItem('Tetrahedras', icon=icon('bar-chart-o'), tabName='tetras'),
 		uiOutput('uiProject')
 	)
@@ -34,7 +35,9 @@ body <- dashboardBody(fluidPage(
 		
 		source('ui/target.R', local=TRUE)$value,
 		
-		source('ui/tetras.R', local=TRUE)$value
+		source('ui/tetras.R', local=TRUE)$value,
+		
+		source('ui/details.R', local=TRUE)$value
 		
 		
 	

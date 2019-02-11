@@ -28,20 +28,20 @@ output$targetTic <- renderPlotly({
 		raw <- read.raw(file.path(rawPath, paste(input$targetSampleTic, '.raw', sep='')))
 		x <- raw$StartTime
 		y <- raw$TIC
-		plot_ly(type="scatter", mode="lines", x=x, y=y) %>% layout(xaxis=list(title="Retention time(min)"),
-			yaxis=list(title="Intensity"), showlegend=FALSE)
+		plot_ly(type="scatter", mode="lines", x=x, y=y)
 	}, invalid = function(i){
 		print(paste(i$message))
-		plot_ly(type="scatter", mode="lines") %>% layout(xaxis=list(title="Retention time(min)"),
-			yaxis=list(title="Intensity"), showlegend=FALSE)
+		plot_ly(type="scatter", mode="lines")
 	}, error = function(e){
 		print(paste(e$message))
 		sendSweetAlert(e$message)
-		plot_ly(type="scatter", mode="lines", x=x, y=y) %>% layout(xaxis=list(title="Retention time(min)"),
-			yaxis=list(title="Intensity"), showlegend=FALSE)
+		plot_ly(type="scatter", mode="lines")
 	})
 	print('------------------- END TARGET TIC -----------------')
-	tic
+	tic %>% layout(xaxis=list(title="Retention time(min)"),
+			yaxis=list(title="Intensity"), showlegend=FALSE) %>%
+		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, 
+			modeBarButtons=list(list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 })
 
 
@@ -63,13 +63,14 @@ loadChloroParaMzs <- function(adduct){
 		brute_formulas <- subform(brute_formulas, adduct$Formula_ded)
 	}
 	# remove those who have 0 in one element
-	brute_formulas <- str_replace_all(formulas, '[[:upper:]][[:lower:]]?0', '')
+	brute_formulas <- str_replace_all(brute_formulas, '[[:upper:]][[:lower:]]?0', '')
 	formulas <- formulas[which(brute_formulas != '')]
-	brute_formulas <- brute_formulas[which(formulas != '')]
+	brute_formulas <- brute_formulas[which(brute_formulas != '')]
 	data <- isopattern(isotopes, brute_formulas, charge=adduct$Charge, verbose=FALSE)
-	mzs <- reduce(data, function(a, b) c(a, b %>% data.frame %>% 
-		top_n(2, abundance) %>% pull(m.z)), .init=c())
-	data.frame(formulas=rep(formulas, each=2), mzs=mzs)
+	reduce(data, function(a, b) a %>% bind_rows(
+		b %>% data.frame %>% top_n(2, abundance) %>% 
+			select(`m.z`, abundance)), .init=data.frame()) %>% 
+		cbind(formula=rep(formulas, each=2))
 }
 
 findClosestMzs <- function(mzs, file, ppm, scan){
@@ -84,7 +85,7 @@ findClosestMzs <- function(mzs, file, ppm, scan){
 	mzO
 }	
 
-targetChloroPara <- function(eics, rts, minScans, collapseScans, ppm, snthresh, file=NULL){
+targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=NULL){
 	tryCatch({
 		rois <- data.frame(mzO=c(), rtmin=c(), rtmax=c(), auc=c(), snthresh=c())
 		data1 <- data.frame(x=rts, y=0)
@@ -93,48 +94,59 @@ targetChloroPara <- function(eics, rts, minScans, collapseScans, ppm, snthresh, 
 		data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
 		
 		scans <- which(data1$y > mean(data1$y) + (sd(data1$y)))
-		scans <- split(scans, cumsum(c(TRUE, diff(scans) > collapseScans)))
+		scans <- split(scans, cumsum(c(TRUE, diff(scans) > 2)))
 		scans <- scans[which(lengths(scans) > minScans)]
 		if(length(scans) == 0) custom_stop('fail', 'no chloroparaffin detected')
-		scans <- map(scans, function(x) (min(x)-1):(max(x)+1))
-		# k need to be odd
-		baseline1 <- runmed(data1$y, nrow(data1[which(data1$y == 0), ]) + 
-			(nrow(data1[which(data1$y == 0), ]) %% 2) - 1)
-		baseline2 <- runmed(data2$y, nrow(data2[which(data2$y == 0), ]) + 
-			(nrow(data2[which(data2$y == 0), ]) %% 2) - 1)
+		
+		baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
+			endrule="median", algorithm="Turlach")
+		baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15	*nrow(data2))))),
+			endrule="median", algorithm="Turlach")
 				
 		for(i in 1:length(scans)){
-			auc1 <- trapz(data1[scans[[i]], 'x'], data1[scans[[i]], 'y']) - 
-					trapz(data1[scans[[i]], 'x'], baseline1[scans[[i]]])
-			auc2 <- trapz(data2[scans[[i]], 'x'], data2[scans[[i]], 'y']) - 
-					trapz(data2[scans[[i]], 'x'], baseline2[scans[[i]]])
+			scans1 <- scans[[i]]
+			scans2 <- scans[[i]][which(data2[scans[[i]], 'y'] >= baseline2[scans[[i]]])]
+			# enlarge the roi until it meet the baseline
+			# first left
+			while(baseline1[min(scans1)-1] < data1[min(scans1)-1, 'y']) scans1 <- scans1 %>% prepend(min(scans1)-1)
+			while(baseline2[min(scans2)-1] < data2[min(scans2)-1, 'y']) scans2 <- scans2 %>% prepend(min(scans2)-1)
+			while(baseline1[max(scans1)+1] < data1[max(scans1)+1, 'y']) scans1 <- scans1 %>% append(max(scans1)+1)
+			while(baseline2[max(scans2)+1] < data2[max(scans2)+1, 'y']) scans2 <- scans2 %>% append(max(scans2)+1)
+			
+			auc1 <- trapz(data1[scans1, 'x'], data1[scans1, 'y']) - 
+					trapz(data1[scans1, 'x'], baseline1[scans1])
+			auc2 <- trapz(data2[scans2, 'x'], data2[scans2, 'y']) - 
+					trapz(data2[scans2, 'x'], baseline2[scans2])
 			# check if the A-2 or A+2 not > A
 			if(auc2 > auc1 + auc1 * .2) next
 			# search the scan where A is the most intense
-			scanMaxI <- scans[[i]][which(data1[scans[[i]], "y"] == max(data1[scans[[i]], "y"]))]
+			scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))]
+			scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))]
 			# loading spectra takes too long
 			# mzO <- findClosestMzs(sapply(eics, function(x) x$masses), file, ppm, scanMaxI)
 			# if(length(mzO[1]) == 0 | length(mzO[2]) == 0) next
 			# check the S/N
-			snthresh1 <- if(sd(baseline1) != 0) (data1[scanMaxI, 'y'] - baseline1[scanMaxI]) / sd(baseline1)
-					else (data1[scanMaxI, 'y'] - baseline1[scanMaxI])
-			snthresh2 <- if(sd(baseline2) != 0) (data2[scanMaxI, 'y'] - baseline2[scanMaxI]) / sd(baseline2)
-					else (data2[scanMaxI, 'y'] - baseline2[scanMaxI])
+			snthresh1 <- if(sd(baseline1) != 0) (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1]) / sd(baseline1) else (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1])
+			snthresh2 <- if(sd(baseline2) != 0) (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2]) / sd(baseline2) else (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2])
 			if(any(c(snthresh1, snthresh2) < snthresh)) next
 			
+			abdObs <- auc2 / auc1 * 100
+			
 			rois <- rois %>% bind_rows(data.frame(mzO=c(eics[[1]]$mass, eics[[2]]$mass),
-				rtmin=c(data1[min(scans[[i]]), 'x'], data2[min(scans[[i]]), 'x']),
-				rtmax=c(data1[max(scans[[i]]), 'x'], data2[max(scans[[i]]), 'x']),
-				auc=c(auc1, auc2), snthresh=c(snthresh1, snthresh2)))
+				rtmin=c(data1[min(scans1), 'x'], data2[min(scans2), 'x']),
+				rtmax=c(data1[max(scans1), 'x'], data2[max(scans2), 'x']),
+				auc=c(auc1, auc2), abd_deviation=abs(abdTheo - c(100, abdObs)), snthresh=c(snthresh1, snthresh2)))
 		}
 		# for printing the eics
-		# if(length(rois) > 0) print(plot_ly(type="scatter", mode="lines") %>% 
+		# print(
+		# plot_ly(type="scatter", mode="lines", dragmode="select") %>% layout(selectdirection="h")
 			# add_lines(data=data1, x=~x, y=~y, color=I('black')) %>%
-			# add_trace(mode='none', data=data1[unlist(scans), ], x=~x, y=~y, fill='tozeroy') %>% 
+			# add_trace(mode='none', data=data1[scans1, ], x=~x, y=~y, fill='tozeroy') %>% 
 			# add_lines(x=data1$x, y=baseline1, color=I('red')) %>%
 			# add_lines(data=data2, x=~x, y=~y, color=I('black')) %>%
-			# add_trace(mode='none', data=data2[unlist(scans), ], x=~x, y=~y, fill='tozeroy') %>% 
-			# add_lines(x=data2$x, y=baseline2, color=I('red')))
+			# add_trace(mode='none', data=data2[scans2, ], x=~x, y=~y, fill='tozeroy') %>% 
+			# add_lines(x=data2$x, y=baseline2, color=I('red'))
+		# )
 		rois
 	}, fail = function(f) data.frame()
 	, error = function(e){
@@ -148,20 +160,18 @@ observeEvent(input$target, {
 	print('------------------- TARGET --------------------')
 	print(list(project=input$project, samples=input$targetSamples, 
 		adduct=input$targetAdduct, ppm=input$targetTolPpm, 
-		prefilterStep=input$targetPrefilterStep,
-		prefilterLevel=input$targetPrefilterLevel,
+		peakwidth=input$targetPeakwidth,
 		snthresh=input$targetSnthresh))
 	tryCatch({
 		inputs <- c('targetProject', 'targetSamples', 
 			'targetAdduct', 'targetTolPpm', 'targetPeakwidth',
-			'targetDiffRt', 'targetSnthresh')
+			'targetSnthresh')
 		conditions <- c(is.null(input$project), is.null(input$targetSamples),
 			is.null(input$targetAdduct), !is.numeric(input$targetTolPpm), 
-			!is.numeric(input$targetPeakwidth), !is.numeric(input$targetDiffRt),
-			!is.numeric(input$targetSnthresh))
+			!is.numeric(input$targetPeakwidth), !is.numeric(input$targetSnthresh))
 		messages <- c('You need to select a project', 'You need to select at least one sample',
 			'You need to select an adduct', 'tol ppm has to be numeric', 'min peakwidth has to be numeric',
-			'min collapse peaks has to be numeric', 'snthresh has to be numeric')
+			'snthresh has to be numeric')
 		test <- inputsTest(inputs, conditions, messages)
 		if(!test) custom_stop('invalid', 'invalid args')
 		inputs <- c('targetProject', 'targetSamples', 'targetAdduct')
@@ -175,7 +185,7 @@ observeEvent(input$target, {
 		progressSweetAlert(session, id='pb', title='Target', value=0, display_pct=TRUE)
 		db <- dbConnect(SQLite(), sqlitePath)
 		# load mzs of each chloroparaffin
-		mzs <- loadChloroParaMzs(input$targetAdduct)
+		chloropara <- loadChloroParaMzs(input$targetAdduct)
 		# then load eics for each file
 		eics <- list()
 		pbVal <- 100 / length(input$targetSamples)
@@ -204,34 +214,47 @@ observeEvent(input$target, {
 				dbSendQuery(db, query)			
 			}
 			
-			eics <- readXICs(file.path(rawPath, paste0(input$targetSamples[i], '.raw')), 
-				masses=mzs$mzs, tol=input$targetTolPpm)
+			path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";', 
+				input$targetSamples[i]))$path
+			
+			eics <- readXICs(path, masses=chloropara[, 'm.z'], tol=input$targetTolPpm)
 			# split to analyze two by two (one chloroparaffin : two mz)
-			eics <- split(eics, rep(1:(nrow(mzs)/2), each=2) %>% as.factor)
-			raw <- read.raw(file.path(rawPath, paste0(input$targetSamples[i], '.raw')))
+			eics <- split(eics, rep(1:(nrow(chloropara)/2), each=2) %>% as.factor)
+			raw <- read.raw(path)
 			rts <- raw$StartTime
 			minScans <- floor((input$targetPeakwidth/60) / mean(diff(rts)))
-			collapseScans <- ceiling((input$targetDiffRt/60) / mean(diff(rts)))
 			
-			rois <- data.frame(mzO=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), snthresh=c())
+			rois <- data.frame(mzO=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd_deviation=c(), snthresh=c())
 			for(j in 1:length(eics)){
+			# for(j in 100:200){
 				updateProgressBar(session, id="pb", title=paste("target in", input$targetSamples[i]),
 					value=(i-1)*100/length(input$targetSamples) + j*100/length(eics))
 				roisTmp <- targetChloroPara(eics[[j]], rts, minScans, 
-					collapseScans, input$targetTolPpm, input$targetSnthresh)
+					input$targetTolPpm, input$targetSnthresh, chloropara[j*2, 'abundance'])
 				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
-						cbind(formula=unique(mzs$formulas)[j]))
+						cbind(formula=unique(chloropara$formula)[j]))
 			}
-						
+			rois$C <- str_extract(rois$formula, 'C[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
+			rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
+			rois$Cl[which(is.na(rois$Cl))] <- 0
+			
 			query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
-				peakwidth, diffRt, snthresh) values %s;', paste('(', rois$mzO, ', "', rois$formula,
+				peakwidth, snthresh, abd_deviation, C, Cl) values %s;', paste('(', rois$mzO, ', "', rois$formula,
 					'", ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
 					', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
-					', ', input$targetDiffRt, ', ', input$targetSnthresh, ')', collapse=', ', sep=''))
+					', ', input$targetSnthresh, ', ', rois$abd_deviation, 
+					', ', rois$C, ', ', rois$Cl, ')', collapse=', ', sep=''))
 			print(query)
+			
 			dbSendQuery(db, query)
-			dbDisconnect(db)
+			updateOutput$details <- if(updateOutput$details) FALSE else TRUE
 		}
+		closeSweetAlert(session)
+		dbDisconnect(db)
+		}, invalid = function(i){
+			print(i$message)
+		}, error = function(e){
+			print(e$message)
+			sendSweetAlert(e$message)
 		})
-	closeSweetAlert(session)
 })

@@ -12,9 +12,6 @@ tabItem(tabName='target',
 				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=15, min=0, max=60, step=1)
 			),
 			column(width=6,
-				sliderInput('targetDiffRt', 'min rt diff (sec)', value=2, min=0, max=10, step=.1)
-			),
-			column(width=6, 
 				numericInput('targetSnthresh', 'snthresh', value=1, min=0, step=1)
 			)
 		),
