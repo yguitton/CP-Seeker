@@ -72,7 +72,7 @@ output$detailsTable <- renderDataTable({
 	columnDefs=list(list(className='dt-body-center', targets="_all"))), callback = htmlwidgets::JS("
 		Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
 		table.on('click', 'tbody td', function(){
-			if(table.cell(this).data() != null){
+			//if(table.cell(this).data() != null){
 				if($(this).hasClass('selected')){
 					$(table.cells('.selected').nodes()).toggleClass('selected');
 					Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
@@ -83,7 +83,7 @@ output$detailsTable <- renderDataTable({
 						C: table.cell(this).index().row+4, 
 						Cl: table.cell(this).index().column+1});
 				}
-			}
+			//}
 		});
 		Shiny.addCustomMessageHandler('updateDetailsTable', function(value){
 			table.cell('.selected').data(value);
@@ -135,36 +135,45 @@ output$detailsEic <- renderPlotly({
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
 		
-		eics <- readXICs(path, masses=data$mz, tol=input$detailsTolPpm)
+		if(nrow(data) > 0) eics <- readXICs(path, masses=data$mz, tol=input$detailsTolPpm)
+		else {
+			chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+				input$detailsAdduct)
+			eics <- readXICs(path, masses=chloropara[, 'm.z'], tol=input$detailsTolPpm)
+		}
 		
 		eicPlot <- plot_ly(type="scatter", mode="lines")
 		# for the first mass
-		A <- data[which(round(data$mz) == round(eics[[1]]$mass)), ]
 		data1 <- data.frame(x=rts, y=0)
 		data1[which(data1$x %in% eics[[1]]$times), 'y'] <- eics[[1]]$intensities[which(eics[[1]]$times %in% data1$x)]
 		eicPlot1 <- eicPlot %>% add_trace(mode="lines+markers", name=min(data$mz), legendgroup="group1", 
 			data=data1, x=~x, y=~y, color=I('black'), showlegend=FALSE, marker=list(opacity=1, size=1*10**-9))
-		scans1 <- lapply(1:nrow(A), function(x) 
-			which(data1$x >= A[x, 'rtmin'] & data1$x <= A[x, 'rtmax']))
-		for(i in 1:length(scans1)) eicPlot1 <- eicPlot1 %>% add_trace(mode='none', 
-			data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
-		baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
-			endrule="median", algorithm="Turlach")
-		eicPlot1 <- eicPlot1 %>% add_lines(x=data1$x, y=baseline1, color=I('red'), showlegend=FALSE, legendgroup="group1")
+		if(nrow(data) > 0){
+			A <- data[which(round(data$mz) == round(eics[[1]]$mass)), ]
+			scans1 <- lapply(1:nrow(A), function(x) 
+				which(data1$x >= A[x, 'rtmin'] & data1$x <= A[x, 'rtmax']))
+			for(i in 1:length(scans1)) eicPlot1 <- eicPlot1 %>% add_trace(mode='none', 
+				data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
+			baseline1 <- runmed(data1$y, 1+2*(min(c((nrow(data1)-1)%/%2, ceiling(.15*nrow(data1))))), 
+				endrule="median", algorithm="Turlach")
+			eicPlot1 <- eicPlot1 %>% add_lines(x=data1$x, y=baseline1, color=I('red'), showlegend=FALSE, legendgroup="group1")
+		}
 		
 		# for the second mass
-		A2 <- data[which(round(data$mz) == round(eics[[2]]$mass)), ]
 		data2 <- data.frame(x=rts, y=0)
 		data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
 		eicPlot2 <- eicPlot %>% add_trace(mode="lines+markers", name=max(data$mz), 
 			data=data2, x=~x, y=~y, color=I('black'), legendgroup="group2", showlegend=FALSE, marker=list(opacity=1, size=1*10**-9))
-		scans2 <- lapply(1:nrow(A2), function(x) 
-			which(data2$x >= A2[x, 'rtmin'] & data2$x <= A2[x, 'rtmax']))
-		for(i in 1:length(scans2)) eicPlot2 <- eicPlot2 %>% add_trace(mode='none', 
-			data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
-		baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15*nrow(data2))))), 
-			endrule="median", algorithm="Turlach")
-		eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, legendgroup="group2")
+		if(nrow(data) > 0){
+			A2 <- data[which(round(data$mz) == round(eics[[2]]$mass)), ]
+			scans2 <- lapply(1:nrow(A2), function(x) 
+				which(data2$x >= A2[x, 'rtmin'] & data2$x <= A2[x, 'rtmax']))
+			for(i in 1:length(scans2)) eicPlot2 <- eicPlot2 %>% add_trace(mode='none', 
+				data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
+			baseline2 <- runmed(data2$y, 1+2*(min(c((nrow(data2)-1)%/%2, ceiling(.15*nrow(data2))))), 
+				endrule="median", algorithm="Turlach")
+			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, legendgroup="group2")
+		}
 		
 		subplot(eicPlot1, eicPlot2, nrows=2, shareX=TRUE)
 	}, invalid = function(i){
@@ -204,7 +213,8 @@ observeEvent(event_data(event='plotly_selected'), {
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct)
 		abd_deviation <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
-			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara$abundance)
+			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara$abundance,
+			chloropara[, 'm.z'], chloropara[1, 'formula'])
 			
 		session$sendCustomMessage("updateDetailsTable", abd_deviation)
 		
@@ -244,21 +254,22 @@ getChloroPara <- function(C, Cl, adduct){
 		select(`m.z`, abundance) %>% cbind(formula=rep(formula, each=2))
 }
 
-reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, abdTheo){
+reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, abdTheo, mzs, formula){
 	db <- dbConnect(SQLite(), sqlitePath)
 	path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";',
 		sample))$path
-	query <- sprintf('select * from observed where C == %s and Cl == %s and 
-			project_sample == (
-				select project_sample from project_sample where sample == "%s" and
-					project == "%s" and adduct == "%s");',
-			C, Cl, sample, project, adduct)
+	project_sample <- dbGetQuery(db, sprintf('select project_sample from project_sample 
+		where project == "%s" and sample == "%s" and adduct == "%s";', 
+		project, sample, adduct))$project_sample
+	query <- sprintf('delete from observed where C == %s and Cl == %s and 
+			project_sample == %s;',
+			C, Cl, project_sample)
 	print(query)
-	data <- dbGetQuery(db, query)
+	dbSendQuery(db, query)
 	dbDisconnect(db)
 	
 	rts <- read.raw(path)$StartTime
-	eics <- readXICs(path, masses=data$mz, tol=tolPpm)
+	eics <- readXICs(path, masses=mzs, tol=tolPpm)
 	
 	data1 <- data.frame(x=rts, y=0)
 	data2 <- data.frame(x=rts, y=0)
@@ -276,21 +287,21 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, ab
 	auc1 <- trapz(data1[scans1, 'y'])
 	auc2 <- trapz(data2[scans2, 'y'])
 	
-	scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))]
-	scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))]
+	scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))][1]
+	scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))][1]
 	snthresh1 <- if(sd(baseline1) != 0) (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1]) / sd(baseline1) else (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1])
 	snthresh2 <- if(sd(baseline2) != 0) (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2]) / sd(baseline2) else (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2])
 	
 	abdObs <- auc2 / auc1 * 100
 			
 	db <- dbConnect(SQLite(), sqlitePath)
-	queries <- sprintf('update observed set rtmin = %s, rtmax = %s, auc = %s, ppm = %s, peakwidth = null, 
-		snthresh = %s, abd_deviation = %s where C == %s and Cl == %s and project_sample == (
-			select project_sample from project_sample where project == "%s" and sample == "%s" and adduct == "%s");',
-		rtmin, rtmax, c(auc1, auc2), tolPpm, c(snthresh1, snthresh2), abs(abdTheo - c(100, abdObs)),
-		C, Cl, project, sample, adduct)
-	print(queries)
-	map(queries, function(query) dbSendQuery(db, query))
+	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
+				snthresh, abd_deviation, C, Cl) values %s;', paste('(', mzs, ', "', formula,
+					'", ', rtmin, ', ', rtmax, ', ', c(auc1, auc2), ', ', project_sample, ', ', 
+					tolPpm, ', ', c(snthresh1, snthresh2), ', ', abs(abdTheo - c(100, abdObs)), 
+					', ', C, ', ', Cl, ')', collapse=', ', sep=''))
+	print(query)
+	dbSendQuery(db, query)
 	dbDisconnect(db)
 	
 	round(abs(abdTheo[2] - abdObs))

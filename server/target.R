@@ -120,8 +120,8 @@ targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=N
 			# check if the A-2 or A+2 not > A
 			if(auc2 > auc1 + auc1 * .2) next
 			# search the scan where A is the most intense
-			scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))]
-			scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))]
+			scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))][1]
+			scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))][1]
 			# loading spectra takes too long
 			# mzO <- findClosestMzs(sapply(eics, function(x) x$masses), file, ppm, scanMaxI)
 			# if(length(mzO[1]) == 0 | length(mzO[2]) == 0) next
