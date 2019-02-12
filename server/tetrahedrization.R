@@ -117,22 +117,23 @@ drawTri <- function(triangles){
 	p <- plot_ly()
 	if(!is.null(triangles)){
 		if(length(triangles) > 0){
-			triangles <- reduce(triangles, function(a, b) a %>% 
-				append(splitTri(b)), .init=list())
 			faces <- reduce(triangles, bind_rows)
 			p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
-				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1)
+				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1, hoverinfo="text", 
+				text=~paste('C:', x, '<br />Cl:', y, '<br />intensity:', formatC(z)))
 			edges <- reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
 				bind_rows(b[c(1, 2), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
 				bind_rows(b[c(1, 3), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
 				bind_rows(b[c(2, 3), ]), .init=data.frame())
-			p <- p %>% add_trace(mode='lines', color=I('black'), line=list(width=3), data=edges, x=~x, y=~y, z=~z)
+			p <- p %>% add_trace(mode='lines', color=I('black'), line=list(width=2), data=edges, x=~x, y=~y, z=~z, hoverinfo='none')
 		}
 	}
 	p %>% layout(showlegend=FALSE, scene=list(camera=list(eye=list(x=1.25, y=-1.25, z=1.25)), 
 			zaxis=list(title="Intensity", rangemode='tozero'), 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))))
+			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))) %>% 
+		plotly::config(modeBarButtons=list(list('toImage', 'zoom3d', 'pan3d', 'orbitRotation', 'tableRotation',
+			'resetCameraDefault3d', 'resetCameraLastSave3d')), displaylogo=FALSE)
 }
 
 drawTriCut <- function(triangles, z){
@@ -194,5 +195,6 @@ contourPolyhedras <- function(triangles, zVal, centroid){
 	p %>%
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) 
+			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 
+		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 }

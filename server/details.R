@@ -167,7 +167,8 @@ output$detailsEic <- renderPlotly({
 		data1 <- data.frame(x=rts, y=0)
 		data1[which(data1$x %in% eics[[1]]$times), 'y'] <- eics[[1]]$intensities[which(eics[[1]]$times %in% data1$x)]
 		eicPlot1 <- eicPlot %>% add_trace(mode="lines+markers", name=min(data$mz), legendgroup="group1", 
-			data=data1, x=~x, y=~y, color=I('black'), showlegend=FALSE, marker=list(opacity=1, size=1*10**-9))
+			data=data1, x=~x, y=~y, color=I('black'), showlegend=FALSE, marker=list(opacity=1, size=1*10**-9),
+			hoverinfo="text", text=~paste('rt:', round(data1$x, digits=2), '<br />intensity:', formatC(data1$y)))
 		if(nrow(data) > 0){
 			A <- data[which(round(data$mz) == round(eics[[1]]$mass)), ]
 			scans1 <- lapply(1:nrow(A), function(x) 
@@ -176,14 +177,17 @@ output$detailsEic <- renderPlotly({
 				data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
 			baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans1))%/%2), 
 				endrule="median", algorithm="Turlach")
-			eicPlot1 <- eicPlot1 %>% add_lines(x=data1$x, y=baseline1, color=I('red'), showlegend=FALSE, legendgroup="group1")
+			eicPlot1 <- eicPlot1 %>% add_lines(name="baseline", x=data1$x, y=baseline1, color=I('red'), 
+				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
+					'rt:', round(data1$x, digits=2), '<br />intensity:', formatC(baseline1)))
 		}
 		
 		# for the second mass
 		data2 <- data.frame(x=rts, y=0)
 		data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
 		eicPlot2 <- eicPlot %>% add_trace(mode="lines+markers", name=max(data$mz), 
-			data=data2, x=~x, y=~y, color=I('black'), legendgroup="group2", showlegend=FALSE, marker=list(opacity=1, size=1*10**-9))
+			data=data2, x=~x, y=~y, color=I('black'), legendgroup="group2", showlegend=FALSE, marker=list(opacity=1, size=1*10**-9),
+			hoverinfo="text", text=~paste('rt:', round(data2$x, digits=2), '<br />intensity:', formatC(data2$y)))
 		if(nrow(data) > 0){
 			A2 <- data[which(round(data$mz) == round(eics[[2]]$mass)), ]
 			scans2 <- lapply(1:nrow(A2), function(x) 
@@ -192,7 +196,9 @@ output$detailsEic <- renderPlotly({
 				data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
 			baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans2))%/%2), 
 				endrule="median", algorithm="Turlach")
-			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, legendgroup="group2")
+			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, 
+				legendgroup="group2", hoverinfo="text", text=~paste(
+					'rt:', round(data2$x, digits=2), '<br />intensity:', formatC(baseline2)))
 		}
 		
 		subplot(eicPlot1, eicPlot2, nrows=2, shareX=TRUE)

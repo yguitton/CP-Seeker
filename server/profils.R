@@ -8,17 +8,25 @@ observeEvent(input$dbProfileLaunch, {
 		adduct=input$dbProfileAdduct))
 	progressSweetAlert(session, 'pb', title="Initialization", 100, striped=TRUE)
 	tryCatch({
-		if(is.null(input$project)) custom_stop('minor_error', 'you must select a project')
-		else if(input$project == "") custom_stop('minor_error', 'you must select a project')
-		else if(is.null(input$dbProfileSample)) custom_stop('minor_error', 'you must select a sample')
-		else if(input$dbProfileSample == "") custom_stop('minor_error', 'you must select a sample')
-		else if(is.null(input$dbProfileAdduct)) custom_stop('minor_error', 'you must select an adduct')
-		else if(input$dbProfileAdduct == '') custom_stop('minor_error', 'you must select an adduct')
+		inputs <- c('project', 'dbProfileSample', 'dbProfileAdduct')
+		conditions <- c(is.null(input$project), is.null(input$dbProfileSample), 
+			is.null(input$dbProfileAdduct))
+		messages <- c('You must select a project', 'You must select a sample',
+			'You must select an adduct')
+		test <- inputsTest(inputs, conditions, messages)
+		if(!test) custom_stop('minor_error', 'invalid params')
+		inputs <- c('project', 'dbprofileSample', 'dbProfileAdduct', 'vTarget', 'vDigits')
+		conditions <- c(input$project == "", input$dbProfileSample == "", input$dbProfileAdduct == "",
+			!is.numeric(input$vTarget), !is.numeric(input$vDigits))
+		messages <- c(messages, 'target volume must be a number', 'precision must be a number')
+		test <- inputsTest(inputs, conditions, messages)
+		if(!test) custom_stop('invalid', 'invalid args')
+		
 		data <- getDbProfileContent(input$project, input$dbProfileSample, input$dbProfileAdduct)
 		
 		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
 		values$centroid <- data.frame(x=data$C, y=data$Cl, z=data$profile) %>% 
-			summarise(x=sum(x*z), y=sum(y*z))
+			summarise(x=sum(x*z/sum(z)), y=sum(y*z/sum(z)))
 		data <- distMatrix(data)
 		updateProgressBar(session, id="pb", title="Tetrahedrization", value=100)
 		res <- tetrahedrization(data)
@@ -28,14 +36,14 @@ observeEvent(input$dbProfileLaunch, {
 		zVal <- getZCut(tetras, input$vTarget, input$vDigits)
 		print(paste('Zcut :', zVal))
 		
-		values$triangles <- triangles
+		values$triangles <- reduce(triangles, function(a, b) a %>% 
+			append(splitTri(b)), .init=list())
 		values$zVal <- zVal
 		
 		closeSweetAlert(session)
 	}, minor_error = function(e){
 		closeSweetAlert(session)
 		print(e$message)
-		toastr_error(e$message)
 		values$triangles <- NULL
 		values$zVal <- NULL
 	}, error = function(e){
@@ -53,7 +61,12 @@ observeEvent(input$xlsxLaunch, {
 	print(list(C=values$C, Cl=values$Cl, profile=values$profile))
 	progressSweetAlert(session, 'pb', title="Initialization", 100, striped=TRUE)
 	tryCatch({
-		if(is.null(values$xlsxPath)) custom_stop('²', 'no file selected')
+		inputs <- c('xlsxPath', 'vTarget', 'vDigits')
+		conditions <- c(is.null(values$xlsxPath), !is.numeric(input$vTarget), !is.numeric(input$vDigits))
+		messages <- c('no excel file selected', 'target volume must be a number',
+			'precision must be a number')
+		test <- inputsTest(inputs, conditions, messages)
+		if(!test) custom_stop('invalid', 'invalid params')
 		data <- read.xlsx(values$xlsxPath)
 		if(nrow(data) == 0 | class(data) != "data.frame") custom_stop('minor_error', 'invalid data in this sheet')
 		else if(ncol(data) > 3) custom_stop('minor_error', 'more than 3 column in the excel sheet')
@@ -67,7 +80,7 @@ observeEvent(input$xlsxLaunch, {
 		
 		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
 		values$centroid <- data.frame(x=data$C, y=data$Cl, z=data$profile) %>% 
-			summarise(x=sum(x*z), y=sum(y*z))
+			summarise(x=sum(x*z/sum(z)), y=sum(y*z/sum(z)))
 		data <- distMatrix(data)
 		updateProgressBar(session, id="pb", title="Tetrahedrization", value=100)
 		res <- tetrahedrization(data)
@@ -77,12 +90,16 @@ observeEvent(input$xlsxLaunch, {
 		zVal <- getZCut(tetras, input$vTarget, input$vDigits)
 		print(paste('Zcut :', zVal))
 		
-		values$triangles <- if(input$tetraSmooth) triangles %>% 
-				modify(function(a) a %>% mutate_at(c('x', 'y'), function(.) ./2))
-			else triangles
+		values$triangles <- reduce(triangles, function(a, b) a %>% 
+			append(splitTri(b)), .init=list())
 		values$zVal <- zVal
 		
 		closeSweetAlert(session)
+	}, invalid = function(i){
+		closeSweetAlert(session)
+		print(i$message)
+		values$triangles <- NULL
+		values$zVal <- NULL
 	}, minor_error = function(e){
 		closeSweetAlert(session)
 		print(e$message)
