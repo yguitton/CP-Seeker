@@ -1,9 +1,5 @@
 header <- dashboardHeader(
-	title = "targetROI", 
-	tags$li(class="dropdown", dropdownButton(circle=TRUE, status="primary", icon=icon('gear'), right=TRUE, tooltip=tooltipOptions(title='Hidden parameters'),
-		knobInput('vTarget', 'target volume %', value=90),
-		tags$div(style="text-align:center;", numericInput('vDigits', 'precision', value=2, width='50%'))
-	))
+	title = "targetROI"
 )
 
 sidebar <- dashboardSidebar(

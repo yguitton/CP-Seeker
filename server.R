@@ -18,7 +18,7 @@ maxCl <- 30
 
 source('server/func.R', local=TRUE)$value
 
-source('server/loadXlsx.R', local=TRUE)$value
+source('server/loadProfile.R', local=TRUE)$value
 
 source('server/profils.R', local=TRUE)$value
 

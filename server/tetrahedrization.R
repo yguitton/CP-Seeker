@@ -1,14 +1,6 @@
-distMatrix <- function(data, newPoints=TRUE){
+distMatrix <- function(data){
 	data2 <- matrix(0, nrow=maxC, ncol=maxCl)
 	for(row in 1:nrow(data)) data2[data[row,1], data[row, 2]] <- data[row, 3]
-
-	# create new points
-	if(newPoints){
-		data2 <- cbind(do.call(cbind, lapply(2:ncol(data2), function(x) 
-			cbind(data2[, x-1], matrix((data2[, x-1] + data2[, x]) / 2, ncol=1)))), data2[, ncol(data2)])
-		data2 <- rbind(do.call(rbind, lapply(2:nrow(data2), function(x) 
-			rbind(data2[x-1, ], matrix((data2[x-1, ] + data2[x, ]) / 2, nrow=1)))), data2[nrow(data2), ])
-	}
 	data2
 }
 
@@ -24,8 +16,7 @@ tetrahedrization <- function(data, zCut=0){
 				z=c(data[x, y], data[x+1, y], data[x+1, y+1])),
 			data.frame(x=c(x, x, x+1), y=c(y, y+1, y+1),
 				z=c(data[x, y], data[x, y+1], data[x+1, y+1])))
-		trianglesTmp <- trianglesTmp %>% keep(function(x) any(x$z > 0)) %>% 
-			modify(function(a) a %>% mutate_at(c('x', 'y'), function(.) ./2))
+		trianglesTmp <- trianglesTmp %>% keep(function(x) any(x$z > 0))
 		if(length(trianglesTmp) == 0) next
 		
 		tetrasTmp <- reduce(trianglesTmp, function(a, b) a %>% append(
@@ -92,45 +83,52 @@ newCoords <- function(a, b, z){
 }
 
 getZCut <- function(tetras, vTarget=90, digits=2){	
-	cl <- makeCluster(detectCores())
 	vT <- computeVolumePolyhedra(tetras)
-	vTarget <- round(vT * vTarget / 100, digits=digits)
-	vCurr <- 0
+	vCurr <- 100
 	zHigh <- reduce(tetras, function(a, b) max(c(a, b$z)), .init=0)
 	zDown <- 0
-	clusterExport(cl, c('computeVolumePolyhedra', 'computeVolumeTetra', 
-		'splitTetra', 'newCoords', 'tetras'), envir=environment())
-	clusterEvalQ(cl, c(library(purrr), library(dplyr)))
 	while(vCurr != vTarget){
 		zMed <- (zHigh + zDown) / 2
-		clusterExport(cl, 'zMed', envir=environment())
-		# vCurr <- round(reduce(tetras, function(a, b) 
-			# a + computeVolumePolyhedra(splitTetra(b, zMed)), .init=0), digits=digits)
-		vCurr <- round(do.call(sum, parLapply(cl, tetras, function(tetra) 
-			computeVolumePolyhedra(splitTetra(tetra, zMed)))), digits=digits)
+		vCurr <- round(reduce(tetras, function(a, b) 
+			a + computeVolumePolyhedra(splitTetra(b, zMed)), .init=0) * 100 / vT, digits=digits)
 		if(vCurr > vTarget) zDown <- zMed
 		else zHigh <- zMed
-		# print(paste("current volume:", round(vCurr * 100 / vT, digits=digits), '%'), value=100)
-		updateProgressBar(session, id="pb", title=paste("current volume:", round(vCurr * 100 / vT, digits=digits), '%'), value=100)
+		print(paste("current volume:", vCurr, '%'), value=100)
+		updateProgressBar(session, id="pb", title=paste("current volume:", vCurr, '%'), value=100)
 	}
-	stopCluster(cl)
 	return(zMed)
 }
 
+splitTri <- function(triangle){
+	triangle <- triangle %>% arrange(desc(z))
+	# edge to apply /4 instead /2 for z
+	i <- dist(triangle[, 1:2]) %>% c %>% which.max
+	nodes <- triangle %>% 
+		bind_rows(triangle[2, ] + (triangle[1, ] - triangle[2, ])/2) %>% 
+		bind_rows(triangle[3, ] + (triangle[1, ] - triangle[3, ])/2) %>% 
+		bind_rows(triangle[3, ] + (triangle[2, ] - triangle[3, ])/2)
+	nodes[3+i, 'z'] <- if(i == 1) triangle[2, 'z'] + (triangle[1, 'z'] - triangle[2, 'z'])/4 
+		else if(i == 2) triangle[3, 'z'] + (triangle[1, 'z'] - triangle[3, 'z'])/4 
+		else triangle[3, 'z'] + (triangle[2, 'z'] - triangle[3, 'z'])/4
+	list(nodes[c(1, 4, 5), ], nodes[c(2, 4, 6), ], nodes[c(3, 5, 6), ], nodes[c(4, 5, 6), ])
+}
 
 drawTri <- function(triangles){
 	p <- plot_ly()
 	if(!is.null(triangles)){
-	if(length(triangles) > 0){
-		faces <- reduce(triangles, bind_rows)
-		p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
-			j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1)
-		edges <- reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
-			bind_rows(b[c(1, 2), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
-			bind_rows(b[c(1, 3), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
-			bind_rows(b[c(2, 3), ]), .init=data.frame())
-		p <- p %>% add_trace(mode='lines', color=I('black'), line=list(width=5), data=edges, x=~x, y=~y, z=~z)
-	}}
+		if(length(triangles) > 0){
+			triangles <- reduce(triangles, function(a, b) a %>% 
+				append(splitTri(b)), .init=list())
+			faces <- reduce(triangles, bind_rows)
+			p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
+				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1)
+			edges <- reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
+				bind_rows(b[c(1, 2), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
+				bind_rows(b[c(1, 3), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
+				bind_rows(b[c(2, 3), ]), .init=data.frame())
+			p <- p %>% add_trace(mode='lines', color=I('black'), line=list(width=3), data=edges, x=~x, y=~y, z=~z)
+		}
+	}
 	p %>% layout(showlegend=FALSE, scene=list(camera=list(eye=list(x=1.25, y=-1.25, z=1.25)), 
 			zaxis=list(title="Intensity", rangemode='tozero'), 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
@@ -138,7 +136,7 @@ drawTri <- function(triangles){
 }
 
 drawTriCut <- function(triangles, z){
-	p <- drawTri(triangles) 
+	p <- drawTri(triangles)
 	if(!is.null(z)) p %>% add_trace(data=data.frame(x=c(0,0,36,36), y=c(0,30,0,30), z=rep(z, times=4)),
 		x=~x, y=~y, z=~z, i=c(0,3), j=c(1,1), k=c(2,2),opacity=.5, hoverinfo="text", text=
 			paste("Intensity:", rep(z, times=4)))
@@ -146,12 +144,13 @@ drawTriCut <- function(triangles, z){
 }
 
 contourPolyhedras <- function(triangles, zVal, centroid){
-	if(is.null(triangles) | is.null(zVal)) return(
+	if(is.null(triangles)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
+	if(is.null(zVal)) zVal <- 0
 	# for each edge of triangle compute new coords
 	trianglesCut <- list()
 	for(tri in triangles){
@@ -185,8 +184,7 @@ contourPolyhedras <- function(triangles, zVal, centroid){
 	edges <- keep(edges, function(edge) all(edge$z == zVal))
 	edges2 <- map(edges, function(x) x[, 1:2] %>% bind_rows(data.frame(x=NA, y=NA)))
 	edges2 <- reduce(edges2, bind_rows)
-	
-	
+		
 	p <- plot_ly(type="scatter", mode="lines", data=edges2, x=~x, y=~y, hoverinfo="text", 
 		text=paste("Carbons:", edges2$x %>% round(digits=2), "<br />Chlorines:", edges2$y %>% round(digits=2)))
 	if(!is.null(centroid)) p <- p %>% 

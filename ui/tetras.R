@@ -1,5 +1,5 @@
 tabItem(tabName='tetras', 
-	source('ui/loadXlsx.R', local=TRUE)$value,
+	source('ui/loadProfile.R', local=TRUE)$value,
 	
 	box(title="3D", width=6, 
 		plotlyOutput('tetrahedras', height="600px")
