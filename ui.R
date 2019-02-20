@@ -1,5 +1,5 @@
 header <- dashboardHeader(
-	title = "targetROI"
+	title = appname
 )
 
 sidebar <- dashboardSidebar(

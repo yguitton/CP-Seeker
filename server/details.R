@@ -175,7 +175,7 @@ output$detailsEic <- renderPlotly({
 				which(data1$x >= A[x, 'rtmin'] & data1$x <= A[x, 'rtmax']))
 			for(i in 1:length(scans1)) eicPlot1 <- eicPlot1 %>% add_trace(mode='none', 
 				data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
-			baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans1))%/%2), 
+			baseline1 <- runmed(data1$y, 9*(length(unlist(scans1))%/%2), 
 				endrule="median", algorithm="Turlach")
 			eicPlot1 <- eicPlot1 %>% add_lines(name="baseline", x=data1$x, y=baseline1, color=I('red'), 
 				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
@@ -194,7 +194,7 @@ output$detailsEic <- renderPlotly({
 				which(data2$x >= A2[x, 'rtmin'] & data2$x <= A2[x, 'rtmax']))
 			for(i in 1:length(scans2)) eicPlot2 <- eicPlot2 %>% add_trace(mode='none', 
 				data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
-			baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans2))%/%2), 
+			baseline2 <- runmed(data2$y, 9*(length(unlist(scans2))%/%2), 
 				endrule="median", algorithm="Turlach")
 			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, 
 				legendgroup="group2", hoverinfo="text", text=~paste(

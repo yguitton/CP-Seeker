@@ -12,7 +12,7 @@ tabItem(tabName='target',
 				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=15, min=0, max=60, step=1)
 			),
 			column(width=6,
-				numericInput('targetSnthresh', 'snthresh', value=1, min=0, step=1)
+				numericInput('targetSnthresh', 'sbthresh', value=1, min=0, step=1)
 			)
 		),
 		tags$div(style="text-align:center;", actionBttn('target', 'target'))

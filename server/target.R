@@ -98,9 +98,9 @@ targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=N
 		scans <- scans[which(lengths(scans) > minScans)]
 		if(length(scans) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		
-		baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans))%/%2), 
+		baseline1 <- runmed(data1$y, 9*(length(unlist(scans))%/%2), 
 			endrule="median", algorithm="Turlach")
-		baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans))%/%2), 
+		baseline2 <- runmed(data2$y, 9*(length(unlist(scans))%/%2), 
 			endrule="median", algorithm="Turlach")
 				
 		for(i in 1:length(scans)){
