@@ -3,7 +3,9 @@ tabItem(tabName='target',
 		column(width=12,
 			uiOutput('uiTargetSamples'),
 			column(width=6, 
-				pickerInput('targetAdduct', 'adduct', choices=adducts$Name, options=list(`live-search` = TRUE))
+				pickerInput('targetAdduct', 'adduct', choices=
+					setNames(c('M+Cl', 'M-H', 'M+Hac-H', 'M-Cl', 'M-H-Cl'), 
+						c('[M+Cl]-', '[M-H]-', '[M+Hac-H]-', '[M-Cl]-', '[M-H-Cl]-')))
 			),
 			column(width=6, 
 				numericInput('targetTolPpm', 'tol ppm', value=5, min=0, step=1)
