@@ -37,4 +37,4 @@ source('server/target.R', local=TRUE)$value
 
 source('server/details.R', local=TRUE)$value
 
-})	
+})

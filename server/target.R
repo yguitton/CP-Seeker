@@ -44,139 +44,27 @@ output$targetTic <- renderPlotly({
 			modeBarButtons=list(list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 })
 
-
-# load for each chloroparaffine with adduct two mz
-# the formula for a chloroparaffine is C(n)H(2n+2-x)Cl(x)
-loadChloroParaMzs <- function(adduct){
-	adduct <- adducts[which(adducts$Name == adduct), ]
-	formulas <- c()
-	for(C in minC:maxC) for(Cl in minCl:maxCl) formulas <- c(formulas, paste('C', C, 'H', 2*C+2-Cl, 'Cl', Cl, sep=''))
-	# check formulas in case
-	test <- check_chemform(isotopes, formulas)
-	formulas <- test[which(!test$warning), 'new_formula']
-	# then add adduct
-	brute_formulas <- formulas
-	if(adduct$Formula_add != FALSE) brute_formulas <- mergeform(brute_formulas, adduct$Formula_add)
-	if(adduct$Formula_ded != FALSE){
-		formulas <- formulas[which(check_ded(brute_formulas, adduct$Formula_ded) == "FALSE")]
-		brute_formulas <- brute_formulas[which(check_ded(brute_formulas, adduct$Formula_ded) == "FALSE")]
-		brute_formulas <- subform(brute_formulas, adduct$Formula_ded)
-	}
-	# remove those who have 0 in one element
-	brute_formulas <- str_replace_all(brute_formulas, '[[:upper:]][[:lower:]]?0', '')
-	formulas <- formulas[which(brute_formulas != '')]
-	brute_formulas <- brute_formulas[which(brute_formulas != '')]
-	data <- isopattern(isotopes, brute_formulas, charge=adduct$Charge, verbose=FALSE)
-	reduce(data, function(a, b) a %>% bind_rows(
-		b %>% data.frame %>% top_n(2, abundance) %>% 
-			select(`m.z`, abundance)), .init=data.frame()) %>% 
-		cbind(formula=rep(formulas, each=2))
-}
-
-findClosestMzs <- function(mzs, file, ppm, scan){
-	mzO <- c()
-	spectra <- readScans(file, scan)[[1]]
-	spectra <- data.frame(mz=spectra$mZ, i=spectra$intensity)
-	for(mz in mzs){
-		tol <- mz * ppm * 10**-6
-		mzO <- c(mzO, spectra[which(spectra$mz >= mz-tol & spectra$mz <= mz+tol), ] %>% 
-			arrange(desc(i)) %>% top_n(1, i) %>% pull(mz))
-	}
-	mzO
-}	
-
-targetChloroPara <- function(eics, rts, minScans, ppm, snthresh, abdTheo, file=NULL){
-	tryCatch({
-		rois <- data.frame(mzO=c(), rtmin=c(), rtmax=c(), auc=c(), snthresh=c())
-		data1 <- data.frame(x=rts, y=0)
-		data2 <- data.frame(x=rts, y=0)
-		data1[which(data1$x %in% eics[[1]]$times), 'y'] <- eics[[1]]$intensities[which(eics[[1]]$times %in% data1$x)]
-		data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
-		
-		scans <- which(data1$y > mean(data1$y) + (sd(data1$y)))
-		scans <- split(scans, cumsum(c(TRUE, diff(scans) > 2)))
-		scans <- scans[which(lengths(scans) > minScans)]
-		if(length(scans) == 0) custom_stop('fail', 'no chloroparaffin detected')
-		
-		baseline1 <- runmed(data1$y, 9*(length(unlist(scans))%/%2), 
-			endrule="median", algorithm="Turlach")
-		baseline2 <- runmed(data2$y, 9*(length(unlist(scans))%/%2), 
-			endrule="median", algorithm="Turlach")
-				
-		for(i in 1:length(scans)){
-			scans1 <- scans[[i]]
-			scans2 <- scans[[i]][which(data2[scans[[i]], 'y'] >= baseline2[scans[[i]]])]
-			# enlarge the roi until it meet the baseline
-			# first left
-			while(baseline1[min(scans1)-1] < data1[min(scans1)-1, 'y']) scans1 <- scans1 %>% prepend(min(scans1)-1)
-			while(baseline2[min(scans2)-1] < data2[min(scans2)-1, 'y']) scans2 <- scans2 %>% prepend(min(scans2)-1)
-			while(baseline1[max(scans1)+1] < data1[max(scans1)+1, 'y']) scans1 <- scans1 %>% append(max(scans1)+1)
-			while(baseline2[max(scans2)+1] < data2[max(scans2)+1, 'y']) scans2 <- scans2 %>% append(max(scans2)+1)
-			
-			auc1 <- trapz(data1[scans1, 'x'], data1[scans1, 'y']) - 
-					trapz(data1[scans1, 'x'], baseline1[scans1])
-			auc2 <- trapz(data2[scans2, 'x'], data2[scans2, 'y']) - 
-					trapz(data2[scans2, 'x'], baseline2[scans2])
-			# check if the A-2 or A+2 not > A
-			if(auc2 > auc1 + auc1 * .2) next
-			# search the scan where A is the most intense
-			scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))][1]
-			scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))][1]
-			# loading spectra takes too long
-			# mzO <- findClosestMzs(sapply(eics, function(x) x$masses), file, ppm, scanMaxI)
-			# if(length(mzO[1]) == 0 | length(mzO[2]) == 0) next
-			# check the S/N
-			snthresh1 <- if(sd(baseline1) != 0) (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1]) / sd(baseline1) else (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1])
-			snthresh2 <- if(sd(baseline2) != 0) (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2]) / sd(baseline2) else (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2])
-			if(any(c(snthresh1, snthresh2) < snthresh)) next
-			
-			abdObs <- auc2 / auc1 * 100
-			
-			rois <- rois %>% bind_rows(data.frame(mzO=c(eics[[1]]$mass, eics[[2]]$mass),
-				rtmin=c(data1[min(scans1), 'x'], data2[min(scans2), 'x']),
-				rtmax=c(data1[max(scans1), 'x'], data2[max(scans2), 'x']),
-				auc=c(auc1, auc2), abd_deviation=(1-abs(abdTheo - abdObs)/abdTheo)*100, snthresh=c(snthresh1, snthresh2)))
-		}
-		# for printing the eics
-		# print(
-		# plot_ly(type="scatter", mode="lines", dragmode="select") %>% layout(selectdirection="h")
-			# add_lines(data=data1, x=~x, y=~y, color=I('black')) %>%
-			# add_trace(mode='none', data=data1[scans1, ], x=~x, y=~y, fill='tozeroy') %>% 
-			# add_lines(x=data1$x, y=baseline1, color=I('red')) %>%
-			# add_lines(data=data2, x=~x, y=~y, color=I('black')) %>%
-			# add_trace(mode='none', data=data2[scans2, ], x=~x, y=~y, fill='tozeroy') %>% 
-			# add_lines(x=data2$x, y=baseline2, color=I('red'))
-		# )
-		rois
-	}, fail = function(f) data.frame()
-	, error = function(e){
-		print(e$message)
-		sendSweetAlert(e$message)
-		data.frame()
-	})	
-}
-
 observeEvent(input$target, {
 	print('------------------- TARGET --------------------')
 	print(list(project=input$project, samples=input$targetSamples, 
 		adduct=input$targetAdduct, ppm=input$targetTolPpm, 
 		peakwidth=input$targetPeakwidth,
-		snthresh=input$targetSnthresh))
+		machine=names(resolution_list)[input$targetMachine %>% as.numeric]))
 	tryCatch({
 		inputs <- c('targetProject', 'targetSamples', 
 			'targetAdduct', 'targetTolPpm', 'targetPeakwidth',
-			'targetSnthresh')
+			'targetMachine')
 		conditions <- c(is.null(input$project), is.null(input$targetSamples),
 			is.null(input$targetAdduct), !is.numeric(input$targetTolPpm), 
-			!is.numeric(input$targetPeakwidth), !is.numeric(input$targetSnthresh))
+			!is.numeric(input$targetPeakwidth), is.null(input$targetMachine))
 		messages <- c('You need to select a project', 'You need to select at least one sample',
 			'You need to select an adduct', 'tol ppm has to be numeric', 'min peakwidth has to be numeric',
-			'snthresh has to be numeric')
+			'You need to select a machine')
 		test <- inputsTest(inputs, conditions, messages)
 		if(!test) custom_stop('invalid', 'invalid args')
-		inputs <- c('targetProject', 'targetSamples', 'targetAdduct')
+		inputs <- c('targetProject', 'targetSamples', 'targetAdduct', 'targetMachine')
 		conditions <- c(input$project == "", length(input$targetSamples) == 0,
-			input$targetAdduct == "")
+			input$targetAdduct == "", input$targetMachine == '')
 		messages <- c('You need to select a project', 'You need to select at least one sample',
 			'You need to select an adduct')
 		test <- inputsTest(inputs, conditions, messages)
@@ -185,7 +73,7 @@ observeEvent(input$target, {
 		progressSweetAlert(session, id='pb', title='Target', value=0, display_pct=TRUE)
 		db <- dbConnect(SQLite(), sqlitePath)
 		# load mzs of each chloroparaffin
-		chloropara <- loadChloroParaMzs(input$targetAdduct)
+		chloropara <- loadChloroParaMzs(input$targetAdduct, input$targetMachine %>% as.numeric)
 		# then load eics for each file
 		eics <- list()
 		pbVal <- 100 / length(input$targetSamples)
@@ -217,33 +105,36 @@ observeEvent(input$target, {
 			path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";', 
 				input$targetSamples[i]))$path
 			
-			eics <- readXICs(path, masses=chloropara[, 'm.z'], tol=input$targetTolPpm)
-			# split to analyze two by two (one chloroparaffin : two mz)
-			eics <- split(eics, rep(1:(nrow(chloropara)/2), each=2) %>% as.factor)
+			eics <- readXICs(path, masses=chloropara$mz, tol=input$targetTolPpm)
+			
+			# rearrange eic from rawDiag to have a dataframe for each eic & not a list
 			raw <- read.raw(path)
 			rts <- raw$StartTime
-			minScans <- floor((input$targetPeakwidth/60) / mean(diff(rts)))
+			eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
 			
-			rois <- data.frame(mzO=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd_deviation=c(), snthresh=c())
+			# split to analyze by chloroparaffin
+			eics <- split(eics, chloropara$formula %>% as.factor)
+			chloropara <- split(chloropara, chloropara$formula %>% as.factor)
+			minScans <- floor((15/60) / mean(diff(rts)))
+	
+			rois <- data.frame(mz=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
 			for(j in 1:length(eics)){
 			# for(j in 100:200){
 				updateProgressBar(session, id="pb", title=paste("target in", input$targetSamples[i]),
 					value=(i-1)*100/length(input$targetSamples) + j*100/length(eics))
-				roisTmp <- targetChloroPara(eics[[j]], rts, minScans, 
-					input$targetTolPpm, input$targetSnthresh, chloropara[j*2, 'abundance'])
+				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara[[j]])
 				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
-						cbind(formula=unique(chloropara$formula)[j]))
+						cbind(formula=unique(chloropara[[j]]$formula)))
 			}
 			rois$C <- str_extract(rois$formula, 'C[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
 			rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
 			rois$Cl[which(is.na(rois$Cl))] <- 0
 			
 			query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
-				peakwidth, snthresh, abd_deviation, C, Cl) values %s;', paste('(', rois$mzO, ', "', rois$formula,
+				peakwidth, C, Cl, abundance, score, machine) values %s;', paste('(', rois$mz, ', "', rois$formula,
 					'", ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
 					', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
-					', ', input$targetSnthresh, ', ', rois$abd_deviation, 
-					', ', rois$C, ', ', rois$Cl, ')', collapse=', ', sep=''))
+					', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, ')', collapse=', ', sep=''))
 			print(query)
 			
 			dbSendQuery(db, query)
@@ -257,4 +148,120 @@ observeEvent(input$target, {
 			print(e$message)
 			sendSweetAlert(e$message)
 		})
+	print('------------------- END TARGET --------------------')
 })
+
+# load for each chloroparaffine with adduct two mz
+# the formula for a chloroparaffine is C(n)H(2n+2-x)Cl(x)
+loadChloroParaMzs <- function(adduct, machine=NULL, it=2){
+	adduct <- adducts[which(adducts$Name == adduct), ]
+	formulas <- c()
+	for(C in minC:maxC) for(Cl in minCl:maxCl) formulas <- c(formulas, paste('C', C, 'H', 2*C+2-Cl, 'Cl', Cl, sep=''))
+	# check formulas in case
+	test <- check_chemform(isotopes, formulas)
+	formulas <- test[which(!test$warning), 'new_formula']
+	# then add adduct
+	brute_formulas <- formulas
+	if(adduct$Formula_add != FALSE) brute_formulas <- mergeform(brute_formulas, adduct$Formula_add)
+	if(adduct$Formula_ded != FALSE){
+		formulas <- formulas[which(check_ded(brute_formulas, adduct$Formula_ded) == "FALSE")]
+		brute_formulas <- brute_formulas[which(check_ded(brute_formulas, adduct$Formula_ded) == "FALSE")]
+		brute_formulas <- subform(brute_formulas, adduct$Formula_ded)
+	}
+	# remove those who have 0 in one element
+	brute_formulas <- str_replace_all(brute_formulas, '[[:upper:]][[:lower:]]?0', '')
+	formulas <- formulas[which(brute_formulas != '')]
+	brute_formulas <- brute_formulas[which(brute_formulas != '')]
+	data <- isopattern(isotopes, brute_formulas, charge=adduct$Charge, verbose=FALSE)
+	if(!is.null(machine)){
+		checked <- check_chemform(isotopes, brute_formulas)
+		resolution <- getR(checked, plotit=FALSE, 
+			resmass=resolution_list[[machine]])
+		data <- envelope(data, resolution=resolution, verbose=FALSE)
+		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
+	}
+	reduce(1:length(data), function(a, b) a %>% bind_rows(
+		data[[b]] %>% data.frame %>% top_n(it, abundance) %>% arrange(desc(abundance)) %>% 
+			mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
+			cbind(formula = formulas[b])), .init=data.frame())
+}
+
+findClosestMzs <- function(mzs, file, ppm, scan){
+	mzO <- c()
+	spectra <- readScans(file, scan)[[1]]
+	spectra <- data.frame(mz=spectra$mZ, i=spectra$intensity)
+	for(mz in mzs){
+		tol <- mz * ppm * 10**-6
+		mzO <- c(mzO, spectra[which(spectra$mz >= mz-tol & spectra$mz <= mz+tol), ] %>% 
+			arrange(desc(i)) %>% top_n(1, i) %>% pull(mz))
+	}
+	mzO
+}
+
+arrangeEICRawDiag <- function(eic, rts){
+	data <- data.frame(x=rts, y=0)
+	data[which(data$x %in% eic$times), 'y'] <- eic$intensities[which(
+		eic$times %in% data$x)]
+	data
+}
+
+getAUCs <- function(eic, roi, windowRTMed){
+	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
+	trapz(eic[roi, 'x'], eic[roi, 'y']) - 
+		trapz(eic[roi, 'x'], baseline[roi])
+}
+
+targetChloroPara <- function(eics, minScans, theo){
+	tryCatch({
+		res <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
+		
+		eic <- eics[[1]]
+		# search the ROI
+		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)))
+		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
+		rois <- rois[which(lengths(rois) > minScans)]
+		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
+		
+		windowRTMed <- 1+9*(length(unlist(rois))%/%2)
+		baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
+		
+		rois2 <- c()
+		# for each ROI
+		for(roi in rois){
+			# enlarge the ROI until the baseline
+			minScan <- min(roi)
+			while(baseline[minScan-1] < eic[minScan-1, 'y'] & 
+				baseline[minScan-2] < eic[minScan-2, 'y']) minScan <- minScan-1
+			minScan <- minScan-1
+			maxScan <- max(roi)
+			while(baseline[maxScan+1] < eic[maxScan+1, 'y'] & 
+				baseline[maxScan+2] < eic[maxScan+2, 'y']) maxScan <- maxScan+1
+			maxScan <- maxScan+1
+			rois2 <- c(rois2, minScan:maxScan)
+		}
+		
+		# merge ROI if they cross each other
+		rois <- rois2 %>% unique %>% sort
+		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
+		
+		for(roi in rois){
+			aucs <- reduce(eics, function(a, b) 
+				c(a, getAUCs(b, roi, windowRTMed)), .init = c())
+			if(aucs[2] <= 0) custom_stop('fail', 'auc of A2 is O')
+			theo <- theo[which(aucs > 0), ]
+			aucs <- aucs[which(aucs > 0)]
+			abdObs <- sapply(aucs, function(x) x * 100 / aucs[1])
+			score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
+			
+			res <- res %>% bind_rows(data.frame(mz=theo$mz,
+				rtmin=eic[min(roi), 'x'], rtmax=eic[max(roi), 'x'], 
+				auc=aucs, abd=abdObs, score=score))
+		}
+		res
+	}, fail = function(f) data.frame()
+	, error = function(e){
+		print(e$message)
+		sendSweetAlert(e$message)
+		data.frame()
+	})	
+}

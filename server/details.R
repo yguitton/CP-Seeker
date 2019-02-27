@@ -51,10 +51,9 @@ output$detailsTable <- renderDataTable({
 		print(query)
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
-		updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data[1, 'ppm'], min=0, step=1)
-		data$abd_deviation <- round(data$abd_deviation)
+		data$score <- round(data$score)
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
-		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- data[row, 'abd_deviation']
+		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- data[row, 'score']
 		res
 	}, invalid = function(i){
 		print(i)
@@ -106,19 +105,45 @@ observeEvent(input$detailsTable_selected, {
 	else if(input$detailsAdduct == "") return()
 	else if(length(input$detailsTable_selected) == 0) return()
 	db <- dbConnect(SQLite(), sqlitePath)
-	ppm <- dbGetQuery(db, sprintf('select distinct(ppm) from observed where C == %s and Cl == %s and 
+	data <- dbGetQuery(db, sprintf('select ppm, machine from observed where C == %s and Cl == %s and 
 		project_sample == (select project_sample from project_sample where project == "%s" and 
 			sample == "%s" and adduct == "%s");', input$detailsTable_selected$C, 
 			input$detailsTable_selected$Cl, input$project, input$detailsSample, 
-			input$detailsAdduct))$ppm[1]
+			input$detailsAdduct))[1, ]
 	dbDisconnect(db)
-	if(!is.na(ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=ppm, min=0, step=1)
+	if(!is.na(data$ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data$ppm, min=0, step=1)
+	if(!is.na(data$machine)) updatePickerInput(session, 'detailsMachine', 'machine', choices=setNames(1:length(resolution_list),
+			names(resolution_list)), selected=data$machine)
 })	
+
+plotEIC <- function(data, mz, rois=data.frame()){
+	eicPlot <- plot_ly(type="scatter", mode="lines") %>% 
+		add_trace(mode="lines+markers", name=mz, legendgroup="group1", 
+			data=data, x=~x, y=~y, color=I('black'), showlegend=FALSE, 
+			marker=list(opacity=1, size=1*10**-9),
+			hoverinfo="text", text=~paste('rt:', round(data$x, digits=2), 
+			'<br />intensity:', formatC(data$y)))
+	if(nrow(rois) > 0){
+		scans <- lapply(1:nrow(rois), function(x) 
+			which(data$x >= rois[x, 'rtmin'] & data$x <= rois[x, 'rtmax']))
+		for(i in 1:length(scans)) eicPlot <- eicPlot %>% add_trace(mode='none', 
+			data=data[scans[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, 
+			legendgroup="group1")
+		baseline <- runmed(data$y, 9*(length(unlist(scans))%/%2), 
+			endrule="median", algorithm="Turlach")
+		eicPlot <- eicPlot %>% 
+			add_lines(name="baseline", x=data$x, y=baseline, color=I('red'), 
+				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
+				'rt:', round(data$x, digits=2), '<br />intensity:', formatC(baseline)))
+	}
+	eicPlot
+}
 
 output$detailsEic <- renderPlotly({
 	print('------------------- DETAILS EIC -------------------')
 	print(list(project=input$project, sample=input$detailsSample, 
-		adduct=input$detailsAdduct, table_rows=input$detailsTable_selected))
+		adduct=input$detailsAdduct, machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]], 
+		table_rows=input$detailsTable_selected))
 
 	updateOutput$details
 	updateOutput$detailsEic
@@ -126,10 +151,12 @@ output$detailsEic <- renderPlotly({
 		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
 		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
 		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct is not yet initialized')
+		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')	
 		else if(input$project == "") custom_stop('invalid', 'no project selected')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample selected')
 		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct selected')
+		else if(input$detailsMachine == '') custom_stop("invalid", "no machine selected")
 		else if(length(input$detailsTable_selected) == 0) custom_stop('invalid', 'no cell clicked')
 		feedbackDanger('detailsTolPpm', !is.numeric(input$detailsTolPpm), 'tol ppm is not numeric')
 		if(!is.numeric(input$detailsTolPpm)) custom_stop('invalid', 'tol ppm is not numeric')
@@ -142,8 +169,6 @@ output$detailsEic <- renderPlotly({
 			input$detailsSample)
 		print(query)
 		path <- dbGetQuery(db, query)$path
-		raw <- read.raw(path)
-		rts <- raw$StartTime
 		
 		query <- sprintf('select * from observed where C == %s and Cl == %s and 
 			project_sample == (
@@ -155,52 +180,19 @@ output$detailsEic <- renderPlotly({
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
 		
-		if(nrow(data) > 0) eics <- readXICs(path, masses=data$mz, tol=input$detailsTolPpm)
-		else {
-			chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-				input$detailsAdduct)
-			eics <- readXICs(path, masses=chloropara[, 'm.z'], tol=input$detailsTolPpm)
-		}
+		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+			input$detailsAdduct, input$detailsMachine %>% as.numeric)
+		eics <- readXICs(path, masses=chloropara$mz, tol=input$detailsTolPpm)
+		# rearrange eic from rawDiag to have a dataframe for each eic & not a list
+		raw <- read.raw(path)
+		rts <- raw$StartTime
+		eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
 		
-		eicPlot <- plot_ly(type="scatter", mode="lines")
-		# for the first mass
-		data1 <- data.frame(x=rts, y=0)
-		data1[which(data1$x %in% eics[[1]]$times), 'y'] <- eics[[1]]$intensities[which(eics[[1]]$times %in% data1$x)]
-		eicPlot1 <- eicPlot %>% add_trace(mode="lines+markers", name=min(data$mz), legendgroup="group1", 
-			data=data1, x=~x, y=~y, color=I('black'), showlegend=FALSE, marker=list(opacity=1, size=1*10**-9),
-			hoverinfo="text", text=~paste('rt:', round(data1$x, digits=2), '<br />intensity:', formatC(data1$y)))
-		if(nrow(data) > 0){
-			A <- data[which(round(data$mz) == round(eics[[1]]$mass)), ]
-			scans1 <- lapply(1:nrow(A), function(x) 
-				which(data1$x >= A[x, 'rtmin'] & data1$x <= A[x, 'rtmax']))
-			for(i in 1:length(scans1)) eicPlot1 <- eicPlot1 %>% add_trace(mode='none', 
-				data=data1[scans1[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group1")
-			baseline1 <- runmed(data1$y, 9*(length(unlist(scans1))%/%2), 
-				endrule="median", algorithm="Turlach")
-			eicPlot1 <- eicPlot1 %>% add_lines(name="baseline", x=data1$x, y=baseline1, color=I('red'), 
-				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
-					'rt:', round(data1$x, digits=2), '<br />intensity:', formatC(baseline1)))
-		}
-		
-		# for the second mass
-		data2 <- data.frame(x=rts, y=0)
-		data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
-		eicPlot2 <- eicPlot %>% add_trace(mode="lines+markers", name=max(data$mz), 
-			data=data2, x=~x, y=~y, color=I('black'), legendgroup="group2", showlegend=FALSE, marker=list(opacity=1, size=1*10**-9),
-			hoverinfo="text", text=~paste('rt:', round(data2$x, digits=2), '<br />intensity:', formatC(data2$y)))
-		if(nrow(data) > 0){
-			A2 <- data[which(round(data$mz) == round(eics[[2]]$mass)), ]
-			scans2 <- lapply(1:nrow(A2), function(x) 
-				which(data2$x >= A2[x, 'rtmin'] & data2$x <= A2[x, 'rtmax']))
-			for(i in 1:length(scans2)) eicPlot2 <- eicPlot2 %>% add_trace(mode='none', 
-				data=data2[scans2[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, legendgroup="group2")
-			baseline2 <- runmed(data2$y, 9*(length(unlist(scans2))%/%2), 
-				endrule="median", algorithm="Turlach")
-			eicPlot2 <- eicPlot2 %>% add_lines(x=data2$x, y=baseline2, color=I('red'), showlegend=FALSE, 
-				legendgroup="group2", hoverinfo="text", text=~paste(
-					'rt:', round(data2$x, digits=2), '<br />intensity:', formatC(baseline2)))
-		}
-		
+		eicPlot1 <- plotEIC(eics[[1]], chloropara[1, 'mz'], 
+			data[which(data$mz == chloropara[1, 'mz']), c('rtmin', 'rtmax')])
+		eicPlot2 <- plotEIC(eics[[2]], chloropara[2, 'mz'], 
+			data[which(data$mz == chloropara[2, 'mz']), c('rtmin', 'rtmax')])
+	
 		subplot(eicPlot1, eicPlot2, nrows=2, shareX=TRUE)
 	}, invalid = function(i){
 		print(i$message)
@@ -222,27 +214,30 @@ observeEvent(event_data(event='plotly_selected'), {
 	pts <- event_data(event='plotly_selected')
 	print(list(project=input$project, sample=input$detailsSample,
 		adduct=input$detailsAdduct, tolPpm=input$detailsTolPpm, 
+		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]],
 		rtmin=min(pts$x), rtmax=max(pts$x),	table_rows=input$detailsTable_selected))
 	tryCatch({
 		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
 		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
 		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct is not yet initialized')
+		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')
 		else if(input$project == "") custom_stop('invalid', 'no project')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample')
 		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adducts')
+		else if(input$detailsMachine == '') custom_stop('invalid', 'no machine selected')
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		else if(any(!is.numeric(c(min(pts$x), max(pts$x))))) custom_stop('invalid', 'no pts selected')
 		
 		updateOutput$detailsEic <- TRUE
 		
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-			input$detailsAdduct)
-		abd_deviation <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
-			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara$abundance[2],
-			chloropara[, 'm.z'], chloropara[1, 'formula'])
+			input$detailsAdduct, input$detailsMachine %>% as.numeric)
+		score <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
+			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara,
+			input$detailsMachine %>% as.numeric)
 			
-		session$sendCustomMessage("updateDetailsTable", abd_deviation)
+		session$sendCustomMessage("updateDetailsTable", score)
 		
 		toastr_success('re-integration success')
 	}, invalid=function(i){
@@ -257,7 +252,7 @@ observeEvent(event_data(event='plotly_selected'), {
 	print('------------------------------ END RE-INTEGRATE ------------------------')
 })
 
-getChloroPara <- function(C, Cl, adduct){
+getChloroPara <- function(C, Cl, adduct, machine=NULL){
 	adduct <- adducts[which(adducts$Name == adduct), ]
 	formula <- paste('C', C, 'H', 2*C+2-Cl, 'Cl', Cl, sep='')
 	# check formulas in case
@@ -275,12 +270,20 @@ getChloroPara <- function(C, Cl, adduct){
 	# remove those who have 0 in one element
 	brute_formula <- str_replace_all(brute_formula, '[[:upper:]][[:lower:]]?0', '')
 	if(brute_formula == "") custom_stop('minor_error', 'an error occur when substracting elements')
-	data <- isopattern(isotopes, brute_formula, charge=adduct$Charge, verbose=FALSE)[[1]]
-	data %>% data.frame %>% top_n(2, abundance) %>% 
-		select(`m.z`, abundance) %>% cbind(formula=rep(formula, each=2))
+	data <- isopattern(isotopes, brute_formula, charge=adduct$Charge, verbose=FALSE)
+	if(!is.null(machine)){
+		checked <- check_chemform(isotopes, brute_formula)
+		resolution <- getR(checked, plotit=FALSE, 
+			resmass=resolution_list[[machine]])
+		data <- envelope(data, resolution=resolution, verbose=FALSE)
+		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
+	}
+	data[[1]] %>% data.frame %>% top_n(2, abundance) %>% arrange(desc(abundance)) %>% 
+		mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
+		cbind(formula = formula)
 }
 
-reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, abdTheo, mzs, formula){
+reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, theo, machine){
 	db <- dbConnect(SQLite(), sqlitePath)
 	path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";',
 		sample))$path
@@ -294,43 +297,36 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, ab
 	dbSendQuery(db, query)
 	dbDisconnect(db)
 	
-	rts <- read.raw(path)$StartTime
-	eics <- readXICs(path, masses=mzs, tol=tolPpm)
+	eics <- readXICs(path, masses=theo[, 'mz'], tol=tolPpm)
+	# rearrange eic from rawDiag to have a dataframe for each eic & not a list
+	raw <- read.raw(path)
+	rts <- raw$StartTime
+	eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
 	
-	data1 <- data.frame(x=rts, y=0)
-	data2 <- data.frame(x=rts, y=0)
-	data1[which(data1$x %in% eics[[1]]$times), 'y'] <- eics[[1]]$intensities[which(eics[[1]]$times %in% data1$x)]
-	data2[which(data2$x %in% eics[[2]]$times), 'y'] <- eics[[2]]$intensities[which(eics[[2]]$times %in% data2$x)]
+	roi <- which(eics[[1]]$x >= rtmin & eics[[1]]$x <= rtmax)
+	windowRTMed <- 9*(length(roi)%/%2)
 	
-	scans1 <- which(data1$x >= rtmin & data1$x <= rtmax)
-	scans2 <- which(data2$x >= rtmin & data2$x <= rtmax)
+	aucs <- reduce(eics, function(a, b) 
+		c(a, getAUCs(b, roi, windowRTMed)), .init = c())
+	if(aucs[2] == 0) stop('auc of A2 is O')
+	theo <- theo[which(aucs > 0), ]
+	aucs <- aucs[which(aucs > 0)]
+	abdObs <- sapply(aucs, function(x) x * 100 / aucs[1])
+	score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
 	
-	baseline1 <- runmed(data1$y, 1+6*(length(unlist(scans1))%/%2), 
-		endrule="median", algorithm="Turlach")
-	baseline2 <- runmed(data2$y, 1+6*(length(unlist(scans2))%/%2), 
-		endrule="median", algorithm="Turlach")
-		
-	auc1 <- trapz(data1[scans1, 'y'])
-	auc2 <- trapz(data2[scans2, 'y'])
-	
-	scanMaxI1 <- scans1[which(data1[scans1, "y"] == max(data1[scans1, "y"]))][1]
-	scanMaxI2 <- scans2[which(data2[scans2, "y"] == max(data2[scans2, "y"]))][1]
-	snthresh1 <- if(sd(baseline1) != 0) (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1]) / sd(baseline1) else (data1[scanMaxI1, 'y'] - baseline1[scanMaxI1])
-	snthresh2 <- if(sd(baseline2) != 0) (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2]) / sd(baseline2) else (data2[scanMaxI2, 'y'] - baseline2[scanMaxI2])
-	
-	abdObs <- auc2 / auc1 * 100
-			
+	res <- data.frame(mz=theo$mz, rtmin=eics[[1]][min(roi), 'x'], rtmax=eics[[1]][max(roi), 'x'], 
+		auc=aucs, abd=abdObs, score=score)
+				
 	db <- dbConnect(SQLite(), sqlitePath)
 	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
-				snthresh, abd_deviation, C, Cl) values %s;', paste('(', mzs, ', "', formula,
-					'", ', rtmin, ', ', rtmax, ', ', c(auc1, auc2), ', ', project_sample, ', ', 
-					tolPpm, ', ', c(snthresh1, snthresh2), ', ', (1-abs(abdTheo - abdObs)/abdTheo)*100, 
-					', ', C, ', ', Cl, ')', collapse=', ', sep=''))
+				C, Cl, abundance, score, machine) values %s;', paste('(', theo$mz, ', "', theo[1, 'formula'],
+					'", ', rtmin, ', ', rtmax, ', ', aucs, ', ', project_sample, ', ', 
+					tolPpm, ', ', C, ', ', Cl, ', ', abdObs, ', ', score, ', ', machine, ')', collapse=', ', sep=''))
 	print(query)
 	dbSendQuery(db, query)
 	dbDisconnect(db)
 	
-	round((1-abs(abdTheo - abdObs)/abdTheo)*100)
+	round(score)
 }
 
 observeEvent(input$detailsErase, {

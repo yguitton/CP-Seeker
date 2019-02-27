@@ -30,6 +30,7 @@ close(pb)
 # load enviPat data
 data(isotopes)
 data(adducts)
+data(resolution_list)
 
 options(stringsAsFactors=FALSE)
 shiny::runApp("./", launch.browser = launch_browser)
