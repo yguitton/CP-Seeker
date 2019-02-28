@@ -11,6 +11,9 @@ tabItem(tabName='target',
 				pickerInput('targetMachine', 'machine', choices=
 					setNames(1:length(resolution_list), names(resolution_list)), option=list(`live-search`=TRUE))
 			),
+			column(width=12, 
+				sliderInput('targetRT', 'Range rT', min=0, max=20, value=c(0, 20), step=1)
+			),
 			column(width=6, 
 				numericInput('targetTolPpm', 'tol ppm', value=5, min=0, step=1)
 			),

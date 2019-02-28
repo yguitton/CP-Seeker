@@ -47,26 +47,26 @@ output$targetTic <- renderPlotly({
 observeEvent(input$target, {
 	print('------------------- TARGET --------------------')
 	print(list(project=input$project, samples=input$targetSamples, 
-		adduct=input$targetAdduct, ppm=input$targetTolPpm, 
+		adduct=input$targetAdduct, rtRange = input$targetRT, ppm=input$targetTolPpm, 
 		peakwidth=input$targetPeakwidth,
 		machine=names(resolution_list)[input$targetMachine %>% as.numeric]))
 	tryCatch({
 		inputs <- c('targetProject', 'targetSamples', 
-			'targetAdduct', 'targetTolPpm', 'targetPeakwidth',
+			'targetAdduct', 'targetRT', 'targetTolPpm', 'targetPeakwidth',
 			'targetMachine')
 		conditions <- c(is.null(input$project), is.null(input$targetSamples),
-			is.null(input$targetAdduct), !is.numeric(input$targetTolPpm), 
+			is.null(input$targetAdduct), length(input$targetRT) < 2, !is.numeric(input$targetTolPpm), 
 			!is.numeric(input$targetPeakwidth), is.null(input$targetMachine))
 		messages <- c('You need to select a project', 'You need to select at least one sample',
-			'You need to select an adduct', 'tol ppm has to be numeric', 'min peakwidth has to be numeric',
+			'You need to select an adduct', 'You need to select a range in rT', 'tol ppm has to be numeric', 'min peakwidth has to be numeric',
 			'You need to select a machine')
 		test <- inputsTest(inputs, conditions, messages)
 		if(!test) custom_stop('invalid', 'invalid args')
 		inputs <- c('targetProject', 'targetSamples', 'targetAdduct', 'targetMachine')
 		conditions <- c(input$project == "", length(input$targetSamples) == 0,
-			input$targetAdduct == "", input$targetMachine == '')
+			input$targetAdduct == "", input$targetMachine == '', input$targetRT[2] < input$targetRT[1])
 		messages <- c('You need to select a project', 'You need to select at least one sample',
-			'You need to select an adduct')
+			'You need to select an adduct', 'the range in rT is incorrect')
 		test <- inputsTest(inputs, conditions, messages)
 		if(!test) custom_stop('invalid', 'invalid args')
 		
@@ -104,25 +104,34 @@ observeEvent(input$target, {
 			
 			path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";', 
 				input$targetSamples[i]))$path
+			dbDisconnect(db)
 			
 			eics <- readXICs(path, masses=chloropara$mz, tol=input$targetTolPpm)
 			
 			# rearrange eic from rawDiag to have a dataframe for each eic & not a list
 			raw <- read.raw(path)
 			rts <- raw$StartTime
+			if(input$targetRT[1] > max(rts) | input$targetRT[2] < min(rts)){
+				message <- sprintf('the rT range is out of the rt range of the file %s', input$targetSamples[i])
+				toastr_warning(message)
+				print(message)
+				next
+			}
 			eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
 			
 			# split to analyze by chloroparaffin
 			eics <- split(eics, chloropara$formula %>% as.factor)
 			chloropara <- split(chloropara, chloropara$formula %>% as.factor)
 			minScans <- floor((15/60) / mean(diff(rts)))
+			scRange <- which(rts >= input$targetRT[1]& rts <= input$targetRT[2])
+			scRange <- c(min(scRange), max(scRange))
 	
 			rois <- data.frame(mz=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
 			for(j in 1:length(eics)){
 			# for(j in 100:200){
 				updateProgressBar(session, id="pb", title=paste("target in", input$targetSamples[i]),
 					value=(i-1)*100/length(input$targetSamples) + j*100/length(eics))
-				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara[[j]])
+				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara[[j]], scRange)
 				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
 						cbind(formula=unique(chloropara[[j]]$formula)))
 			}
@@ -130,21 +139,31 @@ observeEvent(input$target, {
 			rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
 			rois$Cl[which(is.na(rois$Cl))] <- 0
 			
-			query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
-				peakwidth, C, Cl, abundance, score, machine) values %s;', paste('(', rois$mz, ', "', rois$formula,
-					'", ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
-					', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
-					', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, ')', collapse=', ', sep=''))
-			print(query)
+			rois <- rois[which(rois$rtmin >= input$targetRT[1] & rois$rtmax <= input$targetRT[2]), ]
 			
-			dbSendQuery(db, query)
+			if(nrow(rois) > 0){
+				query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
+					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2) values %s;', paste('(', rois$mz, ', "', rois$formula,
+						'", ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
+						', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
+						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
+						', ', input$targetRT[1], ', ', input$targetRT[2], ')', collapse=', ', sep=''))
+				print(query)
+				db <- dbConnect(SQLite(), sqlitePath)
+				dbSendQuery(db, query)
+				dbDisconnect(db)
+			} else {
+				message <- sprintf('no chloroparaffin detected in %s', input$targetSamples[i])
+				print(message)
+				toastr_warning(message)
+			}
 			updateOutput$details <- if(updateOutput$details) FALSE else TRUE
 		}
 		closeSweetAlert(session)
-		dbDisconnect(db)
 		}, invalid = function(i){
 			print(i$message)
 		}, error = function(e){
+			dbDisconnect(db)
 			print(e$message)
 			sendSweetAlert(e$message)
 		})
@@ -211,18 +230,21 @@ getAUCs <- function(eic, roi, windowRTMed){
 		trapz(eic[roi, 'x'], baseline[roi])
 }
 
-targetChloroPara <- function(eics, minScans, theo){
+targetChloroPara <- function(eics, minScans, theo, scRange){
 	tryCatch({
 		res <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
 		
 		eic <- eics[[1]]
 		# search the ROI
 		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)))
+		rois <- rois[which(rois >= scRange[1] & rois <= scRange[2])]
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
 		rois <- rois[which(lengths(rois) > minScans)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
+		rois <- map(rois, function(x) min(x):max(x))
 		
-		windowRTMed <- 1+9*(length(unlist(rois))%/%2)
+		windowRTMed <- 4*length(unlist(rois))
+		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
 		baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
 		
 		rois2 <- c()
@@ -230,12 +252,14 @@ targetChloroPara <- function(eics, minScans, theo){
 		for(roi in rois){
 			# enlarge the ROI until the baseline
 			minScan <- min(roi)
-			while(baseline[minScan-1] < eic[minScan-1, 'y'] & 
-				baseline[minScan-2] < eic[minScan-2, 'y']) minScan <- minScan-1
+			while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
+				baseline[minScan-2] < eic[minScan-2, 'y']) & 
+				minScan >= scRange[1]) minScan <- minScan-1
 			minScan <- minScan-1
 			maxScan <- max(roi)
-			while(baseline[maxScan+1] < eic[maxScan+1, 'y'] & 
-				baseline[maxScan+2] < eic[maxScan+2, 'y']) maxScan <- maxScan+1
+			while((baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
+				baseline[maxScan+2] < eic[maxScan+2, 'y']) & 
+				maxScan <= scRange[2]) maxScan <- maxScan+1
 			maxScan <- maxScan+1
 			rois2 <- c(rois2, minScan:maxScan)
 		}
@@ -243,6 +267,9 @@ targetChloroPara <- function(eics, minScans, theo){
 		# merge ROI if they cross each other
 		rois <- rois2 %>% unique %>% sort
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
+		
+		windowRTMed <- 4*length(unlist(rois))
+		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
 		
 		for(roi in rois){
 			aucs <- reduce(eics, function(a, b) 
