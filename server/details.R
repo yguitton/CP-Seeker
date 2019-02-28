@@ -51,9 +51,11 @@ output$detailsTable <- renderDataTable({
 		print(query)
 		data <- dbGetQuery(db, query)
 		dbDisconnect(db)
-		data$score <- round(data$score)
+		data <- data %>% group_by(formula) %>% 
+			summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=n()/2) %>% 
+			data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
-		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- data[row, 'score']
+		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, c('score', 'rois')], collapse=" ")
 		res
 	}, invalid = function(i){
 		print(i)
@@ -69,7 +71,19 @@ output$detailsTable <- renderDataTable({
 	data
 }, selection="none", extensions='Scroller', class='display cell-border compact nowrap', options=list(
 	info=FALSE, paging=FALSE, dom='Bfrtip', scoller=TRUE, scrollX=TRUE, scrollY=input$dimension[2]/1.6, bFilter=FALSE, ordering=FALSE,
-	columnDefs=list(list(className='dt-body-center', targets="_all"))), callback = htmlwidgets::JS("
+	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
+		function(settings, json){
+			table = settings.oInstance.api();
+			table.cells().every(function(){
+				if(this.data() != null){
+					var value = this.data().split(' ');
+					this.data(Number(value[0]));
+					if(this.data() < -20 || this.data() > 20) $(this.node()).css('background-color', 'rgb(255,36,0)');
+					if(Number(value[1]) > 1) $(this.node()).css('border', '5px solid orange');
+				}
+			})
+		}
+	")), callback = htmlwidgets::JS("
 		Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
 		table.on('click', 'tbody td', function(){
 			//if(table.cell(this).data() != null){
