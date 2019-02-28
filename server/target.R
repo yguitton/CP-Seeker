@@ -123,7 +123,7 @@ observeEvent(input$target, {
 			eics <- split(eics, chloropara$formula %>% as.factor)
 			chloropara <- split(chloropara, chloropara$formula %>% as.factor)
 			minScans <- floor((15/60) / mean(diff(rts)))
-			scRange <- which(rts >= input$targetRT[1]& rts <= input$targetRT[2])
+			scRange <- which(rts >= input$targetRT[1] & rts <= input$targetRT[2])
 			scRange <- c(min(scRange), max(scRange))
 	
 			rois <- data.frame(mz=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
@@ -224,10 +224,33 @@ arrangeEICRawDiag <- function(eic, rts){
 	data
 }
 
-getAUCs <- function(eic, roi, windowRTMed){
+getAUC <- function(eic, roi, windowRTMed){
 	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
 	trapz(eic[roi, 'x'], eic[roi, 'y']) - 
 		trapz(eic[roi, 'x'], baseline[roi])
+}
+
+targetChloroPara2 <- function(eic, roi, windowRTMed, minScans, scRange){
+	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
+	
+	roi <- roi[which(sapply(roi, function(x) eic[x, 'y'] >= baseline[x]))]
+	if(length(roi) < minScans) return(data.frame(rtmin=NA, rtmax=NA, auc=0))
+	
+	# enlarge the ROI until the baseline
+	minScan <- min(roi)
+	while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
+		baseline[minScan-2] < eic[minScan-2, 'y']) & 
+		minScan >= scRange[1]) minScan <- minScan-1
+	minScan <- minScan-1
+	maxScan <- max(roi)
+	while((baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
+		baseline[maxScan+2] < eic[maxScan+2, 'y']) & 
+		maxScan <= scRange[2]) maxScan <- maxScan+1
+	maxScan <- maxScan+1
+	roi <- minScan:maxScan
+	
+	data.frame(rtmin=eic[min(roi), 'x'], rtmax=eic[max(roi), 'x'], 
+		auc=getAUC(eic, roi, windowRTMed))	
 }
 
 targetChloroPara <- function(eics, minScans, theo, scRange){
@@ -245,44 +268,19 @@ targetChloroPara <- function(eics, minScans, theo, scRange){
 		
 		windowRTMed <- 4*length(unlist(rois))
 		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
-		baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
-		
-		rois2 <- c()
-		# for each ROI
-		for(roi in rois){
-			# enlarge the ROI until the baseline
-			minScan <- min(roi)
-			while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
-				baseline[minScan-2] < eic[minScan-2, 'y']) & 
-				minScan >= scRange[1]) minScan <- minScan-1
-			minScan <- minScan-1
-			maxScan <- max(roi)
-			while((baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
-				baseline[maxScan+2] < eic[maxScan+2, 'y']) & 
-				maxScan <= scRange[2]) maxScan <- maxScan+1
-			maxScan <- maxScan+1
-			rois2 <- c(rois2, minScan:maxScan)
-		}
-		
-		# merge ROI if they cross each other
-		rois <- rois2 %>% unique %>% sort
-		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
-		
-		windowRTMed <- 4*length(unlist(rois))
-		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
 		
 		for(roi in rois){
-			aucs <- reduce(eics, function(a, b) 
-				c(a, getAUCs(b, roi, windowRTMed)), .init = c())
-			if(aucs[2] <= 0) custom_stop('fail', 'auc of A2 is O')
-			theo <- theo[which(aucs > 0), ]
-			aucs <- aucs[which(aucs > 0)]
-			abdObs <- sapply(aucs, function(x) x * 100 / aucs[1])
+			tmpRes <- reduce(eics, function(a, b) 
+				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange)), .init = data.frame())
+			if(tmpRes[2, 'auc'] <= 0) custom_stop('fail', 'auc of A2 is O')
+			theo <- theo[which(tmpRes$auc > 0), ]
+			tmpRes <- tmpRes[which(tmpRes$auc > 0), ]
+			abdObs <- sapply(tmpRes$auc, function(x) x * 100 / tmpRes[1, 'auc'])
 			score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
 			
 			res <- res %>% bind_rows(data.frame(mz=theo$mz,
-				rtmin=eic[min(roi), 'x'], rtmax=eic[max(roi), 'x'], 
-				auc=aucs, abd=abdObs, score=score))
+				rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
+				auc=tmpRes$auc, abd=abdObs, score=score))
 		}
 		res
 	}, fail = function(f) data.frame()
