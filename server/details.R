@@ -74,7 +74,7 @@ output$detailsTable <- renderDataTable({
 	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
 		function(settings, json){
 			table = settings.oInstance.api();
-			table.cells().every(function(){
+			table.cells(null, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]).every(function(){
 				if(this.data() != null){
 					var value = this.data().split(' ');
 					this.data(Number(value[0]));
@@ -101,6 +101,10 @@ output$detailsTable <- renderDataTable({
 		});
 		Shiny.addCustomMessageHandler('updateDetailsTable', function(value){
 			table.cell('.selected').data(value);
+			if(value < -20 || value > 20) var backColor = 'rgb(255,36,0)'
+			else var backColor = 'rgba(0,0,0,0)'
+			$(table.cell('.selected').node()).css('background-color', backColor);
+			$(table.cell('.selected').node()).css('border', '');
 		})
 		Shiny.addCustomMessageHandler('detailsTableErase', function(message){
 			table.cell('.selected').data(null);
@@ -321,7 +325,7 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 	windowRTMed <- 9*(length(roi)%/%2)
 	
 	aucs <- reduce(eics, function(a, b) 
-		c(a, getAUCs(b, roi, windowRTMed)), .init = c())
+		c(a, getAUC(b, roi, windowRTMed)), .init = c())
 	if(aucs[2] == 0) stop('auc of A2 is O')
 	theo <- theo[which(aucs > 0), ]
 	aucs <- aucs[which(aucs > 0)]
