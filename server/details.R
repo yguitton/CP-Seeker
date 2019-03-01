@@ -324,6 +324,8 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 	roi <- which(eics[[1]]$x >= rtmin & eics[[1]]$x <= rtmax)
 	windowRTMed <- 9*(length(roi)%/%2)
 	
+	rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
+		j[1] * (j[2] / sum(i[roi, 2]))) %>% sum)
 	aucs <- reduce(eics, function(a, b) 
 		c(a, getAUC(b, roi, windowRTMed)), .init = c())
 	if(aucs[2] == 0) stop('auc of A2 is O')
@@ -336,9 +338,9 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 		auc=aucs, abd=abdObs, score=score)
 				
 	db <- dbConnect(SQLite(), sqlitePath)
-	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
+	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, rt, auc, project_sample, ppm,
 				C, Cl, abundance, score, machine) values %s;', paste('(', theo$mz, ', "', theo[1, 'formula'],
-					'", ', rtmin, ', ', rtmax, ', ', aucs, ', ', project_sample, ', ', 
+					'", ', rtmin, ', ', rtmax, ', ', rts, ', ', aucs, ', ', project_sample, ', ', 
 					tolPpm, ', ', C, ', ', Cl, ', ', abdObs, ', ', score, ', ', machine, ')', collapse=', ', sep=''))
 	print(query)
 	dbSendQuery(db, query)

@@ -126,7 +126,7 @@ observeEvent(input$target, {
 			scRange <- which(rts >= input$targetRT[1] & rts <= input$targetRT[2])
 			scRange <- c(min(scRange), max(scRange))
 	
-			rois <- data.frame(mz=c(), formula=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
+			rois <- data.frame(mz=c(), formula=c(), rt=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
 			for(j in 1:length(eics)){
 			# for(j in 100:200){
 				updateProgressBar(session, id="pb", title=paste("target in", input$targetSamples[i]),
@@ -142,9 +142,9 @@ observeEvent(input$target, {
 			rois <- rois[which(rois$rtmin >= input$targetRT[1] & rois$rtmax <= input$targetRT[2]), ]
 			
 			if(nrow(rois) > 0){
-				query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, auc, project_sample, ppm,
+				query <- sprintf('insert into observed (mz, formula, rt, rtmin, rtmax, auc, project_sample, ppm,
 					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2) values %s;', paste('(', rois$mz, ', "', rois$formula,
-						'", ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
+						'", ', rois$rt, ', ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
 						', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
 						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
 						', ', input$targetRT[1], ', ', input$targetRT[2], ')', collapse=', ', sep=''))
@@ -275,11 +275,13 @@ targetChloroPara <- function(eics, minScans, theo, scRange){
 			if(tmpRes[2, 'auc'] <= 0) custom_stop('fail', 'auc of A2 is O')
 			theo <- theo[which(tmpRes$auc > 0), ]
 			tmpRes <- tmpRes[which(tmpRes$auc > 0), ]
+			rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
+				j[1] * (j[2] / sum(i[roi, 2]))) %>% sum)
 			abdObs <- sapply(tmpRes$auc, function(x) x * 100 / tmpRes[1, 'auc'])
 			score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
 			
 			res <- res %>% bind_rows(data.frame(mz=theo$mz,
-				rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
+				rt=rts, rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
 				auc=tmpRes$auc, abd=abdObs, score=score))
 		}
 		res

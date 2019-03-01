@@ -9,10 +9,10 @@ tabItem(tabName='details',
 	),
 	
 	jqui_resizable(
-	box(width=4, 
+	box(width=12, 
 		dataTableOutput('detailsTable')
 	)),
-	column(width=8,
+	column(width=12,
 		jqui_resizable(plotlyOutput('detailsEic'))
 	)
 )
