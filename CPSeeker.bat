@@ -4,18 +4,22 @@ SET registreCle=sDecimal
 SET registreType=REG_SZ
 SET registreValeurVirgule=,
 SET registreValeurPoint=.
-REG QUERY "%registreChemin%" /v "%registreCle%" | FIND "%registreValeurPoint%"
+REG QUERY "%registreChemin%" /v "%registreCle%" | FIND "%registreValeurVirgule%"
 CLS
-IF %ERRORLEVEL%==1 GOTO ADD_POINT
-:ADD_POINT
-REG ADD "HKEY_CURRENT_USER\Control Panel\International" /f /v "sDecimal" /t %registreType% /d "%registreValeurPoint%"
-CLS
-ECHO Change Separateur decimal "," to "."
-ECHO Launch app
-wscript utils\wsf\run.wsf
-REG ADD "HKEY_CURRENT_USER\Control Panel\International" /f /v "sDecimal" /t %registreType% /d "%registreValeurVirgule%"
-GOTO END
-:END
+IF %ERRORLEVEL%==0 GOTO :ERROR
+else GOTO :LAUNCH
 
-ECHO Launch R
-wscript utils\wsf\run.wsf
+:LAUNCH
+WSCRIPT utils\wsf\run.wsf
+:END
+GOTO :eof
+
+:ERROR
+SET msgboxTitle=Error starting CPSeeker
+SET msboxBody=The application need a point as decimal separator to work
+SET tmpmsgbox=%temp%\~tmpmsgbox.vbs
+IF EXIST "%tmpmsgbox%" DEL /F /Q "%tmpmsgbox%"
+ECHO msgbox "%msboxBody%",0,"%msgboxTitle%">"%tmpmsgbox%"
+WSCRIPT "%tmpmsgbox%"
+:END
+GOTO :eof

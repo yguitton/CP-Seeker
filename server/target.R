@@ -1,17 +1,5 @@
-output$uiTargetProject <- renderUI({
-	db <- dbConnect(SQLite(), sqlitePath)
-	projects <- dbGetQuery(db, 'select name as project from project;')
-	dbDisconnect(db)
-	projects <- if(nrow(projects) == 0) c() else projects$project
-	pickerInput('targetProject', 'project', choices=projects, multiple=FALSE, width='75%')
-})
-
 output$uiTargetSamples <- renderUI({
-	db <- dbConnect(SQLite(), sqlitePath)
-	samples <- dbGetQuery(db, 'select sample from sample;')
-	dbDisconnect(db)
-	samples <- if(nrow(samples) == 0) c() else samples$sample
-	pickerInput('targetSamples', 'samples', choices=samples, multiple=TRUE, options=list(
+	pickerInput('targetSamples', 'samples', choices=samples()$sample, multiple=TRUE, options=list(
 		`actions-box`=TRUE, `live-search`=TRUE))
 })
 
@@ -71,21 +59,18 @@ observeEvent(input$target, {
 		if(!test) custom_stop('invalid', 'invalid args')
 		
 		progressSweetAlert(session, id='pb', title='Target', value=0, display_pct=TRUE)
-		db <- dbConnect(SQLite(), sqlitePath)
 		# load mzs of each chloroparaffin
 		chloropara <- loadChloroParaMzs(input$targetAdduct, input$targetMachine %>% as.numeric)
 		# then load eics for each file
 		eics <- list()
-		pbVal <- 100 / length(input$targetSamples)
 		for(i in 1:length(input$targetSamples)){
 			updateProgressBar(session, id="pb", title=paste("load eic", input$targetSamples[i]),
 				value=0)
 				
 			# record the project_sample & delete precedent records
-			query <- sprintf('select project_sample from project_sample where project == "%s" and
-				sample == "%s" and adduct == "%s";', input$project, input$targetSamples[i], input$targetAdduct)
-			print(query)
-			project_sample <- dbGetQuery(db, query)
+			project_sample <- project_samples() %>% 
+				filter(sample == input$targetSamples[i] & project == input$project & 
+					adduct == input$targetAdduct)
 			if(nrow(project_sample) == 0){
 				query <- sprintf('insert into project_sample (project, sample, adduct) values ("%s", "%s", "%s");',
 					input$project, input$targetSamples[i], input$targetAdduct)
@@ -102,9 +87,7 @@ observeEvent(input$target, {
 				dbSendQuery(db, query)			
 			}
 			
-			path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";', 
-				input$targetSamples[i]))$path
-			dbDisconnect(db)
+			path <- samples() %>% filter(sample == input$targetSamples[i]) %>% pull(path)
 			
 			eics <- readXICs(path, masses=chloropara$mz, tol=input$targetTolPpm)
 			
@@ -121,19 +104,18 @@ observeEvent(input$target, {
 			
 			# split to analyze by chloroparaffin
 			eics <- split(eics, chloropara$formula %>% as.factor)
-			chloropara <- split(chloropara, chloropara$formula %>% as.factor)
+			chloropara2 <- split(chloropara, chloropara$formula %>% as.factor)
 			minScans <- floor((15/60) / mean(diff(rts)))
 			scRange <- which(rts >= input$targetRT[1] & rts <= input$targetRT[2])
 			scRange <- c(min(scRange), max(scRange))
 	
 			rois <- data.frame(mz=c(), formula=c(), rt=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
 			for(j in 1:length(eics)){
-			# for(j in 100:200){
-				updateProgressBar(session, id="pb", title=paste("target in", input$targetSamples[i]),
-					value=(i-1)*100/length(input$targetSamples) + j*100/length(eics))
-				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara[[j]], scRange)
+				updateProgressBar(session, id="pb", title=paste("targeting in", input$targetSamples[i]),
+					value=j*100/length(eics))
+				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara2[[j]], scRange)
 				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
-						cbind(formula=unique(chloropara[[j]]$formula)))
+						cbind(formula=unique(chloropara2[[j]]$formula)))
 			}
 			rois$C <- str_extract(rois$formula, 'C[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
 			rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
@@ -149,21 +131,18 @@ observeEvent(input$target, {
 						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
 						', ', input$targetRT[1], ', ', input$targetRT[2], ')', collapse=', ', sep=''))
 				print(query)
-				db <- dbConnect(SQLite(), sqlitePath)
 				dbSendQuery(db, query)
-				dbDisconnect(db)
 			} else {
 				message <- sprintf('no chloroparaffin detected in %s', input$targetSamples[i])
 				print(message)
 				toastr_warning(message)
 			}
-			updateOutput$details <- if(updateOutput$details) FALSE else TRUE
+			actualize$project_samples <- TRUE
 		}
 		closeSweetAlert(session)
 		}, invalid = function(i){
 			print(i$message)
 		}, error = function(e){
-			dbDisconnect(db)
 			print(e$message)
 			sendSweetAlert(e$message)
 		})

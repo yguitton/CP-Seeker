@@ -9,7 +9,7 @@ session$onSessionEnded(function() {
 })
 
 values <- reactiveValues()
-updateOutput <- reactiveValues()
+actualize <- reactiveValues()
 
 minC <- 4
 maxC <- 36
@@ -22,6 +22,27 @@ adducts <- adducts %>% rbind(data.frame(
 	Charge = c(-1, -1), Mult = c(1, 1), Mass = c(-34.9683, -35.97613),
 	Ion_mode = c('negative', 'negative'), Formula_add = c("FALSE", "FALSE"),
 	Formula_ded = c('Cl1', 'Cl1H1'), Multi = c(1, 1)))
+	
+samples <- reactive({
+	actualize$samples
+	samples <- dbGetQuery(db, 'select * from sample;')
+	actualize$samples <- FALSE
+	samples
+})
+
+projects <- reactive({
+	actualize$projects
+	projects <- dbGetQuery(db, 'select name from project;')$name
+	actualize$projects <- FALSE
+	projects
+})
+
+project_samples <- reactive({
+	actualize$project_samples
+	project_samples <- dbGetQuery(db, 'select * from project_sample;')
+	actualize$project_samples <- FALSE
+	project_samples
+})
 
 source('server/func.R', local=TRUE)$value
 

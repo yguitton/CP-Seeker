@@ -82,7 +82,7 @@ newCoords <- function(a, b, z){
 	)
 }
 
-getZCut <- function(tetras, vTarget=90, digits=2){	
+getZCut <- function(tetras, vTarget=90, digits=2, pbVal=0){	
 	vT <- computeVolumePolyhedra(tetras)
 	vCurr <- 100
 	zHigh <- reduce(tetras, function(a, b) max(c(a, b$z)), .init=0)
@@ -94,7 +94,7 @@ getZCut <- function(tetras, vTarget=90, digits=2){
 		if(vCurr > vTarget) zDown <- zMed
 		else zHigh <- zMed
 		print(paste("current volume:", vCurr, '%'), value=100)
-		updateProgressBar(session, id="pb", title=paste("current volume:", vCurr, '%'), value=100)
+		updateProgressBar(session, id="pb", title=paste("current volume:", vCurr, '%'), value=pbVal)
 	}
 	return(zMed)
 }
@@ -144,14 +144,18 @@ drawTriCut <- function(triangles, z){
 	else p
 }
 
-contourPolyhedras <- function(triangles, zVal, centroid){
-	if(is.null(triangles)) return(
+contourPolyhedras <- function(datas, zVals, centroids){
+	if(is.null(datas)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
-	if(is.null(zVal)) zVal <- 0
+	if(is.null(zVals)) zVals <- 0
+	for(i in 1:length(datas)){
+	triangles <- datas[[i]]
+	zVal <- zVals[i]
+	centroid <- centroids[[i]]
 	# for each edge of triangle compute new coords
 	trianglesCut <- list()
 	for(tri in triangles){
@@ -192,6 +196,7 @@ contourPolyhedras <- function(triangles, zVal, centroid){
 		add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", 
 			text=paste("Carbons:", centroid$x %>% round(digits=2), "<br />Chlorines:", centroid$y %>% round(digits=2))) %>%
 		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
+	}
 	p %>%
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 

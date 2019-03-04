@@ -1,41 +1,19 @@
-updateOutput$details <- FALSE
-updateOutput$detailsEic <- FALSE
-
 output$uiDetailsSample <- renderUI({
-	updateOutput$details
-	if(is.null(input$project)) samples <- c()
-	else if(input$project ==  "") samples <- c()
-	else {
-		db <- dbConnect(SQLite(), sqlitePath)
-		query <- sprintf('select sample from project_sample where project == "%s";', 
-			input$project)
-		print(query)
-		samples <- dbGetQuery(db, query)$sample
-		dbDisconnect(db)
-	}
-	pickerInput('detailsSample', 'sample', choices=samples, multiple=FALSE, options=list(`live-search`=TRUE))
+	pickerInput('detailsSample', 'sample', choices=project_samples() %>%
+		filter(project == input$project) %>% pull(sample), multiple=FALSE, options=list(`live-search`=TRUE))
 })
 
 output$uiDetailsAdduct <- renderUI({
-	updateOutput$details
-	if(is.null(input$detailsSample)) choices <- c()
-	else if(input$detailsSample == "") choices <- c()
-	else {
-		db <- dbConnect(SQLite(), sqlitePath)
-		query <- sprintf('select adduct from project_sample where sample ==  "%s" and
-			project == "%s";', input$detailsSample, input$project)
-		print(query)
-		choices <- dbGetQuery(db, query)$adduct
-		dbDisconnect(db)		
-	}
-	pickerInput('detailsAdduct', 'adduct', choices=choices, multiple=FALSE)
+	pickerInput('detailsAdduct', 'adduct', choices=project_samples() %>%
+		filter(project == input$project & sample == input$detailsSample) %>%
+		pull(adduct), multiple=FALSE)
 })
 
 output$detailsTable <- renderDataTable({
 	print('------------------- DETAILS TABLE ------------------')
 	print(list(project=input$project, sample=input$detailsSample, 
 		adduct=input$detailsAdduct))
-	updateOutput$details
+	actualize$project_samples
 	data <- tryCatch({
 		if(is.null(input$project)) custom_stop('invalid', 'project not initialized')
 		else if(input$project == '') custom_stop('invalid', 'no project created')
@@ -44,13 +22,11 @@ output$detailsTable <- renderDataTable({
 		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct not initialized')
 		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct in project_sample???')
 		
-		db <- dbConnect(SQLite(), sqlitePath)
 		query <- sprintf('select * from observed where project_sample == (select project_sample
 			from project_sample where project == "%s" and sample == "%s" and adduct == "%s");',
 			input$project, input$detailsSample, input$detailsAdduct)
 		print(query)
 		data <- dbGetQuery(db, query)
-		dbDisconnect(db)
 		data <- data %>% group_by(formula) %>% 
 			summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=n()/2) %>% 
 			data.frame
@@ -108,6 +84,8 @@ output$detailsTable <- renderDataTable({
 		})
 		Shiny.addCustomMessageHandler('detailsTableErase', function(message){
 			table.cell('.selected').data(null);
+			$(table.cell('.selected').node()).css('background-color', 'rgba(0,0,0,0)');
+			$(table.cell('.selected').node()).css('border', '');
 			$(table.cell('.selected').node()).toggleClass('selected');
 			Shiny.onInputChange('detailsTable_selected', {C:0, Cl:0});
 		})
@@ -122,13 +100,11 @@ observeEvent(input$detailsTable_selected, {
 	else if(input$detailsSample == "") return()
 	else if(input$detailsAdduct == "") return()
 	else if(length(input$detailsTable_selected) == 0) return()
-	db <- dbConnect(SQLite(), sqlitePath)
 	data <- dbGetQuery(db, sprintf('select ppm, machine from observed where C == %s and Cl == %s and 
 		project_sample == (select project_sample from project_sample where project == "%s" and 
 			sample == "%s" and adduct == "%s");', input$detailsTable_selected$C, 
 			input$detailsTable_selected$Cl, input$project, input$detailsSample, 
 			input$detailsAdduct))[1, ]
-	dbDisconnect(db)
 	if(!is.na(data$ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data$ppm, min=0, step=1)
 	if(!is.na(data$machine)) updatePickerInput(session, 'detailsMachine', 'machine', choices=setNames(1:length(resolution_list),
 			names(resolution_list)), selected=data$machine)
@@ -162,9 +138,8 @@ output$detailsEic <- renderPlotly({
 	print(list(project=input$project, sample=input$detailsSample, 
 		adduct=input$detailsAdduct, machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]], 
 		table_rows=input$detailsTable_selected))
-
-	updateOutput$details
-	updateOutput$detailsEic
+	
+	actualize$detailsEic
 	eicPlot <- tryCatch({
 		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
 		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
@@ -182,12 +157,6 @@ output$detailsEic <- renderPlotly({
 		Cl <- input$detailsTable_selected$Cl
 		if(C == 0 | Cl == 0) custom_stop('invalid', 'no cell clicked')
 		
-		db <- dbConnect(SQLite(), sqlitePath)
-		query <- sprintf('select path from sample where sample == "%s";', 
-			input$detailsSample)
-		print(query)
-		path <- dbGetQuery(db, query)$path
-		
 		query <- sprintf('select * from observed where C == %s and Cl == %s and 
 			project_sample == (
 				select project_sample from project_sample where sample == "%s" and
@@ -196,10 +165,10 @@ output$detailsEic <- renderPlotly({
 				input$detailsSample, input$project, input$detailsAdduct)
 		print(query)
 		data <- dbGetQuery(db, query)
-		dbDisconnect(db)
 		
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric)
+		path <- samples() %>% filter(sample == input$detailsSample) %>% pull(path)
 		eics <- readXICs(path, masses=chloropara$mz, tol=input$detailsTolPpm)
 		# rearrange eic from rawDiag to have a dataframe for each eic & not a list
 		raw <- read.raw(path)
@@ -220,7 +189,7 @@ output$detailsEic <- renderPlotly({
 		sendSweetAlert(e$message)
 		plot_ly(type="scatter", mode="lines")
 	})	
-	updateOutput$detailsEic <- FALSE
+	actualize$detailsEic <- FALSE
 	print('------------------- END DETAILS EIC -------------------')
 	eicPlot %>% 
 		layout(xaxis=list(title="retention time"), yaxis=list(title="intensity"), selectdirection="h")	 %>%
@@ -247,8 +216,6 @@ observeEvent(event_data(event='plotly_selected'), {
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		else if(any(!is.numeric(c(min(pts$x), max(pts$x))))) custom_stop('invalid', 'no pts selected')
 		
-		updateOutput$detailsEic <- TRUE
-		
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric)
 		score <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
@@ -256,7 +223,7 @@ observeEvent(event_data(event='plotly_selected'), {
 			input$detailsMachine %>% as.numeric)
 			
 		session$sendCustomMessage("updateDetailsTable", score)
-		
+		actualize$detailsEic <- TRUE
 		toastr_success('re-integration success')
 	}, invalid=function(i){
 		print(i$message)
@@ -302,7 +269,6 @@ getChloroPara <- function(C, Cl, adduct, machine=NULL){
 }
 
 reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, theo, machine){
-	db <- dbConnect(SQLite(), sqlitePath)
 	path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";',
 		sample))$path
 	project_sample <- dbGetQuery(db, sprintf('select project_sample from project_sample 
@@ -313,7 +279,6 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 			C, Cl, project_sample)
 	print(query)
 	dbSendQuery(db, query)
-	dbDisconnect(db)
 	
 	eics <- readXICs(path, masses=theo[, 'mz'], tol=tolPpm)
 	# rearrange eic from rawDiag to have a dataframe for each eic & not a list
@@ -337,14 +302,12 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 	res <- data.frame(mz=theo$mz, rtmin=eics[[1]][min(roi), 'x'], rtmax=eics[[1]][max(roi), 'x'], 
 		auc=aucs, abd=abdObs, score=score)
 				
-	db <- dbConnect(SQLite(), sqlitePath)
 	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, rt, auc, project_sample, ppm,
 				C, Cl, abundance, score, machine) values %s;', paste('(', theo$mz, ', "', theo[1, 'formula'],
 					'", ', rtmin, ', ', rtmax, ', ', rts, ', ', aucs, ', ', project_sample, ', ', 
 					tolPpm, ', ', C, ', ', Cl, ', ', abdObs, ', ', score, ', ', machine, ')', collapse=', ', sep=''))
 	print(query)
 	dbSendQuery(db, query)
-	dbDisconnect(db)
 	
 	round(score)
 }
@@ -363,14 +326,12 @@ observeEvent(input$detailsErase, {
 		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adducts')
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		
-		db <- dbConnect(SQLite(), sqlitePath)
 		query <- sprintf('delete from observed where C == %s and Cl == %s and project_sample == (
 			select project_sample from project_sample where project == "%s" and sample == "%s" and adduct == "%s");',
 			input$detailsTable_selected$C, input$detailsTable_selected$Cl, input$project,
 			input$detailsSample, input$detailsAdduct)
 		print(query)
 		dbSendQuery(db, query)
-		dbDisconnect(db)
 		
 		session$sendCustomMessage("detailsTableErase", NA)
 		toastr_success('record erased')

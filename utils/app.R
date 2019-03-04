@@ -31,7 +31,8 @@ close(pb)
 data(isotopes)
 data(adducts)
 data(resolution_list)
-
+db <- dbConnect(SQLite(), sqlitePath)
 options(stringsAsFactors=FALSE)
 shiny::runApp("./", launch.browser = launch_browser)
+dbDisconnect(db)
 
