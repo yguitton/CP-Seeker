@@ -1,109 +1,44 @@
 values$triangles <- NULL
-values$zVal <- NULL
-values$centroid <- NULL
+values$zVals <- NULL
 
-observeEvent(input$dbProfileLaunch, {
-	print('------------------------- DB PROFILE TETRAHEDRIZATION ------------------')
-	print(list(project=input$project, sample=input$dbProfileSample,
-		adduct=input$dbProfileAdduct))
-	progressSweetAlert(session, 'pb', title="Initialization", 100, striped=TRUE)
+observeEvent(input$profileLaunch, {
+	print('---------------------------- PROFILE LAUNCH -------------------')
+	print(list(from_db = input$dbProfileSample,
+		from_xlsx = values$xlsxPath, vTarget=input$vTarget,
+		precision=input$vDigits))
+	progressSweetAlert(session, 'pb', title='Initialization', 0, striped=TRUE, display_pct=TRUE)
 	tryCatch({
-		inputs <- c('project', 'dbProfileSample', 'dbProfileAdduct')
-		conditions <- c(is.null(input$project), is.null(input$dbProfileSample), 
-			is.null(input$dbProfileAdduct))
-		messages <- c('You must select a project', 'You must select a sample',
-			'You must select an adduct')
-		test <- inputsTest(inputs, conditions, messages)
-		if(!test) custom_stop('minor_error', 'invalid params')
-		inputs <- c('project', 'dbprofileSample', 'dbProfileAdduct', 'vTarget', 'vDigits')
-		conditions <- c(input$project == "", input$dbProfileSample == "", input$dbProfileAdduct == "",
-			!is.numeric(input$vTarget), !is.numeric(input$vDigits))
-		messages <- c(messages, 'target volume must be a number', 'precision must be a number')
-		test <- inputsTest(inputs, conditions, messages)
-		if(!test) custom_stop('invalid', 'invalid args')
+		if(!is.numeric(input$vTarget)) custom_stop('invalid', 'target volume must be a number')
+		else if(!is.numeric(input$vDigits)) custom_stop('invalid', 'precision must be a number')
 		
-		data <- getDbProfileContent(input$project, input$dbProfileSample, input$dbProfileAdduct)
-		
-		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
-		values$centroid <- data.frame(x=data$C, y=data$Cl, z=data$profile) %>% 
-			summarise(x=sum(x*z/sum(z)), y=sum(y*z/sum(z)))
-		data <- distMatrix(data)
-		updateProgressBar(session, id="pb", title="Tetrahedrization", value=100)
-		res <- tetrahedrization(data)
-		tetras <- res$tetras
-		triangles <- res$triangles
-		print(paste('Volume :', computeVolumePolyhedra(tetras)))
-		zVal <- getZCut(tetras, input$vTarget, input$vDigits)
-		print(paste('Zcut :', zVal))
-		
-		values$triangles <- reduce(triangles, function(a, b) a %>% 
-			append(splitTri(b)), .init=list())
-		values$zVal <- zVal
-		
-		closeSweetAlert(session)
-	}, minor_error = function(e){
-		closeSweetAlert(session)
-		print(e$message)
-		values$triangles <- NULL
-		values$zVal <- NULL
-	}, error = function(e){
-		closeSweetAlert(session)
-		print(e$message)
-		sendSweetAlert(e$message)
-		values$triangles <- NULL
-		values$zVal <- NULL
-	})
-	print('------------------------- END DB PROFILE TETRAHEDRIZATION ------------------')
-})
+		samplesComputed <- if(length(input$dbProfileSample) > 0) project_samples() %>% filter(project_sample %in% input$dbProfileSample) %>%
+			select(sample, adduct) %>% apply(1, function(x) paste(x, collapse=' ')) else c()
+		if(!is.null(values$xlsxPath)) samplesComputed <- c(samplesComputed, basename(values$xlsxPath))
 
-observeEvent(input$xlsxLaunch, {
-	print('--------------------- XLSX TETRAHEDRIZATION ----------------------')
-	print(list(C=values$C, Cl=values$Cl, profile=values$profile))
-	progressSweetAlert(session, 'pb', title="Initialization", 100, striped=TRUE)
-	tryCatch({
-		inputs <- c('xlsxPath', 'vTarget', 'vDigits')
-		conditions <- c(is.null(values$xlsxPath), !is.numeric(input$vTarget), !is.numeric(input$vDigits))
-		messages <- c('no excel file selected', 'target volume must be a number',
-			'precision must be a number')
-		test <- inputsTest(inputs, conditions, messages)
-		if(!test) custom_stop('invalid', 'invalid params')
-		data <- read.xlsx(values$xlsxPath)
-		if(nrow(data) == 0 | class(data) != "data.frame") custom_stop('minor_error', 'invalid data in this sheet')
-		else if(ncol(data) > 3) custom_stop('minor_error', 'more than 3 column in the excel sheet')
-		notNum <- which(!apply(data, c(1, 2), is.numeric), arr.ind=TRUE) %>% data.frame
-		if(nrow(notNum) > 0) custom_stop('minor_error', paste('data is not numeric on `row/column`:', 
-			paste(apply(notNum, 1, function(x) paste(x, collapse='/')), collapse=', ')))
-		negative <- which(!apply(data, c(1, 2), function(x) x < 0), arr.ind=TRUE) %>% data.frame
-		if(nrow(notNum) > 0) custom_stop('minor_error', paste('data is negative on `row/column`:', 
-			paste(apply(notNum, 1, function(x) paste(x, collapse='/')), collapse=', ')))
-		colnames(data) <- c('C', 'Cl', 'profile')
+		datas <- getDbProfileContent(input$dbProfileSample)
+		datas <- append(datas, getXlsxContent(values$xlsxPath))
+		samplesComputed <- samplesComputed[which(sapply(datas, function(x) nrow(x) > 0))]
+		datas <- keep(datas, function(x) nrow(x) > 0)
+		if(length(datas) == 0) custom_stop('invalid', 'no profile to compute')
 		
-		updateProgressBar(session, id="pb", title="Compute distance matrix", value=0)
-		values$centroid <- data.frame(x=data$C, y=data$Cl, z=data$profile) %>% 
-			summarise(x=sum(x*z/sum(z)), y=sum(y*z/sum(z)))
-		data <- distMatrix(data)
-		updateProgressBar(session, id="pb", title="Tetrahedrization", value=100)
-		res <- tetrahedrization(data)
-		tetras <- res$tetras
-		triangles <- res$triangles
-		print(paste('Volume :', computeVolumePolyhedra(tetras)))
-		zVal <- getZCut(tetras, input$vTarget, input$vDigits)
-		print(paste('Zcut :', zVal))
-		
-		values$triangles <- reduce(triangles, function(a, b) a %>% 
-			append(splitTri(b)), .init=list())
-		values$zVal <- zVal
+		updateProgressBar(session, id='pb', title='Compute distance matrix', value=0)
+		datas <- map(datas, distMatrix)
+		updateProgressBar(session, id='pb', title='Tetrahedrization', value=0)
+		triangles <- map(datas, triangulization)
+		values$zVals <- c()
+		for(i in 1:length(triangles)){
+			pbVal <- i*100/length(triangles)
+			updateProgressBar(session, id='pb', title='Tetrahedrization', value=pbVal)
+			values$zVals <- c(values$zVals, getZCut(triangles[[i]], vTarget=input$vTarget, digits=input$vDigits, pbVal))
+		}
+		values$triangles <- triangles
+		names(values$triangles) <- samplesComputed
 		
 		closeSweetAlert(session)
 	}, invalid = function(i){
 		closeSweetAlert(session)
 		print(i$message)
-		values$triangles <- NULL
-		values$zVal <- NULL
-	}, minor_error = function(e){
-		closeSweetAlert(session)
-		print(e$message)
-		toastr_error(e$message)
+		sendSweetAlert(i$message)
 		values$triangles <- NULL
 		values$zVal <- NULL
 	}, error = function(e){
@@ -113,11 +48,22 @@ observeEvent(input$xlsxLaunch, {
 		values$triangles <- NULL
 		values$zVal <- NULL
 	})
-	print('--------------------- END TETRAHEDRIZATION ----------------------')
+	print('---------------------------- END PROFILE LAUNCH -------------------')
 })
 
-output$tetrahedras <- renderPlotly(drawTriCut(values$triangles, values$zVal))
+output$uiTetrasSample <- renderUI({
+	choices <- if(!is.null(values$triangles)) setNames(1:length(values$triangles), names(values$triangles)) else c()
+	pickerInput('tetrasSample', 'sample', choices=choices, multiple=FALSE, width='50%')
+})
 
-output$map <- renderPlotly(contourPolyhedras(values$triangles, values$zVal, 
-	values$centroid))
+output$tetrahedras <- renderPlotly({
+	if(is.null(input$tetrasSample)) drawTriCut()
+	else if(input$tetrasSample == '') drawTriCut()
+	else drawTriCut(values$triangles[[input$tetrasSample %>% as.numeric]], 
+		values$zVals[[input$tetrasSample %>% as.numeric]])
+})
+
+output$map <- renderPlotly({
+	contourPolyhedras(values$triangles, values$zVals)
+})
 
