@@ -135,21 +135,31 @@ contourPolyhedras <- function(datas=NULL, zVals=NULL){
 		
 		trianglesCut <- reduce(triangles, function(a, b) a %>% 
 			append(cutTriangle(b, zVal)), .init=list())
+			
+		centroids <- reduce(trianglesCut, function(a, b) 
+			a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
+		forms <- split(trianglesCut, dbscan(dist(centroids[, 1:2]), 1, 1)$cluster)
 		
-		edges <- reduce(trianglesCut, function(a, b) a %>% 
-			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
-			.init=list())
-		edges <- keep(edges, function(edge) all(edge$z == zVal))
-		edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
-			rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
-		
-		p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
-			text=paste("Carbons:", edges$x %>% round(digits=2), 
-			"<br />Chlorines:", edges$y %>% round(digits=2)))
+		for(j in 1:length(forms)){
+			edges <- reduce(forms[[j]], function(a, b) a %>% 
+				append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
+				.init=list())
+			edges <- keep(edges, function(edge) all(edge$z == zVal))
+			centroid <- reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n())
+			edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
+				rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
+			
+			p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
+				text=paste(names(datas)[i], '- zone', j, "<br />Carbons:", edges$x %>% round(digits=2), 
+				"<br />Chlorines:", edges$y %>% round(digits=2)), 
+				name=paste(names(datas)[i], '- zone', j), legendgroup=names(datas)[i]) %>% 
+			add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", showlegend=FALSE, 
+				text=paste("Carbons:", centroid$x %>% round(digits=2), "<br />Chlorines:", centroid$y %>% round(digits=2))) %>%
+			add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
+		}
 	}
 	p %>%
-		layout(showlegend=FALSE, 
-			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
+		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 
 		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(
 			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
