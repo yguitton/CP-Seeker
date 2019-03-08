@@ -8,7 +8,10 @@ sidebar <- dashboardSidebar(
 		menuItem('Target chloropara', icon=icon('tasks'), tabName='target'),
 		menuItem('Details', icon=icon('table'), tabName='details'),
 		menuItem('Tetrahedras', icon=icon('bar-chart-o'), tabName='tetras'),
-		uiOutput('uiProject')
+		uiOutput('uiProject'),
+		tags$div(style="padding-left: 30%; padding-top:10%;", 
+			downloadButton('downloadProject', '')
+		)
 	)
 )
 

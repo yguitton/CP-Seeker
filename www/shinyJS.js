@@ -1,6 +1,11 @@
  var dimension = [0, 0];
 $(document).on("shiny:connected", function(e) {
 	Shiny.onInputChange("dimension", [window.innerWidth, window.innerHeight]);
+	$('#downloadProject').removeClass('btn');
+	$('#downloadProject').removeClass('btn-default');
+	$('#downloadProject').addClass('bttn');
+	$('#downloadProject').addClass('bttn-default');
+	$('#downloadProject').addClass('bttn-lg');
 })
 
 function getWidthSidebar(){

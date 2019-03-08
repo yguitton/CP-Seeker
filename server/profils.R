@@ -70,8 +70,8 @@ output$uiTetrasSample <- renderUI({
 })
 
 output$tetrahedras <- renderPlotly({
-	if(is.null(input$tetrasSample)) drawTriCut()
-	else if(input$tetrasSample == '') drawTriCut()
+	if(is.null(input$tetrasSample)) drawTriCut(maxC=maxC, maxCl=maxCl)
+	else if(input$tetrasSample == '') drawTriCut(maxC=maxC, maxCl=maxCl)
 	else drawTriCut(values$triangles[[input$tetrasSample %>% as.numeric]], 
 		values$zVals[[input$tetrasSample %>% as.numeric]], maxC, maxCl)
 })
