@@ -10,8 +10,8 @@ output$uiDbProfileSampleAdduct <- renderUI({
 getDbProfileContent <- function(project_samples=NULL){
 	if(is.null(project_samples)) return(list())
 	datas <- map(project_samples, function(project_sample) 
-		data <- dbGetQuery(db, sprintf('select C, Cl, sum(auc) as profile from observed where project_sample == %s group by(formula);', 
-			project_sample)))
+		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed where project_sample == %s group by(formula);', 
+		project_sample)))
 	datas
 }
 
@@ -21,7 +21,7 @@ getXlsxContent <- function(xlsxPaths=NULL){
 	for(xlsxPath in xlsxPaths){
 		data <- read.xlsx(xlsxPath)
 		data <- apply(data, c(1, 2), as.numeric) %>% data.frame
-		colnames(data) <- c('C', 'Cl', 'profile')
+		colnames(data) <- c('x', 'y', 'z')
 		datas <- datas %>% append(list(data))
 	}
 	datas

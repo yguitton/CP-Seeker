@@ -1,5 +1,6 @@
 values$triangles <- NULL
 values$zVals <- NULL
+values$zones <- NULL
 
 observeEvent(input$profileLaunch, {
 	print('---------------------------- PROFILE LAUNCH -------------------')
@@ -22,17 +23,27 @@ observeEvent(input$profileLaunch, {
 		if(length(datas) == 0) custom_stop('invalid', 'no profile to compute')
 		
 		updateProgressBar(session, id='pb', title='Compute distance matrix', value=0)
-		datas <- map(datas, distMatrix)
+		datas <- map(datas, function(x) distMatrix(x, maxC, maxCl))
 		updateProgressBar(session, id='pb', title='Tetrahedrization', value=0)
 		triangles <- map(datas, triangulization)
-		values$zVals <- c()
+		zVals <- c()
 		for(i in 1:length(triangles)){
 			pbVal <- i*100/length(triangles)
 			updateProgressBar(session, id='pb', title='Tetrahedrization', value=pbVal)
-			values$zVals <- c(values$zVals, getZCut(triangles[[i]], vTarget=input$vTarget, digits=input$vDigits, pbVal))
+			zVals <- c(zVals, getZCut(triangles[[i]], vTarget=input$vTarget, digits=input$vDigits, pbVal))
 		}
+		names(triangles) <- samplesComputed
+		zones <- reduce(1:length(triangles), function(a, b) a %>% append(
+			list(splitToZones(triangles[[b]], zVals[b]))), .init=list())
+		zoneNames <- sapply(1:length(zones), function(i) 
+			paste(samplesComputed[i], '- zone', 1:length(zones[[i]]))) %>% unlist
+		zones <- unlist(zones, recursive=FALSE)
+		names(zones) <- zoneNames
+		browser()
+		
+		values$zVals <- zVals
 		values$triangles <- triangles
-		names(values$triangles) <- samplesComputed
+		values$zones <- zones	
 		
 		closeSweetAlert(session)
 	}, invalid = function(i){
@@ -40,13 +51,15 @@ observeEvent(input$profileLaunch, {
 		print(i$message)
 		sendSweetAlert(i$message)
 		values$triangles <- NULL
-		values$zVal <- NULL
+		values$zVals <- NULL
+		values$zones <- NULL
 	}, error = function(e){
 		closeSweetAlert(session)
 		print(e$message)
 		sendSweetAlert(e$message)
 		values$triangles <- NULL
-		values$zVal <- NULL
+		values$zVals <- NULL
+		values$zones <- NULL
 	})
 	print('---------------------------- END PROFILE LAUNCH -------------------')
 })
@@ -60,10 +73,22 @@ output$tetrahedras <- renderPlotly({
 	if(is.null(input$tetrasSample)) drawTriCut()
 	else if(input$tetrasSample == '') drawTriCut()
 	else drawTriCut(values$triangles[[input$tetrasSample %>% as.numeric]], 
-		values$zVals[[input$tetrasSample %>% as.numeric]])
+		values$zVals[[input$tetrasSample %>% as.numeric]], maxC, maxCl)
 })
 
 output$map <- renderPlotly({
-	contourPolyhedras(values$triangles, values$zVals)
+	contourPolyhedras(values$zones, maxC=maxC, maxCl=maxCl)
 })
+
+output$profilesScores <- renderDataTable({
+	if(is.null(values$zones)) return(data.frame())
+	scores <- proxy::dist(values$zones, method=function(x, y) scoreZones(x, y))
+	scores <- scores %>% as.matrix
+	rownames(scores) <- names(values$zones)
+	colnames(scores) <- names(values$zones)
+	apply(scores, c(1, 2), function(x)
+		if(x == 0) NA else paste(round(x), '%'))
+}, selection='none', extension='Scroller', options=list(
+	info=FALSE, pagin=FALSE, dom='frtip', scroller=TRUE, scrollX=TRUE, 
+	bFilter=FALSE, ordering=FALSE))
 

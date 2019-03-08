@@ -1,5 +1,7 @@
-distMatrix <- function(data){
-	data2 <- matrix(0, nrow=maxC, ncol=maxCl)
+distMatrix <- function(data, nbRow, nbCol, binSize=0){
+	data <- data %>% mutate(x=round(x*10**binSize), y=round(y*10**binSize)) %>% 
+		group_by(x, y) %>% summarise(z=sum(z)) %>% data.frame
+	data2 <- matrix(0, nrow=round(nbRow*10**binSize), ncol=round(nbCol*10**binSize))
 	for(row in 1:nrow(data)) data2[data[row,1], data[row, 2]] <- data[row, 3]
 	data2
 }
@@ -89,7 +91,7 @@ getZCut <- function(triangles, vTarget=90, digits=2, pbVal=0){
 	return(zMed)
 }
 
-drawTri <- function(triangles=NULL){
+drawTri <- function(triangles=NULL, maxC, maxCl){
 	p <- plot_ly()
 	if(!is.null(triangles)){
 		if(length(triangles) > 0){
@@ -112,51 +114,58 @@ drawTri <- function(triangles=NULL){
 			'resetCameraDefault3d', 'resetCameraLastSave3d')), displaylogo=FALSE)
 }
 
-drawTriCut <- function(triangles=NULL, z=NULL){
-	p <- drawTri(triangles)
-	if(!is.null(z)) p %>% add_trace(data=data.frame(x=c(0,0,36,36), y=c(0,30,0,30), z=rep(z, times=4)),
+drawTriCut <- function(triangles=NULL, z=NULL, maxC, maxCl){
+	p <- drawTri(triangles, maxC, maxCl)
+	if(!is.null(z)) p %>% add_trace(data=data.frame(x=c(0,0,maxC,maxC), y=c(0,maxCl,0,maxCl), z=rep(z, times=4)),
 		x=~x, y=~y, z=~z, i=c(0,3), j=c(1,1), k=c(2,2),opacity=.5, hoverinfo="text", text=
 			paste("Intensity:", rep(z, times=4)))
 	else p
 }
 
-contourPolyhedras <- function(datas=NULL, zVals=NULL){
-	if(is.null(datas)) return(
+splitToZones <- function(triangles, zVal){
+	trianglesCut <- reduce(triangles, function(a, b) a %>% 
+		append(cutTriangle(b, zVal)), .init=list())
+	centroids <- reduce(trianglesCut, function(a, b)
+		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
+	split(trianglesCut, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
+}
+
+scoreZones <- function(zone1, zone2, binSize=2){
+	pts1 <- reduce(zone1, rbind) %>% distinct
+	pts2 <- reduce(zone2, rbind) %>% distinct
+	pts1$z <- pts1$z / sum(pts1$z)
+	pts2$z <- pts2$z / sum(pts2$z)
+	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y), binSize)
+	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y), binSize)
+	(2 - sum(abs(data1 - data2))) / 2 * 100
+}
+
+contourPolyhedras <- function(zones=NULL, maxC, maxCl){
+	if(is.null(zones)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
-	if(is.null(zVals)) zVals <- rep(0, each=length(datas))
 	p <- plot_ly(type="scatter", mode="lines")
-	for(i in 1:length(datas)){
-		triangles <- datas[[i]]
-		zVal <- zVals[i]
+	for(i in 1:length(zones)){
+		edges <- reduce(zones[[i]], function(a, b) a %>% 
+			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
+			.init=list())
+		centroid <- reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n())
+		zVal <- reduce(edges, function(a, b) min(a, b$z), .init=Inf)
+		edges <- keep(edges, function(edge) all(edge$z == zVal))
+		edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
+			rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
 		
-		trianglesCut <- reduce(triangles, function(a, b) a %>% 
-			append(cutTriangle(b, zVal)), .init=list())
-			
-		centroids <- reduce(trianglesCut, function(a, b) 
-			a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
-		forms <- split(trianglesCut, dbscan(dist(centroids[, 1:2]), 1, 1)$cluster)
-		
-		for(j in 1:length(forms)){
-			edges <- reduce(forms[[j]], function(a, b) a %>% 
-				append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
-				.init=list())
-			edges <- keep(edges, function(edge) all(edge$z == zVal))
-			centroid <- reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n())
-			edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
-				rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
-			
-			p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
-				text=paste(names(datas)[i], '- zone', j, "<br />Carbons:", edges$x %>% round(digits=2), 
-				"<br />Chlorines:", edges$y %>% round(digits=2)), 
-				name=paste(names(datas)[i], '- zone', j), legendgroup=names(datas)[i]) %>% 
-			add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", showlegend=FALSE, 
-				text=paste("Carbons:", centroid$x %>% round(digits=2), "<br />Chlorines:", centroid$y %>% round(digits=2))) %>%
-			add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
-		}
+		p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
+			text=paste(names(zones)[i], "<br />Carbons:", round(edges$x, digits=2), 
+			"<br />Chlorines:", round(edges$y, digits=2)), 
+			name=names(zones)[i]) %>% 
+		add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", showlegend=FALSE, 
+			text=paste("Carbons:", round(centroid$x, digits=2), "<br />Chlorines:", 
+				round(centroid$y, digits=2))) %>%
+		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
 	}
 	p %>%
 		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
