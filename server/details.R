@@ -12,7 +12,7 @@ output$uiDetailsAdduct <- renderUI({
 output$detailsTable <- renderDataTable({
 	print('------------------- DETAILS TABLE ------------------')
 	print(list(project=input$project, sample=input$detailsSample, 
-		adduct=input$detailsAdduct))
+		adduct=input$detailsAdduct, switch=input$detailsSwitch))
 	actualize$project_samples
 	data <- tryCatch({
 		if(is.null(input$project)) custom_stop('invalid', 'project not initialized')
@@ -27,11 +27,14 @@ output$detailsTable <- renderDataTable({
 			input$project, input$detailsSample, input$detailsAdduct)
 		print(query)
 		data <- dbGetQuery(db, query)
-		data <- data %>% group_by(formula) %>% 
-			summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=n()/2) %>% 
-			data.frame
+		data <- if(input$detailsSwitch) data %>% group_by(formula) %>% 
+				summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=n()/2) %>% 
+				data.frame
+			else data %>% group_by(formula) %>% 
+				summarise(C=C[1], Cl=Cl[1], rt=mean(rt) %>% round, rois=n()/2) %>% 
+				data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
-		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, c('score', 'rois')], collapse=" ")
+		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
 		res
 	}, invalid = function(i){
 		print(i)
@@ -49,12 +52,13 @@ output$detailsTable <- renderDataTable({
 	info=FALSE, paging=FALSE, dom='Bfrtip', scoller=TRUE, scrollX=TRUE, scrollY=input$dimension[2]/1.6, bFilter=FALSE, ordering=FALSE,
 	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
 		function(settings, json){
-			table = settings.oInstance.api();
+			var table = settings.oInstance.api();
+			var switchVal = $('#detailsSwitch').val();
 			table.cells(null, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]).every(function(){
 				if(this.data() != null){
 					var value = this.data().split(' ');
 					this.data(Number(value[0]));
-					if(this.data() < -20 || this.data() > 20) $(this.node()).css('background-color', 'rgb(255,36,0)');
+					if(switchVal == 'on' && (this.data() < -20 || this.data() > 20)) $(this.node()).css('background-color', 'rgb(255,36,0)');
 					if(Number(value[1]) > 1) $(this.node()).css('border', '5px solid orange');
 				}
 			})
@@ -202,7 +206,8 @@ observeEvent(event_data(event='plotly_selected'), {
 	print(list(project=input$project, sample=input$detailsSample,
 		adduct=input$detailsAdduct, tolPpm=input$detailsTolPpm, 
 		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]],
-		rtmin=min(pts$x), rtmax=max(pts$x),	table_rows=input$detailsTable_selected))
+		rtmin=min(pts$x), rtmax=max(pts$x),	table_rows=input$detailsTable_selected,
+		switch=input$detailsSwitch))
 	tryCatch({
 		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
 		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
@@ -218,11 +223,12 @@ observeEvent(event_data(event='plotly_selected'), {
 		
 		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric)
-		score <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
+		vals <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
 			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara,
 			input$detailsMachine %>% as.numeric)
+		val <- if(input$detailsSwitch) vals$score else vals$rt
 			
-		session$sendCustomMessage("updateDetailsTable", score)
+		session$sendCustomMessage("updateDetailsTable", round(val))
 		actualize$detailsEic <- TRUE
 		toastr_success('re-integration success')
 	}, invalid=function(i){
@@ -309,7 +315,7 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 	print(query)
 	dbSendQuery(db, query)
 	
-	round(score)
+	list(score=score, rt=mean(rts))
 }
 
 observeEvent(input$detailsErase, {
