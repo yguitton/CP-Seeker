@@ -1,7 +1,5 @@
-distMatrix <- function(data, nbRow, nbCol, binSize=0){
-	data <- data %>% mutate(x=round(x*10**binSize), y=round(y*10**binSize)) %>% 
-		group_by(x, y) %>% summarise(z=sum(z)) %>% data.frame
-	data2 <- matrix(0, nrow=round(nbRow*10**binSize), ncol=round(nbCol*10**binSize))
+distMatrix <- function(data, nbRow, nbCol){
+	data2 <- matrix(0, nrow=nbRow, ncol=nbCol)
 	for(row in 1:nrow(data)) data2[data[row,1], data[row, 2]] <- data[row, 3]
 	data2
 }
@@ -124,20 +122,21 @@ drawTriCut <- function(triangles=NULL, z=NULL, maxC, maxCl){
 
 splitToZones <- function(triangles, zVal){
 	trianglesCut <- reduce(triangles, function(a, b) a %>% 
-		append(cutTriangle(b, zVal)), .init=list())
+		append(cutTriangle(b, zVal) %>% map(function(triangle)
+			triangle %>% mutate(z = z - zVal))), .init=list())
 	centroids <- reduce(trianglesCut, function(a, b)
 		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
 	split(trianglesCut, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
 }
 
-scoreZones <- function(zone1, zone2, binSize=2){
-	pts1 <- reduce(zone1, rbind) %>% distinct
-	pts2 <- reduce(zone2, rbind) %>% distinct
-	pts1$z <- pts1$z / sum(pts1$z)
-	pts2$z <- pts2$z / sum(pts2$z)
-	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y), binSize)
-	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y), binSize)
-	(2 - sum(abs(data1 - data2))) / 2 * 100
+scoreZones <- function(zone1, zone2){
+	pts1 <- reduce(zone1, rbind) %>% distinct %>% filter(z > 0) %>%
+		mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	pts2 <- reduce(zone2, rbind) %>% distinct %>% filter(z > 0) %>%
+		mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	(200 - sum(abs(data1 - data2))) / 2 
 }
 
 contourPolyhedras <- function(zones=NULL, maxC, maxCl){
@@ -148,25 +147,32 @@ contourPolyhedras <- function(zones=NULL, maxC, maxCl){
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
 	p <- plot_ly(type="scatter", mode="lines")
+	centroids <- data.frame()
 	for(i in 1:length(zones)){
 		edges <- reduce(zones[[i]], function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
 			.init=list())
-		centroid <- reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n())
-		zVal <- reduce(edges, function(a, b) min(a, b$z), .init=Inf)
-		edges <- keep(edges, function(edge) all(edge$z == zVal))
+		centroids <- centroids %>% rbind(reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n()))
+		edges <- keep(edges, function(edge) all(edge$z == 0))
 		edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
 			rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
 		
 		p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
 			text=paste(names(zones)[i], "<br />Carbons:", round(edges$x, digits=2), 
 			"<br />Chlorines:", round(edges$y, digits=2)), 
-			name=names(zones)[i]) %>% 
-		add_trace(mode="markers", data=centroid, x=~x, y=~y, hoverinfo="text", showlegend=FALSE, 
-			text=paste("Carbons:", round(centroid$x, digits=2), "<br />Chlorines:", 
-				round(centroid$y, digits=2))) %>%
-		add_annotations(data=centroid, x=~x, y=~y, text="centroid", ax=20, ay=-40)
+			name=names(zones)[i])
 	}
+	
+	# compute scores & add a line for each couple of zone which have a score > 0
+	scores <- proxy::dist(zones, method=function(x, y) scoreZones(x, y))
+	scores <- combn(1:length(zones), 2) %>% t %>% cbind(scores %>% c)
+	scores <- scores[which(scores[, 3] > 0), ]
+	for(row in 1:nrow(scores)) p <- p %>% add_trace(mode='lines+markers', 
+		data=centroids[scores[row, 1:2], ], showlegend=FALSE, 
+			x=~x, y=~y, marker=list(symbol="x-dot", size=10), line=list(dash="dash")) %>% 
+		add_text(data=centroids[scores[row, 1:2], ] %>% summarise(x=mean(x), y=mean(y)), showlegend=FALSE, 
+				x=~x, y=~y, text=paste(round(scores[row, 3]), '%'), textfont=list(family="Balto", size=20))
+
 	p %>%
 		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 

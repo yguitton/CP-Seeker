@@ -39,7 +39,6 @@ observeEvent(input$profileLaunch, {
 			paste(samplesComputed[i], '- zone', 1:length(zones[[i]]))) %>% unlist
 		zones <- unlist(zones, recursive=FALSE)
 		names(zones) <- zoneNames
-		browser()
 		
 		values$zVals <- zVals
 		values$triangles <- triangles
