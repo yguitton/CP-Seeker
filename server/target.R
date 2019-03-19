@@ -62,7 +62,6 @@ observeEvent(input$target, {
 		# load mzs of each chloroparaffin
 		chloropara <- loadChloroParaMzs(input$targetAdduct, input$targetMachine %>% as.numeric)
 		# then load eics for each file
-		eics <- list()
 		for(i in 1:length(input$targetSamples)){
 			updateProgressBar(session, id="pb", title=paste("load eic", input$targetSamples[i]),
 				value=0)
@@ -105,7 +104,7 @@ observeEvent(input$target, {
 			# split to analyze by chloroparaffin
 			eics <- split(eics, chloropara$formula %>% as.factor)
 			chloropara2 <- split(chloropara, chloropara$formula %>% as.factor)
-			minScans <- floor((15/60) / mean(diff(rts)))
+			minScans <- floor((input$targetPeakwidth/60) / mean(diff(rts)))
 			scRange <- which(rts >= input$targetRT[1] & rts <= input$targetRT[2])
 			scRange <- c(min(scRange), max(scRange))
 	
@@ -241,9 +240,11 @@ targetChloroPara <- function(eics, minScans, theo, scRange){
 		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)))
 		rois <- rois[which(rois >= scRange[1] & rois <= scRange[2])]
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
-		rois <- rois[which(lengths(rois) > minScans)]
+		rois <- rois[which(lengths(rois) > 1)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		rois <- map(rois, function(x) min(x):max(x))
+		rois <- rois[which(lengths(rois) > minScans)]
+		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		
 		windowRTMed <- 4*length(unlist(rois))
 		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
@@ -251,6 +252,7 @@ targetChloroPara <- function(eics, minScans, theo, scRange){
 		for(roi in rois){
 			tmpRes <- reduce(eics, function(a, b) 
 				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange)), .init = data.frame())
+			if(tmpRes[1, 'auc'] <= 0) custom_stop('fail', 'auc of A is O')
 			if(tmpRes[2, 'auc'] <= 0) custom_stop('fail', 'auc of A2 is O')
 			theo <- theo[which(tmpRes$auc > 0), ]
 			tmpRes <- tmpRes[which(tmpRes$auc > 0), ]
