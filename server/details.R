@@ -124,11 +124,13 @@ plotEIC <- function(data, mz, rois=data.frame()){
 	if(nrow(rois) > 0){
 		scans <- lapply(1:nrow(rois), function(x) 
 			which(data$x >= rois[x, 'rtmin'] & data$x <= rois[x, 'rtmax']))
-		for(i in 1:length(scans)) eicPlot <- eicPlot %>% add_trace(mode='none', 
-			data=data[scans[[i]], ], x=~x, y=~y, fill='tozeroy', showlegend=FALSE, 
-			legendgroup="group1")
 		baseline <- runmed(data$y, 9*(length(unlist(scans))%/%2), 
 			endrule="median", algorithm="Turlach")
+		# trace a line under the roi for filling it 
+		for(i in 1:length(scans)) eicPlot <- eicPlot %>% 
+			add_lines(x=data[scans[[i]], 'x'], y=baseline[scans[[i]]], showlegend=FALSE) %>% 
+			add_trace(mode='none', data=data[scans[[i]], ], x=~x, y=~y, fill='tonexty', 
+				showlegend=FALSE, legendgroup="group1")
 		eicPlot <- eicPlot %>% 
 			add_lines(name="baseline", x=data$x, y=baseline, color=I('red'), 
 				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
