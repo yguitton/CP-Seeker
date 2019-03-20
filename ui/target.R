@@ -19,6 +19,9 @@ tabItem(tabName='target',
 			),
 			column(width=6, 
 				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=15, min=0, max=60, step=1)
+			),
+			column(width=6,
+				numericInput('targetThreshold', 'threshold', value=100, min=0, max=1*10**99)
 			)
 		),
 		tags$div(style="text-align:center;", actionBttn('target', 'target'))

@@ -3,6 +3,8 @@ shinyServer(function(input, output, session) {
 
 #to close the connection
 session$onSessionEnded(function() {
+	dbSendQuery(db, 'pragma wal_checkpoint_v2(0);')
+	dbDisconnect(db)
 	stopApp()
 	# comment line above because it's still in developement
 	# q('no')
@@ -54,14 +56,12 @@ output$downloadProject <- downloadHandler(
 	wb <- createWorkbook()
 	tryCatch({
 		if(!is.null(input$project)){
-			db <- dbConnect(SQLite(), sqlitePath)
 			datas <- dbGetQuery(db, sprintf('select sample, adduct, rangeRT_1, 
 				rangeRT_2, formula, C, Cl, round(auc) as auc, round(score, 2) as score, 
 				round(rt, 2) as rt, round(rtmin, 2) as rtmin, round(rtmax, 2) as rtmax, 
-				ppm, peakwidth, machine from observed inner join project_sample on 
+				ppm, peakwidth, machine, threshold from observed inner join project_sample on 
 				project_sample.project_sample = observed.project_sample where
 				project == "%s";', input$project))
-			dbDisconnect(db)
 			sample_adducts <- paste(datas$sample, datas$adduct)
 			datas$machine <- names(resolution_list)[datas$machine]
 			datas <- split(datas[, -c(1:4)] %>% 

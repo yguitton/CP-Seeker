@@ -46,6 +46,13 @@ for (i in seq_along(pkgs)) {
 	}
 }
 
+# add the column thresold if it doesn't exist
+db <- dbConnect(SQLite(), sqlitePath)
+cols <- dbGetQuery(db, 'pragma table_info("observed");')
+if(!any(cols$name == "threshold")) dbSendQuery(db, 'alter table observed add column threshold integer default 0 not null;')
+
+dbSendQuery(db, 'pragma journal_mode=wal;')
+
 source(file.path(appwd, "utils/app.R"))
 },
 error = function(e) {

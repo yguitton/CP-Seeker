@@ -38,8 +38,6 @@ body <- dashboardBody(fluidPage(
 		
 		source('ui/details.R', local=TRUE)$value
 		
-		
-	
 )))
 
 shinyUI(

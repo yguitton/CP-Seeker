@@ -36,7 +36,7 @@ observeEvent(input$target, {
 	print('------------------- TARGET --------------------')
 	print(list(project=input$project, samples=input$targetSamples, 
 		adduct=input$targetAdduct, rtRange = input$targetRT, ppm=input$targetTolPpm, 
-		peakwidth=input$targetPeakwidth,
+		peakwidth=input$targetPeakwidth, threshold=input$targetThreshold, 
 		machine=names(resolution_list)[input$targetMachine %>% as.numeric]))
 	tryCatch({
 		inputs <- c('targetProject', 'targetSamples', 
@@ -112,7 +112,7 @@ observeEvent(input$target, {
 			for(j in 1:length(eics)){
 				updateProgressBar(session, id="pb", title=paste("targeting in", input$targetSamples[i]),
 					value=j*100/length(eics))
-				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara2[[j]], scRange)
+				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara2[[j]], scRange, input$targetThreshold)
 				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
 						cbind(formula=unique(chloropara2[[j]]$formula)))
 			}
@@ -124,11 +124,12 @@ observeEvent(input$target, {
 			
 			if(nrow(rois) > 0){
 				query <- sprintf('insert into observed (mz, formula, rt, rtmin, rtmax, auc, project_sample, ppm,
-					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2) values %s;', paste('(', rois$mz, ', "', rois$formula,
+					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2, threshold) values %s;', 
+						paste('(', rois$mz, ', "', rois$formula,
 						'", ', rois$rt, ', ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
 						', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
 						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
-						', ', input$targetRT[1], ', ', input$targetRT[2], ')', collapse=', ', sep=''))
+						', ', input$targetRT[1], ', ', input$targetRT[2], ', ', input$targetThreshold, ')', collapse=', ', sep=''))
 				print(query)
 				dbSendQuery(db, query)
 			} else {
@@ -208,10 +209,10 @@ getAUC <- function(eic, roi, windowRTMed){
 		trapz(eic[roi, 'x'], baseline[roi])
 }
 
-targetChloroPara2 <- function(eic, roi, windowRTMed, minScans, scRange){
+targetChloroPara2 <- function(eic, roi, windowRTMed, minScans, scRange, threshold){
 	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
 	
-	roi <- roi[which(sapply(roi, function(x) eic[x, 'y'] >= baseline[x]))]
+	roi <- roi[which(sapply(roi, function(x) eic[x, 'y'] >= baseline[x] & eic[x, 'y'] > threshold))]
 	if(length(roi) < minScans) return(data.frame(rtmin=NA, rtmax=NA, auc=0))
 	
 	# enlarge the ROI until the baseline
@@ -231,13 +232,13 @@ targetChloroPara2 <- function(eic, roi, windowRTMed, minScans, scRange){
 		auc=getAUC(eic, roi, windowRTMed))	
 }
 
-targetChloroPara <- function(eics, minScans, theo, scRange){
+targetChloroPara <- function(eics, minScans, theo, scRange, threshold){
 	tryCatch({
 		res <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
 		
 		eic <- eics[[1]]
 		# search the ROI
-		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)))
+		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)) & eic$y > threshold)
 		rois <- rois[which(rois >= scRange[1] & rois <= scRange[2])]
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
 		rois <- rois[which(lengths(rois) > 1)]
@@ -251,7 +252,7 @@ targetChloroPara <- function(eics, minScans, theo, scRange){
 		
 		for(roi in rois){
 			tmpRes <- reduce(eics, function(a, b) 
-				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange)), .init = data.frame())
+				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange, threshold)), .init = data.frame())
 			if(tmpRes[1, 'auc'] <= 0) custom_stop('fail', 'auc of A is O')
 			if(tmpRes[2, 'auc'] <= 0) custom_stop('fail', 'auc of A2 is O')
 			theo <- theo[which(tmpRes$auc > 0), ]
