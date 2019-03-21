@@ -7,6 +7,7 @@ tabItem(tabName='tetras',
 	),
 
 	box(title="map", width=12, 
+		uiOutput('uiZoneSamples'),
 		plotlyOutput('map', height="800px")
 	)
 )

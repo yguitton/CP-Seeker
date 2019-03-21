@@ -7,8 +7,21 @@ distMatrix <- function(data, nbRow, nbCol){
 triangulization <- function(data){
 	triangles <- list()
 	
-	for(x in 1:(nrow(data)-1)){
-	for(y in 1:(ncol(data)-1)){
+	# get refs (x & y) where z > 0
+	ids <- which(data != 0, arr.ind=TRUE)
+	ids <- ids %>% data.frame()
+	colnames(ids) <- c('x', 'y')
+	# the scritp pair all values at x+1 & y+1 so need to 
+	# add all x-1 & y-1
+	ids <- ids %>% rbind(ids %>% mutate(x=x-1)) %>% 
+		rbind(ids %>% mutate(y=y-1)) %>% 
+		rbind(ids %>% mutate(x=x-1, y=y-1)) %>% 
+		filter(x > 0 & y > 0 & x < nrow(data)-1 & y < ncol(data)-1) %>% 
+		distinct %>% arrange(x, y)
+	
+	for(row in 1:nrow(ids)){
+		x <- ids[row, 'x']
+		y <- ids[row, 'y']
 		
 		A <- data.frame(x=x, y=y, z=data[x, y])
 		B <- data.frame(x=x, y=y+1, z=data[x, y+1])
@@ -26,7 +39,7 @@ triangulization <- function(data){
 		if(length(trianglesTmp) == 0) next
 		triangles <- append(triangles, trianglesTmp %>%
 			map(function(tri) tri %>% arrange(desc(z))))
-	}}
+	}
 	triangles
 }
 
@@ -72,6 +85,7 @@ cutTriangle <- function(triangle, zVal){
 getZCut <- function(triangles, vTarget=90, digits=2, pbVal=0){	
 	vT <- reduce(triangles, function(a, b) a + 
 		computeVolume(b), .init=0)
+	if(vT == 0) return(0)
 	vCurr <- 100
 	zHigh <- reduce(triangles, function(a, b) max(c(a, b$z)), .init=0)
 	zDown <- 0
@@ -121,9 +135,9 @@ drawTriCut <- function(triangles=NULL, z=NULL, maxC, maxCl){
 }
 
 splitToZones <- function(triangles, zVal){
+	if(zVal == 0) return(list(triangles))
 	trianglesCut <- reduce(triangles, function(a, b) a %>% 
-		append(cutTriangle(b, zVal) %>% map(function(triangle)
-			triangle %>% mutate(z = z - zVal))), .init=list())
+		append(cutTriangle(b, zVal)), .init=list())
 	centroids <- reduce(trianglesCut, function(a, b)
 		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
 	split(trianglesCut, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
@@ -139,8 +153,8 @@ scoreZones <- function(zone1, zone2){
 	(200 - sum(abs(data1 - data2))) / 2 
 }
 
-contourPolyhedras <- function(zones=NULL, maxC, maxCl){
-	if(is.null(zones)) return(
+contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
+	if(is.null(triangles)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
 			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
@@ -148,30 +162,33 @@ contourPolyhedras <- function(zones=NULL, maxC, maxCl){
 	)
 	p <- plot_ly(type="scatter", mode="lines")
 	centroids <- data.frame()
-	for(i in 1:length(zones)){
-		edges <- reduce(zones[[i]], function(a, b) a %>% 
+	
+	for(i in 1:length(triangles)){
+		zones <- map(triangles[[i]], function(zone) reduce(zone, function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
-			.init=list())
-		centroids <- centroids %>% rbind(reduce(edges, rbind) %>% summarise(x=sum(x)/n(), y=sum(y)/n()))
-		edges <- keep(edges, function(edge) all(edge$z == 0))
-		edges <- reduce(edges, function(a, b) a %>% rbind(b) %>% 
-			rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame())
+			.init=list()))
+		# centroids <- reduce(zones, function(a, b) a %>% rbind(reduce(b, rbind) %>% 
+			# summarise(x=sum(x)/n(), y=sum(y)/n())), .init=centroids)
+		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == 0)))
+		zones <- map(zones, function(zone) reduce(zone, function(a, b) a %>% 
+			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
 		
-		p <- p %>% add_lines(data=edges, x=~x, y=~y, hoverinfo="text", 
-			text=paste(names(zones)[i], "<br />Carbons:", round(edges$x, digits=2), 
-			"<br />Chlorines:", round(edges$y, digits=2)), 
-			name=names(zones)[i])
+		for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 
+			hoverinfo="text", text=paste(samples[i], ' - Zone', j, "<br />Carbons:", 
+				round(zones[[j]]$x, digits=2), "<br />Chlorines:", 
+				round(zones[[j]]$y, digits=2)), 
+			name=paste(samples[i], ' - Zone', j))
 	}
 	
 	# compute scores & add a line for each couple of zone which have a score > 0
-	scores <- proxy::dist(zones, method=function(x, y) scoreZones(x, y))
-	scores <- combn(1:length(zones), 2) %>% t %>% cbind(scores %>% c)
-	scores <- scores[which(scores[, 3] > 0), ]
-	for(row in 1:nrow(scores)) p <- p %>% add_trace(mode='lines+markers', 
-		data=centroids[scores[row, 1:2], ], showlegend=FALSE, 
-			x=~x, y=~y, marker=list(symbol="x-dot", size=10), line=list(dash="dash")) %>% 
-		add_text(data=centroids[scores[row, 1:2], ] %>% summarise(x=mean(x), y=mean(y)), showlegend=FALSE, 
-				x=~x, y=~y, text=paste(round(scores[row, 3]), '%'), textfont=list(family="Balto", size=20))
+	# scores <- proxy::dist(zones, method=function(x, y) scoreZones(x, y))
+	# scores <- combn(1:length(zones), 2) %>% t %>% cbind(scores %>% c)
+	# scores <- scores[which(scores[, 3] > 0), ]
+	# for(row in 1:nrow(scores)) p <- p %>% add_trace(mode='lines+markers', 
+		# data=centroids[scores[row, 1:2], ], showlegend=FALSE, 
+			# x=~x, y=~y, marker=list(symbol="x-dot", size=10), line=list(dash="dash")) %>% 
+		# add_text(data=centroids[scores[row, 1:2], ] %>% summarise(x=mean(x), y=mean(y)), showlegend=FALSE, 
+				# x=~x, y=~y, text=paste(round(scores[row, 3]), '%'), textfont=list(family="Balto", size=20))
 
 	p %>%
 		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 

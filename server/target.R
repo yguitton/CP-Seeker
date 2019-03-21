@@ -80,8 +80,10 @@ observeEvent(input$target, {
 				project_sample <- dbGetQuery(db, query)$project_sample		
 			} else {
 				project_sample <- project_sample$project_sample
-				query <- sprintf('delete from observed where project_sample == %s;',
-					project_sample, input$targetAdduct)
+				query <- sprintf('delete from observed where project_sample == %s;
+					delete from triangle where project_sample == %s; update project_sample 
+					set zVal = null where project_sample == %s;',
+					project_sample, project_sample, project_sample)
 				print(query)
 				dbSendQuery(db, query)			
 			}

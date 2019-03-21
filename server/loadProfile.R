@@ -4,13 +4,14 @@ output$uiDbProfileSampleAdduct <- renderUI({
 		choices <- paste(data$sample, data$adduct)
 		choices <- setNames(data$project_sample, choices)
 	} else choices <- c()
-	pickerInput('dbProfileSample', 'sample', choices=choices, multiple=TRUE, options=list(`live-search`=TRUE))
+	pickerInput('dbProfileSample', 'sample', choices=choices, multiple=TRUE, 
+		options=list(`live-search`=TRUE, `actions-box`=TRUE))
 })
 
 getDbProfileContent <- function(project_samples=NULL){
 	if(is.null(project_samples)) return(list())
 	datas <- map(project_samples, function(project_sample) 
-		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed where project_sample == %s group by(formula);', 
+		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed where project_sample == %s and score between -20 and 20 group by(formula);', 
 		project_sample)))
 	datas
 }
