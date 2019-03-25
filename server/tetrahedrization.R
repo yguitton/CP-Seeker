@@ -5,6 +5,7 @@ distMatrix <- function(data, nbRow, nbCol){
 }
 
 triangulization <- function(data){
+	print('triangulization')
 	triangles <- list()
 	
 	# get refs (x & y) where z > 0
@@ -82,7 +83,7 @@ cutTriangle <- function(triangle, zVal){
 	} else list()
 }
 
-getZCut <- function(triangles, vTarget=90, digits=2, pbVal=0){	
+getZCut <- function(triangles, vTarget=90, digits=2){	
 	vT <- reduce(triangles, function(a, b) a + 
 		computeVolume(b), .init=0)
 	if(vT == 0) return(0)
@@ -97,9 +98,8 @@ getZCut <- function(triangles, vTarget=90, digits=2, pbVal=0){
 				reduce(function(a, b) a + computeVolume(b, zMed), .init=0)
 		vCurr <- round(vCurr * 100 / vT, digits=digits)
 		if(vCurr > vTarget) zDown <- zMed else zHigh <- zMed
-		print(paste("current volume:", vCurr, '%'), value=100)
-		updateProgressBar(session, id="pb", title=paste("current volume:", vCurr, '%'), value=pbVal)
 	}
+	print(sprintf('found zMed: %s', zMed)) 
 	return(zMed)
 }
 
@@ -144,10 +144,10 @@ splitToZones <- function(triangles, zVal){
 }
 
 scoreZones <- function(zone1, zone2){
-	pts1 <- reduce(zone1, rbind) %>% distinct %>% filter(z > 0) %>%
-		mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	pts2 <- reduce(zone2, rbind) %>% distinct %>% filter(z > 0) %>%
-		mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	pts1 <- reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > 0) %>% 
+		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	pts2 <- reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > 0) %>% 
+		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
 	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
 	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
 	(200 - sum(abs(data1 - data2))) / 2 
@@ -161,14 +161,14 @@ contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
 	p <- plot_ly(type="scatter", mode="lines")
-	centroids <- data.frame()
+	colors <- brewer.pal(11, 'Set1')
+	pal <- colorRampPalette(colors)
+	pal <- pal(length(triangles))
 	
 	for(i in 1:length(triangles)){
 		zones <- map(triangles[[i]], function(zone) reduce(zone, function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
 			.init=list()))
-		# centroids <- reduce(zones, function(a, b) a %>% rbind(reduce(b, rbind) %>% 
-			# summarise(x=sum(x)/n(), y=sum(y)/n())), .init=centroids)
 		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == 0)))
 		zones <- map(zones, function(zone) reduce(zone, function(a, b) a %>% 
 			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
@@ -177,22 +177,12 @@ contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
 			hoverinfo="text", text=paste(samples[i], ' - Zone', j, "<br />Carbons:", 
 				round(zones[[j]]$x, digits=2), "<br />Chlorines:", 
 				round(zones[[j]]$y, digits=2)), 
-			name=paste(samples[i], ' - Zone', j))
+			legendgroup=samples[i], name=paste(samples[i], ' - Zone', j), color=pal[i])
 	}
-	
-	# compute scores & add a line for each couple of zone which have a score > 0
-	# scores <- proxy::dist(zones, method=function(x, y) scoreZones(x, y))
-	# scores <- combn(1:length(zones), 2) %>% t %>% cbind(scores %>% c)
-	# scores <- scores[which(scores[, 3] > 0), ]
-	# for(row in 1:nrow(scores)) p <- p %>% add_trace(mode='lines+markers', 
-		# data=centroids[scores[row, 1:2], ], showlegend=FALSE, 
-			# x=~x, y=~y, marker=list(symbol="x-dot", size=10), line=list(dash="dash")) %>% 
-		# add_text(data=centroids[scores[row, 1:2], ] %>% summarise(x=mean(x), y=mean(y)), showlegend=FALSE, 
-				# x=~x, y=~y, text=paste(round(scores[row, 3]), '%'), textfont=list(family="Balto", size=20))
 
 	p %>%
 		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 
 		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(
-			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
+			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d'))) %>% toWebGL()
 }
