@@ -69,6 +69,8 @@ output$downloadProject <- downloadHandler(
 				cbind(range_rT = paste(datas$rtmin, '-', datas$rtmax)) %>% 
 				mutate(range_rT_param = replace(range_rT_param, range_rT_param == "NA - NA", NA)),
 				sample_adducts)
+			sample_adducts <- sample_adducts %>% unique
+			
 			for(i in 1:length(datas)){
 				addWorksheet(wb, sample_adducts[i])
 				writeDataTable(wb, i, datas[[i]][, c('formula', 'C', 'Cl', 'auc', 'score',	
