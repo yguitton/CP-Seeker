@@ -161,7 +161,7 @@ contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
 	p <- plot_ly(type="scatter", mode="lines")
-	colors <- brewer.pal(11, 'Set1')
+	colors <- brewer.pal(9, 'Set1')
 	pal <- colorRampPalette(colors)
 	pal <- pal(length(triangles))
 	
@@ -184,5 +184,5 @@ contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
 		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 
 		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(
-			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d'))) %>% toWebGL()
+			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 }
