@@ -194,7 +194,7 @@ contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl
 			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
 	)
 	p <- plot_ly(type="scatter", mode="lines")
-	colors <- brewer.pal(9, 'Set1')
+	colors <- brewer.pal(8, 'Set1')
 	pal <- colorRampPalette(colors)
 	pal <- pal(length(triangles))
 	
@@ -206,11 +206,12 @@ contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl
 		zones <- map(zones, function(zone) reduce(zone, function(a, b) a %>% 
 			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
 		
-		for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 
-			hoverinfo="text", text=paste(samples[i], ' - Zone', j, "<br />Carbons:", 
-				round(zones[[j]]$x, digits=2), "<br />Chlorines:", 
-				round(zones[[j]]$y, digits=2)), 
-			legendgroup=samples[i], name=paste(samples[i], ' - Zone', j), color=pal[i])
+		if(length(zones) > 1) for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 
+			hoverinfo="text", legendgroup=samples[i], 
+			name=paste(samples[i], ' - Zone', j), color=pal[i])
+		else  p <- p %>% add_lines(data=zones[[1]], x=~x, y=~y, 
+			hoverinfo="text", legendgroup=samples[i], 
+			name=samples[i], color=pal[i])
 	}
 
 	p %>%

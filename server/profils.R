@@ -150,13 +150,13 @@ zonesMap <- eventReactive(input$zoneDraw, {
 				'select x, y, z, project_sample, triangle, zone from triangle 
 					where project_sample in (%s) and zone != 0;',
 					paste(project_samples, collapse=', ')))
+			if(nrow(edges) == 0) return(contourPolyhedras(maxC=maxC, maxCl=maxCl))
 			zonesPS <- split(edges %>% select(-project_sample), edges$project_sample) %>%
 				map(function(triangles) split(triangles %>% select(-zone), triangles$zone)) %>%
 				map(function(zones) zones %>% map(function(triangles) split(
 					triangles %>% select(-triangle), triangles$triangle)))
 			
-			project_samples <- project_samples[which(lengths(zonesPS) > 0)]
-			zonesPS <- zonesPS[which(lengths(zonesPS) > 0)]
+			project_samples <- unique(edges$project_sample)
 			zVals <- dbGetQuery(db, sprintf('select zVal from project_sample
 				where project_sample in (%s);',
 				paste(project_samples, collapse=', ')))$zVal
