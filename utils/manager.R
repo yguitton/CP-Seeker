@@ -55,8 +55,8 @@ if(!any(cols$name == "zVal")) dbSendQuery(db, 'alter table project_sample add co
 	zVal float default null;')
 tableNames <- dbGetQuery(db, 'select name from sqlite_master where type == "table";')$name
 if(!any(tableNames == "triangle")) dbSendQuery(db, 'create table triangle (id integer primary key autoincrement,
-	project_sample integer not null, zone integer not null, 
-	x float not null, y float not null, z float not null, triangle integer not null, 
+	project_sample integer not null, x float not null, y float not null, 
+	z float not null, triangle integer not null, 
 	foreign key(project_sample) references project_sample(project_sample));')
 
 dbSendQuery(db, 'pragma journal_mode=wal;')

@@ -7,7 +7,8 @@ tabItem(tabName='tetras',
 	),
 
 	box(title="map", width=12, 
-		uiOutput('uiZoneSamples'),
-		plotlyOutput('map', height="800px")
+		column(width=2, uiOutput('uiZoneSamples')),
+		column(width=1, style="padding-top:1.7%;", actionBttn('zoneDraw', 'Draw')),
+		column(width=12, plotlyOutput('map', height="800px"))
 	)
 )

@@ -51,13 +51,18 @@ computeVolume <- function(triangle, zVal=0){
 }
 
 newCoords <- function(a, b, z){
-	data.frame(
-		x = ((b$x - a$x) * (z - a$z)) / (b$z - a$z) + a$x,
-		y = ((b$y - a$y) * (z - a$z)) / (b$z - a$z) + a$y,
-		z = z
+	if(z > 0) data.frame(
+			x = ((b$x - a$x) * (z - a$z)) / (b$z - a$z) + a$x,
+			y = ((b$y - a$y) * (z - a$z)) / (b$z - a$z) + a$y,
+			z = z
+	) else data.frame(
+		x = (b$x + a$x) / 2,
+		y = (b$y + a$y) / 2,
+		z = 0
 	)
 }
 
+# don't return triangles under zVal
 cutTriangle <- function(triangle, zVal){
 	test <- length(which(triangle$z < zVal))
 	if(test == 0) return(list(triangle))
@@ -83,6 +88,37 @@ cutTriangle <- function(triangle, zVal){
 	} else list()
 }
 
+# return triangles under & above zVal
+splitTriangle <- function(triangle, zVal){
+	test <- length(which(triangle$z < zVal))
+	if(test == 0) return(list(triangle))
+	else if(test == 1){
+		pts <- triangle[which(triangle$z >= zVal), ]
+		ptA <- pts[1, ]
+		ptB <- pts[2, ]
+		ptC <- triangle[which(triangle$z < zVal), ]
+		ptAB <- newCoords(ptA, ptB, (ptA$z+ptB$z)/2)
+		ptAC <- newCoords(ptA, ptC, zVal)
+		ptBC <- newCoords(ptB, ptC, zVal)
+		return(list(ptA %>% rbind(ptAB) %>% rbind(ptAC),
+			ptB %>% rbind(ptAB) %>% rbind(ptBC),
+			ptC %>% rbind(ptAC) %>% rbind(ptBC),
+			ptAB %>% rbind(ptAC) %>% rbind(ptBC)))
+	} else if(test == 2){
+		ptA <- triangle[which(triangle$z >= zVal), ]
+		pts <- triangle[which(triangle$z < zVal), ]
+		ptB <- pts[1, ]
+		ptC <- pts[2, ]
+		ptAB <- newCoords(ptA, ptB, zVal)
+		ptAC <- newCoords(ptA, ptC, zVal)
+		ptBC <- newCoords(ptB, ptC, (ptB$z+ptC$z)/2)
+		return(list(ptA %>% rbind(ptAB) %>% rbind(ptAC),
+			ptB %>% rbind(ptAB) %>% rbind(ptBC),
+			ptC %>% rbind(ptAC) %>% rbind(ptBC),
+			ptAB %>% rbind(ptAC) %>% rbind(ptBC)))
+	} else return(list(triangle))
+}
+
 getZCut <- function(triangles, vTarget=90, digits=2){	
 	vT <- reduce(triangles, function(a, b) a + 
 		computeVolume(b), .init=0)
@@ -101,6 +137,22 @@ getZCut <- function(triangles, vTarget=90, digits=2){
 	}
 	print(sprintf('found zMed: %s', zMed)) 
 	return(zMed)
+}
+
+splitToZones <- function(triangles){
+	centroids <- reduce(triangles, function(a, b)
+		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
+	split(triangles, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
+}
+
+scoreZones <- function(zone1, zone2){
+	pts1 <- reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	pts2 <- reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	(200 - sum(abs(data1 - data2))) / 2 
 }
 
 drawTri <- function(triangles=NULL, maxC, maxCl){
@@ -134,26 +186,7 @@ drawTriCut <- function(triangles=NULL, z=NULL, maxC, maxCl){
 	else p
 }
 
-splitToZones <- function(triangles, zVal){
-	if(zVal == 0) return(list(triangles))
-	trianglesCut <- reduce(triangles, function(a, b) a %>% 
-		append(cutTriangle(b, zVal)), .init=list())
-	centroids <- reduce(trianglesCut, function(a, b)
-		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
-	split(trianglesCut, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
-}
-
-scoreZones <- function(zone1, zone2){
-	pts1 <- reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > 0) %>% 
-		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	pts2 <- reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > 0) %>% 
-		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	(200 - sum(abs(data1 - data2))) / 2 
-}
-
-contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
+contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl){
 	if(is.null(triangles)) return(
 		plot_ly(type="scatter", mode="lines") %>% 
 		 layout(showlegend=FALSE, 
@@ -169,7 +202,7 @@ contourPolyhedras <- function(triangles=NULL, samples=NULL, maxC, maxCl){
 		zones <- map(triangles[[i]], function(zone) reduce(zone, function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
 			.init=list()))
-		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == 0)))
+		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == zVals[i])))
 		zones <- map(zones, function(zone) reduce(zone, function(a, b) a %>% 
 			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
 		

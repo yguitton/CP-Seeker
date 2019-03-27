@@ -32,16 +32,16 @@ observeEvent(input$profileLaunch, {
 			datas[[i]] <- distMatrix(datas[[i]], maxC, maxCl)
 		}
 		
-		triangles <- list()
+		trianglesPS <- list()
 		for(i in 1:length(datas)){
 			updateProgressBar(session, id='pb', title=sprintf('triangulization %s',
 				samplesComputed[i]), value=0)
-			triangles[[i]] <- triangulization(datas[[i]])
+			trianglesPS[[i]] <- triangulization(datas[[i]])
 		}
 		zVals <- c()
-		for(i in 1:length(triangles)){
-			pbVal <- i*100/length(triangles)
-			zVals <- c(zVals, getZCut(triangles[[i]], vTarget=input$vTarget, digits=input$vDigits))
+		for(i in 1:length(trianglesPS)){
+			pbVal <- i*100/length(trianglesPS)
+			zVals <- c(zVals, getZCut(trianglesPS[[i]], vTarget=input$vTarget, digits=input$vDigits))
 			updateProgressBar(session, id="pb", title=sprintf('target volume in %s', 
 				samplesComputed[i]), value=pbVal)
 		}
@@ -50,37 +50,39 @@ observeEvent(input$profileLaunch, {
 			zVals[i], input$dbProfileSample[i])))
 		
 		project_samples <- input$dbProfileSample[which(
-			lengths(triangles) > 0)]
-		samplesComputed <- samplesComputed[which(
-			lengths(triangles) > 0)]
-		zVals <- zVals[which(lengths(triangles) > 0)]
-		triangles <- triangles[which(lengths(triangles) > 0)]
+			lengths(trianglesPS) > 0)]
+		zVals <- zVals[which(lengths(trianglesPS) > 0)]
+		trianglesPS <- trianglesPS[which(lengths(trianglesPS) > 0)]
+		zonesPS <- list()
 		
-		if(length(triangles) > 0){
-			zones <- list()
-			edges <- data.frame()
-			for(i in 1:length(triangles)){
-				updateProgressBar(session, id="pb", title=sprintf('split in zones %s', 
-					samplesComputed[i]), value=100)
-				zones[[i]] <- splitToZones(triangles[[i]], zVals[[i]])
-				edges <- edges %>% rbind(reduce(1:length(zones[[i]]), function(k, l)
-					k %>% rbind(reduce(zones[[i]][[l]], rbind) %>%
-						cbind(zone=l)), .init=data.frame()) %>%
-					cbind(project_sample=project_samples[i]) %>% 
-					mutate(z=z - zVals[i]))
-			}
-			# edges <- reduce(1:length(zones), function(i, j) i %>% 
-				# rbind(reduce(1:length(zones[[j]]), function(k, l) k %>% 
-					# rbind(reduce(zones[[j]][[l]], rbind) %>% 
-						# cbind(zone=l)), .init=data.frame()) %>% 
-				# cbind(project_sample=project_samples[j]) %>% mutate(z=z-zVals[j])), .init=data.frame())
-			edges$triangle <- rep(1:(nrow(edges)/3), each=3)
-			
-			query <- sprintf('insert into triangle (x, y, z, triangle, project_sample, zone) values (%s);', 
-				paste(edges$x, edges$y, edges$z, edges$triangle, edges$project_sample, edges$zone, sep=', ', collapse='), ('))
-			dbSendQuery(db, query)
+		saveRDS(list(trianglesPS=trianglesPS, zVals=zVals, project_sample=project_samples),
+			file='test.RDS')
+		
+		for(i in 1:length(trianglesPS)){
+			updateProgressBar(session, id='pb', title=sprintf('split into zones %s',
+				samplesComputed[i]), value=100)
+			trianglesPS[[i]] <- reduce(trianglesPS[[i]], function(a, b)
+				a %>% append(splitTriangle(b, zVals[i])), .init=list())
+			# get triangle under zVal
+			trianglesUnder <- keep(trianglesPS[[i]], function(triangle)
+				any(triangle$z < zVals[i]))
+			# get triangle above zVal
+			trianglesAbove <- keep(trianglesPS[[i]], function(triangle)
+				any(triangle$z > zVals[i]))
+			zonesPS[[i]] <- list(trianglesUnder) %>% 
+				append(splitToZones(trianglesAbove))
 		}
-	
+		edges <- reduce(1:length(zonesPS), function(a, b) 
+			a %>% rbind(reduce(1:length(zonesPS[[b]]), function(c, d) 
+				c %>% rbind(reduce(zonesPS[[b]][[d]], rbind, .init=data.frame()) %>% 
+					cbind(zone = d-1)), .init=data.frame()) %>% 
+				cbind(triangle = rep(1:(sum(lengths(zonesPS[[b]]))), each=3)) %>% 
+				cbind(project_sample = project_samples[b])), 
+				.init=data.frame())
+		query <- sprintf('insert into triangle (x, y, z, triangle, project_sample, zone) values (%s);', 
+			paste(edges$x, edges$y, edges$z, edges$triangle, edges$project_sample, edges$zone, sep=', ', collapse='), ('))
+		dbSendQuery(db, query)
+			
 		closeSweetAlert(session)
 	}, invalid = function(i){
 		closeSweetAlert(session)
@@ -96,6 +98,9 @@ observeEvent(input$profileLaunch, {
 		sendSweetAlert(e$message)	
 	})
 	actualize$tetrahedrization <- !actualize$tetrahedrization
+	# purge the zones map
+	plotlyProxy("map", session) %>% 
+		plotlyProxyInvoke("purge")
 	print('---------------------------- END PROFILE LAUNCH -------------------')
 })
 
@@ -116,8 +121,11 @@ output$tetrahedras <- renderPlotly({
 		triangles <- dbGetQuery(db, sprintf(
 			'select x, y, z, triangle from triangle where project_sample == %s;',
 				input$tetrasSample))
-		drawTri(split(triangles[, c('x', 'y', 'z')], triangles$triangle), 
-			maxC, maxCl)
+		zVal <- dbGetQuery(db, sprintf(
+			'select zVal from project_sample where project_sample == %s;',
+				input$tetrasSample))$zVal
+		drawTriCut(split(triangles[, c('x', 'y', 'z')], triangles$triangle), 
+			zVal, maxC, maxCl)
 	}
 })
 
@@ -127,34 +135,43 @@ output$uiZoneSamples <- renderUI({
 		zVal is not null and project == "%s";', input$project))
 	pickerInput('zoneSamples', 'samples', 
 		choices=setNames(choices$project_sample, choices$sample), 
-		multiple=TRUE, width='50%', options=list(`live-search`=TRUE, `actions-box`=TRUE))
+		multiple=TRUE, options=list(`live-search`=TRUE, `actions-box`=TRUE))
 })
 
-output$map <- renderPlotly({
+output$map <- renderPlotly(zonesMap())
+
+zonesMap <- eventReactive(input$zoneDraw, {
 	print('----------------------------- MAP ------------------------------')
-	actualize$tetrahedrization
 	p <- if(is.null(input$zoneSamples)) contourPolyhedras(maxC=maxC, maxCl=maxCl)
 		else if(length(input$zoneSamples) == 0) contourPolyhedras(maxC=maxC, maxCl=maxCl)
 		else{
-			triangles <- dbGetQuery(db, sprintf(
-				'select x, y, z, zone, project_sample, triangle from triangle 
-					where project_sample in (%s);',
-					paste(input$zoneSamples, collapse=', ')))
-			project_samples <- triangles$project_sample %>% unique
-			triangles <- split(triangles, triangles$project_sample)
-			triangles <- map(1:length(triangles), function(i) triangles[[i]] %>% 
-				split(triangles[[i]]$zone) %>%	map(function(x) split(x, x$triangle)))
-				
+			project_samples <- input$zoneSamples
+			edges <- dbGetQuery(db, sprintf(
+				'select x, y, z, project_sample, triangle, zone from triangle 
+					where project_sample in (%s) and zone != 0;',
+					paste(project_samples, collapse=', ')))
+			zonesPS <- split(edges %>% select(-project_sample), edges$project_sample) %>%
+				map(function(triangles) split(triangles %>% select(-zone), triangles$zone)) %>%
+				map(function(zones) zones %>% map(function(triangles) split(
+					triangles %>% select(-triangle), triangles$triangle)))
+			
+			project_samples <- project_samples[which(lengths(zonesPS) > 0)]
+			zonesPS <- zonesPS[which(lengths(zonesPS) > 0)]
+			zVals <- dbGetQuery(db, sprintf('select zVal from project_sample
+				where project_sample in (%s);',
+				paste(project_samples, collapse=', ')))$zVal
+			
 			# compute score for each zone
 			print('compute scores')
-			zones <- unlist(triangles, recursive=FALSE)
+			zones <- unlist(zonesPS, recursive=FALSE)
 			scores <- proxy::dist(zones, method=function(x, y) scoreZones(x, y)) %>% 
 				as.matrix %>% apply(c(1, 2), function(x) round(x, digits=2))
 			
 			print('construct map')
-			contourPolyhedras(triangles, dbGetQuery(db, sprintf('select sample from 
-				project_sample where project_sample in (%s);', 
-					paste(project_samples, collapse=', ')))$sample, maxC, maxCl) %>% onRender("
+			sampleNames <- dbGetQuery(db, sprintf('select sample from 
+				project_sample where project_sample in (%s);',
+				paste(project_samples, collapse=', ')))$sample
+			contourPolyhedras(zonesPS, zVals, sampleNames, maxC, maxCl) %>% onRender("
 						function(el, x, scores){
 							el.on('plotly_hover', function(data){
 								var tn = 0,
