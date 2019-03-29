@@ -67,13 +67,14 @@ output$downloadProject <- downloadHandler(
 			datas <- split(datas[, -c(1:4)] %>% 
 				cbind(range_rT_param = paste(datas$rangeRT_1, '-', datas$rangeRT_2)) %>% 
 				cbind(range_rT = paste(datas$rtmin, '-', datas$rtmax)) %>% 
-				mutate(range_rT_param = replace(range_rT_param, range_rT_param == "NA - NA", NA)),
+				mutate(range_rT_param = replace(range_rT_param, range_rT_param == "NA - NA", NA)) %>%
+				mutate(isotope = rep(c(1, 2), times=n()/2)),
 				sample_adducts)
 			sample_adducts <- sample_adducts %>% unique
 			
 			for(i in 1:length(datas)){
 				addWorksheet(wb, sample_adducts[i])
-				writeDataTable(wb, i, datas[[i]][, c('formula', 'C', 'Cl', 'auc', 'score',	
+				writeDataTable(wb, i, datas[[i]][, c('formula', 'isotope', 'C', 'Cl', 'auc', 'score',	
 					'rt', 'range_rT', 'ppm', 'peakwidth', 'machine', 'range_rT_param')])
 			}
 		}
