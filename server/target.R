@@ -242,21 +242,22 @@ targetChloroPara <- function(eics, minScans, theo, scRange, threshold){
 		# search the ROI
 		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)) & eic$y > threshold)
 		rois <- rois[which(rois >= scRange[1] & rois <= scRange[2])]
-		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 2)))
+		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 3)))
 		rois <- rois[which(lengths(rois) > 1)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		rois <- map(rois, function(x) min(x):max(x))
 		rois <- rois[which(lengths(rois) > minScans)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		
-		windowRTMed <- 4*length(unlist(rois))
-		if(windowRTMed %% 2 == 0) windowRTMed <- windowRTMed + 1
+		windowRTMed <- 1 + 2 * min(
+			(nrow(eic)+length(unlist(rois))-1)%/% 2, 
+			ceiling(0.1*(nrow(eic)+length(unlist(rois)))))
 		
 		for(roi in rois){
 			tmpRes <- reduce(eics, function(a, b) 
 				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange, threshold)), .init = data.frame())
-			if(tmpRes[1, 'auc'] <= 0) custom_stop('fail', 'auc of A is O')
-			if(tmpRes[2, 'auc'] <= 0) custom_stop('fail', 'auc of A2 is O')
+			if(tmpRes[1, 'auc'] <= 0) next
+			if(tmpRes[2, 'auc'] <= 0) next
 			theo <- theo[which(tmpRes$auc > 0), ]
 			tmpRes <- tmpRes[which(tmpRes$auc > 0), ]
 			rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
