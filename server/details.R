@@ -124,8 +124,11 @@ plotEIC <- function(data, mz, rois=data.frame()){
 	if(nrow(rois) > 0){
 		scans <- lapply(1:nrow(rois), function(x) 
 			which(data$x >= rois[x, 'rtmin'] & data$x <= rois[x, 'rtmax']))
-		baseline <- runmed(data$y, 9*(length(unlist(scans))%/%2), 
-			endrule="median", algorithm="Turlach")
+		windowRTMed <- 1 + 2 * min(
+			(nrow(data)+length(unlist(scans))-1)%/% 2, 
+			ceiling(0.1*(nrow(data)+length(unlist(scans)))))
+	
+		baseline <- runmed(data$y, windowRTMed, endrule="median", algorithm="Turlach")
 		# trace a line under the roi for filling it 
 		for(i in 1:length(scans)) eicPlot <- eicPlot %>% 
 			add_lines(x=data[scans[[i]], 'x'], y=baseline[scans[[i]]], showlegend=FALSE) %>% 
@@ -295,7 +298,9 @@ reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, th
 	eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
 	
 	roi <- which(eics[[1]]$x >= rtmin & eics[[1]]$x <= rtmax)
-	windowRTMed <- 9*(length(roi)%/%2)
+	windowRTMed <- 1 + 2 * min(
+		(nrow(eics[[1]])+length(roi)-1)%/% 2, 
+		ceiling(0.1*(nrow(eics[[1]])+length(roi))))
 	
 	rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
 		j[1] * (j[2] / sum(i[roi, 2]))) %>% sum)

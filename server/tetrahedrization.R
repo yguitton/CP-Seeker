@@ -142,7 +142,7 @@ getZCut <- function(triangles, vTarget=90, digits=2){
 splitToZones <- function(triangles){
 	centroids <- reduce(triangles, function(a, b)
 		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
-	split(triangles, dbscan(dist(centroids[, -3]), 1, 1)$cluster)
+	split(triangles, dbscan(dist(centroids[, -3]), .5, 1)$cluster)
 }
 
 scoreZones <- function(zone1, zone2){
