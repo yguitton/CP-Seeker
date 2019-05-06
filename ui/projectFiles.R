@@ -25,5 +25,8 @@ tabItem(tabName='projectFiles',
 			)
 		),
 		dataTableOutput('sampleTable')
-	)
+	)#,
+	# box(title='Standards', width=6,
+		# dataTableOutput('standardTable')
+	# )
 )

@@ -95,7 +95,7 @@ importRaw <- function(path){
 observeEvent(input$rawFilesImport, {
 	print('-------------- RAW FILES IMPORT --------------------')
 	tryCatch({
-		rawPaths <- choose.files(caption='Select raw files (thermo)', multi=TRUE,
+		rawPaths <- choose.files(caption='Select files', multi=TRUE,
 			filter=matrix(c('.raw', '*.raw'), 1, 1, byrow=TRUE))
 		print(paste('raw path:', rawPaths))
 		if(length(rawPaths) == 0) custom_stop('invalid', 'no files selected')
@@ -120,7 +120,63 @@ observeEvent(input$rawFilesImport, {
 	print('-------------- END RAW FILES IMPORT --------------------')
 })
 
+# output$uiStandardTable <- renderDataTable({
+	# tryCatch({
+	# db <- dbConnect(SQLite(), sqlitePath)
+	# data <- dbGetQuery(db, 'select * from standards')
+	# dbDisonnect(db)
+	# data
+	# })
+# }, rownames=FALSE, selection=list(mode='multiple', target='row'), extensions=c('Buttons'), options=list(dom='Bfrtip',
+# buttons=JS("
+	# [
+		# {
+			# text: 'new', 
+			# action: function(e, dt, node, config){
+				# Shiny.onInputChange('standardTable_add', Math.random());
+			# }
+		# },
+		# {
+			# text: 'remove', 
+			# action: function(e, dt, node, config){
+				# Shiny.onInputChange('standardTable_remove', {rand: Math.random(),
+					# ids: table.rows('.selected').data().map(x => x[0])});
+				# table.rows('.selected').remove();
+			# }
+		# }
+	# ]
+# "), callback=JS("table.column(':contains(standard)').visible(false);"))
 
+# observeEvent(input$standardTable_add, {
+	# showModal(addStandardModal())
+# })
 
+# addStandardModal <- function(){
+	# modalDialog(title='Add new standard in database', 
+		# textInput('SDName', 'name', '', placeholder='enter the name'),
+		# textInput('SDFormula', 'formula', '', placeholder='enter the formula'),
+		# footer=actionBttn('standardAdd', 'add', style='stretch', color='primary')
+	# )
+# }
+
+# observeEvent(input$standardAdd, {
+	# tryCatch({
+		
+	# })
+# })
+
+# observeEvent(input$standardTable_remove, {
+	# tryCatch({
+	# ids <- input$standardTable_remove$ids
+	# if(length(ids) == 0) custom_stop('minor_error', 'You need to select at least one row')
+	# db <- dbConnect(SQLite(), sqlitePath)
+	# dbGetQuery(db, sprintf('delete from standard where standard in (%s);', 
+		# paste(ids, collapse=', ')))
+	# dbDisconnect(db)
+	# }, minor_error = function(e){
+		# print(e$message)
+		# toastr_error(e$message)
+	# })
+# })
 
 

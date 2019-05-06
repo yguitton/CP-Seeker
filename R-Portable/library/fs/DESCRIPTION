@@ -1,6 +1,6 @@
 Package: fs
 Title: Cross-Platform File System Operations Based on 'libuv'
-Version: 1.2.6
+Version: 1.2.7
 Authors@R: c(
     person("Jim", "Hester", email = "james.f.hester@gmail.com", role = c("aut", "cre")),
     person("Hadley", "Wickham", , "hadley@rstudio.com", "aut"),
@@ -18,13 +18,15 @@ ByteCompile: true
 LinkingTo: Rcpp
 Imports: methods, Rcpp
 SystemRequirements: GNU make
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 URL: http://fs.r-lib.org, https://github.com/r-lib/fs
 BugReports: https://github.com/r-lib/fs/issues
 Copyright: file COPYRIGHTS
-Suggests: testthat, covr, pillar (>= 1.0.0), crayon, withr
+Suggests: testthat, covr, pillar (>= 1.0.0), crayon, rmarkdown, knitr,
+        withr,
+VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2018-08-23 19:04:30 UTC; jhester
+Packaged: 2019-03-19 18:52:57 UTC; jhester
 Author: Jim Hester [aut, cre],
   Hadley Wickham [aut],
   libuv project contributors [cph] (libuv library),
@@ -32,6 +34,6 @@ Author: Jim Hester [aut, cre],
   RStudio [cph, fnd]
 Maintainer: Jim Hester <james.f.hester@gmail.com>
 Repository: CRAN
-Date/Publication: 2018-08-23 19:34:26 UTC
-Built: R 3.4.4; x86_64-w64-mingw32; 2019-01-07 15:04:55 UTC; windows
+Date/Publication: 2019-03-19 23:20:03 UTC
+Built: R 3.4.4; x86_64-w64-mingw32; 2019-04-25 17:59:55 UTC; windows
 Archs: i386, x64

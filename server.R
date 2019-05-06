@@ -3,7 +3,8 @@ shinyServer(function(input, output, session) {
 
 #to close the connection
 session$onSessionEnded(function() {
-	dbSendQuery(db, 'pragma wal_checkpoint_v2(0);')
+	dbSendQuery(db, 'vacuum;')
+	dbSendQuery(db, 'pragma wal_checkpoint(truncate);')
 	dbDisconnect(db)
 	stopApp()
 	# comment line above because it's still in developement

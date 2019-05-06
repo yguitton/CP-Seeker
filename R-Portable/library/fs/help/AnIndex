@@ -12,6 +12,7 @@ dir_exists	file_access
 dir_info	dir_ls
 dir_ls	dir_ls
 dir_map	dir_ls
+dir_tree	dir_tree
 dir_walk	dir_ls
 file_access	file_access
 file_chmod	file_chmod
@@ -23,6 +24,7 @@ file_exists	file_access
 file_info	file_info
 file_move	file_move
 file_show	file_show
+file_size	file_info
 file_temp	file_temp
 file_temp_pop	file_temp
 file_temp_push	file_temp
@@ -36,6 +38,7 @@ id	id
 is_absolute_path	is_absolute_path
 is_dir	is_file
 is_file	is_file
+is_file_empty	is_file
 is_link	is_file
 link_copy	copy
 link_create	create

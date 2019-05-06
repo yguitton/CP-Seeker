@@ -2,6 +2,8 @@ copy                    Copy files, directories or links
 create                  Create files, directories, or links
 delete                  Delete files, directories, or links
 dir_ls                  List files
+dir_tree                Print contents of directories in a tree-like
+                        format
 file_access             Query for existence and access permissions
 file_chmod              Change file permissions
 file_chown              Change owner or group of a file

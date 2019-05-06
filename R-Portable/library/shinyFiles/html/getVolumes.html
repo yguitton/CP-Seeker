@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get a list of available volumes</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getVolumes {shinyFiles}"><tr><td>getVolumes {shinyFiles}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get a list of available volumes</h2>
+
+<h3>Description</h3>
+
+<p>This function is intended as an input to the roots parameter in
+<code><a href="fileGetter.html">fileGetter()</a></code> and <code><a href="shinyFiles-observers.html">shinyFileChoose()</a></code>. It returns a
+function that returns a named vector of available volumes on the system. This
+construction makes it dynamic so that a shinyFiles instance reflects new
+volumes as they get added (e.g. usb drives). The function takes a single
+argument giving names of volumes the developer wants removed from the return
+value.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getVolumes(exclude)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>exclude</code></td>
+<td>
+<p>A vector of volume names to be excluded from the return value</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function is OS specific and looks for volumes/drives in different places
+depending on the system on which shiny is running.
+</p>
+
+<dl>
+<dt>Windows</dt><dd><p>Returns all drives mapped to a letter</p>
+</dd>
+<dt>Mac OSX</dt><dd><p>Looks in /Volumes/ and lists the directories therein</p>
+</dd>
+<dt>Linux</dt><dd><p>Returns the system root</p>
+</dd>
+</dl>
+
+<p>If the function does not recognize the system under which it is running it
+will throw an error
+</p>
+
+
+<h3>Value</h3>
+
+<p>A function returning a named vector of available volumes
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>shinyFiles</em> version 0.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a function that updates a folder tree based on the...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dirGetter {shinyFiles}"><tr><td>dirGetter {shinyFiles}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a function that updates a folder tree based on the given restrictions</h2>
+
+<h3>Description</h3>
+
+<p>This functions returns a new function that will handle updating the folder
+tree. It is the folder equivalent of <code><a href="fileGetter.html">fileGetter()</a></code> but functions
+slightly different as it needs to handle expanded branches of the folder
+hierarchy rather than just the content of a single directory at a time. The
+returned function takes a representation of a folder hierarchy along with the
+root to where it belongs and updates the tree to correspond with the current
+state of the file system, without altering expansions etc.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dirGetter(roots, restrictions, filetypes, hidden = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>roots</code></td>
+<td>
+<p>A named vector of absolute filepaths or a function returning a
+named vector of absolute filepaths (the latter is useful if the volumes
+should adapt to changes in the filesystem).</p>
+</td></tr>
+<tr valign="top"><td><code>restrictions</code></td>
+<td>
+<p>A vector of directories within the root that should be
+filtered out of the results</p>
+</td></tr>
+<tr valign="top"><td><code>filetypes</code></td>
+<td>
+<p>Currently unused</p>
+</td></tr>
+<tr valign="top"><td><code>hidden</code></td>
+<td>
+<p>A logical value specifying whether hidden files should be
+returned or not</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A function taking a list representation of a folder hierarchy along
+with the name of the root where it starts. See <code><a href="traverseDirs.html">traverseDirs()</a></code> for
+a description of the format for the list representation.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>shinyFiles</em> version 0.7.3 <a href="00Index.html">Index</a>]</div>
+</body></html>
