@@ -18,7 +18,6 @@ isowrap                 Combined (batch) calculation of isotope
                         resolutions.
 mergeform               Combine chemical formulas
 multiform               Multiply a chemical formula
-resolution_list         Resolutions (R) list for Themo Orbitrap and
-                        QExactive mass spectrometers
+resolution_list         Resolutions (R) list for mass spectrometers
 subform                 Subtract one chemical formula from another
 vdetect                 Valley detection and centroidization

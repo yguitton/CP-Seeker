@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Peak grouping based on proximity in the mz-rt space</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for groupChromPeaks-nearest {xcms}"><tr><td>groupChromPeaks-nearest {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Peak grouping based on proximity in the mz-rt space</h2>
+
+<h3>Description</h3>
+
+<p>This method is inspired by the grouping algorithm of mzMine
+[Katajamaa 2006] and performs correspondence based on proximity of peaks
+in the space spanned by retention time and mz values.
+The method creates first a <em>master peak list</em> consisting of all
+chromatographic peaks from the sample in which most peaks were
+identified, and starting from that, calculates distances to peaks from
+the sample with the next most number of peaks. If peaks are closer than
+the defined threshold they are grouped together.
+</p>
+<p>The <code>NearestPeaksParam</code> class allows to specify all
+settings for the peak grouping based on the <em>nearest</em> algorithm.
+Instances should be created with the <code>NearestPeaksParam</code> constructor.
+</p>
+<p><code>sampleGroups</code>,<code>sampleGroups&lt;-</code>: getter and setter
+for the <code>sampleGroups</code> slot of the object.
+</p>
+<p><code>mzVsRtBalance</code>,<code>mzVsRtBalance&lt;-</code>: getter and setter
+for the <code>mzVsRtBalance</code> slot of the object.
+</p>
+<p><code>absMz</code>,<code>absMz&lt;-</code>: getter and setter for the
+<code>absMz</code> slot of the object.
+</p>
+<p><code>absRt</code>,<code>absRt&lt;-</code>: getter and setter for the
+<code>absRt</code> slot of the object.
+</p>
+<p><code>kNN</code>,<code>kNN&lt;-</code>: getter and setter for the
+<code>kNN</code> slot of the object.
+</p>
+<p><code>groupChromPeaks,XCMSnExp,NearestPeaksParam</code>:
+performs peak grouping based on the proximity between chromatographic
+peaks from different samples in the mz-rt range.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+NearestPeaksParam(sampleGroups = numeric(), mzVsRtBalance = 10,
+  absMz = 0.2, absRt = 15, kNN = 10)
+
+## S4 method for signature 'NearestPeaksParam'
+show(object)
+
+## S4 method for signature 'NearestPeaksParam'
+sampleGroups(object)
+
+## S4 replacement method for signature 'NearestPeaksParam'
+sampleGroups(object) &lt;- value
+
+## S4 method for signature 'NearestPeaksParam'
+mzVsRtBalance(object)
+
+## S4 replacement method for signature 'NearestPeaksParam'
+mzVsRtBalance(object) &lt;- value
+
+## S4 method for signature 'NearestPeaksParam'
+absMz(object)
+
+## S4 replacement method for signature 'NearestPeaksParam'
+absMz(object) &lt;- value
+
+## S4 method for signature 'NearestPeaksParam'
+absRt(object)
+
+## S4 replacement method for signature 'NearestPeaksParam'
+absRt(object) &lt;- value
+
+## S4 method for signature 'NearestPeaksParam'
+kNN(object)
+
+## S4 replacement method for signature 'NearestPeaksParam'
+kNN(object) &lt;- value
+
+## S4 method for signature 'XCMSnExp,NearestPeaksParam'
+groupChromPeaks(object, param)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>sampleGroups</code></td>
+<td>
+<p>A vector of the same length than samples defining the
+sample group assignments (i.e. which samples belong to which sample
+group). This parameter is mandatory for the <code>PeakDensityParam</code>
+and has to be provided also if there is no sample grouping in the
+experiment (in which case all samples should be assigned to the
+same group).</p>
+</td></tr>
+<tr valign="top"><td><code>mzVsRtBalance</code></td>
+<td>
+<p><code>numeric(1)</code> representing the factor by which mz
+values are multiplied before calculating the (euclician) distance between
+two peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>absMz</code></td>
+<td>
+<p><code>numeric(1)</code> maximum tolerated distance for mz values.</p>
+</td></tr>
+<tr valign="top"><td><code>absRt</code></td>
+<td>
+<p><code>numeric(1)</code> maximum tolerated distance for rt values.</p>
+</td></tr>
+<tr valign="top"><td><code>kNN</code></td>
+<td>
+<p><code>numeric(1)</code> representing the number of nearest neighbors
+to check.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>For <code>groupChromPeaks</code>: an <code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object
+containing the results from a previous chromatographic peak detection
+analysis (see <code><a href="chromatographic-peak-detection.html">findChromPeaks</a></code>).
+</p>
+<p>For all other methods: a <code>NearestPeaksParam</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for the slot.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>A <code>NearestPeaksParam</code> object containing all settings for
+the peak grouping algorithm.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The <code>NearestPeaksParam</code> function returns a
+<code>NearestPeaksParam</code> class instance with all of the settings
+specified for peak alignment based on peak proximity.
+</p>
+<p>For <code>groupChromPeaks</code>: a <code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object with the
+results of the peak grouping/correspondence step (i.e. the mz-rt
+features). These can be accessed with the
+<code><a href="XCMSnExp-class.html">featureDefinitions</a></code> method.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.__classVersion__,sampleGroups,mzVsRtBalance,absMz,absRt,kNN</code></dt><dd><p>See corresponding parameter above. <code>.__classVersion__</code> stores
+the version from the class. Slots values should exclusively be accessed
+<em>via</em> the corresponding getter and setter methods listed above.</p>
+</dd>
+</dl>
+
+
+<h3>Note</h3>
+
+<p>These methods and classes are part of the updated and modernized
+<code>xcms</code> user interface which will eventually replace the
+<code><a href="group-methods.html">group</a></code> methods. All of the settings to the algorithm
+can be passed with a <code>NearestPeaksParam</code> object.
+</p>
+<p>Calling <code>groupChromPeaks</code> on an <code>XCMSnExp</code> object will cause
+all eventually present previous alignment results to be dropped.
+</p>
+
+
+<h3>References</h3>
+
+<p>Katajamaa M, Miettinen J, Oresic M: MZmine: Toolbox for
+processing and visualization of mass spectrometry based molecular profile
+data. <em>Bioinformatics</em> 2006, 22:634-636.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="do_groupChromPeaks_nearest.html">do_groupChromPeaks_nearest</a></code> core
+API function and <code><a href="group.nearest.html">group.nearest</a></code> for the old user interface.
+<code><a href="XCMSnExp-class.html">featureDefinitions</a></code> and
+<code><a href="XCMSnExp-peak-grouping-results.html">featureValues,XCMSnExp-method</a></code> for methods to access
+peak grouping results (i.e. the features).
+</p>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for the object containing the results of
+the peak grouping.
+</p>
+<p>Other peak grouping methods: <code><a href="groupChromPeaks-density.html">groupChromPeaks-density</a></code>,
+<code><a href="groupChromPeaks-mzClust.html">groupChromPeaks-mzClust</a></code>,
+<code><a href="groupChromPeaks.html">groupChromPeaks</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a NearestPeaksParam object
+p &lt;- NearestPeaksParam(kNN = 3)
+p
+
+##############################
+## Chromatographic peak detection and grouping.
+##
+## Below we perform first a chromatographic peak detection (using the
+## matchedFilter method) on some of the test files from the faahKO package
+## followed by a peaks grouping using the "nearest" method.
+library(faahKO)
+library(MSnbase)
+fls &lt;- dir(system.file("cdf/KO", package = "faahKO"), recursive = TRUE,
+           full.names = TRUE)
+
+## Reading 2 of the KO samples
+raw_data &lt;- readMSData(fls[1:2], mode = "onDisk")
+
+## Perform the peak detection using the matchedFilter method.
+mfp &lt;- MatchedFilterParam(snthresh = 20, binSize = 1)
+res &lt;- findChromPeaks(raw_data, param = mfp)
+
+head(chromPeaks(res))
+## The number of peaks identified per sample:
+table(chromPeaks(res)[, "sample"])
+
+## Performing the peak grouping
+p &lt;- NearestPeaksParam()
+res &lt;- groupChromPeaks(res, param = p)
+
+## The results from the peak grouping:
+featureDefinitions(res)
+
+## Using the featureValues method to extract a matrix with the intensities of
+## the features per sample.
+head(featureValues(res, value = "into"))
+
+## The process history:
+processHistory(res)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

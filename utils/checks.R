@@ -9,6 +9,8 @@ if(is.null(reg_paths$chrome)) stop('Missing chrome in file reg_paths.json')
 if(is.null(reg_paths$ie)) stop('Missing ie in file reg_paths.json')
 if(is.null(reg_paths$ff)) stop('Missing ff in file reg_paths.json')
 if(is.null(reg_paths$sqlitePath)) stop('Missing sqlitePath in file reg_paths.json')
+if(is.null(reg_paths$converter)) stop('Missing converter in file reg_paths.json')
+if(is.null(reg_paths$thermo)) stop('Missing thermo in file reg_paths.json')
 
 for(i in 1:length(reg_paths)){
 	name <- names(reg_paths[i])
@@ -27,3 +29,5 @@ ie <- reg_paths$ie
 ff <- reg_paths$ff
 sqlitePath <- reg_paths$sqlitePath
 dirOutput <- "mzXMLFiles"
+converter <- reg_paths$converter
+thermo <- reg_paths$thermo

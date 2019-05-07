@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extracting chromatograms</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for chromatogram,XCMSnExp-method {xcms}"><tr><td>chromatogram,XCMSnExp-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extracting chromatograms</h2>
+
+<h3>Description</h3>
+
+<p><code>chromatogram</code>: the method allows to extract
+chromatograms from <code><a href="../../MSnbase/html/OnDiskMSnExp.html">OnDiskMSnExp</a></code> and
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> objects. See also the
+<code><a href="../../MSnbase/html/chromatogram.html">chromatogram</a></code> implementation for
+<code><a href="../../MSnbase/html/OnDiskMSnExp.html">OnDiskMSnExp</a></code> in the MSnbase package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'XCMSnExp'
+chromatogram(object, rt, mz, aggregationFun = "sum",
+  missing = NA_real_, msLevel = 1L, BPPARAM = bpparam(),
+  adjustedRtime = hasAdjustedRtime(object))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Either a <code><a href="../../MSnbase/html/OnDiskMSnExp.html">OnDiskMSnExp</a></code> or
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object from which the chromatograms should be
+extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>rt</code></td>
+<td>
+<p><code>numeric(2)</code> or two-column <code>matrix</code> defining the lower
+and upper boundary for the retention time range(s). If not specified,
+the full retention time range of the original data will be used.
+It is also possible to submit a <code>numeric(1)</code> in which case
+<code>range</code> is called on it to transform it to a <code>numeric(2)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p><code>numeric(2)</code> or two-column <code>matrix</code> defining the lower
+and upper mz value for the MS data slice(s). If not specified, the
+chromatograms will be calculated on the full mz range.
+It is also possible to submit a <code>numeric(1)</code> in which case
+<code>range</code> is called on it to transform it to a <code>numeric(2)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>aggregationFun</code></td>
+<td>
+<p><code>character</code> specifying the function to be used to
+aggregate intensity values across the mz value range for the same
+retention time. Allowed values are <code>"sum"</code>, <code>"max"</code>,
+<code>"mean"</code> and <code>"min"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to specify the intensity value to
+be used if for a given retention time no signal was measured within the
+mz range of the corresponding scan. Defaults to <code>NA_real_</code> (see also
+Details and Notes sections below). Use <code>missing = 0</code> to resemble the
+behaviour of the <code>getEIC</code> from the <code>old</code> user interface.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer</code> specifying the MS level from which the
+chromatogram should be extracted. Defaults to <code>msLevel = 1L</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>Parallelisation backend to be used, which will
+depend on the architecture. Default is
+<code>BiocParallel::bparam()</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>adjustedRtime</code></td>
+<td>
+<p>For <code>chromatogram,XCMSnExp</code>: whether the
+adjusted (<code>adjustedRtime = TRUE</code>) or raw retention times
+(<code>adjustedRtime = FALSE</code>) should be used for filtering and returned
+in the resulting <code><a href="../../MSnbase/html/Chromatogram.html">Chromatogram</a></code> object. Adjusted
+retention times are used by default if available.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Arguments <code>rt</code> and <code>mz</code> allow to specify the MS
+data slice from which the chromatogram should be extracted.
+The parameter <code>aggregationSum</code> allows to specify the function to be
+used to aggregate the intensities across the mz range for the same
+retention time. Setting <code>aggregationFun = "sum"</code> would e.g. allow
+to calculate the <em>total ion chromatogram</em> (TIC),
+<code>aggregationFun = "max"</code> the <em>base peak chromatogram</em> (BPC).
+The length of the extracted <code><a href="../../MSnbase/html/Chromatogram.html">Chromatogram</a></code> object,
+i.e. the number of available data points, corresponds to the number of
+scans/spectra measured in the specified retention time range. If in a
+specific scan (for a give retention time) no signal was measured in the
+specified mz range, a <code>NA_real_</code> is reported as intensity for the
+retention time (see Notes for more information). This can be changed
+using the <code>missing</code> parameter.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>chromatogram</code> returns a <code><a href="../../MSnbase/html/Chromatograms-class.html">Chromatograms</a></code> object with
+the number of columns corresponding to the number of files in
+<code>object</code> and number of rows the number of specified ranges (i.e.
+number of rows of matrices provided with arguments <code>mz</code> and/or
+<code>rt</code>).
+</p>
+
+
+<h3>Note</h3>
+
+<p><code><a href="../../MSnbase/html/Chromatogram.html">Chromatogram</a></code> objects extracted with
+<code>chromatogram</code>
+contain <code>NA_real_</code> values if, for a given retention time, no 
+signal was measured in the specified mz range. If no spectrum/scan is
+present in the defined retention time window a <code>Chromatogram</code> object
+of length 0 is returned.
+</p>
+<p>For <code><a href="XCMSnExp-class.html">XCMSnExp</a></code> objects, if adjusted retention times are
+available, the <code>chromatogram</code> method will by default report
+and use these (for the subsetting based on the provided parameter
+<code>rt</code>). This can be overwritten with the parameter
+<code>adjustedRtime</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for the data object.
+<code><a href="../../MSnbase/html/Chromatogram.html">Chromatogram</a></code> for the object representing
+chromatographic data.
+</p>
+<p><code><a href="../../MSnbase/html/Chromatograms.html">Chromatograms</a></code> for the object allowing to arrange
+multiple <code>Chromatogram</code> objects.
+</p>
+<p><code><a href="../../MSnbase/html/plot.html">plot</a></code> to plot a <code>Chromatogram</code> or
+<code>Chromatograms</code> objects.
+</p>
+<p><code><a href="extractMsData-method.html">extractMsData</a></code> for a method to extract the MS data as
+<code>data.frame</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Read some files from the faahKO package.
+library(xcms)
+library(faahKO)
+faahko_3_files &lt;- c(system.file('cdf/KO/ko15.CDF', package = "faahKO"),
+                    system.file('cdf/KO/ko16.CDF', package = "faahKO"),
+                    system.file('cdf/KO/ko18.CDF', package = "faahKO"))
+
+od &lt;- readMSData(faahko_3_files, mode = "onDisk")
+
+## Extract the ion chromatogram for one chromatographic peak in the data.
+chrs &lt;- chromatogram(od, rt = c(2700, 2900), mz = 335)
+
+chrs
+
+## Plot the chromatogram 
+plot(rtime(chrs[1, 2]), intensity(chrs[1, 2]), type = "l", xlab = "rtime",
+     ylab = "intensity", col = "000080")
+for(i in c(1, 3)) {
+  points(rtime(chrs[1, i]), intensity(chrs[1, i]), type = "l",
+  col = "00000080")
+}
+
+## Plot the chromatogram using the dedicated plot method.
+plot(chrs)
+
+## Extract chromatograms for multiple ranges.
+mzr &lt;- matrix(c(335, 335, 344, 344), ncol = 2, byrow = TRUE)
+rtr &lt;- matrix(c(2700, 2900, 2600, 2750), ncol = 2, byrow = TRUE)
+chrs &lt;- chromatogram(od, mz = mzr, rt = rtr)
+
+chrs
+
+## Plot the extracted chromatograms
+plot(chrs)
+
+## Get access to all chromatograms for the second mz/rt range
+chrs[1, ]
+
+## Plot just that one
+plot(chrs[1, , drop = FALSE])
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

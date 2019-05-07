@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Import mgf files as 'MSnExp' instances.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readMgfData {MSnbase}"><tr><td>readMgfData {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Import mgf files as 'MSnExp' instances.
+</h2>
+
+<h3>Description</h3>
+
+<p>Reads a mgf file and generates an <code>"<a href="MSnExp-class.html">MSnExp</a>"</code>
+object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readMgfData(filename, pdata = NULL, centroided = TRUE, smoothed = FALSE,
+verbose = isMSnbaseVerbose(), cache = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filename</code></td>
+<td>
+
+<p>character vector with file name to be read.
+</p>
+</td></tr>
+<tr valign="top"><td><code>pdata</code></td>
+<td>
+
+<p>an object of class <code>"<a href="NAnnotatedDataFrame-class.html">NAnnotatedDataFrame</a>"</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>smoothed</code></td>
+<td>
+
+<p><code>Logical</code> indicating whether spectra already smoothed or not. Default is
+'FALSE'. Used to initialise <code>"<a href="MSnProcess-class.html">MSnProcess</a>"</code> object
+in <code>processingData</code> slot.
+</p>
+</td></tr>
+<tr valign="top"><td><code>centroided</code></td>
+<td>
+
+<p><code>Logical</code> indicating whether spectra are centroided or not. Default is
+'TRUE'. Used to initialise <code>"<a href="MSnProcess-class.html">MSnProcess</a>"</code> object
+in <code>processingData</code> slot.
+</p>
+</td></tr>
+<tr valign="top"><td><code>cache</code></td>
+<td>
+
+<p>Numeric indicating caching level. Default is 1. Under development.
+</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+
+<p>verbosity flag. 
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Note that when reading an mgf file, the original order of the spectra
+is lost. Thus, if the data was originally written to mgf from an
+<code>MSnExp</code> object using <code>writeMgfData</code>, although the feature
+names will be identical, the spectra are not as a result of the
+reordering. See example below.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An instance of 
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Guangchuang Yu &lt;guangchuangyu@gmail.com&gt; and Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="writeMgfData-methods.html">writeMgfData</a></code> method to write the content of
+<code>"<a href="Spectrum-class.html">Spectrum</a>"</code> or <code>"<a href="MSnExp-class.html">MSnExp</a>"</code>
+objects to mgf files. Raw data files can also be read with the
+<code><a href="readMSData.html">readMSData</a></code> function.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+  data(itraqdata)
+  writeMgfData(itraqdata, con="itraqdata.mgf", COM="MSnbase itraqdata")
+  itraqdata2 &lt;- readMgfData("itraqdata.mgf")
+  ## note that the order of the spectra is altered
+  ## and precision of some values (precursorMz for instance)
+  match(signif(precursorMz(itraqdata2),4),signif(precursorMz(itraqdata),4))
+  ## [1]  1 10 11 12 13 14 15 16 17 18 ...
+  ## ... but all the precursors are there
+  all.equal(sort(precursorMz(itraqdata2)),
+            sort(precursorMz(itraqdata)),
+            check.attributes=FALSE,
+            tolerance=10e-5)
+  ## is TRUE
+  all.equal(as.data.frame(itraqdata2[[1]]),as.data.frame(itraqdata[[1]]))
+  ## is TRUE
+  all.equal(as.data.frame(itraqdata2[[3]]),as.data.frame(itraqdata[[11]]))
+  ## is TRUE
+  f &lt;- dir(system.file(package="MSnbase",dir="extdata"),
+           full.name=TRUE,
+           pattern="test.mgf")
+  (x &lt;- readMgfData(f))
+  x[[2]]
+  precursorMz(x[[2]])
+  precursorIntensity(x[[2]])
+  precursorMz(x[[1]])
+  precursorIntensity(x[[1]]) ## was not in test.mgf
+  scanIndex(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

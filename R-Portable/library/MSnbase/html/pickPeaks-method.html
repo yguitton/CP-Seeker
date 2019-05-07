@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Peak Detection for 'MSnExp' or 'Spectrum' instances</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pickPeaks-methods {MSnbase}"><tr><td>pickPeaks-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Peak Detection for 'MSnExp' or 'Spectrum' instances </h2>
+
+<h3>Description</h3>
+
+<p>This method performs a peak picking on individual spectra
+(<code>Spectrum</code> instances) or whole experiments (<code>MSnExp</code> instances) to
+create centroided spectra.
+For noisy spectra there are currently two different noise estimators, the
+Median Absolute Deviation (<code>method = "MAD"</code>) and
+Friedman's Super Smoother (<code>method = "SuperSmoother"</code>),
+as implemented in the <code>MALDIquant::detectPeaks</code> and
+<code>MALDIquant::estimateNoise</code> functions respectively.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(x = "MSnExp", halfWindowSize = "integer",
+        method = "character", SNR = "numeric", verbose = "logical", ...)</code></dt><dd>
+<p>Performs the peak picking for all spectra in an <code>MSnExp</code> instance.
+<code>method</code> could be <code>"MAD"</code> or <code>"SuperSmoother"</code>.
+<code>halfWindowSize</code> controls the window size of the peak picking
+algorithm. The resulting window size is <code>2 * halfWindowSize + 1</code>.
+The size should be nearly (or slightly larger) the <em>FWHM</em>
+(full width at half maximum).
+A local maximum is considered as peak if its intensity is <code>SNR</code>
+times larger than the estimated noise.
+The arguments <code>...</code> are passed to the noise estimator functions.
+Currenlty only the <code>method = "SuperSmoother"</code> accepts additional
+arguments, e.g. <code>span</code>. Please see <code><a href="../../stats/html/supsmu.html">supsmu</a></code> for
+details.
+This method displays a progress bar if <code>verbose = TRUE</code>.
+Returns an <code>MSnExp</code> instance with centroided spectra.
+</p>
+</dd>
+<dt><code>signature(x = "Spectrum", method = "character",
+        halfWindowSize = "integer", ...)</code></dt><dd>
+<p>Performs the peak picking for the spectrum (<code>Spectrum</code> instance).
+This method is the same as above but returns a centroided <code>Spectrum</code>
+instead of an <code>MSnExp</code> object. It has no <code>verbose</code> argument.
+Please read the details for the above <code>MSnExp</code> method.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Sebastian Gibb &lt;mail@sebastiangibb.de&gt;
+</p>
+
+
+<h3>References</h3>
+
+<p>S. Gibb and K. Strimmer. 2012.
+MALDIquant: a versatile R package for the analysis of mass spectrometry data.
+Bioinformatics 28: 2270-2271.
+<a href="http://strimmerlab.org/software/maldiquant/">http://strimmerlab.org/software/maldiquant/</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="clean-methods.html">clean</a></code>, <code><a href="removePeaks-methods.html">removePeaks</a></code> <code><a href="smooth-methods.html">smooth</a></code>,
+<code><a href="estimateNoise-method.html">estimateNoise</a></code> and <code><a href="trimMz-methods.html">trimMz</a></code> for other spectra
+processing methods.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+sp1 &lt;- new("Spectrum1",
+           intensity = c(1:6, 5:1),
+           mz = 1:11,
+           centroided = FALSE)
+sp2 &lt;- pickPeaks(sp1)
+intensity(sp2)
+
+data(itraqdata)
+itraqdata2 &lt;- pickPeaks(itraqdata)
+processingData(itraqdata2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

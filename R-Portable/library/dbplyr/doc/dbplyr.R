@@ -10,7 +10,7 @@ library(dplyr)
 con <- DBI::dbConnect(RSQLite::SQLite(), dbname = ":memory:")
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  con <- DBI::dbConnect(RMySQL::MySQL(),
+#  con <- DBI::dbConnect(RMariaDB::MariaDB(),
 #    host = "database.rstudio.com",
 #    user = "hadley",
 #    password = rstudioapi::askForPassword("Database password")

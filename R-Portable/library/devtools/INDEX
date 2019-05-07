@@ -9,7 +9,7 @@ check                   Build and check a package, cleaning up
 check_failures          Parses R CMD check log file for ERRORs,
                         WARNINGs and NOTEs
 check_man               Check documentation, as 'R CMD check' does.
-check_rhub              Run CRAN checks for package on r-hub
+check_rhub              Run CRAN checks for package on R-hub
 check_win               Build windows binary package.
 clean_vignettes         Clean built vignettes.
 dev_mode                Activate and deactivate development mode.
@@ -19,11 +19,6 @@ dr_devtools             Diagnose potential devtools issues
 dr_github               Diagnose potential GitHub issues
 install                 Install a local development package.
 install_deps            Install package dependencies if needed.
-                        'install_deps()' will install the user
-                        dependencies needed to run the package,
-                        'install_dev_deps()' will also install the
-                        development dependencies needed to test and
-                        build the package.
 lint                    Lint all source files in a package.
 load_all                Load complete package.
 missing_s3              Find missing s3 exports.

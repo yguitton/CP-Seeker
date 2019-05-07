@@ -56,6 +56,7 @@ is_head	is_head
 is_local	is_local
 is_merge	is_merge
 is_shallow	is_shallow
+is_tag	is_tag
 is_tree	is_tree
 last_commit	last_commit
 length.git_blob	length.git_blob
@@ -104,6 +105,7 @@ sha.git_commit	sha
 sha.git_fetch_head	sha
 sha.git_merge_result	sha
 sha.git_note	sha
+sha.git_reference	sha
 sha.git_reflog_entry	sha
 sha.git_tag	sha
 sha.git_tree	sha

@@ -2,7 +2,8 @@ add_predictions         Add predictions to a data frame
 add_predictors          Add predictors to a formula
 add_residuals           Add residuals to a data frame
 bootstrap               Generate 'n' bootstrap replicates.
-crossv_mc               Generate cross-validated test-training pairs
+crossv_mc               Generate test-training pairs for
+                        cross-validation
 data_grid               Generate a data grid.
 fit_with                Fit a list of formulas
 formulas                Create a list of formulas

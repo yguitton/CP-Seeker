@@ -1,6 +1,6 @@
 Package: tibble
 Title: Simple Data Frames
-Version: 2.0.0
+Version: 2.1.1
 Authors@R: c(
     person("Kirill", "Müller", , "krlmlr+r@mailbox.org", c("aut", "cre")),
     person("Hadley", "Wickham", , "hadley@rstudio.com", "aut"),
@@ -15,7 +15,7 @@ URL: http://tibble.tidyverse.org/, https://github.com/tidyverse/tibble
 BugReports: https://github.com/tidyverse/tibble/issues
 Depends: R (>= 3.1.0)
 Imports: cli (>= 1.0.1), crayon (>= 1.3.4), fansi (>= 0.4.0), methods,
-        pillar (>= 1.3.1), pkgconfig (>= 2.0.2), rlang (>= 0.3.0.1),
+        pillar (>= 1.3.1), pkgconfig (>= 2.0.2), rlang (>= 0.3.1),
         utils
 Suggests: bench (>= 1.0.1), covr (>= 3.2.1), dplyr (>= 0.7.8),
         htmltools (>= 0.3.6), import (>= 1.1.0), knitr (>= 1.21), mockr
@@ -26,14 +26,14 @@ Encoding: UTF-8
 LazyData: yes
 RoxygenNote: 6.1.1
 Collate: 'add.R' 'as_tibble.R' 'check-names.R' 'compat-lazyeval.R'
-        'compat-lifecycle.R' 'compat-purrr.R' 'tribble.R'
-        'deprecated.R' 'enframe.R' 'exports.R' 'glimpse.R' 'has-name.R'
-        'lst.R' 'msg-format.R' 'msg.R' 'new.R' 'repair-names.R'
-        'rownames.R' 'strrep.R' 'subsetting.R' 'tbl-df.r'
-        'tibble-package.R' 'tibble.R' 'type-sum.r' 'utils-format.r'
-        'utils.r' 'view.R' 'wrap.R' 'zzz.R'
+        'compat-lifecycle.R' 'compat-name-repair.R' 'compat-purrr.R'
+        'tribble.R' 'deprecated.R' 'enframe.R' 'exports.R' 'glimpse.R'
+        'has-name.R' 'lst.R' 'msg-format.R' 'msg.R' 'new.R'
+        'repair-names.R' 'rownames.R' 'strrep.R' 'subsetting.R'
+        'tbl-df.r' 'tibble-package.R' 'tibble.R' 'type-sum.r'
+        'utils-format.r' 'utils.r' 'view.R' 'wrap.R' 'zzz.R'
 NeedsCompilation: yes
-Packaged: 2019-01-03 21:14:33 UTC; kirill
+Packaged: 2019-03-14 23:24:25 UTC; kirill
 Author: Kirill Müller [aut, cre],
   Hadley Wickham [aut],
   Romain Francois [ctb],
@@ -41,6 +41,6 @@ Author: Kirill Müller [aut, cre],
   RStudio [cph]
 Maintainer: Kirill Müller <krlmlr+r@mailbox.org>
 Repository: CRAN
-Date/Publication: 2019-01-04 17:00:03 UTC
-Built: R 3.4.4; x86_64-w64-mingw32; 2019-01-07 13:23:11 UTC; windows
+Date/Publication: 2019-03-16 22:50:03 UTC
+Built: R 3.4.4; x86_64-w64-mingw32; 2019-04-25 21:01:14 UTC; windows
 Archs: i386, x64

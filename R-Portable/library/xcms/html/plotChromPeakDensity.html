@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot chromatographic peak density along the retention time...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotChromPeakDensity {xcms}"><tr><td>plotChromPeakDensity {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot chromatographic peak density along the retention time axis</h2>
+
+<h3>Description</h3>
+
+<p>Plot the density of chromatographic peaks along the retention
+time axis and indicate which peaks would be (or were) grouped into the
+same feature based using the <em>peak density</em> correspondence method.
+Settings for the <em>peak density</em> method can be passed with an
+<a href="groupChromPeaks-density.html">PeakDensityParam</a> object to parameter <code>param</code>. If the <code>object</code> contains
+correspondence results and the correspondence was performed with the
+<em>peak groups</em> method, the results from that correspondence can be
+visualized setting <code>simulate = FALSE</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plotChromPeakDensity(object, mz, rt, param, simulate = TRUE,
+  col = "#00000080", xlab = "retention time", ylab = "sample",
+  xlim = range(rt), main = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <a href="XCMSnExp-class.html">XCMSnExp</a> object with identified
+chromatographic peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p><code>numeric(2)</code> defining an mz range for which the peak density
+should be plotted.</p>
+</td></tr>
+<tr valign="top"><td><code>rt</code></td>
+<td>
+<p><code>numeric(2)</code> defining an optional rt range for which the
+peak density should be plotted. Defaults to the absolute retention time
+range of <code>object</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p><a href="groupChromPeaks-density.html">PeakDensityParam</a> from which parameters for the
+<em>peak density</em> correspondence algorithm can be extracted. If not provided
+and if <code>object</code> contains feature definitions with the correspondence/
+peak grouping being performed by the <em>peak density</em> method, the
+corresponding parameter class stored in <code>object</code> is used.</p>
+</td></tr>
+<tr valign="top"><td><code>simulate</code></td>
+<td>
+<p><code>logical(1)</code> defining whether correspondence should be
+simulated within the specified m/z / rt region or (with
+<code>simulate = FALSE</code>) whether the results from an already performed
+correspondence should be shown.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Color to be used for the individual samples. Length has to be 1
+or equal to the number of samples in <code>object</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p><code>character(1)</code> with the label for the x-axis.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p><code>character(1)</code> with the label for the y-axis.</p>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
+<p><code>numeric(2)</code> representing the limits for the x-axis.
+Defaults to the range of the <code>rt</code> parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p><code>character(1)</code> defining the title of the plot. By default
+(for <code>main = NULL</code>) the mz-range is used.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters to be passed to the <code>plot</code> function. Data
+point specific parameters such as <code>bg</code> or <code>pch</code> have to be of length 1
+or equal to the number of samples.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>plotChromPeakDensity</code> function allows to evaluate
+different settings for the <em>peak density</em> on an mz slice of
+interest (e.g. containing chromatographic peaks corresponding to a known
+metabolite).
+The plot shows the individual peaks that were detected within the
+specified <code>mz</code> slice at their retention time (x-axis) and sample in
+which they were detected (y-axis). The density function is plotted as a
+black line. Parameters for the <code>density</code> function are taken from the
+<code>param</code> object. Grey rectangles indicate which chromatographic peaks
+would be grouped into a feature by the <code>peak density</code> correspondence
+method. Parameters for the algorithm are also taken from <code>param</code>.
+See <code><a href="groupChromPeaks-density.html">groupChromPeaks-density()</a></code> for more information about the
+algorithm and its supported settings.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The function is called for its side effect, i.e. to create a plot.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="groupChromPeaks-density.html">groupChromPeaks-density()</a></code> for details on the
+<em>peak density</em> correspondence method and supported settings.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Below we perform first a peak detection (using the centWave
+## method) on some of the test files from the faahKO package.
+library(faahKO)
+library(xcms)
+fls &lt;- dir(system.file("cdf/KO", package = "faahKO"), recursive = TRUE,
+           full.names = TRUE)
+
+## Reading 2 of the KO samples
+raw_data &lt;- readMSData(fls[1:2], mode = "onDisk")
+
+## Perform the peak detection using the centWave method (settings are tuned
+## to speed up example execution)
+res &lt;- findChromPeaks(raw_data, param = CentWaveParam(noise = 3000, snthresh = 40))
+
+## Align the samples using obiwarp
+res &lt;- adjustRtime(res, param = ObiwarpParam())
+
+## Plot the chromatographic peak density for a specific mz range to evaluate
+## different peak density correspondence settings.
+mzr &lt;- c(305.05, 305.15)
+
+plotChromPeakDensity(res, mz = mzr, pch = 16,
+    param = PeakDensityParam(sampleGroups = rep(1, length(fileNames(res)))))
+
+## Use a larger bandwidth
+plotChromPeakDensity(res, mz = mzr, param = PeakDensityParam(bw = 60,
+    sampleGroups = rep(1, length(fileNames(res)))), pch = 16)
+## Neighboring peaks are now fused into one.
+
+## Require the chromatographic peak to be present in all samples of a group
+plotChromPeakDensity(res, mz = mzr, pch = 16,
+    param = PeakDensityParam(minFraction = 1,
+    sampleGroups = rep(1, length(fileNames(res)))))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

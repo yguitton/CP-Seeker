@@ -1,3 +1,9 @@
+# pkgbuild 1.0.3
+
+* Tests which wrote to the package library are now skipped on CRAN.
+
+* `build()` can now build a tar.gz file directly (#55)
+
 # pkgbuild 1.0.2
 
 * `build()` and `compile_dll()` gain a `register_routines` argument, to

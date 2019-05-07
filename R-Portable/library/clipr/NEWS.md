@@ -1,3 +1,22 @@
+## clipr 0.6.0
+
+Thank you to @wangyuchen for making the following suggestions:
+
+- To make clipr more pipe-friendly, `write_clip()` now defaults to `return_new = FALSE`, and will instead return the initial object that was passed in. To get the old behavior, pass `return_new = TRUE` 
+
+- In an effort to make `write_clip()` and `read_clip_tbl()` more symmetrical, `write_clip()` now defaults to writing out row and column names when they exist.
+
+- Introduces `write_last_clip()`, a wrapper function for `write_clip(.Last.value)`
+
+## clipr 0.5.0
+
+- To comply with CRAN policy, `write_clip()` will now error by default if run in
+a non-interactive session. Non-interactive use must be explicitly enabled by
+setting an environment variable `CLIPR_ALLOW=TRUE`.
+
+- Documented that the default behavior when writing matrices to `write_clip()`
+is `col.names = FALSE`
+
 ## clipr 0.4.1
 
 - Correct a formatting error by adding and separation character to tables when

@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class Containing Measured Variables and Their Meta-Data...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for NAnnotatedDataFrame-class {MSnbase}"><tr><td>NAnnotatedDataFrame-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class Containing Measured Variables and Their Meta-Data
+Description for Multiplexed Experiments.
+</h2>
+
+<h3>Description</h3>
+
+<p>An <code>NAnnotatedDataFrame</code> is an
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>, as defined in the 'Biobase'
+package that includes additional labels for multiplexing annotation. 
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>See <code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> for object creation with
+<code>new</code>. Multiplexing data is defined by setting the
+<code>multiplex</code> and <code>multiLables</code> parameters.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>multiplex</code>:</dt><dd><p>Object of class <code>"numeric"</code> indicating
+the number of multiplexed samples described. </p>
+</dd>
+<dt><code>multiLabels</code>:</dt><dd><p>Object of class <code>"character"</code>
+describing the multiplexing. </p>
+</dd>
+<dt><code>varMetadata</code>:</dt><dd><p>Object of class <code>"data.frame"</code> with
+number of rows equal number of columns in <code>data</code>, and at
+least one column, named <code>labelDescription</code>, containing a
+textual description of each variable. Inherited from
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>. </p>
+</dd>
+<dt><code>data</code>:</dt><dd><p>Object of class <code>"data.frame"</code>
+containing samples (rows) and measured variables
+(columns). Inherited from
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>. </p>
+</dd>
+<dt><code>dimLabels</code>:</dt><dd><p>Object of class <code>"character"</code> of
+length 2 that provides labels for the rows and columns in the
+<code>show</code> method. Inherited from 
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class <code>"Versions"</code>
+describing the instance version. Intended for developer
+use. Inherited from  <code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>. </p>
+</dd> 
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>, directly.
+Class <code>"<a href="../../Biobase/html/class.Versioned.html">Versioned</a>"</code>, by class &quot;AnnotatedDataFrame&quot;, distance 2.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>dim</dt><dd><p><code>signature(object = "NAnnotatedDataFrame")</code>: Returns
+the number of samples, variables and multiplex cardinality in the
+object. </p>
+</dd>
+<dt>multiplex</dt><dd><p><code>signature(object = "NAnnotatedDataFrame")</code>: 
+Returns the number of multipexed samples described by the object. </p>
+</dd>
+<dt>multiLabels</dt><dd><p><code>signature(object = "NAnnotatedDataFrame")</code>: 
+Returns the multiplex labels. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "NAnnotatedDataFrame")</code>:
+Textual description of the object. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code>.  
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+df &lt;- data.frame(x=1:3,
+                 y=LETTERS[1:3],
+                 row.names=paste("Sample",1:3,sep=""))
+metaData &lt;-
+  data.frame(labelDescription=c(
+               "Numbers",
+               "Factor levels"))
+mplx &lt;- c("M1","M2")
+new("NAnnotatedDataFrame",
+    data=df,
+    varMetadata=metaData,
+    multiplex=length(mplx),
+    multiLabels=mplx)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

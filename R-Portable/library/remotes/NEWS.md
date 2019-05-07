@@ -1,3 +1,70 @@
+# remotes 2.0.4
+
+# remotes (development version)
+
+* `update.package_dependencies()` now uses the pkg_type for the cran remote
+  rather than a global type attribute, fixing errors when this global attribute
+  is lost (#291, #304).
+
+* Credentials are no longer passed to dependencies, as this breaks dependencies
+  which use different credentials or hosts. If you have relied on this behavior
+  a more robust way to provide the credentials is using the appropriate
+  environment variables, e.g. `GITHUB_PAT`, `BITBUCKET_USER` etc.
+  (@antoine-sachet, #345).
+
+* The hash of bitbucket hosts is now correctly retrieved (@antoine-sachet, #344)
+
+* Fix parsing of Additional_Repositories which have a leading newline
+  (@tmelliott, #251).
+
+# remotes 2.0.3
+
+* The order of choices for `upgrade = "ask"` now puts the stable ones 'All',
+  'CRAN only', 'none' first, so they always have the same numbers (#287).
+
+* `update_submodules()` now works with empty .gitmodules files (@jsilve24, #329).
+
+* remotes now understands the "standard" remote type, as produced by packages
+  installed from CRAN using `pak` (#309)
+
+* Fix return type of `install_remote()` when there is a circular dependency (#225)
+
+* `remote_package_name.github_remote()` now works properly on Windows (#248)
+
+* `install_bioc()` repositories now updated for the Bioconductor 3.8 release.
+  (#239)
+
+* `install_*` functions now set the `R_LIBS*` environment variables for
+  child processes correctly on Windows (@HenrikBengtsson, #253)
+
+* `install_*` functions now support the `R_REMOTES_UPGRADE` environment
+  variable, to set the default for the `upgrade` argument. See README for
+  details (@kevinushey, #240).
+
+* `install_*` functions perform basic HTTP authentication using HTTP
+  headers now. This fixes an issue with `install_bitbucket()` and private
+  repos (#255).
+
+* `install_*` functions now respect the `download.file.method` option,
+  if `download_file()` is used for HTTP.
+
+* `install_*` functions now use the _libcurl_ method, if the
+  `download.file.method` option is not set to a different one, and libcurl
+  is available. Before, the _wininet_ method was preferred on Windows.
+  If you rely on the proxy configuration of _wininet_, then you might
+  want to set the `download.file.method` option, or use another way to
+  set up proxies, see `?download.file`.
+* Remotes without package names are now unconditionally installed (#246).
+
+* `install_github()` now includes a more informative error message when the 
+  status code is 404, asking the user to check that they have spelled the
+  repo owner and repo correctly (included in the error message), and that 
+  they have the required permissions to access the repository.
+
+* `install_*` fuctions (via the underlying private `install` function) now set
+  `RGL_USE_NULL="TRUE"` in order to avoid errors when running headless
+  and installing any package using `rgl` (@jefferis, ##333)
+  
 # remotes 2.0.2
 
 * `install_deps()` now installs un-installed remotes packages even when

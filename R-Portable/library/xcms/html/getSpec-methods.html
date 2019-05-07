@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get average m/z and intensity values for multiple mass scans</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getSpec-methods {xcms}"><tr><td>getSpec-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get average m/z and intensity values for multiple mass scans</h2>
+
+<h3>Description</h3>
+
+<p>Return full-resolution averaged data from multiple mass scans.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>arguments passed to <code><a href="profRange-methods.html">profRange</a></code> used to sepecify the
+spectral segments of interest for averaging
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Based on the mass points from the spectra selected, a master
+unique list of masses is generated. Every spectra is interpolated
+at those masses and then averaged.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix with two columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>m/z values</p>
+</td></tr>
+<tr valign="top"><td><code>intensity</code></td>
+<td>
+<p>intensity values</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>getSpec(object, ...)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>,
+<code><a href="profRange-methods.html">profRange</a></code>,
+<code><a href="getScan-methods.html">getScan</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

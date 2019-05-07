@@ -163,6 +163,7 @@ laplacian               Laplacian Operator
 lebesgue                Lebesgue Constant
 legendre                Legendre Functions (Matlab Style)
 line_integral           Line integral (in the complex plane)
+linearproj              Linear Projection onto a Subspace
 linprog                 Linear Programming Solver
 linspace                Linearly Spaced Sequences
 logspace                Log-linearly Spaced Sequences

@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Representation of chromatographic MS data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Chromatogram-class {MSnbase}"><tr><td>Chromatogram-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Representation of chromatographic MS data</h2>
+
+<h3>Description</h3>
+
+<p>The <code>Chromatogram</code> class is designed to store
+chromatographic MS data, i.e. pairs of retention time and intensity
+values. Instances of the class can be created with the
+<code>Chromatogram</code> constructor function but in most cases the dedicated
+methods for <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> and
+<code><a href="MSnExp-class.html">MSnExp</a></code> objects extracting chromatograms should be
+used instead (i.e. the <code><a href="chromatogram-MSnExp-method.html">chromatogram</a></code> method).
+</p>
+<p><code>Chromatogram</code>: create an instance of the
+<code>Chromatogram</code> class.
+</p>
+<p><code>aggregationFun,aggregationFun&lt;-</code> get or set the
+aggregation function.
+</p>
+<p><code>productMz</code> get the mz of the product chromatogram/ion. The
+function returns a <code>numeric(2)</code> with the lower and upper mz value.
+</p>
+<p><code>rtime</code> returns the retention times for the rentention time
+- intensity pairs stored in the chromatogram.
+</p>
+<p><code>intensity</code> returns the intensity for the rentention time
+- intensity pairs stored in the chromatogram.
+</p>
+<p><code>mz</code> get the mz (range) of the chromatogram. The
+function returns a <code>numeric(2)</code> with the lower and upper mz value.
+</p>
+<p><code>precursorMz</code> get the mz of the precursor ion. The
+function returns a <code>numeric(2)</code> with the lower and upper mz value.
+</p>
+<p><code>fromFile</code> returns the value from the <code>fromFile</code> slot.
+</p>
+<p><code>length</code> returns the length (number of retention time -
+intensity pairs) of the chromatogram.
+</p>
+<p><code>as.data.frame</code> returns the <code>rtime</code> and
+<code>intensity</code> values from the object as <code>data.frame</code>.
+</p>
+<p><code>filterRt</code>: filters the chromatogram based on the provided
+retention time range.
+</p>
+<p><code>clean</code>: Removes unused 0-intensity data points. See
+<code><a href="clean-methods.html">clean</a></code> documentation for more details and examples.
+</p>
+<p><code>plot</code>: plots a <code>Chromatogram</code> object.
+</p>
+<p><code>msLevel</code> returns the MS level of the chromatogram.
+</p>
+<p><code>isEmpty</code> returns <code>TRUE</code> for empty chromatogram or
+chromatograms with all intensities being <code>NA</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Chromatogram(rtime = numeric(), intensity = numeric(), mz = c(NA_real_,
+  NA_real_), filterMz = c(NA_real_, NA_real_), precursorMz = c(NA_real_,
+  NA_real_), productMz = c(NA_real_, NA_real_), fromFile = integer(),
+  aggregationFun = character(), msLevel = 1L)
+
+aggregationFun(object)
+
+productMz(object)
+
+## S4 method for signature 'Chromatogram'
+show(object)
+
+## S4 method for signature 'Chromatogram'
+rtime(object)
+
+## S4 method for signature 'Chromatogram'
+intensity(object)
+
+## S4 method for signature 'Chromatogram'
+mz(object, filter = FALSE)
+
+## S4 method for signature 'Chromatogram'
+precursorMz(object)
+
+## S4 method for signature 'Chromatogram'
+fromFile(object)
+
+## S4 method for signature 'Chromatogram'
+length(x)
+
+## S4 method for signature 'Chromatogram'
+as.data.frame(x)
+
+## S4 method for signature 'Chromatogram'
+filterRt(object, rt)
+
+## S4 method for signature 'Chromatogram'
+clean(object, all = FALSE, na.rm = FALSE)
+
+## S4 method for signature 'Chromatogram,ANY'
+plot(x, col = "#00000060", lty = 1,
+  type = "l", xlab = "retention time", ylab = "intensity", main = NULL,
+  ...)
+
+## S4 method for signature 'Chromatogram'
+msLevel(object)
+
+## S4 method for signature 'Chromatogram'
+isEmpty(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>rtime</code></td>
+<td>
+<p><code>numeric</code> with the retention times (length has to be equal
+to the length of <code>intensity</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>intensity</code></td>
+<td>
+<p><code>numeric</code> with the intensity values (length has to be
+equal to the length of <code>rtime</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p><code>numeric(2)</code> representing the mz value range (min, max)
+on which the chromatogram was created. This is supposed to contain the
+<em>real</em> range of mz values in contrast to the <code>filterMz</code> below.
+If not applicable use <code>mzrange = c(0, 0)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>filterMz</code></td>
+<td>
+<p><code>numeric(2)</code> representing the mz value range (min,
+max) that was used to filter the original object on mz dimension. If not
+applicable use <code>filterMz = c(0, 0)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>precursorMz</code></td>
+<td>
+<p><code>numeric(2)</code> for SRM/MRM transitions.
+Represents the mz of the precursor ion. See details for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>productMz</code></td>
+<td>
+<p><code>numeric(2)</code> for SRM/MRM transitions.
+Represents the mz of the product. See details for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>fromFile</code></td>
+<td>
+<p><code>integer(1)</code> the index of the file within the
+<code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> or <code><a href="MSnExp-class.html">MSnExp</a></code>
+from which the chromatogram was extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>aggregationFun</code></td>
+<td>
+<p><code>character</code> string specifying the function that
+was used to aggregate intensity values for the same retention time across
+the mz range. Supported are <code>"sum"</code> (total ion chromatogram),
+<code>"max"</code> (base peak chromatogram), <code>"min"</code> and <code>"mean"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer</code> with the MS level from which the chromatogram
+was extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <code>Chromatogram</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>For <code>mz</code>: whether the mz range used to filter the
+original object should be returned (<code>filter = TRUE</code>), or the mz
+range calculated on the real data (<code>filter = FALSE</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>as.data.frame</code> and <code>length</code>: a <code>Chromatogram</code>
+object.</p>
+</td></tr>
+<tr valign="top"><td><code>rt</code></td>
+<td>
+<p>For <code>filterRt</code>: <code>numeric(2)</code> defining the lower and
+upper retention time for the filtering.</p>
+</td></tr>
+<tr valign="top"><td><code>all</code></td>
+<td>
+<p>For <code>clean</code>: <code>logical(1)</code> whether all 0 intensities
+should be removed (default is <code>FALSE</code>). See <code><a href="clean-methods.html">clean</a></code> for
+more details and examples.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>For <code>clean</code>: <code>logical(1)</code> whether all <code>NA</code>
+intensities should be removed before cleaning the <code>Chromatogram</code>.
+Defaults to <code>FALSE</code>. See <code><a href="clean-methods.html">clean</a></code> for more details and
+examples.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>For <code>plot</code>: the color to be used for plotting.</p>
+</td></tr>
+<tr valign="top"><td><code>lty</code></td>
+<td>
+<p>For <code>plot</code>: the line type. See <code><a href="../../graphics/html/plot.html">plot</a></code>
+for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>For <code>plot</code>: the type of plot. See
+<code><a href="../../graphics/html/plot.html">plot</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>For <code>plot</code>: the x-axis label.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>For <code>plot</code>: the y-axis label.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>For <code>plot</code>: the plot title. If not provided the mz range
+will be used as plot title.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>For <code>plot</code>: additional arguments to be passed to the
+<code><a href="../../graphics/html/plot.html">plot</a></code> function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The <code>mz</code>, <code>filterMz</code>, <code>precursorMz</code> and
+<code>productMz</code> are stored as a <code>numeric(2)</code> representing a range
+even if the chromatogram was generated for only a single ion (i.e. a
+single mz value). Using ranges for <code>mz</code> values allow this class to
+be used also for e.g. total ion chromatograms or base peak chromatograms.
+</p>
+<p>The slots <code>precursorMz</code> and <code>productMz</code> allow to represent SRM
+(single reaction monitoring) and MRM (multiple SRM) chromatograms. As
+example, a <code>Chromatogram</code> for a SRM transition 273 -&gt; 153 will have
+a <code>@precursorMz = c(273, 273)</code> and a
+<code>@productMz = c(153, 153)</code>.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.__classVersion__,rtime,intensity,mz,filterMz,precursorMz,productMz,fromFile,aggregationFun,msLevel</code></dt><dd><p>See corresponding parameter above.</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Chromatograms-class.html">Chromatograms</a></code> for combining <code>Chromatogram</code> in
+a two-dimensional matrix (rows being mz-rt ranges, columns samples).
+<code><a href="chromatogram-MSnExp-method.html">chromatogram</a></code> for the method to extract chromatogram data
+from a <code><a href="MSnExp-class.html">MSnExp</a></code> or <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+object.
+<code><a href="clean-methods.html">clean</a></code> for the method to <em>clean</em> a <code>Chromatogram</code>
+object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a simple Chromatogram object.
+ints &lt;- abs(rnorm(100, sd = 100))
+rts &lt;- seq_len(length(ints))
+chr &lt;- Chromatogram(rtime = rts, intensity = ints)
+chr
+
+## Extract intensities
+intensity(chr)
+
+## Extract retention times
+rtime(chr)
+
+## Extract the mz range - is NA for the present example
+mz(chr)
+
+## plot the Chromatogram
+plot(chr)
+
+## Create a simple Chromatogram object based on random values.
+chr &lt;- Chromatogram(intensity = abs(rnorm(1000, mean = 2000, sd = 200)),
+        rtime = sort(abs(rnorm(1000, mean = 10, sd = 5))))
+chr
+
+## Get the intensities
+head(intensity(chr))
+
+## Get the retention time
+head(rtime(chr))
+
+## What is the retention time range of the object?
+range(rtime(chr))
+
+## Filter the chromatogram to keep only values between 4 and 10 seconds
+chr2 &lt;- filterRt(chr, rt = c(4, 10))
+
+range(rtime(chr2))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

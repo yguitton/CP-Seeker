@@ -60,6 +60,7 @@ is_head                 Check if branch is head
 is_local                Check if branch is local
 is_merge                Is merge
 is_shallow              Determine if the repository is a shallow clone
+is_tag                  Check if object is a git_tag object
 is_tree                 Check if object is S3 class git_tree
 last_commit             Last commit
 length.git_blob         Size in bytes of the contents of a blob

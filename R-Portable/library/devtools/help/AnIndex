@@ -31,6 +31,7 @@ dev_package_deps	reexports
 document	document
 dr_devtools	dr_devtools
 dr_github	dr_github
+find_rtools	reexports
 github_pat	github_pat
 github_pull	reexports
 github_release	reexports

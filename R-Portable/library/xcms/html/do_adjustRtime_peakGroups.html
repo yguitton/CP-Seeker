@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Align spectrum retention times across samples using peak...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_adjustRtime_peakGroups {xcms}"><tr><td>do_adjustRtime_peakGroups {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Align spectrum retention times across samples using peak groups
+found in most samples</h2>
+
+<h3>Description</h3>
+
+<p>The function performs retention time correction by assessing
+the retention time deviation across all samples using peak groups
+(features) containg chromatographic peaks present in most/all samples.
+The retention time deviation for these features in each sample is
+described by fitting either a polynomial (<code>smooth = "loess"</code>) or
+a linear (<code>smooth = "linear"</code>) model to the data points. The
+models are subsequently used to adjust the retention time for each
+spectrum in each sample.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_adjustRtime_peakGroups(peaks, peakIndex, rtime, minFraction = 0.9,
+  extraPeaks = 1, smooth = c("loess", "linear"), span = 0.2,
+  family = c("gaussian", "symmetric"), peakGroupsMatrix = matrix(ncol = 0,
+  nrow = 0))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>peaks</code></td>
+<td>
+<p>a <code>matrix</code> or <code>data.frame</code> with the identified
+chromatographic peaks in the samples.</p>
+</td></tr>
+<tr valign="top"><td><code>peakIndex</code></td>
+<td>
+<p>a <code>list</code> of indices that provides the grouping
+information of the chromatographic peaks (across and within samples).</p>
+</td></tr>
+<tr valign="top"><td><code>rtime</code></td>
+<td>
+<p>a <code>list</code> of <code>numeric</code> vectors with the retention
+times per file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>minFraction</code></td>
+<td>
+<p><code>numeric(1)</code> between 0 and 1 defining the minimum
+required fraction of samples in which peaks for the peak group were
+identified. Peak groups passing this criteria will aligned across
+samples and retention times of individual spectra will be adjusted
+based on this alignment. For <code>minFraction = 1</code> the peak group
+has to contain peaks in all samples of the experiment.</p>
+</td></tr>
+<tr valign="top"><td><code>extraPeaks</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal number of
+additional peaks for all samples to be assigned to a peak group (i.e.
+feature) for retention time correction. For a data set with 6 samples,
+<code>extraPeaks = 1</code> uses all peak groups with a total peak count
+<code>&lt;= 6 + 1</code>. The total peak count is the total number of peaks being
+assigned to a peak group and considers also multiple peaks within a
+sample being assigned to the group.</p>
+</td></tr>
+<tr valign="top"><td><code>smooth</code></td>
+<td>
+<p>character defining the function to be used, to interpolate
+corrected retention times for all peak groups. Either <code>"loess"</code> or
+<code>"linear"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>span</code></td>
+<td>
+<p><code>numeric(1)</code> defining the degree of smoothing (if
+<code>smooth = "loess"</code>). This parameter is passed to the internal call
+to <code><a href="../../stats/html/loess.html">loess</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>family</code></td>
+<td>
+<p>character defining the method to be used for loess smoothing.
+Allowed values are <code>"gaussian"</code> and <code>"symmetric"</code>.See
+<code><a href="../../stats/html/loess.html">loess</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>peakGroupsMatrix</code></td>
+<td>
+<p>optional <code>matrix</code> of (raw) retention times for
+peak groups on which the alignment should be performed. Each column
+represents a sample, each row a feature/peak group. If not provided,
+this matrix will be determined depending on parameters
+<code>minFraction</code> and <code>extraPeaks</code>. If provided,
+<code>minFraction</code> and <code>extraPeaks</code> will be ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The alignment bases on the presence of compounds that can be found
+in all/most samples of an experiment. The retention times of individual
+spectra are then adjusted based on the alignment of the features 
+corresponding to these <em>house keeping compounds</em>. The paraneters
+<code>minFraction</code> and <code>extraPeaks</code> can be used to fine tune which
+features should be used for the alignment (i.e. which features 
+most likely correspond to the above mentioned house keeping compounds).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>list</code> with <code>numeric</code> vectors with the adjusted
+retention times grouped by sample.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The method ensures that returned adjusted retention times are
+increasingly ordered, just as the raw retention times.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin Smith, Johannes Rainer
+</p>
+
+
+<h3>References</h3>
+
+<p>Colin A. Smith, Elizabeth J. Want, Grace O'Maille, Ruben Abagyan and
+Gary Siuzdak. &quot;XCMS: Processing Mass Spectrometry Data for Metabolite
+Profiling Using Nonlinear Peak Alignment, Matching, and Identification&quot;
+<em>Anal. Chem.</em> 2006, 78:779-787.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

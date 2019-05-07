@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: a Distance function based on matching peaks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for specDist.meanMZmatch {xcms}"><tr><td>specDist.meanMZmatch {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>a Distance function based on matching peaks</h2>
+
+<h3>Description</h3>
+
+<p>This method calculates the distance of two sets of peaks.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+specDist.meanMZmatch(peakTable1, peakTable2, matchdist=1, matchrate=1, mzabs=0.001, mzppm=10, symmetric=TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>peakTable1</code></td>
+<td>
+<p>a Matrix containing at least m/z-values,
+row must be called &quot;mz&quot;</p>
+</td></tr>
+<tr valign="top"><td><code>peakTable2</code></td>
+<td>
+<p>the matrix for the other mz-values</p>
+</td></tr>
+<tr valign="top"><td><code>mzabs</code></td>
+<td>
+<p>maximum absolute deviation for two matching peaks</p>
+</td></tr>
+<tr valign="top"><td><code>mzppm</code></td>
+<td>
+<p>relative deviations in ppm for two matching peaks</p>
+</td></tr>
+<tr valign="top"><td><code>symmetric</code></td>
+<td>
+<p>use symmetric pairwise m/z-matches only, or each match</p>
+</td></tr>
+<tr valign="top"><td><code>matchdist</code></td>
+<td>
+<p>the weight for value one (see details) </p>
+</td></tr>
+<tr valign="top"><td><code>matchrate</code></td>
+<td>
+<p>the weight for value two</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The result of the calculation is a weighted sum of two values.
+Value one is the mean absolute difference of the matching peaks,
+value two is the relation of matching peaks and non matching peaks.
+if no distance is calculated (for example because no matching peaks
+were found) the return-value is NA.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>peakTable1 = &quot;matrix&quot;, peakTable2 = &quot;matrix&quot;</dt><dd>
+<p><code>
+    specDist.meanMZmatch(peakTable1, peakTable2,
+    matchdist=1, matchrate=1,
+    mzabs=0.001, mzppm=10, symmetric=TRUE)
+    </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Joachim Kutzera, <a href="mailto:jkutzer@ipb-halle.de">jkutzer@ipb-halle.de</a></p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

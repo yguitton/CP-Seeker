@@ -5,6 +5,7 @@ add_predictors	add_predictors
 add_residuals	add_residuals
 bootstrap	bootstrap
 crossv_kfold	crossv_mc
+crossv_loo	crossv_mc
 crossv_mc	crossv_mc
 data_grid	data_grid
 fit_with	fit_with

@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Features of Interest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for FeaturesOfInterest-class {MSnbase}"><tr><td>FeaturesOfInterest-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Features of Interest</h2>
+
+<h3>Description</h3>
+
+<p>The <em>Features of Interest</em> infrastructure allows to define a set
+of features of particular interest to be used/matched against existing
+data sets contained in <code>"<a href="MSnSet-class.html">MSnSet</a>"</code>.  A specific set
+of features is stored as an <code>FeaturesOfInterest</code> object and a
+collection of such non-redundant instances (for example for a specific
+organism, project, ...) can be collected in a <code>FoICollection</code>.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created with the respective <code>FeaturesOfInterest</code>
+and <code>FoICollection</code> constructors. 
+</p>
+<p><code>FeaturesOfInterest</code> instances can be generated in two different
+ways: the constructor takes either (1) a set of features names (a
+<code>character</code> vector) and a description (<code>character</code> of length
+1 - any subsequent elements are silently ignored) or (2) feature
+names, a description and an instance of class
+<code>"<a href="MSnSet-class.html">MSnSet</a>"</code>. In the latter case, we call such
+<code>FeaturesOfInterest</code> objects traceable, because we can identify
+the origin of the feature names and thus their validity. This is done
+by inspecting the <code>MSnSet</code> instance and recording its dimensions,
+its name and a unique md5 hash tag (these are stores as part of the
+optional <code>objpar</code> slot). In such cases, the feature names passed
+to the <code>FeaturesOfInterest</code> constructor must also be present in
+the <code>MSnSet</code>; if one or more are not, an error will be thrown. If
+your features of interest to be recorded stem for an existing
+experiment and have all been observed, it is advised to pass the 3
+arguments to the constructor to ensure that the feature names as
+valid. Otherwise, only the third argument should be omitted.
+</p>
+<p><code>FoICollection</code> instances can be constructed by creating an empty
+collection and serial additions of <code>FeaturesOfInterest</code> using
+<code>addFeaturesOfInterest</code> or by passing a list of
+<code>FeaturesOfInterest</code> instance. 
+</p>
+
+
+<h3>Slots</h3>
+
+<p><code>FeaturesOfInterest</code> class:
+</p>
+
+<dl>
+<dt><code>description</code>:</dt><dd><p>Object of class <code>"character"</code>
+describing the instance. </p>
+</dd>
+<dt><code>objpar</code>:</dt><dd><p>Optional object of class <code>"list"</code>
+providing details about the <code>MSnSet</code> instance originally used
+to create the instance. See details section. </p>
+</dd>
+<dt><code>fnames</code>:</dt><dd><p>Object of class <code>"character"</code> with the
+feature of interest names.  </p>
+</dd>
+<dt><code>date</code>:</dt><dd><p>Object of class <code>"character"</code> with the date
+the instance was first generated. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p> Object of class <code>"Versions"</code>
+with the <code>FeaturesOfInterest</code> class version. Only relevant for
+development. </p>
+</dd>
+</dl>
+
+<p><code>FoICollection</code> class:
+</p>
+
+<dl>
+<dt><code>foic</code>:</dt><dd><p>Object of class <code>"list"</code> with the
+<code>FeaturesOfInterest</code>. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class <code>"Versions"</code>
+with the <code>FoICollection</code> class version. Only relevant for
+development.  </p>
+</dd>
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="../../Biobase/html/class.Versioned.html">Versioned</a>"</code>, directly.
+</p>
+
+
+<h3>Methods</h3>
+
+<p><code>FeaturesOfInterest</code> class:
+</p>
+
+<dl>
+<dt>description</dt><dd><p><code>signature(object = "FeaturesOfInterest")</code>:
+returns the description of <code>object</code>. </p>
+</dd>
+<dt>foi</dt><dd><p><code>signature(object = "FeaturesOfInterest")</code>: returns
+the features of interests. </p>
+</dd>
+<dt>length</dt><dd><p><code>signature(x = "FeaturesOfInterest")</code>: returns
+the number of features of interest in <code>x</code>. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "FeaturesOfInterest")</code>:
+displays <code>object</code>. </p>
+</dd>
+<dt>fnamesIn</dt><dd><p><code>signature(x = "FeaturesOfInterst", y =
+	"MSnSet", count = "logical")</code>: if <code>count</code> is <code>FALSE</code>
+(default), return a logical indicating whether there is at least
+one feautre of interest present in <code>x</code>? Otherwise, returns
+the number of such features. Works also with matrices and
+data.frames. </p>
+</dd>
+<dt>[</dt><dd><p>Subsetting works like lists. Returns a new
+<code>FoICollection</code>.</p>
+</dd>
+<dt>[[</dt><dd><p>Subsetting works like lists. Returns a new
+<code>FeatureOfInterest</code>.</p>
+</dd>         
+</dl>
+
+<p><code>FoICollection</code> class:
+</p>
+
+<dl>
+<dt>description</dt><dd><p><code>signature(object = "FoICollection")</code>:
+returns the description of <code>object</code>. </p>
+</dd>
+<dt>foi</dt><dd><p><code>signature(object = "FoICollection")</code>: returns a
+list of <code>FeaturesOfInterest</code>. </p>
+</dd>
+<dt>length</dt><dd><p><code>signature(x = "FoICollection")</code>: returns the
+number of <code>FeaturesOfInterest</code> in the collection. </p>
+</dd>
+<dt>lengths</dt><dd><p><code>signature(x = "FoICollection")</code>: returns the
+number of features of interest in each <code>FeaturesOfInterest</code>
+in the collection <code>x</code>. </p>
+</dd>
+<dt>addFeaturesOfInterest</dt><dd><p><code>signature(x =
+	"FeaturesOfInterest", y = "FoICollection")</code>: add the
+<code>FeaturesOfInterest</code> instance <code>x</code> to
+<code>FoICollection</code> <code>y</code>. If <code>x</code> is already present, a
+message is printed and <code>y</code> is returned unchanged. </p>
+</dd>
+<dt>rmFeaturesOfInterest</dt><dd><p><code>signature(object =
+	"FoICollection", i = "numeric")</code>: removes the <code>i</code>th
+<code>FeatureOfInterest</code> in the collection <code>object</code>. </p>
+</dd>
+<dt>show</dt><dd><p><code>signature(object = "FoICollection")</code>: displays
+<code>object</code>. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("pRolocdata")
+data(tan2009r1)
+
+x &lt;- FeaturesOfInterest(description = "A traceable test set of features of interest",
+                        fnames = featureNames(tan2009r1)[1:10],
+                        object = tan2009r1)
+x
+
+description(x)
+foi(x)
+
+y &lt;- FeaturesOfInterest(description = "Non-traceable features of interest",
+                        fnames = featureNames(tan2009r1)[111:113])
+y
+
+## an illegal FeaturesOfInterest
+try(FeaturesOfInterest(description = "Won't work",
+                       fnames = c("A", "Z", featureNames(tan2009r1)),
+                       object = tan2009r1))
+
+
+FeaturesOfInterest(description = "This work, but not traceable",
+                       fnames = c("A", "Z", featureNames(tan2009r1)))
+
+
+
+xx &lt;- FoICollection()
+xx
+
+xx &lt;- addFeaturesOfInterest(x, xx)
+xx &lt;- addFeaturesOfInterest(y, xx)
+names(xx) &lt;- LETTERS[1:2]
+xx
+
+## Sub-setting
+xx[1]
+xx[[1]]
+xx[["A"]]
+
+description(xx)
+foi(xx)
+
+fnamesIn(x, tan2009r1)
+fnamesIn(x, tan2009r1, count = TRUE)
+
+rmFeaturesOfInterest(xx, 1)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.4.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

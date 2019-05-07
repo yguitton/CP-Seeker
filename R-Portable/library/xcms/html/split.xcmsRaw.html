@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Divide an xcmsRaw object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for split.xcmsRaw {xcms}"><tr><td>split.xcmsRaw {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Divide an xcmsRaw object</h2>
+
+<h3>Description</h3>
+
+<p>Divides the scans from a <code>xcmsRaw</code> object into
+a list of multiple objects. MS$^n$ data is discarded.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>factor such that <code>factor(f)</code> defines the scans which go
+into the new <code>xcmsRaw</code> objects</p>
+</td></tr>
+<tr valign="top"><td><code>drop</code></td>
+<td>
+
+<p>logical indicating if levels that do not occur should be dropped
+(if 'f' is a 'factor' or a list).
+</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further potential arguments passed to methods.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of <code>xcmsRaw</code> objects.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>xr = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>
+    split(x, f, drop = TRUE, ...)
+  </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Steffen Neumann, <a href="mailto:sneumann(at)ipb-halle.de">sneumann(at)ipb-halle.de</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.0.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

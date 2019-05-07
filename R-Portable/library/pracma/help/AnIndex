@@ -8,6 +8,7 @@ acoth	hyperbolic
 acsc	trigonometric
 acscd	sind
 acsch	hyperbolic
+affineproj	linearproj
 agmean	agmean
 aitken	aitken
 akimaInterp	akima
@@ -47,7 +48,6 @@ cart2pol	cart2sph
 cart2sph	cart2sph
 cd	cd
 ceil	ceil
-cgmin	fletcherpowell
 charpoly	charpoly
 chebApprox	chebApprox
 chebCoeff	chebCoeff
@@ -219,6 +219,7 @@ Lcm	gcd
 lebesgue	lebesgue
 legendre	legendre
 li	expint
+linearproj	linearproj
 line_integral	line_integral
 linprog	linprog
 linspace	linspace
@@ -323,6 +324,7 @@ procrustes	procrustes
 psi	psi
 psinc	humps
 pwd	cd
+qpsolve	qpspecial
 qpspecial	qpspecial
 qrSolve	qrSolve
 quad	quad
