@@ -1,10 +1,37 @@
 output$uiTargetSamples <- renderUI({
-	pickerInput('targetSamples', 'samples', choices=samples()$sample, multiple=TRUE, options=list(
-		`actions-box`=TRUE, `live-search`=TRUE))
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project) %>% 
+			select(sampleID, project_sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(project_sample=c(), sampleID=c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(project_sample=c(), sampleID=c())
+	})	
+	pickerInput('targetSamples', 'samples', choices=setNames(choices$project_sample, choices$sampleID), 
+		multiple=TRUE, options=list(`actions-box`=TRUE, `live-search`=TRUE))
 })
 
 output$uiTargetSampleTic <- renderUI({
-	pickerInput('targetSampleTic', 'sample', choices=input$targetSamples, multiple=FALSE, width='50%')
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project) %>% 
+			select(sampleID, sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(sample=c(), sampleID=c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(sample=c(), sampleID=c())
+	})	
+	pickerInput('targetSampleTic', 'sample', choices=setNames(choices$sample, choices$sampleID), 
+		multiple=FALSE, width='50%')
 })
 
 output$targetTic <- renderPlotly({
@@ -13,9 +40,10 @@ output$targetTic <- renderPlotly({
 	tic <- tryCatch({
 		if(is.null(input$targetSampleTic)) custom_stop('invalid', 'picker not initialized')
 		else if(input$targetSampleTic == "") custom_stop('invalid', 'no file selected')
-		raw <- read.raw(file.path(rawPath, paste(input$targetSampleTic, '.raw', sep='')))
-		x <- raw$StartTime
-		y <- raw$TIC
+		path <- samples() %>% filter(sample == input$targetSampleTic) %>% pull(path)
+		msFile <- xcmsRaw(path, mslevel=1)
+		x <- msFile@scantime
+		y <- msFile@tic
 		plot_ly(type="scatter", mode="lines", x=x, y=y)
 	}, invalid = function(i){
 		print(paste(i$message))
@@ -32,6 +60,7 @@ output$targetTic <- renderPlotly({
 			modeBarButtons=list(list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 })
 
+actualize$targetSuccess <- data.frame(samples=c(), success=c())
 observeEvent(input$target, {
 	print('------------------- TARGET --------------------')
 	print(list(project=input$project, samples=input$targetSamples, 
@@ -59,101 +88,118 @@ observeEvent(input$target, {
 		if(!test) custom_stop('invalid', 'invalid args')
 		
 		progressSweetAlert(session, id='pb', title='Target', value=0, display_pct=TRUE)
+		
+		# record the project_sample & delete precedent records
+		updateProgressBar(session, id="pb", title="delete precedent records", value=0)
+		print('delete precedent records')
+		query <- sprintf('delete from observed where project_sample in (%s);
+			delete from triangle where project_sample in (%s); update project_sample 
+			set zVal = null where project_sample in (%s);',
+			paste(input$targetSamples, collapse=', '), 
+			paste(input$targetSamples, collapse=', '),
+			paste(input$targetSamples, collapse=', '))
+		print(query)
+		dbSendQuery(db, query)
+		
 		# load mzs of each chloroparaffin
+		print('load mzs')
+		updateProgressBar(session, id="pb", title="compute cholorpara mzs", value=0)
 		chloropara <- loadChloroParaMzs(input$targetAdduct, input$targetMachine %>% as.numeric)
-		# then load eics for each file
+		chloropara <- lapply(chloropara, function(x) x %>% 
+			mutate(tolMDa = mz * input$targetTolPpm * 10**-6) %>%
+			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa))
+		
+		success <- c()
 		for(i in 1:length(input$targetSamples)){
-			updateProgressBar(session, id="pb", title=paste("load eic", input$targetSamples[i]),
-				value=0)
+			print(sprintf('init %s', input$targetSamples[i]))
+			path <- samples() %>% filter(sample == project_samples() %>% 
+				filter(project_sample == input$targetSamples[i]) %>% pull(sample)) %>% 
+				pull(path)
+			msFile <- xcmsRaw(path, mslevel=1)
+			
+			# restrict according limits on m/z
+			print('restrict')
+			chloroparaLimited <- keep(chloropara, function(x)
+				x[1, 'mzmin'] >= msFile@mzrange[1] &
+					x[1, 'mzmax'] <= msFile@mzrange[2])
 				
-			# record the project_sample & delete precedent records
-			project_sample <- project_samples() %>% 
-				filter(sample == input$targetSamples[i] & project == input$project & 
-					adduct == input$targetAdduct)
-			if(nrow(project_sample) == 0){
-				query <- sprintf('insert into project_sample (project, sample, adduct) values ("%s", "%s", "%s");',
-					input$project, input$targetSamples[i], input$targetAdduct)
-				print(query)
-				dbSendQuery(db, query)
-				query <- sprintf('select project_sample from project_sample where project == "%s" and
-				sample == "%s" and adduct == "%s";', input$project, input$targetSamples[i], input$targetAdduct)
-				project_sample <- dbGetQuery(db, query)$project_sample		
-			} else {
-				project_sample <- project_sample$project_sample
-				query <- sprintf('delete from observed where project_sample == %s;
-					delete from triangle where project_sample == %s; update project_sample 
-					set zVal = null where project_sample == %s;',
-					project_sample, project_sample, project_sample)
-				print(query)
-				dbSendQuery(db, query)			
-			}
+			print('draw eics')
+			updateProgressBar(session, id="pb", title=
+				sprintf("draw eics in %s", input$targetSamples[i]), 
+				value=i*100/length(input$targetSamples))
+			eics <- lapply(1:length(chloroparaLimited), function(j)
+				rawEIC(msFile, mzrange=chloroparaLimited[[j]][1, c('mzmin', 'mzmax')] %>% 
+					as.matrix, rtrange=input$targetRT * 60))
+			eics <- lapply(eics, function(eic) arrangeEics(eic, msFile))
+					
+			minScans <- floor((input$targetPeakwidth) / mean(diff(msFile@scantime)))
 			
-			path <- samples() %>% filter(sample == input$targetSamples[i]) %>% pull(path)
-			
-			eics <- readXICs(path, masses=chloropara$mz, tol=input$targetTolPpm)
-			
-			# rearrange eic from rawDiag to have a dataframe for each eic & not a list
-			raw <- read.raw(path)
-			rts <- raw$StartTime
-			if(input$targetRT[1] > max(rts) | input$targetRT[2] < min(rts)){
-				message <- sprintf('the rT range is out of the rt range of the file %s', input$targetSamples[i])
-				toastr_warning(message)
-				print(message)
-				next
-			}
-			eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
-			
-			# split to analyze by chloroparaffin
-			eics <- split(eics, chloropara$formula %>% as.factor)
-			chloropara2 <- split(chloropara, chloropara$formula %>% as.factor)
-			minScans <- floor((input$targetPeakwidth/60) / mean(diff(rts)))
-			scRange <- which(rts >= input$targetRT[1] & rts <= input$targetRT[2])
-			scRange <- c(min(scRange), max(scRange))
-	
-			rois <- data.frame(mz=c(), formula=c(), rt=c(), rtmin=c(), rtmax=c(), auc=c(), abd=c(), score=c())
-			for(j in 1:length(eics)){
-				updateProgressBar(session, id="pb", title=paste("targeting in", input$targetSamples[i]),
-					value=j*100/length(eics))
-				roisTmp <- targetChloroPara(eics[[j]], minScans, chloropara2[[j]], scRange, input$targetThreshold)
-				if(nrow(roisTmp) > 0) rois <- rois %>% bind_rows(roisTmp %>% 
-						cbind(formula=unique(chloropara2[[j]]$formula)))
-			}
-			rois$C <- str_extract(rois$formula, 'C[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
-			rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
-			rois$Cl[which(is.na(rois$Cl))] <- 0
-			
-			rois <- rois[which(rois$rtmin >= input$targetRT[1] & rois$rtmax <= input$targetRT[2]), ]
+			print('detect rois')
+			updateProgressBar(session, id="pb", title=
+				sprintf("detect chloroparaffin in %s", input$targetSamples[i]), 
+				value=i*100/length(input$targetSamples))
+			rois <- purrr::reduce(1:length(eics), function(a,b) a %>% rbind(
+				targetChloroPara(msFile, eics[[b]], minScans, input$targetThreshold, chloroparaLimited[[b]])),
+				.init=data.frame())
 			
 			if(nrow(rois) > 0){
+				print('record rois')
+				rois$C <- str_extract(rois$formula, 'C[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
+				rois$Cl <- str_extract(rois$formula, 'Cl[[:digit:]]+') %>% str_extract('[[:digit:]]+') %>% as.numeric
+				rois$Cl[which(is.na(rois$Cl))] <- 0
+			
 				query <- sprintf('insert into observed (mz, formula, rt, rtmin, rtmax, auc, project_sample, ppm,
 					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2, threshold) values %s;', 
 						paste('(', rois$mz, ', "', rois$formula,
 						'", ', rois$rt, ', ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
-						', ', project_sample, ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
+						', ', input$targetSamples[i], ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
 						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
 						', ', input$targetRT[1], ', ', input$targetRT[2], ', ', input$targetThreshold, ')', collapse=', ', sep=''))
 				print(query)
 				dbSendQuery(db, query)
+				success[i] <- sprintf("detect %s chloroparaffins", length(unique(rois$formula)))
 			} else {
+				success[i] <- "no chloroparaffin detected"
 				message <- sprintf('no chloroparaffin detected in %s', input$targetSamples[i])
 				print(message)
 				toastr_warning(message)
 			}
-			actualize$project_samples <- TRUE
 		}
+		actualize$project_samples <- TRUE
+		actualize$targetSuccess <- data.frame(samples=project_samples() %>% 
+			filter(project_sample %in% input$targetSamples) %>% pull(sampleID), success=success)
 		closeSweetAlert(session)
+		showModal(modalDialog(title="Result of targeting", easyClose=TRUE, 
+			dataTableOutput('targetSuccessTable'), footer=modalButton('Close')))
 		}, invalid = function(i){
 			print(i$message)
+			actualize$targetSuccess <- data.frame(samples=c(), success=c())
 		}, error = function(e){
 			print(e$message)
 			sendSweetAlert(e$message)
+			actualize$targetSuccess <- data.frame(samples=c(), success=c())
 		})
 	print('------------------- END TARGET --------------------')
 })
 
+output$targetSuccessTable <- renderDataTable({
+	tryCatch({
+		data <- actualize$targetSuccess
+		if(nrow(data) == 0) return(data)
+		data$success <- sapply(data$success, function(x) 
+			if(x == "no chloroparaffin detected") paste("<div style=\"background-color: #FDCDAC;\">",
+				x, "<div/>") else paste("<div style=\"background-color: #B3E2CD;\">", x))
+		data
+	}, error = function(e){
+		print(paste(e))
+		data.frame(samples=c(), success=c())
+	})
+}, escape=FALSE, rownames=FALSE, selection='none', class='compact nowrap', 
+options=list(dom='frtip', bFilter=FALSE, ordering=FALSE))
+
 # load for each chloroparaffine with adduct two mz
 # the formula for a chloroparaffine is C(n)H(2n+2-x)Cl(x)
-loadChloroParaMzs <- function(adduct, machine=NULL, it=2){
+loadChloroParaMzs <- function(adduct, machine=NULL){
 	adduct <- adducts[which(adducts$Name == adduct), ]
 	formulas <- c()
 	for(C in minC:maxC) for(Cl in minCl:maxCl) formulas <- c(formulas, paste('C', C, 'H', 2*C+2-Cl, 'Cl', Cl, sep=''))
@@ -180,10 +226,9 @@ loadChloroParaMzs <- function(adduct, machine=NULL, it=2){
 		data <- envelope(data, resolution=resolution, verbose=FALSE)
 		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
 	}
-	reduce(1:length(data), function(a, b) a %>% bind_rows(
-		data[[b]] %>% data.frame %>% top_n(it, abundance) %>% arrange(desc(abundance)) %>% 
-			mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
-			cbind(formula = formulas[b])), .init=data.frame())
+	data <- lapply(1:length(data), function(i) data[[i]] %>% data.frame %>% 
+		arrange(desc(abundance)) %>% mutate(mz = round(`m.z`, digits=5)) %>% 
+		select(mz, abundance) %>% cbind(formula = formulas[i]))
 }
 
 findClosestMzs <- function(mzs, file, ppm, scan){
@@ -196,6 +241,13 @@ findClosestMzs <- function(mzs, file, ppm, scan){
 			arrange(desc(i)) %>% top_n(1, i) %>% pull(mz))
 	}
 	mzO
+}
+
+arrangeEics <- function(eic, msFile){
+	eic <- eic %>% as.data.frame
+	eic$scan <- msFile@scantime[eic$scan]
+	colnames(eic) <- c('x', 'y')
+	eic
 }
 
 arrangeEICRawDiag <- function(eic, rts){
@@ -211,37 +263,46 @@ getAUC <- function(eic, roi, windowRTMed){
 		trapz(eic[roi, 'x'], baseline[roi])
 }
 
-targetChloroPara2 <- function(eic, roi, windowRTMed, minScans, scRange, threshold){
+computeScore <- function(obs, theo){
+	theo <- theo[1:length(obs)]
+	weights <- sapply(theo, function(x)
+		x / sum(theo))
+	sapply(1:length(obs), function(i) 
+		(obs[i] - theo[i]) / theo[i] * weights[i]) %>% sum
+}
+
+targetChloroPara2 <- function(msFile, mzs, roi, windowRTMed, minScans, threshold, aucCheck){
+	eic <- rawEIC(msFile, mzrange=mzs[, c('mzmin', 'mzmax')] %>% as.matrix)
+	eic <- arrangeEics(eic, msFile)
 	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
 	
 	roi <- roi[which(sapply(roi, function(x) eic[x, 'y'] >= baseline[x] & eic[x, 'y'] > threshold))]
-	if(length(roi) < minScans) return(data.frame(rtmin=NA, rtmax=NA, auc=0))
+	if(length(roi) < minScans) return(data.frame())
 	
 	# enlarge the ROI until the baseline
 	minScan <- min(roi)
 	while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
-		baseline[minScan-2] < eic[minScan-2, 'y']) & 
-		minScan >= scRange[1]) minScan <- minScan-1
+		baseline[minScan-2] < eic[minScan-2, 'y']) & minScan > 3) minScan <- minScan-1
 	minScan <- minScan-1
 	maxScan <- max(roi)
 	while((baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
-		baseline[maxScan+2] < eic[maxScan+2, 'y']) & 
-		maxScan <= scRange[2]) maxScan <- maxScan+1
+		baseline[maxScan+2] < eic[maxScan+2, 'y']) & maxScan < length(baseline)-3) maxScan <- maxScan+1
 	maxScan <- maxScan+1
 	roi <- minScan:maxScan
 	
-	data.frame(rtmin=eic[min(roi), 'x'], rtmax=eic[max(roi), 'x'], 
-		auc=getAUC(eic, roi, windowRTMed))	
+	auc <- getAUC(eic, roi, windowRTMed)
+	if(auc == 0 | auc > aucCheck * 1.2) return(data.frame())
+	data.frame(mz=mzs$mz, rtmin=eic[min(roi), 'x'], rtmax=eic[max(roi), 'x'], 
+		auc=auc, rt=apply(eic[roi, ], 1, function(i)
+			i[1] * (i[2] / sum(eic[roi, 2]))) %>% sum)	
 }
 
-targetChloroPara <- function(eics, minScans, theo, scRange, threshold){
+targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 	tryCatch({
 		res <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
 		
-		eic <- eics[[1]]
 		# search the ROI
 		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)) & eic$y > threshold)
-		rois <- rois[which(rois >= scRange[1] & rois <= scRange[2])]
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 3)))
 		rois <- rois[which(lengths(rois) > 1)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
@@ -254,20 +315,24 @@ targetChloroPara <- function(eics, minScans, theo, scRange, threshold){
 			ceiling(0.1*(nrow(eic)+length(unlist(rois)))))
 		
 		for(roi in rois){
-			tmpRes <- reduce(eics, function(a, b) 
-				a %>% rbind(targetChloroPara2(b, roi, windowRTMed, minScans, scRange, threshold)), .init = data.frame())
-			if(tmpRes[1, 'auc'] <= 0) next
-			if(tmpRes[2, 'auc'] <= 0) next
-			theo <- theo[which(tmpRes$auc > 0), ]
-			tmpRes <- tmpRes[which(tmpRes$auc > 0), ]
-			rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
-				j[1] * (j[2] / sum(i[roi, 2]))) %>% sum)
-			abdObs <- sapply(tmpRes$auc, function(x) x * 100 / tmpRes[1, 'auc'])
-			score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
+			mzs <- theo[, c('mz', 'mzmin', 'mzmax')]
+			tmpRes2 <- targetChloroPara2(msFile, mzs[1, ], roi, 
+				windowRTMed, minScans, threshold, Inf)
+			tmpRes <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
+			while(nrow(tmpRes2) > 0){
+				tmpRes <- rbind(tmpRes, tmpRes2)
+				mzs <- mzs[-1, ]
+				tmpRes2 <- targetChloroPara2(msFile, mzs[1, ], roi, 
+					windowRTMed, minScans, threshold, tmpRes2$auc)
+			}
+			if(nrow(tmpRes) < 2) next
 			
-			res <- res %>% bind_rows(data.frame(mz=theo$mz,
-				rt=rts, rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
-				auc=tmpRes$auc, abd=abdObs, score=score))
+			abdObs <- sapply(tmpRes$auc, function(x) x * 100 / tmpRes[1, 'auc'])
+			score <- computeScore(abdObs, theo$abundance)
+			
+			res <- res %>% bind_rows(data.frame(mz=tmpRes$mz,
+				rt=tmpRes$rt, rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
+				auc=tmpRes$auc, abd=abdObs, score=score, formula=theo[1, 'formula']))
 		}
 		res
 	}, fail = function(f) data.frame()
