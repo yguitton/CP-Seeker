@@ -1,37 +1,56 @@
 output$uiDetailsSample <- renderUI({
-	pickerInput('detailsSample', 'sample', choices=project_samples() %>%
-		filter(project == input$project) %>% pull(sample), multiple=FALSE, options=list(`live-search`=TRUE))
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project & 
+			!is.na(adduct)) %>% select(sampleID, project_sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(sampleID = c(), project_sample = c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(sampleID = c(), project_sample = c())
+	})
+	pickerInput('detailsSample', 'sample', choices=setNames(choices$project_sample, choices$sampleID), 
+		multiple=FALSE, options=list(`live-search`=TRUE))
 })
 
 output$uiDetailsAdduct <- renderUI({
-	pickerInput('detailsAdduct', 'adduct', choices=project_samples() %>%
-		filter(project == input$project & sample == input$detailsSample) %>%
-		pull(adduct), multiple=FALSE)
+	choices <- tryCatch({
+		if(is.null(input$detailsSample)) custom_stop('invalid', 'detailsSample picker is not yet initialized')
+		else if(input$detailsSample == '') custom_stop('invalid', 'no details sample selected')
+		else project_samples() %>% filter(project_sample == input$detailsSample) %>% pull(adduct)
+	}, invalid = function(i){
+		print(paste(i))
+		c()
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		c()
+	})
+	pickerInput('detailsAdduct', 'adduct', choices=choices, multiple=FALSE)
 })
 
 output$detailsTable <- renderDataTable({
 	print('------------------- DETAILS TABLE ------------------')
-	print(list(project=input$project, sample=input$detailsSample, 
+	print(list(project_sample=input$detailsSample, 
 		adduct=input$detailsAdduct, switch=input$detailsSwitch))
 	actualize$project_samples
 	data <- tryCatch({
-		if(is.null(input$project)) custom_stop('invalid', 'project not initialized')
-		else if(input$project == '') custom_stop('invalid', 'no project created')
-		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample not initialized')
+		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample not initialized')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample processed in project')
 		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct not initialized')
 		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct in project_sample???')
 		
-		query <- sprintf('select * from observed where project_sample == (select project_sample
-			from project_sample where project == "%s" and sample == "%s" and adduct == "%s");',
-			input$project, input$detailsSample, input$detailsAdduct)
+		query <- sprintf('select * from observed where project_sample == %s;', input$detailsSample)
 		print(query)
 		data <- dbGetQuery(db, query)
 		data <- if(input$detailsSwitch) data %>% group_by(formula) %>% 
-				summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=n()/2) %>% 
+				summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=max(roiNb)) %>% 
 				data.frame
 			else data %>% group_by(formula) %>% 
-				summarise(C=C[1], Cl=Cl[1], rt=mean(rt) %>% round, rois=n()/2) %>% 
+				summarise(C=C[1], Cl=Cl[1], rt=mean(rt) %>% round, rois=max(roiNb)) %>% 
 				data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
@@ -53,7 +72,7 @@ output$detailsTable <- renderDataTable({
 	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
 		function(settings, json){
 			var table = settings.oInstance.api();
-			var switchVal = $('#detailsSwitch').val();
+			var switchVal = document.getElementById('detailsSwitch').checked;
 			table.cells(null, [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]).every(function(){
 				if(this.data() != null){
 					var value = this.data().split(' ');
@@ -96,27 +115,21 @@ output$detailsTable <- renderDataTable({
 	"))
 	
 observeEvent(input$detailsTable_selected, {
-	if(is.null(input$project)) return()
-	else if(is.null(input$detailsSample)) return()
-	else if(is.null(input$detailsAdduct)) return()
+	if(is.null(input$detailsSample)) return()
 	else if(is.null(input$detailsTable_selected)) return()
-	else if(input$project == "") return()
 	else if(input$detailsSample == "") return()
-	else if(input$detailsAdduct == "") return()
 	else if(length(input$detailsTable_selected) == 0) return()
 	data <- dbGetQuery(db, sprintf('select ppm, machine from observed where C == %s and Cl == %s and 
-		project_sample == (select project_sample from project_sample where project == "%s" and 
-			sample == "%s" and adduct == "%s");', input$detailsTable_selected$C, 
-			input$detailsTable_selected$Cl, input$project, input$detailsSample, 
-			input$detailsAdduct))[1, ]
+		project_sample == %s;', input$detailsTable_selected$C, 
+			input$detailsTable_selected$Cl, input$detailsSample))[1, ]
 	if(!is.na(data$ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data$ppm, min=0, step=1)
 	if(!is.na(data$machine)) updatePickerInput(session, 'detailsMachine', 'machine', choices=setNames(1:length(resolution_list),
 			names(resolution_list)), selected=data$machine)
 })	
 
-plotEIC <- function(data, mz, rois=data.frame()){
+plotEIC <- function(data, rois=data.frame()){
 	eicPlot <- plot_ly(type="scatter", mode="lines") %>% 
-		add_trace(mode="lines+markers", name=mz, legendgroup="group1", 
+		add_trace(mode="lines+markers", 
 			data=data, x=~x, y=~y, color=I('black'), showlegend=FALSE, 
 			marker=list(opacity=1, size=1*10**-9),
 			hoverinfo="text", text=~paste('rt:', round(data$x, digits=2), 
@@ -133,31 +146,30 @@ plotEIC <- function(data, mz, rois=data.frame()){
 		for(i in 1:length(scans)) eicPlot <- eicPlot %>% 
 			add_lines(x=data[scans[[i]], 'x'], y=baseline[scans[[i]]], showlegend=FALSE) %>% 
 			add_trace(mode='none', data=data[scans[[i]], ], x=~x, y=~y, fill='tonexty', 
-				showlegend=FALSE, legendgroup="group1")
+				showlegend=FALSE)
 		eicPlot <- eicPlot %>% 
 			add_lines(name="baseline", x=data$x, y=baseline, color=I('red'), 
-				showlegend=FALSE, legendgroup="group1", hoverinfo="text", text=~paste(
-				'rt:', round(data$x, digits=2), '<br />intensity:', formatC(baseline)))
+				showlegend=FALSE, hoverinfo="text", text=~paste(
+				'rt:', round(data$x, digits=2), '<br />intensity:', formatC(baseline))) %>%
+			add_annotations(x=.5, y=1, text=rois[1, 'annotation'], showarrow=FALSE, 
+				xref='paper', yref='paper', showlegend=FALSE, font=list(size=30)) %>% 
+		layout(xaxis=list(title="retention time"), yaxis=list(title="intensity"), selectdirection="h")
 	}
 	eicPlot
 }
 
 output$detailsEic <- renderPlotly({
 	print('------------------- DETAILS EIC -------------------')
-	print(list(project=input$project, sample=input$detailsSample, 
-		adduct=input$detailsAdduct, machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]], 
+	print(list(project_sample=input$detailsSample, 
+		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]], 
 		table_rows=input$detailsTable_selected))
 	
 	actualize$detailsEic
 	eicPlot <- tryCatch({
-		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
-		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct is not yet initialized')
+		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
 		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')	
-		else if(input$project == "") custom_stop('invalid', 'no project selected')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample selected')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct selected')
 		else if(input$detailsMachine == '') custom_stop("invalid", "no machine selected")
 		else if(length(input$detailsTable_selected) == 0) custom_stop('invalid', 'no cell clicked')
 		feedbackDanger('detailsTolPpm', !is.numeric(input$detailsTolPpm), 'tol ppm is not numeric')
@@ -167,72 +179,113 @@ output$detailsEic <- renderPlotly({
 		if(C == 0 | Cl == 0) custom_stop('invalid', 'no cell clicked')
 		
 		query <- sprintf('select * from observed where C == %s and Cl == %s and 
-			project_sample == (
-				select project_sample from project_sample where sample == "%s" and
-					project == "%s" and adduct == "%s");',
+			project_sample == %s;',
 			input$detailsTable_selected[1], input$detailsTable_selected[2], 
-				input$detailsSample, input$project, input$detailsAdduct)
+				input$detailsSample)
 		print(query)
 		data <- dbGetQuery(db, query)
 		
-		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-			input$detailsAdduct, input$detailsMachine %>% as.numeric)
-		path <- samples() %>% filter(sample == input$detailsSample) %>% pull(path)
-		eics <- readXICs(path, masses=chloropara$mz, tol=input$detailsTolPpm)
-		# rearrange eic from rawDiag to have a dataframe for each eic & not a list
-		raw <- read.raw(path)
-		rts <- raw$StartTime
-		eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
+		path <- samples() %>% filter(sample == project_samples() %>% filter(
+			project_sample == input$detailsSample) %>% pull(sample)) %>% pull(path)
+		msFile <- xcmsRaw(path, mslevel=1)
+		mzs <- if(nrow(data) > 0) data.frame(mz = data$mz %>% unique)
+			else getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+			input$detailsAdduct, input$detailsMachine %>% as.numeric)[1:2, ]
+		mzs <- mzs %>% mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
+			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa)
+		eics <- lapply(1:nrow(mzs), function(row)
+			rawEIC(msFile, mzrange=mzs[row, c('mzmin', 'mzmax')] %>% as.matrix))
+		eics <- lapply(eics, function(eic) arrangeEics(eic, msFile))
 		
-		eicPlot1 <- plotEIC(eics[[1]], chloropara[1, 'mz'], 
-			data[which(data$mz == chloropara[1, 'mz']), c('rtmin', 'rtmax')])
-		eicPlot2 <- plotEIC(eics[[2]], chloropara[2, 'mz'], 
-			data[which(data$mz == chloropara[2, 'mz']), c('rtmin', 'rtmax')])
-	
-		subplot(eicPlot1, eicPlot2, nrows=2, shareX=TRUE)
+		subplot(lapply(1:length(eics), function(i) 
+			plotEIC(eics[[i]], data %>% filter(mz == mzs[i, 'mz']) %>% 
+				select(rtmin, rtmax, annotation))), 
+			nrows=if(length(eics) > 5) ceiling(length(eics) * 5 / (length(eics) + 5))  else length(eics))
 	}, invalid = function(i){
-		print(i$message)
+		print(paste(i))
 		plot_ly(type="scatter", mode="lines")
 	}, error = function(e){
-		print(e$message)
-		sendSweetAlert(e$message)
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
 		plot_ly(type="scatter", mode="lines")
 	})	
 	actualize$detailsEic <- FALSE
 	print('------------------- END DETAILS EIC -------------------')
-	eicPlot %>% 
-		layout(xaxis=list(title="retention time"), yaxis=list(title="intensity"), selectdirection="h")	 %>%
+	eicPlot %>%
 		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(list('zoom2d', 'select2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 })
 
 observeEvent(event_data(event='plotly_selected'), {
 	print('------------------------------ RE-INTEGRATE ------------------------')
 	pts <- event_data(event='plotly_selected')
-	print(list(project=input$project, sample=input$detailsSample,
-		adduct=input$detailsAdduct, tolPpm=input$detailsTolPpm, 
+	print(list(project_sample=input$detailsSample, tolPpm=input$detailsTolPpm, 
 		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]],
 		rtmin=min(pts$x), rtmax=max(pts$x),	table_rows=input$detailsTable_selected,
 		switch=input$detailsSwitch))
 	tryCatch({
-		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
-		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct is not yet initialized')
+		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
 		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')
-		else if(input$project == "") custom_stop('invalid', 'no project')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adducts')
 		else if(input$detailsMachine == '') custom_stop('invalid', 'no machine selected')
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		else if(any(!is.numeric(c(min(pts$x), max(pts$x))))) custom_stop('invalid', 'no pts selected')
 		
-		chloropara <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-			input$detailsAdduct, input$detailsMachine %>% as.numeric)
-		vals <- reintegrate(input$project, input$detailsSample, input$detailsAdduct, input$detailsTolPpm, 
-			min(pts$x), max(pts$x), input$detailsTable_selected$C, input$detailsTable_selected$Cl, chloropara,
-			input$detailsMachine %>% as.numeric)
-		val <- if(input$detailsSwitch) vals$score else vals$rt
+		path <- samples() %>% filter(sample == project_samples() %>% 
+			filter(project_sample == input$detailsSample) %>% 
+			pull(sample)) %>% pull(path)
+		msFile <- xcmsRaw(path, mslevel=1)
+		roi <- which(msFile@scantime %in% pts$x)
+		
+		theo <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+			input$detailsAdduct, input$detailsMachine %>% as.numeric) %>% 
+			mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
+			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa) %>% 
+			filter(mzmin >= msFile@mzrange[1] & 
+			mzmax <= msFile@mzrange[2])
+		if(nrow(theo) == 0) custom_stop('minor_error', 
+			"the chloroparafin m/z cannot be detected in the sample")
+		eic <- rawEIC(msFile, mzrange = theo[, c('mzmin', 'mzmax')] %>% as.matrix) %>% 
+			arrangeEics(msFile)
+		windowRTMed <- 1 + 2 * min(
+			(nrow(eic)+length(roi)-1)%/% 2, 
+			ceiling(0.1*(nrow(eic)+length(roi))))
+		
+		mzs <- theo[, c('mz', 'mzmin', 'mzmax')]
+		tmpRes <- targetChloroPara2(msFile, mzs[1, ], roi, 
+			windowRTMed, 2, 0, Inf)
+		res <- data.frame(mz = c(), rt = c(), rtmin = c(), rtmax = c(), 
+			auc = c(), score = c())
+		while(nrow(tmpRes) > 0){
+			res <- rbind(res, tmpRes)
+			mzs <- mzs[-1, ]
+			tmpRes <- targetChloroPara2(msFile, mzs[1, ], roi, 
+				windowRTMed, 0, 0, tmpRes$auc)
+		}
+		if(nrow(res) < 2) custom_stop('minor_error', 'detect none chloroparafin')
+		
+		abdObs <- sapply(res$auc, function(x) x * 100 / res[1, 'auc'])
+		score <- computeScore(abdObs[-1], theo$abundance[-1])
+		annotations <- getAnnotations(res$mz)
+		res <- res %>% mutate(abd = abdObs, score = score, formula = theo[1, 'formula'],
+			roiNb = 1, annotation = annotations, C=input$detailsTable_selected$C, 
+			Cl = input$detailsTable_selected$Cl)
 			
+		query <- sprintf('delete from observed where C == %s and Cl == %s and project_sample == %s;',
+			input$detailsTable_selected$C, input$detailsTable_selected$Cl, input$detailsSample)
+		print(query)
+		dbSendQuery(db, query)
+		query <- sprintf('insert into observed (mz, formula, rt, rtmin, rtmax, auc, project_sample, ppm,
+			C, Cl, abundance, score, machine, roiNb, annotation) values %s;', 
+				paste('(', res$mz, ', "', res$formula,
+				'", ', res$rt, ', ', res$rtmin, ', ', res$rtmax, ', ', res$auc, 
+				', ', input$detailsSample, ', ', input$detailsTolPpm, ', ', res$C, 
+				', ', res$Cl, ', ', res$abd, ', ', res$score, ', ', input$detailsMachine %>% as.numeric, 
+				', ', res$roiNb, ', "', res$annotation, '")', collapse=', ', sep=''))
+		print(query)
+		dbSendQuery(db, query)
+	
+		val <- if(input$detailsSwitch) res$score[1] else res$rt[1]
 		session$sendCustomMessage("updateDetailsTable", round(val))
 		actualize$detailsEic <- TRUE
 		toastr_success('re-integration success')
@@ -274,75 +327,23 @@ getChloroPara <- function(C, Cl, adduct, machine=NULL){
 		data <- envelope(data, resolution=resolution, verbose=FALSE)
 		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
 	}
-	data[[1]] %>% data.frame %>% top_n(2, abundance) %>% arrange(desc(abundance)) %>% 
+	data[[1]] %>% data.frame %>% arrange(desc(abundance)) %>% 
 		mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
 		cbind(formula = formula)
 }
 
-reintegrate <- function(project, sample, adduct, tolPpm, rtmin, rtmax, C, Cl, theo, machine){
-	path <- dbGetQuery(db, sprintf('select path from sample where sample == "%s";',
-		sample))$path
-	project_sample <- dbGetQuery(db, sprintf('select project_sample from project_sample 
-		where project == "%s" and sample == "%s" and adduct == "%s";', 
-		project, sample, adduct))$project_sample
-	query <- sprintf('delete from observed where C == %s and Cl == %s and 
-			project_sample == %s;',
-			C, Cl, project_sample)
-	print(query)
-	dbSendQuery(db, query)
-	
-	eics <- readXICs(path, masses=theo[, 'mz'], tol=tolPpm)
-	# rearrange eic from rawDiag to have a dataframe for each eic & not a list
-	raw <- read.raw(path)
-	rts <- raw$StartTime
-	eics <- map(eics, function(eic) arrangeEICRawDiag(eic, rts))
-	
-	roi <- which(eics[[1]]$x >= rtmin & eics[[1]]$x <= rtmax)
-	windowRTMed <- 1 + 2 * min(
-		(nrow(eics[[1]])+length(roi)-1)%/% 2, 
-		ceiling(0.1*(nrow(eics[[1]])+length(roi))))
-	
-	rts <- sapply(eics, function(i) apply(i[roi, ], 1, function(j) 
-		j[1] * (j[2] / sum(i[roi, 2]))) %>% sum)
-	aucs <- reduce(eics, function(a, b) 
-		c(a, getAUC(b, roi, windowRTMed)), .init = c())
-	if(aucs[2] == 0) stop('auc of A2 is O')
-	theo <- theo[which(aucs > 0), ]
-	aucs <- aucs[which(aucs > 0)]
-	abdObs <- sapply(aucs, function(x) x * 100 / aucs[1])
-	score <- (abdObs[2] - theo[2, 'abundance']) / theo[2, 'abundance'] * 100
-	
-	res <- data.frame(mz=theo$mz, rtmin=eics[[1]][min(roi), 'x'], rtmax=eics[[1]][max(roi), 'x'], 
-		auc=aucs, abd=abdObs, score=score)
-				
-	query <- sprintf('insert into observed (mz, formula, rtmin, rtmax, rt, auc, project_sample, ppm,
-				C, Cl, abundance, score, machine) values %s;', paste('(', theo$mz, ', "', theo[1, 'formula'],
-					'", ', rtmin, ', ', rtmax, ', ', rts, ', ', aucs, ', ', project_sample, ', ', 
-					tolPpm, ', ', C, ', ', Cl, ', ', abdObs, ', ', score, ', ', machine, ')', collapse=', ', sep=''))
-	print(query)
-	dbSendQuery(db, query)
-	
-	list(score=score, rt=mean(rts))
-}
-
 observeEvent(input$detailsErase, {
 	print('----------------------------- DETAILS ERASE --------------------')
-	print(list(projet=input$project, sample=input$detailsSample,
-		adduct=input$detailsAdduct, table_rows=input$detailsTable_selected))
+	print(list(projet_sample=input$detailsSample,
+		table_rows=input$detailsTable_selected))
 	tryCatch({
-		if(is.null(input$project)) custom_stop('invalid', 'project is not yet initialized')
-		else if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct is not yet initialized')
+		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')
-		else if(input$project == "") custom_stop('invalid', 'no project')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adducts')
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		
-		query <- sprintf('delete from observed where C == %s and Cl == %s and project_sample == (
-			select project_sample from project_sample where project == "%s" and sample == "%s" and adduct == "%s");',
-			input$detailsTable_selected$C, input$detailsTable_selected$Cl, input$project,
-			input$detailsSample, input$detailsAdduct)
+		query <- sprintf('delete from observed where C == %s and Cl == %s and project_sample == %s;',
+			input$detailsTable_selected$C, input$detailsTable_selected$Cl, input$detailsSample)
 		print(query)
 		dbSendQuery(db, query)
 		

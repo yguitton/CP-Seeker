@@ -100,6 +100,11 @@ observeEvent(input$target, {
 			paste(input$targetSamples, collapse=', '))
 		print(query)
 		dbSendQuery(db, query)
+		# add new record
+		query <- sprintf('update project_sample set adduct = "%s" where project_sample in (%s);',
+			input$targetAdduct, paste(input$targetSamples, collapse=', '))
+		print(query)
+		dbSendQuery(db, query)
 		
 		# load mzs of each chloroparaffin
 		print('load mzs')
@@ -149,12 +154,13 @@ observeEvent(input$target, {
 				rois$Cl[which(is.na(rois$Cl))] <- 0
 			
 				query <- sprintf('insert into observed (mz, formula, rt, rtmin, rtmax, auc, project_sample, ppm,
-					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2, threshold) values %s;', 
+					peakwidth, C, Cl, abundance, score, machine, rangeRT_1, rangeRT_2, threshold, roiNb, annotation) values %s;', 
 						paste('(', rois$mz, ', "', rois$formula,
 						'", ', rois$rt, ', ', rois$rtmin, ', ', rois$rtmax, ', ', rois$auc, 
 						', ', input$targetSamples[i], ', ', input$targetTolPpm, ', ', input$targetPeakwidth, 
 						', ', rois$C, ', ', rois$Cl, ', ', rois$abd, ', ', rois$score, ', ', input$targetMachine %>% as.numeric, 
-						', ', input$targetRT[1], ', ', input$targetRT[2], ', ', input$targetThreshold, ')', collapse=', ', sep=''))
+						', ', input$targetRT[1], ', ', input$targetRT[2], ', ', input$targetThreshold, ', ', rois$roiNb, 
+						', "', rois$annotation, '")', collapse=', ', sep=''))
 				print(query)
 				dbSendQuery(db, query)
 				success[i] <- sprintf("detect %s chloroparaffins", length(unique(rois$formula)))
@@ -165,6 +171,7 @@ observeEvent(input$target, {
 				toastr_warning(message)
 			}
 		}
+		print(success)
 		actualize$project_samples <- TRUE
 		actualize$targetSuccess <- data.frame(samples=project_samples() %>% 
 			filter(project_sample %in% input$targetSamples) %>% pull(sampleID), success=success)
@@ -263,12 +270,18 @@ getAUC <- function(eic, roi, windowRTMed){
 		trapz(eic[roi, 'x'], baseline[roi])
 }
 
+getAnnotations <- function(mzs){
+	annotations <- sapply(mzs[-1], function(x) round(x - mzs[1]))
+	c('A', sapply(annotations, function(x) 
+		if(x < 0) paste0('A', x) else paste0('A+', x)))
+}
+
 computeScore <- function(obs, theo){
 	theo <- theo[1:length(obs)]
 	weights <- sapply(theo, function(x)
 		x / sum(theo))
 	sapply(1:length(obs), function(i) 
-		(obs[i] - theo[i]) / theo[i] * weights[i]) %>% sum
+		(obs[i] - theo[i]) / theo[i] * weights[i]) %>% sum * 100
 }
 
 targetChloroPara2 <- function(msFile, mzs, roi, windowRTMed, minScans, threshold, aucCheck){
@@ -277,8 +290,13 @@ targetChloroPara2 <- function(msFile, mzs, roi, windowRTMed, minScans, threshold
 	baseline <- runmed(eic$y, windowRTMed, endrule="median", algorithm="Turlach")
 	
 	roi <- roi[which(sapply(roi, function(x) eic[x, 'y'] >= baseline[x] & eic[x, 'y'] > threshold))]
+	rois <- split(roi, cumsum(c(TRUE, diff(roi) > 3)))
+	rois <- rois[which(lengths(rois) > 1)]
+	if(length(rois) == 0) return(data.frame())
+	roi <- rois[[which(lengths(rois) == max(lengths(rois)))]]
+	roi <- min(roi):max(roi)
 	if(length(roi) < minScans) return(data.frame())
-	
+		
 	# enlarge the ROI until the baseline
 	minScan <- min(roi)
 	while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
@@ -314,7 +332,9 @@ targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 			(nrow(eic)+length(unlist(rois))-1)%/% 2, 
 			ceiling(0.1*(nrow(eic)+length(unlist(rois)))))
 		
-		for(roi in rois){
+		# for(roi in rois){
+		for(i in 1:length(rois)){
+			roi <- rois[[i]]
 			mzs <- theo[, c('mz', 'mzmin', 'mzmax')]
 			tmpRes2 <- targetChloroPara2(msFile, mzs[1, ], roi, 
 				windowRTMed, minScans, threshold, Inf)
@@ -328,11 +348,13 @@ targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 			if(nrow(tmpRes) < 2) next
 			
 			abdObs <- sapply(tmpRes$auc, function(x) x * 100 / tmpRes[1, 'auc'])
-			score <- computeScore(abdObs, theo$abundance)
+			score <- computeScore(abdObs[-1], theo$abundance[-1])
+			annotations <- getAnnotations(tmpRes$mz)
 			
 			res <- res %>% bind_rows(data.frame(mz=tmpRes$mz,
 				rt=tmpRes$rt, rtmin=tmpRes$rtmin, rtmax=tmpRes$rtmax, 
-				auc=tmpRes$auc, abd=abdObs, score=score, formula=theo[1, 'formula']))
+				auc=tmpRes$auc, abd=abdObs, score=score, formula=theo[1, 'formula'], 
+				roiNb = i, annotation = annotations))
 		}
 		res
 	}, fail = function(f) data.frame()

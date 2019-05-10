@@ -9,11 +9,9 @@ tabItem(tabName='details',
 		column(width=1, style="padding-top: 2%;", switchInput('detailsSwitch', onLabel='Scores', offLabel='tR', value=TRUE))
 	),
 	
-	jqui_resizable(
 	box(width=12, 
 		dataTableOutput('detailsTable')
-	)),
+	),
 	column(width=12,
-		jqui_resizable(plotlyOutput('detailsEic'))
-	)
+		plotlyOutput('detailsEic', height='800px') %>% withSpinner())
 )
