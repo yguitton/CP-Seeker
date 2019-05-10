@@ -77,7 +77,7 @@ output$detailsTable <- renderDataTable({
 				if(this.data() != null){
 					var value = this.data().split(' ');
 					this.data(Number(value[0]));
-					if(switchVal == 'on' && (this.data() < -20 || this.data() > 20)) $(this.node()).css('background-color', 'rgb(255,36,0)');
+					if(switchVal && (this.data() < -20 || this.data() > 20)) $(this.node()).css('background-color', 'rgb(255,36,0)');
 					if(Number(value[1]) > 1) $(this.node()).css('border', '5px solid orange');
 				}
 			})

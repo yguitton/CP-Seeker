@@ -293,19 +293,23 @@ targetChloroPara2 <- function(msFile, mzs, roi, windowRTMed, minScans, threshold
 	rois <- split(roi, cumsum(c(TRUE, diff(roi) > 3)))
 	rois <- rois[which(lengths(rois) > 1)]
 	if(length(rois) == 0) return(data.frame())
-	roi <- rois[[which(lengths(rois) == max(lengths(rois)))]]
+	roi <- rois[which(lengths(rois) == max(lengths(rois)))][[1]]
 	roi <- min(roi):max(roi)
 	if(length(roi) < minScans) return(data.frame())
 		
 	# enlarge the ROI until the baseline
-	minScan <- min(roi)
-	while((baseline[minScan-1] < eic[minScan-1, 'y'] | 
-		baseline[minScan-2] < eic[minScan-2, 'y']) & minScan > 3) minScan <- minScan-1
-	minScan <- minScan-1
-	maxScan <- max(roi)
-	while((baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
-		baseline[maxScan+2] < eic[maxScan+2, 'y']) & maxScan < length(baseline)-3) maxScan <- maxScan+1
-	maxScan <- maxScan+1
+	minScan <- tryCatch({
+		minScan <- min(roi)
+		while(baseline[minScan-1] < eic[minScan-1, 'y'] | 
+			baseline[minScan-2] < eic[minScan-2, 'y']) minScan <- minScan-1
+		minScan-1
+	}, error = function(e) 1)
+	maxScan <- tryCatch({
+		maxScan <- max(roi)
+		while(baseline[maxScan+1] < eic[maxScan+1, 'y'] | 
+		baseline[maxScan+2] < eic[maxScan+2, 'y']) maxScan <- maxScan+1
+		maxScan+1
+	}, error = function(e) length(baseline))
 	roi <- minScan:maxScan
 	
 	auc <- getAUC(eic, roi, windowRTMed)
@@ -360,7 +364,7 @@ targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 	}, fail = function(f) data.frame()
 	, error = function(e){
 		print(e$message)
-		sendSweetAlert(e$message)
+		toastr_error(e$message)
 		data.frame()
 	})	
 }
