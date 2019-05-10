@@ -357,6 +357,9 @@ recordRaw <- function(outfile, msFile, sample, sampleID, rawPath, project, therm
 recordProjectSample <- function(sample, project, sampleID){
 	print('record project sample')
 	tryCatch({
+		if(sample %in% project_samples()[which(
+			project_samples()$project == project), 'sample']) return(paste(
+				sample, 'already in project'))
 		query <- sprintf('insert into project_sample (sample, project, sampleID) 
 			values ("%s", "%s", "%s");', sample, project, sampleID)
 		if(length(query) == 1){
