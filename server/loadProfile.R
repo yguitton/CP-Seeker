@@ -1,17 +1,26 @@
 output$uiDbProfileSampleAdduct <- renderUI({
-	data <- project_samples() %>% filter(project == input$project)
-	if(nrow(data) > 0){
-		choices <- paste(data$sample, data$adduct)
-		choices <- setNames(data$project_sample, choices)
-	} else choices <- c()
-	pickerInput('dbProfileSample', 'sample', choices=choices, multiple=TRUE, 
-		options=list(`live-search`=TRUE, `actions-box`=TRUE))
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project & 
+			!is.na(adduct)) %>% select(sampleID, project_sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(sampleID = c(), project_sample = c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(sampleID = c(), project_sample = c())
+	})
+	pickerInput('dbProfileSample', 'sample', choices=setNames(choices$project_sample, choices$sampleID), 
+		multiple=TRUE, options=list(`live-search`=TRUE, `actions-box`=TRUE))
 })
 
 getDbProfileContent <- function(project_samples=NULL){
 	if(is.null(project_samples)) return(list())
 	datas <- map(project_samples, function(project_sample) 
-		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed where project_sample == %s and score between -20 and 20 group by(formula);', 
+		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed 
+			where project_sample == %s and score between -20 and 20 group by(formula);', 
 		project_sample)))
 	datas
 }

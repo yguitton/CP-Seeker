@@ -120,18 +120,18 @@ splitTriangle <- function(triangle, zVal){
 }
 
 getZCut <- function(triangles, vTarget=90, digits=2){	
-	vT <- reduce(triangles, function(a, b) a + 
+	vT <- purrr::reduce(triangles, function(a, b) a + 
 		computeVolume(b), .init=0)
 	if(vT == 0) return(0)
 	vCurr <- 100
-	zHigh <- reduce(triangles, function(a, b) max(c(a, b$z)), .init=0)
+	zHigh <- purrr::reduce(triangles, function(a, b) max(c(a, b$z)), .init=0)
 	zDown <- 0
 	while(vCurr != vTarget){
 		zMed <- (zHigh + zDown) / 2
 		vCurr <- keep(triangles, function(triangle) any(triangle$z >= zMed)) %>%
-			reduce(function(a, b) a %>%  
+			purrr::reduce(function(a, b) a %>%  
 				append(cutTriangle(b, zVal=zMed)), .init=list()) %>% 
-				reduce(function(a, b) a + computeVolume(b, zMed), .init=0)
+				purrr::reduce(function(a, b) a + computeVolume(b, zMed), .init=0)
 		vCurr <- round(vCurr * 100 / vT, digits=digits)
 		if(vCurr > vTarget) zDown <- zMed else zHigh <- zMed
 	}
@@ -140,15 +140,15 @@ getZCut <- function(triangles, vTarget=90, digits=2){
 }
 
 splitToZones <- function(triangles){
-	centroids <- reduce(triangles, function(a, b)
+	centroids <- purrr::reduce(triangles, function(a, b)
 		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
 	split(triangles, dbscan(dist(centroids[, -3]), .5, 1)$cluster)
 }
 
 scoreZones <- function(zone1, zone2){
-	pts1 <- reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+	pts1 <- purrr::reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
 		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	pts2 <- reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+	pts2 <- purrr::reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
 		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
 	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
 	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
@@ -159,11 +159,11 @@ drawTri <- function(triangles=NULL, maxC, maxCl){
 	p <- plot_ly()
 	if(!is.null(triangles)){
 		if(length(triangles) > 0){
-			faces <- reduce(triangles, bind_rows)
+			faces <- purrr::reduce(triangles, bind_rows)
 			p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
 				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1, hoverinfo="text", 
 				text=~paste('C:', x, '<br />Cl:', y, '<br />intensity:', formatC(z)))
-			edges <- reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
+			edges <- purrr::reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
 				bind_rows(b[c(1, 2), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
 				bind_rows(b[c(1, 3), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
 				bind_rows(b[c(2, 3), ]), .init=data.frame())
@@ -199,11 +199,11 @@ contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl
 	pal <- pal(length(triangles))
 	
 	for(i in 1:length(triangles)){
-		zones <- map(triangles[[i]], function(zone) reduce(zone, function(a, b) a %>% 
+		zones <- map(triangles[[i]], function(zone) purrr::reduce(zone, function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
 			.init=list()))
 		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == zVals[i])))
-		zones <- map(zones, function(zone) reduce(zone, function(a, b) a %>% 
+		zones <- map(zones, function(zone) purrr::reduce(zone, function(a, b) a %>% 
 			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
 		
 		if(length(zones) > 1) for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 

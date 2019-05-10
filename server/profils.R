@@ -61,7 +61,7 @@ observeEvent(input$profileLaunch, {
 		for(i in 1:length(trianglesPS)){
 			updateProgressBar(session, id='pb', title=sprintf('split into zones %s',
 				samplesComputed[i]), value=100)
-			trianglesPS[[i]] <- reduce(trianglesPS[[i]], function(a, b)
+			trianglesPS[[i]] <- purrr::reduce(trianglesPS[[i]], function(a, b)
 				a %>% append(splitTriangle(b, zVals[i])), .init=list())
 			# get triangle under zVal
 			trianglesUnder <- keep(trianglesPS[[i]], function(triangle)
@@ -72,9 +72,9 @@ observeEvent(input$profileLaunch, {
 			zonesPS[[i]] <- list(trianglesUnder) %>% 
 				append(splitToZones(trianglesAbove))
 		}
-		edges <- reduce(1:length(zonesPS), function(a, b) 
-			a %>% rbind(reduce(1:length(zonesPS[[b]]), function(c, d) 
-				c %>% rbind(reduce(zonesPS[[b]][[d]], rbind, .init=data.frame()) %>% 
+		edges <- purrr::reduce(1:length(zonesPS), function(a, b) 
+			a %>% rbind(purrr::reduce(1:length(zonesPS[[b]]), function(c, d) 
+				c %>% rbind(purrr::reduce(zonesPS[[b]][[d]], rbind, .init=data.frame()) %>% 
 					cbind(zone = d-1)), .init=data.frame()) %>% 
 				cbind(triangle = rep(1:(sum(lengths(zonesPS[[b]]))), each=3)) %>% 
 				cbind(project_sample = project_samples[b])), 
@@ -106,10 +106,21 @@ observeEvent(input$profileLaunch, {
 
 output$uiTetrasSample <- renderUI({
 	actualize$tetrahedrization
-	choices <- dbGetQuery(db, sprintf('select project_sample, sample from project_sample where 
-		zVal is not null and project == "%s";', input$project))
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project & 
+			!is.na(zVal)) %>% select(sampleID, project_sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(sampleID = c(), project_sample = c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(sampleID = c(), project_sample = c())
+	})
 	pickerInput('tetrasSample', 'sample', 
-		choices=setNames(choices$project_sample, choices$sample), 
+		choices=setNames(choices$project_sample, choices$sampleID), 
 		multiple=FALSE, width='50%', options=list(`live-search`=TRUE))
 })
 
@@ -131,10 +142,21 @@ output$tetrahedras <- renderPlotly({
 
 output$uiZoneSamples <- renderUI({
 	actualize$tetrahedrization
-	choices <- dbGetQuery(db, sprintf('select project_sample, sample from project_sample where 
-		zVal is not null and project == "%s";', input$project))
+	choices <- tryCatch({
+		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
+		else if(input$project == '') custom_stop('invalid', 'no project')
+		else project_samples() %>% filter(project == input$project & 
+			!is.na(zVal)) %>% select(sampleID, project_sample)
+	}, invalid = function(i){
+		print(paste(i))
+		data.frame(sampleID = c(), project_sample = c())
+	}, error = function(e){
+		print(paste(e))
+		sendSweetAlert(paste(e$message))
+		data.frame(sampleID = c(), project_sample = c())
+	})
 	pickerInput('zoneSamples', 'samples', 
-		choices=setNames(choices$project_sample, choices$sample), 
+		choices=setNames(choices$project_sample, choices$sampleID), 
 		multiple=TRUE, options=list(`live-search`=TRUE, `actions-box`=TRUE))
 })
 
@@ -168,9 +190,8 @@ zonesMap <- eventReactive(input$zoneDraw, {
 				as.matrix %>% apply(c(1, 2), function(x) round(x, digits=2))
 			
 			print('construct map')
-			sampleNames <- dbGetQuery(db, sprintf('select sample from 
-				project_sample where project_sample in (%s);',
-				paste(project_samples, collapse=', ')))$sample
+			sampleNames <- project_samples() %>% filter(project_sample %in% project_samples) %>% 
+				pull(sampleID)
 			contourPolyhedras(zonesPS, zVals, sampleNames, maxC, maxCl) %>% onRender("
 						function(el, x, scores){
 							el.on('plotly_hover', function(data){
