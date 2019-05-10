@@ -50,7 +50,7 @@ output$detailsTable <- renderDataTable({
 				summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=max(roiNb)) %>% 
 				data.frame
 			else data %>% group_by(formula) %>% 
-				summarise(C=C[1], Cl=Cl[1], rt=mean(rt) %>% round, rois=max(roiNb)) %>% 
+				summarise(C=C[1], Cl=Cl[1], rt=(mean(rt) / 60) %>% round, rois=max(roiNb)) %>% 
 				data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
@@ -130,9 +130,9 @@ observeEvent(input$detailsTable_selected, {
 plotEIC <- function(data, rois=data.frame()){
 	eicPlot <- plot_ly(type="scatter", mode="lines") %>% 
 		add_trace(mode="lines+markers", 
-			data=data, x=~x, y=~y, color=I('black'), showlegend=FALSE, 
+			data=data, x=~x / 60, y=~y, color=I('black'), showlegend=FALSE, 
 			marker=list(opacity=1, size=1*10**-9),
-			hoverinfo="text", text=~paste('rt:', round(data$x, digits=2), 
+			hoverinfo="text", text=~paste('rt:', round(data$x / 60, digits=2), 
 			'<br />intensity:', formatC(data$y)))
 	if(nrow(rois) > 0){
 		scans <- lapply(1:nrow(rois), function(x) 
@@ -144,13 +144,13 @@ plotEIC <- function(data, rois=data.frame()){
 		baseline <- runmed(data$y, windowRTMed, endrule="median", algorithm="Turlach")
 		# trace a line under the roi for filling it 
 		for(i in 1:length(scans)) eicPlot <- eicPlot %>% 
-			add_lines(x=data[scans[[i]], 'x'], y=baseline[scans[[i]]], showlegend=FALSE) %>% 
-			add_trace(mode='none', data=data[scans[[i]], ], x=~x, y=~y, fill='tonexty', 
+			add_lines(x=data[scans[[i]], 'x'] / 60, y=baseline[scans[[i]]], showlegend=FALSE) %>% 
+			add_trace(mode='none', data=data[scans[[i]], ], x=~x / 60, y=~y, fill='tonexty', 
 				showlegend=FALSE)
 		eicPlot <- eicPlot %>% 
-			add_lines(name="baseline", x=data$x, y=baseline, color=I('red'), 
+			add_lines(name="baseline", x=data$x / 60, y=baseline, color=I('red'), 
 				showlegend=FALSE, hoverinfo="text", text=~paste(
-				'rt:', round(data$x, digits=2), '<br />intensity:', formatC(baseline))) %>%
+				'rt:', round(data$x / 60, digits=2), '<br />intensity:', formatC(baseline))) %>%
 			add_annotations(x=.5, y=1, text=rois[1, 'annotation'], showarrow=FALSE, 
 				xref='paper', yref='paper', showlegend=FALSE, font=list(size=30)) %>% 
 		layout(xaxis=list(title="retention time"), yaxis=list(title="intensity"), selectdirection="h")
@@ -235,7 +235,7 @@ observeEvent(event_data(event='plotly_selected'), {
 			filter(project_sample == input$detailsSample) %>% 
 			pull(sample)) %>% pull(path)
 		msFile <- xcmsRaw(path, mslevel=1)
-		roi <- which(msFile@scantime %in% pts$x)
+		roi <- which(msFile@scantime %in% (pts$x * 60))
 		
 		theo <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric) %>% 
@@ -285,7 +285,7 @@ observeEvent(event_data(event='plotly_selected'), {
 		print(query)
 		dbSendQuery(db, query)
 	
-		val <- if(input$detailsSwitch) res$score[1] else res$rt[1]
+		val <- if(input$detailsSwitch) res$score[1] else res$rt[1] / 60
 		session$sendCustomMessage("updateDetailsTable", round(val))
 		actualize$detailsEic <- TRUE
 		toastr_success('re-integration success')

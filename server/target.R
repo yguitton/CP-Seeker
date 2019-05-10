@@ -42,7 +42,7 @@ output$targetTic <- renderPlotly({
 		else if(input$targetSampleTic == "") custom_stop('invalid', 'no file selected')
 		path <- samples() %>% filter(sample == input$targetSampleTic) %>% pull(path)
 		msFile <- xcmsRaw(path, mslevel=1)
-		x <- msFile@scantime
+		x <- msFile@scantime / 60
 		y <- msFile@tic
 		plot_ly(type="scatter", mode="lines", x=x, y=y)
 	}, invalid = function(i){
