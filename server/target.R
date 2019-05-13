@@ -333,8 +333,8 @@ targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		
 		windowRTMed <- 1 + 2 * min(
-			(nrow(eic)+length(unlist(rois))-1)%/% 2, 
-			ceiling(0.1*(nrow(eic)+length(unlist(rois)))))
+			(length(unlist(rois))*12-1)%/% 2, 
+			ceiling(0.1*length(unlist(rois))*12))
 		
 		# for(roi in rois){
 		for(i in 1:length(rois)){

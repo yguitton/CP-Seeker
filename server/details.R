@@ -127,13 +127,14 @@ observeEvent(input$detailsTable_selected, {
 			names(resolution_list)), selected=data$machine)
 })	
 
-plotEIC <- function(data, rois=data.frame()){
+plotEIC <- function(data, mz, rois=data.frame()){
 	eicPlot <- plot_ly(type="scatter", mode="lines") %>% 
 		add_trace(mode="lines+markers", 
 			data=data, x=~x / 60, y=~y, color=I('black'), showlegend=FALSE, 
 			marker=list(opacity=1, size=1*10**-9),
-			hoverinfo="text", text=~paste('rt:', round(data$x / 60, digits=2), 
-			'<br />intensity:', formatC(data$y)))
+			hoverinfo="text", text=~paste('mz:', round(mz, 5), 
+				'<br />rt:', round(data$x / 60, digits=2), 
+				'<br />intensity:', formatC(data$y)))
 	if(nrow(rois) > 0){
 		scans <- lapply(1:nrow(rois), function(x) 
 			which(data$x >= rois[x, 'rtmin'] & data$x <= rois[x, 'rtmax']))
@@ -198,7 +199,7 @@ output$detailsEic <- renderPlotly({
 		eics <- lapply(eics, function(eic) arrangeEics(eic, msFile))
 		
 		subplot(lapply(1:length(eics), function(i) 
-			plotEIC(eics[[i]], data %>% filter(mz == mzs[i, 'mz']) %>% 
+			plotEIC(eics[[i]], mzs[i, "mz"], data %>% filter(mz == mzs[i, 'mz']) %>% 
 				select(rtmin, rtmax, annotation))), 
 			nrows=if(length(eics) > 5) ceiling(length(eics) * 5 / (length(eics) + 5))  else length(eics))
 	}, invalid = function(i){
@@ -245,11 +246,12 @@ observeEvent(event_data(event='plotly_selected'), {
 			mzmax <= msFile@mzrange[2])
 		if(nrow(theo) == 0) custom_stop('minor_error', 
 			"the chloroparafin m/z cannot be detected in the sample")
-		eic <- rawEIC(msFile, mzrange = theo[, c('mzmin', 'mzmax')] %>% as.matrix) %>% 
+		eic <- rawEIC(msFile, mzrange = theo[1, c('mzmin', 'mzmax')] %>% as.matrix) %>% 
 			arrangeEics(msFile)
+			
 		windowRTMed <- 1 + 2 * min(
-			(nrow(eic)+length(roi)-1)%/% 2, 
-			ceiling(0.1*(nrow(eic)+length(roi))))
+			(length(rois)*12-1)%/% 2, 
+			ceiling(0.1*length(rois)*12))
 		
 		mzs <- theo[, c('mz', 'mzmin', 'mzmax')]
 		tmpRes <- targetChloroPara2(msFile, mzs[1, ], roi, 
