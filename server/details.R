@@ -236,7 +236,9 @@ observeEvent(event_data(event='plotly_selected'), {
 			filter(project_sample == input$detailsSample) %>% 
 			pull(sample)) %>% pull(path)
 		msFile <- xcmsRaw(path, mslevel=1)
-		roi <- which(msFile@scantime %in% (pts$x * 60))
+		pts$x <- pts$x * 60
+		roi <- which(msFile@scantime >= min(pts$x) & 
+			msFile@scantime <= max(pts$x))
 		
 		theo <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric) %>% 
