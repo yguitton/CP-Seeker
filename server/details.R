@@ -250,8 +250,8 @@ observeEvent(event_data(event='plotly_selected'), {
 			arrangeEics(msFile)
 			
 		windowRTMed <- 1 + 2 * min(
-			(length(rois)*12-1)%/% 2, 
-			ceiling(0.1*length(rois)*12))
+			(length(roi)*12-1)%/% 2, 
+			ceiling(0.1*length(roi)*12))
 		
 		mzs <- theo[, c('mz', 'mzmin', 'mzmax')]
 		tmpRes <- targetChloroPara2(msFile, mzs[1, ], roi, 
