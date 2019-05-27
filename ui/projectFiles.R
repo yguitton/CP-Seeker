@@ -11,7 +11,7 @@ tabItem(tabName='projectFiles',
 					tags$div(class="input-group", 
 						tags$label(class="input-group-btn", 
 							tags$span(id="rawFilesSpan", class="btn btn-default btn-file action-button", "Browse...",
-								shinyFilesButton("fileImportRaw", title='select file(s)', class="shinyjs-resettable", 
+								shinyFilesButton("filesImport", title='select file(s)', class="shinyjs-resettable", 
 									multiple=TRUE, label="", style="display: none;")
 							)
 						)

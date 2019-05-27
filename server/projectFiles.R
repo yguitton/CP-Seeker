@@ -30,17 +30,17 @@ output$sampleTable <- renderDataTable({
 			-c(sample, path)) %>% t
 	}, invalid = function(i){
 		print(paste(i))
-		matrix(, nrow=14, ncol=1) %>% data.frame
+		matrix(, nrow=15, ncol=1) %>% data.frame
 	}, error = function(e){
 		print(paste(e))
 		sendSweetAlert(e$message)
-		matrix(, nrow=14, ncol=1) %>% data.frame
+		matrix(, nrow=15, ncol=1) %>% data.frame
 	})
 	colnames(data) <- c('Details')
 	rownames(data) <- c('raw path', 'instrument model', 'instrument manufacturer',
 		'software name', 'software version', 'ion source', 'analyzer', 
 		'detector type', 'method', 'resolution', 'agc target', 'maximum IT', 
-		'number of scan range', 'scan range')
+		'number of scan range', 'scan range', 'polarity')
 	print('--------------- END SAMPLE TABLE ----------------')
 	data
 }, selection='none', filter='none', options=list(paging=FALSE, bFilter=FALSE, ordering=FALSE, info=FALSE))
@@ -71,58 +71,44 @@ observeEvent(input$projectCreate, {
 	print('------------------ END CREATE PROJECT ---------------')
 })
 
-shinyFileChoose(input, 'fileImportRaw', roots=getVolumes(), 
-	filetypes=c('T2D', 'd', 'YEP', 'BAF', 'FID',
-		'TDF', 'LCD', 'RAW'), defaultRoot=names(getVolumes()()[1]))
-actualize$rawPaths <- c()
-actualize$sampleIDs <- c()
-observeEvent(parseFilePaths(getVolumes()(), input$fileImportRaw), {
-	tryCatch({
-		rawPaths <- parseFilePaths(getVolumes()(), input$fileImportRaw)$datapath
-		print(paste('raw path:', rawPaths, collapse=", "))
-		if(length(rawPaths) == 0) custom_stop('invalid', 'no files selected')
-		actualize$rawPaths <- gsub('\\\\', '/', rawPaths)
-		actualize$sampleIDs <- actualize$rawPaths %>% basename %>% file_path_sans_ext
-		
-		showModal(modalDialog(easyClose=FALSE, title="Indicate sample IDs", 
-			column(width=4, radioGroupButtons('sampleIDPolarity', label='Polarity',
-				choices=c('positive', 'negative'), justified=TRUE)),
-			column(width=4, pickerInput('sampleIDProject', 'add in project', projects())),
-			column(width=4, style="padding-top: 5%;", 
-				actionBttn('searchSampleIDs', 'guess sample IDs', style='bordered', 
+shinyFileChoose(input, 'filesImport', roots=getVolumes(), 
+	filetypes=c('mzML', 'mzXML', 'cdf', 'CDF', 'RAW', 'd', 'YEP', 'BAF', 'FID', 'WIFF', 'mzXML', 'mzML', 'MGF'), 
+	defaultRoot=names(getVolumes()()[1]))
+
+observeEvent(parseFilePaths(getVolumes()(), input$filesImport), {
+	if(nrow(parseFilePaths(getVolumes()(), input$filesImport)) == 0) return()
+	showModal(modalDialog(title='',
+		column(width=3, pickerInput('fileProject', 'Add in project', 
+			choices=projects())),
+		column(style="padding-top: 2%;", width=5, offset=1, prettyRadioButtons("filePolarity", label = ("Choose polarity of file(s):"), 
+			choices = list("negative" = "negative", "positive" = "positive"), 
+			selected = "negative", icon=icon('check'), bigger=TRUE, status='primary', animation="jelly",
+			inline=TRUE, fill=TRUE)),
+		column(style="padding-top: 2%;", width=2, offset=1, actionBttn('searchSampleIDs', 'guess sample IDs', style='bordered', 
 					color='primary', size='sm', icon=icon('sync'))),
-			dataTableOutput('sampleIDsTable'),
-			footer=div(
-				actionBttn('sampleIDCancel', 'Cancel', style='stretch', color='warning'),
-				actionBttn('sampleIDsValid', 'Valid', style='stretch', color='primary')
-			)
-		))
-	}, invalid = function(i){
-		print(paste(i))
-		actualize$rawPaths <- c()
-		actualize$sampleIDs <- c()
-	}, error = function(e){
-		print(paste(e))
-		sendSweetAlert(paste(e$message))
-		actualize$rawPaths <- c()
-		actualize$sampleIDs <- c()
-	})
+		# tags$h4('Rename the file with the name of your choice'),
+		dataTableOutput('sampleIDTable'),
+		footer=div(
+			actionBttn('fileCancel', 'Cancel', style='stretch', color='warning'),
+			actionBttn('fileAdd', 'Valid', style='stretch', color='primary')
+		)
+	))
 })
 
-output$sampleIDsTable <- renderDataTable({
+
+output$sampleIDTable <- renderDataTable({
 	tryCatch({
-		if(length(actualize$rawPaths) == 0) custom_stop('invalid', 'no raw file selected')
-		else data.frame(`filenames` = basename(actualize$rawPaths), 
-			`sample_IDs` = actualize$sampleIDs)
-	}, invalid = function(i){
-		print(paste(i))
-		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file names', 'sample IDs'))))
+	files <- parseFilePaths(getVolumes()(), input$filesImport)
+	print(list(files=files, polarity = input$filePolarity))
+	data.frame(file=files$name, 
+		label = paste(input$filePolarity %>% str_trunc(3, ellipsis=""), 
+			file_path_sans_ext(files$name)) %>% str_trunc(30, ellipsis=""))	
 	}, error = function(e){
 		print(paste(e))
-		sendSweetAlert(paste(e$message))
-		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file names', 'sample IDs'))))
+		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'label'))))
 	})
-}, server=FALSE, escape=FALSE, rownames=FALSE, selection='none', options = list(dom='frtip', bFilter=FALSE, ordering=FALSE), callback=htmlwidgets::JS("
+}, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE), 	
+callback=htmlwidgets::JS("
 	table.on('dblclick', 'tbody td', function(){
 		var colIndex = table.cell(this).index().column;
 		if(colIndex == 1){
@@ -132,12 +118,19 @@ output$sampleIDsTable <- renderDataTable({
 			$this.empty().append($input);
 			$input.css('width', '100%').focus().on('change', function(){
 				var valueNew = $input.val().replace('\"', ' ');
-				if(valueNew != '') table.cell($this).data(valueNew);
+				if(valueNew != ''){
+					if(valueNew.split('').length < 31){
+						table.cell($this).data(valueNew);
+					} else {
+						table.cell($this).data(value);
+						toastr.error('sampleID cannot contain more than 30 characters')
+					}
+				}
 				$input.remove();
 			})
 		}
 	});
-	$('#sampleIDsValid').on('click', function(){
+	$('#fileAdd').on('click', function(){
 		Shiny.onInputChange('sampleIDsValues', table.data().toArray());
 		Shiny.onInputChange('sampleIDsValidBttn', Math.random());
 	});
@@ -176,124 +169,167 @@ observeEvent(input$searchSampleIDs, {
 	print('-------------------- END SEARCH SAMPLE IDs ---------------')
 })
 
-observeEvent(input$sampleIDCancel, {
-	actualize$rawPaths <- c()
+actualize$importationSuccess <- data.frame(file=c(), success=c())
+
+observeEvent(input$fileCancel, {
 	removeModal()
 })
 
-actualize$conversionSuccess <- data.frame(file=c(), success=c())		
 observeEvent(input$sampleIDsValidBttn, {
-	print('-------------------- IMPORTATION ---------------')
+	print('-------------------- IMPORT FILES -----------------------')
+	files <- parseFilePaths(getVolumes()(), input$filesImport)
+	sampleIDs <- input$sampleIDsValues[seq(2, length(
+		input$sampleIDsValues), 2)] %>% str_replace_all("\"", "'")
+	print(list(project = input$fileProject, paths = files$datapath, sampleIDs = sampleIDs, 
+		polarity = input$filePolarity))
 	tryCatch({
-		sampleIDs <- input$sampleIDsValues[
-			seq(2, length(input$sampleIDsValues) ,2)]
-		print(list(rawPaths=actualize$rawPaths, sampleIDs=sampleIDs, 
-			polarity=input$sampleIDPolarity, project=input$sampleIDProject))
-		if(is.null(input$project)) custom_stop('invalid', 'no project selected')
-		else if(input$project == '') custom_stop('invalid', 'no project selected')
-		removeModal()
-		rawPaths <- actualize$rawPaths
-		res <- c()
-		progressSweetAlert(session, 'pb', title="file importation/conversion", value=0, display_pct=TRUE)
-		for(i in 1:length(rawPaths)){
-			updateProgressBar(session, id='pb', title=paste("Raw file importation/conversion: ", 
-				basename(rawPaths[i])), value=round((i-1)*100/length(rawPaths)))
-			res[i] <- importRaw(rawPaths[i], sampleIDs[i], input$sampleIDPolarity, input$sampleIDProject)
+		if(is.null(input$fileProject)) custom_stop('invalid', 'you must select a project')
+		else if(input$fileProject == '') custom_stop('invalid', 'you must select a project')
+		
+		actualize$importationSuccess <- data.frame(file=c(), success=c())
+		success <- c()
+		progressSweetAlert(session, 'pb', title='file importation / conversion',
+			value = 0, display_pct=TRUE)
+		for(i in 1:length(files$datapath)){
+			updateProgressBar(session, id='pb', title=
+				paste('Importation of', files$name[i], 'as', sampleIDs[i]),
+				value = round((i-1)*100/length(files$datapath)))
+			print(paste('importation of', files$datapath[i]))
+			
+			# check if file already exists in database
+			sampleName <- paste(input$filePolarity, file_path_sans_ext(files$name[i]))
+			if(project_samples() %>% filter(project == input$fileProject & sample == sampleName) %>% 
+				nrow > 0) success[i] <- 'file already in project'
+			else if(sampleName %in% samples()$sample) success[i] <- addProject_sample(
+				input$fileProject, sampleName, sampleIDs[i])
+			else success[i] <- conversion(input$fileProject, files$datapath[i], 
+				sampleName, sampleIDs[i], input$filePolarity)
+			print('---')
 		}
-		print(res)
 		actualize$samples <- TRUE
 		actualize$project_samples <- TRUE
-		actualize$conversionSuccess <- data.frame(file=sampleIDs, success=res)
+		actualize$importationSuccess <- data.frame(
+			file = files$name, success = success)
+		print(success)
 		closeSweetAlert(session)
-		showModal(modalDialog(title="Result of importation", easyClose=TRUE, 
-			dataTableOutput('importationSucessTable'), footer=modalButton('Close')
+		showModal(modalDialog(title = 'Result of importation', easyClose=TRUE,
+			dataTableOutput('importationSuccessTable'), footer=modalButton('Close')
 		))
 	}, invalid = function(i){
-		print(paste(i))
+		print(i)
 		toastr_error(paste(i$message))
 	}, error = function(e){
 		closeSweetAlert(session)
-		print(paste(e))
+		print(e)
 		sendSweetAlert(paste(e$message))
-		actualize$rawPaths <- c()
-		actualize$sampleIDs <- c()
-		actualize$conversionSuccess <- data.frame(file=c(), success=c())
 	})
-	print('-------------------- END IMPORTATION ---------------')
-})	
+	print('-------------------- END IMPORT FILES -----------------------')
+})
 
-output$importationSucessTable <- renderDataTable({
-	tryCatch({
-		if(nrow(actualize$conversionSuccess) == 0) stop('none file import')
-		res <- actualize$conversionSuccess
-		res$success <- sapply(res$success, function(x) 
-			if(x == "success") paste('<div style="background-color: #B3E2CD;">', 
-				icon('check-circle'), x, '</div>') 
-			else paste('<div style="background-color: #FDCDAC;">', 
-				icon('exclamation-circle'), x, '</div>'))
-		res
-	}, error = function(e){
-		print(paste(e))
-		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'success'))))
-	})
-}, escape=FALSE ,rownames=FALSE, selection='none', class='compact nowrap',
-options = list(dom='frtip', bFilter=FALSE, ordering=FALSE))
+output$importationSuccessTable <- renderDataTable({
+	if(nrow(actualize$importationSuccess) == 0) stop('none file(s) imported')
+	data <- actualize$importationSuccess
+	data$success <- sapply(data$success, function(x) 
+		if(x == "success") paste("<div style=\"background-color: #B3E2CD;\">", 
+			icon("check-circle"), x, "</div>")
+		else paste("<div style=\"background-color: #FDCDAC;\">", 
+			icon("exclamation-circle"), x, "</div>")
+	)
+	data
+}, escape=FALSE, rownames=FALSE, selection='none', class='compact nowrap', 
+options=list(dom='frtip', bFilter=FALSE, ordering=FALSE))
 
-importRaw <- function(path, sampleID, polarity, project){
-	tryCatch({
-		outfile <- file.path(dirOutput, polarity, paste0(file_path_sans_ext(basename(path)), '.mzXML'))
-		sample <- paste(polarity, path %>% basename %>% file_path_sans_ext)
-		if(file.exists(outfile) & sample %in% samples()$sample) return(recordProjectSample(sample, project, sampleID))
-		
-		print(paste('conversion of', basename(path)))
-		# if it is a WIFF file, search his corresponding WIFF.SCAN
-		if(grepl('WIFF$', path, ignore.case=TRUE)) if(!file.exists(paste0(
-			path, '.scan'))) stop(paste(
-				paste0(basename(path), '.scan'), 
-				'not find in the same directory as', path))
-		# if it is a Water file, don't use the vendor algorithm
-		algorithm <- if(grepl('raw$', path, ignore.case=TRUE) & 
-			file.info(path)$isdir) 'cwt' else 'vendor'
-		print(paste('algorithm used:', algorithm))
-		
-		# call msConvert
-		query <- sprintf("\"\"%s\" \"%s\" -o \"%s\" --outfile \"%s\" --mzXML --32 --zlib --filter \"peakPicking %s msLevel=1\" --filter \"polarity %s\"\"", 
-			converter, path, file.path(dirOutput, polarity), file_path_sans_ext(basename(outfile)), algorithm, polarity) 
-		shell(query)
-		
-		if(!file.exists(outfile)) stop('conversion failed')
-		msFile <- tryCatch({
-			readMSData(outfile, msLevel=1, centroided=TRUE, mode='onDisk')
-		}, error = function(e){
-			print(paste(e))
-			paste(basename(outfile), 'not contain', polarity, 'spectras')
-		})
-		if(class(msFile) != "OnDiskMSnExp") stop(msFile)
-		else if(length(msFile) == 0) stop(paste(basename(outfile), 'has no scans??!!'))
-		
-		thermoFile <- if(grepl('raw$', path) & !file.info(path)$isdir){
-			tmpFile <- file.path(tempdir(), path %>% basename %>% 
+conversion <- function(project, rawPath, sample, sampleID, polarity){
+	path <- file.path(dirOutput, polarity, rawPath %>% basename %>% 
+		file_path_sans_ext %>% paste0('.mzXML'))
+	
+	# if it is a WIFF file it needs its corresponding WIFF.SCAN
+	if(grepl('WIFF$', rawPath, ignore.case=TRUE)) if(!file.exists(paste0(
+		rawPath, '.scan'))) return('missing corresponding wiff.scan file in same directory')
+	
+	# if it is CDF file cannot centroid it
+	if(grepl('CDF$', rawPath, ignore.case=TRUE)){
+		file.copy(rawPath, file.path(dirOutput, polarity, rawPath %>% basename))
+		return(importation(file.path(dirOutput, polarity, rawPath %>% basename), 
+			rawPath, project, sample, sampleID, if(polarity == 'negative') 0 else 1))
+	}
+	
+	print(paste('conversion of', basename(rawPath)))
+	# if it is a Water repertory, don't use the vendor algorithm
+	algorithm <- if((grepl('raw$', rawPath, ignore.case=TRUE) & 
+		file.info(rawPath)$isdir) | 
+		grepl('mzXML$', rawPath, ignore.case=TRUE) | 
+		grepl('mzML$', rawPath, ignore.case=TRUE)) 'cwt' else 'vendor'
+	
+	# call msConvert
+	query <- sprintf("\"\"%s\" \"%s\" -o \"%s\" --outfile \"%s\" --mzXML --32 --zlib --filter \"peakPicking %s msLevel=1\" --filter \"polarity %s\"\"", 
+		converter, rawPath, file.path(dirOutput, polarity), rawPath %>% basename %>% file_path_sans_ext, algorithm, polarity) 
+	shell(query)
+	
+	if(!file.exists(path)){
+		print('conversion failed')
+		if(grepl('mzXML$', rawPath, ignore.case=TRUE) | 
+			grepl('mzML$', rawPath, ignore.case=TRUE)){
+				file.copy(rawPath, file.path(dirOutput, polarity, rawPath %>% basename))
+				return(importation(file.path(dirOutput, polarity, rawPath %>% basename), 
+					rawPath, project, sample, sampleID, if(polarity == 'negative') 0 else 1))
+		}
+		else return('missing windows update, cannot convert')
+	}
+	
+	thermoFile <- if(grepl('raw$', rawPath, ignore.case=TRUE) & 
+		!file.info(rawPath)$isdir){
+			tmpFile <- file.path(tempdir(), rawPath %>% basename %>% 
 				file_path_sans_ext %>% paste0('.txt'))
 			query <- sprintf("\"\"%s\" --scanTrailers \"%s\" > \"%s\"\"",
-				thermo, path, tmpFile)
+				thermo, rawPath, tmpFile)
 			shell(query)
 			if(file.exists(tmpFile)) tmpFile else NULL
 		} else NULL
-	
-		recordRaw(outfile, msFile, sample, sampleID, path, project, thermoFile)
-	}, error=function(e){
-		if(file.exists(outfile)){
-			test <- FALSE
-			while(test == FALSE) test <- unlink(outfile, force=TRUE)
-		}
-		print(paste(e))
-		toastr_error(paste(e$message))
-		paste(e$message)
-	})
+		
+	importation(path, rawPath, project, sample, sampleID, 
+		if(polarity == 'negative') 0 else 1, thermoFile)
 }
 
-recordRaw <- function(outfile, msFile, sample, sampleID, rawPath, project, thermoFile=NULL){
-	tryCatch({
+importation <- function(path, rawPath, project, sample, sampleID, polarity, thermoFile=NULL){
+	print(paste('importation of', path))
+	
+	# check if it can be read
+	msFile <- tryCatch({
+		readMSData(path, msLevel=1, mode='onDisk')
+	}, error = function(e){
+		print(e)
+		list()
+	})
+	if(length(msFile) == 0) return('no scans detected or file unreadable')
+	
+	# check if it is centroided
+	centroided <- tryCatch({
+		which(isCentroided(msFile))
+	}, error = function(e){
+		print(e)
+		list()
+	})
+	if(length(centroided) == 0) return('file is not centroided, it will slower the application')
+	
+	# chek if polarity is the good one
+	filePolarity <- if(grepl('cdf$', path, ignore.case=TRUE)) polarity
+		else unique(polarity(msFile))
+	if(length(polarity) == 2) cutMsFile(msFile, path, polarity)
+	else if(is.na(polarity)) return(recordFile(project, msFile, path, rawPath, 
+		sample, sampleID, polarity, thermoFile))
+	else if(filePolarity != polarity) return('not the same polarity in file than selected')
+
+	recordFile(project, msFile, path, rawPath, sample, sampleID, polarity, thermoFile)
+}
+
+cutMsFile <- function(msFile, path, polarity){
+	print(paste('cut', msFile))
+	spectras <- which(polarity(msFile) == polarity)
+	writeMSData(msFile[spectras], path, copy=TRUE)
+}
+
+recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarity, thermoFile=NULL){
 	print(paste('record', sample))
 	infos <- msFile@experimentData
 	instrumentModel <- if(length(infos@instrumentModel) == 0) '' else infos@instrumentModel
@@ -325,54 +361,43 @@ recordRaw <- function(outfile, msFile, sample, sampleID, rawPath, project, therm
 				grepl('^Scan range', txt))] %>% 
 				str_extract('[[:digit:]]+\\sto\\s[[:digit:]]+\\sm/z')
 			else ''
-		query <- sprintf('insert into sample (sample, path, rawPath, instrumentModel,
+		query <- sprintf('insert into sample (sample, path, rawPath, polarity, instrumentModel,
 			instrumentManufacturer, softwareName, softwareVersion, ionSource,
 			analyzer, detectorType, resolution, agcTarget, maximumIT, 
-			numberOfScanRange, scanRange) values ("%s", "%s", "%s", "%s", "%s", 
+			numberOfScanRange, scanRange) values ("%s", "%s", "%s", "%s", "%s", "%s", 
 			"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");', 
-			sample, outfile, rawPath, instrumentModel, manufacturer, softwareName,
+			sample, path, rawPath, if(polarity == 0) "negative" else "positive", 
+			instrumentModel, manufacturer, softwareName,
 			softwareVersion, ionSource, analyzer, detectorType, resolution, 
 			agcTarget, maximumIT, numberOfScanRange, scanRange)
+		query <- str_replace_all(query, "\"", "'")
+		print(query)
 		if(length(query) == 1){
 			dbSendQuery(db, query)
 			return(recordProjectSample(sample, project, sampleID))
 		}
 	}
-	query <- sprintf('insert into sample (sample, path, rawPath, instrumentModel,
-		instrumentManufacturer, sofwtareName, softwareVersion, ionSource,
-		analyzer, detectorType) values ("%s", "%s", "%s", "%s", "%s", 
-		"%s", "%s", "%s", "%s", "%s");', sample, outfile, rawPath, instrumentModel, 
-		manufacturer, softwareName,	softwareVersion, ionSource, analyzer, detectorType)
+	query <- sprintf('insert into sample (sample, path, rawPath, polarity, instrumentModel,
+		instrumentManufacturer, softwareName, softwareVersion, ionSource,
+		analyzer, detectorType) values ("%s", "%s", "%s", "%s", "%s", "%s", 
+		"%s", "%s", "%s", "%s", "%s");', sample, path, rawPath, if(polarity == 0) "negative" else "positive",
+		instrumentModel, manufacturer, softwareName,	softwareVersion, ionSource, analyzer, detectorType)
+	query <- str_replace_all(query, "\"", "'")
+	print(query)
 	if(length(query) == 1){
 		dbSendQuery(db, query)
 		return(recordProjectSample(sample, project, sampleID))
-	} else stop('minor_error', paste('cannot insert', sample, 'in database'))
-	}, error = function(e){
-		print(paste(e))
-		toastr_error(paste(e$message))
-		return(paste(e$message))
-	})
+	} else paste('cannot insert in database')
 }
 
 recordProjectSample <- function(sample, project, sampleID){
 	print('record project sample')
-	tryCatch({
-		if(sample %in% project_samples()[which(
-			project_samples()$project == project), 'sample']) return(paste(
-				sample, 'already in project'))
-		query <- sprintf('insert into project_sample (sample, project, sampleID) 
-			values ("%s", "%s", "%s");', sample, project, sampleID)
-		if(length(query) == 1){
-			dbSendQuery(db, query)
-			return('success')
-		} else stop(paste('cannot insert', sample, 'in project', project))
-	}, error = function(e){
-		print(paste(e))
-		toastr_error(paste(e$message))
-		return(paste(e$message))
-	})
+	query <- sprintf("insert into project_sample (project, sample, sampleID) values (\"%s\", \"%s\", \"%s\" );", 
+		project, sample, sampleID)
+	print(query)
+	dbSendQuery(db, query)
+	'success'
 }
-
 
 # output$uiStandardTable <- renderDataTable({
 	# tryCatch({
