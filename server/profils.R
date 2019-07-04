@@ -174,8 +174,8 @@ zonesMap <- eventReactive(input$zoneDraw, {
 					paste(project_samples, collapse=', ')))
 			if(nrow(edges) == 0) return(contourPolyhedras(maxC=maxC, maxCl=maxCl))
 			zonesPS <- split(edges %>% select(-project_sample), edges$project_sample) %>%
-				map(function(triangles) split(triangles %>% select(-zone), triangles$zone)) %>%
-				map(function(zones) zones %>% map(function(triangles) split(
+				purrr::map(function(triangles) split(triangles %>% select(-zone), triangles$zone)) %>%
+				purrr::map(function(zones) zones %>% purrr::map(function(triangles) split(
 					triangles %>% select(-triangle), triangles$triangle)))
 			
 			project_samples <- unique(edges$project_sample)

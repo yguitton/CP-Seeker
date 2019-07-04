@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: matchedFilter-based peak detection in purely chromatographic...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findChromPeaks,Chromatogram,MatchedFilterParam-method {xcms}"><tr><td>findChromPeaks,Chromatogram,MatchedFilterParam-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>matchedFilter-based peak detection in purely chromatographic data</h2>
+
+<h3>Description</h3>
+
+<p><code>findChromPeaks</code> on a <a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram</a> or <a href="../../MSnbase/html/Chromatograms-class.html">Chromatograms</a> object with a
+<a href="findChromPeaks-matchedFilter.html">MatchedFilterParam</a> parameter object performs matchedFilter-based peak
+detection on purely chromatographic data. See <a href="findChromPeaks-matchedFilter.html">matchedFilter</a> for details
+on the method and <a href="findChromPeaks-matchedFilter.html">MatchedFilterParam</a> for details on the parameter class.
+Note that not all settings from the <code>MatchedFilterParam</code> will be used.
+See <code><a href="peaksWithMatchedFilter.html">peaksWithMatchedFilter()</a></code> for the arguments used for peak detection
+on purely chromatographic data.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'Chromatogram,MatchedFilterParam'
+findChromPeaks(object, param,
+  ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a <a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram</a> or <a href="../../MSnbase/html/Chromatograms-class.html">Chromatograms</a> object.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>a <a href="findChromPeaks-matchedFilter.html">MatchedFilterParam</a> object specifying the settings for the
+peak detection. See <code><a href="peaksWithMatchedFilter.html">peaksWithMatchedFilter()</a></code> for the description of
+arguments used for peak detection.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If called on a <code>Chromatogram</code> object, the method returns a <code>matrix</code> with
+the identified peaks. See <code><a href="peaksWithMatchedFilter.html">peaksWithMatchedFilter()</a></code> for details on the
+matrix content.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="peaksWithMatchedFilter.html">peaksWithMatchedFilter()</a></code> for the downstream function and
+<a href="findChromPeaks-matchedFilter.html">matchedFilter</a> for details on the method.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+od &lt;- readMSData(system.file("cdf/KO/ko15.CDF", package = "faahKO"),
+    mode = "onDisk")
+
+## Extract chromatographic data for a small m/z range
+chr &lt;- chromatogram(od, mz = c(272.1, 272.3))[1, 1]
+
+## Identify peaks with default settings
+xchr &lt;- findChromPeaks(chr, MatchedFilterParam())
+
+## Plot the identified peaks
+plot(xchr)
+
+## Modify the settings
+mfp &lt;- MatchedFilterParam(fwhm = 60)
+xchr &lt;- findChromPeaks(chr, mfp)
+
+plot(xchr)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

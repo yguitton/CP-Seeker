@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Export MS data to mzML/mzXML files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writeMSData,XCMSnExp,character-method {xcms}"><tr><td>writeMSData,XCMSnExp,character-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Export MS data to mzML/mzXML files</h2>
+
+<h3>Description</h3>
+
+<p><code>writeMSData</code> exports mass spectrometry data in mzML or mzXML format.
+If adjusted retention times are present, these are used as retention time of
+the exported spectra.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'XCMSnExp,character'
+writeMSData(object, file,
+  outformat = c("mzml", "mzxml"), copy = FALSE,
+  software_processing = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><a href="XCMSnExp-class.html">XCMSnExp</a> object with the mass spectrometry data.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p><code>character</code> with the file name(s). The length of this parameter
+has to match the number of files/samples of <code>object</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>outformat</code></td>
+<td>
+<p><code>character(1)</code> defining the format of the output files (
+either <code>"mzml"</code> or <code>"mzxml"</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>copy</code></td>
+<td>
+<p><code>logical(1)</code> if metadata (data processing, software used,
+original file names etc) should be copied from the original files.</p>
+</td></tr>
+<tr valign="top"><td><code>software_processing</code></td>
+<td>
+<p>optionally provide specific data processing steps.
+See documentation of the <code>software_processing</code> parameter of
+<code><a href="../../mzR/html/writeMSData.html">mzR::writeMSData()</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters to pass down to the <code><a href="../../MSnbase/html/writeMSData.html">writeMSData()</a></code>
+function in the <code>MSnbase</code> package, such as <code>outformat</code> to specify the
+output format (<code>"mzml"</code> or <code>"mzxml"</code>) or <code>copy</code> to specify whether
+general information from the original MS data files (such as data
+processing, software etc) should be copied to the new files.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../MSnbase/html/writeMSData.html">writeMSData()</a></code> function in the <code>MSnbase</code> package.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Core API function for matchedFilter peak detection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_findChromPeaks_matchedFilter {xcms}"><tr><td>do_findChromPeaks_matchedFilter {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Core API function for matchedFilter peak detection</h2>
+
+<h3>Description</h3>
+
+<p>This function identifies peaks in the chromatographic
+time domain as described in [Smith 2006]. The intensity values are
+binned by cutting The LC/MS data into slices (bins) of a mass unit
+(<code>binSize</code> m/z) wide. Within each bin the maximal intensity is
+selected. The peak detection is then performed in each bin by
+extending it based on the <code>steps</code> parameter to generate slices
+comprising bins <code>current_bin - steps +1</code> to
+<code>current_bin + steps - 1</code>.
+Each of these slices is then filtered with matched filtration using
+a second-derative Gaussian as the model peak shape. After filtration
+peaks are detected using a signal-to-ration cut-off. For more details
+and illustrations see [Smith 2006].
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_findChromPeaks_matchedFilter(mz, int, scantime, valsPerSpect,
+  binSize = 0.1, impute = "none", baseValue, distance, fwhm = 30,
+  sigma = fwhm/2.3548, max = 5, snthresh = 10, steps = 2,
+  mzdiff = 0.8 - binSize * steps, index = FALSE, sleep = 0)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>Numeric vector with the individual m/z values from all scans/
+spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>int</code></td>
+<td>
+<p>Numeric vector with the individual intensity values from all
+scans/spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>scantime</code></td>
+<td>
+<p>Numeric vector of length equal to the number of
+spectra/scans of the data representing the retention time of each scan.</p>
+</td></tr>
+<tr valign="top"><td><code>valsPerSpect</code></td>
+<td>
+<p>Numeric vector with the number of values for each
+spectrum.</p>
+</td></tr>
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the width of the
+bins/slices in m/z dimension.</p>
+</td></tr>
+<tr valign="top"><td><code>impute</code></td>
+<td>
+<p>Character string specifying the method to be used for missing
+value imputation. Allowed values are <code>"none"</code> (no linear
+interpolation), <code>"lin"</code> (linear interpolation), <code>"linbase"</code>
+(linear interpolation within a certain bin-neighborhood) and
+<code>"intlin"</code>. See <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>baseValue</code></td>
+<td>
+<p>The base value to which empty elements should be set. This
+is only considered for <code>method = "linbase"</code> and corresponds to the
+<code>profBinLinBase</code>'s <code>baselevel</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>distance</code></td>
+<td>
+<p>For <code>method = "linbase"</code>: number of non-empty
+neighboring element of an empty element that should be considered for
+linear interpolation. See details section for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>fwhm</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the full width at half maximum
+of matched filtration gaussian model peak. Only used to calculate the
+actual sigma, see below.</p>
+</td></tr>
+<tr valign="top"><td><code>sigma</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the standard deviation (width)
+of the matched filtration model peak.</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p><code>numeric(1)</code> representing the maximum number of peaks
+that are expected/will be identified per slice.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio cutoff.</p>
+</td></tr>
+<tr valign="top"><td><code>steps</code></td>
+<td>
+<p><code>numeric(1)</code> defining the number of bins to be
+merged before filtration (i.e. the number of neighboring bins that will
+be joined to the slice in which filtration and peak detection will be
+performed).</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> representing the minimum difference in m/z
+dimension required for peaks with overlapping retention times; can be
+negative to allow overlap. During peak post-processing, peaks
+defined to be overlapping are reduced to the one peak with the largest
+signal.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p><code>logical(1)</code> specifying whether indicies should be
+returned instead of values for m/z and retention times.</p>
+</td></tr>
+<tr valign="top"><td><code>sleep</code></td>
+<td>
+<p><code>numeric(1)</code> defining the number of seconds to wait between
+iterations. Defaults to <code>sleep = 0</code>. If <code>&gt; 0</code> a plot is
+generated visualizing the identified chromatographic peak. Note: this
+argument is for backward compatibility only and will be removed in
+future.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The intensities are binned by the provided m/z values within each
+spectrum (scan). Binning is performed such that the bins are centered
+around the m/z values (i.e. the first bin includes all m/z values between
+<code>min(mz) - bin_size/2</code> and <code>min(mz) + bin_size/2</code>).
+</p>
+<p>For more details on binning and missing value imputation see
+<code><a href="binYonX.html">binYonX</a></code> and <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> methods.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix, each row representing an identified chromatographic peak,
+with columns:
+</p>
+
+<dl>
+<dt>mz</dt><dd><p>Intensity weighted mean of m/z values of the peak across scans.</p>
+</dd>
+<dt>mzmin</dt><dd><p>Minimum m/z of the peak.</p>
+</dd>
+<dt>mzmax</dt><dd><p>Maximum m/z of the peak.</p>
+</dd>
+<dt>rt</dt><dd><p>Retention time of the peak's midpoint.</p>
+</dd>
+<dt>rtmin</dt><dd><p>Minimum retention time of the peak.</p>
+</dd>
+<dt>rtmax</dt><dd><p>Maximum retention time of the peak.</p>
+</dd>
+<dt>into</dt><dd><p>Integrated (original) intensity of the peak.</p>
+</dd>
+<dt>intf</dt><dd><p>Integrated intensity of the filtered peak.</p>
+</dd>
+<dt>maxo</dt><dd><p>Maximum intensity of the peak.</p>
+</dd>
+<dt>maxf</dt><dd><p>Maximum intensity of the filtered peak.</p>
+</dd>
+<dt>i</dt><dd><p>Rank of peak in merged EIC (<code>&lt;= max</code>).</p>
+</dd>
+<dt>sn</dt><dd><p>Signal to noise ratio of the peak</p>
+</dd>
+</dl>
+
+
+
+<h3>Note</h3>
+
+<p>This function exposes core peak detection functionality of
+the <em>matchedFilter</em> method. While this function can be called
+directly, users will generally call the corresponding method for the
+data object instead (e.g. the <code>link{findPeaks.matchedFilter}</code>
+method).
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A Smith, Johannes Rainer
+</p>
+
+
+<h3>References</h3>
+
+<p>Colin A. Smith, Elizabeth J. Want, Grace O'Maille, Ruben Abagyan and
+Gary Siuzdak. &quot;XCMS: Processing Mass Spectrometry Data for Metabolite
+Profiling Using Nonlinear Peak Alignment, Matching, and Identification&quot;
+<em>Anal. Chem.</em> 2006, 78:779-787.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="binYonX.html">binYonX</a></code> for a binning function,
+<code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for the interpolation of missing values.
+<code><a href="findChromPeaks-matchedFilter.html">matchedFilter</a></code> for the standard user interface method.
+</p>
+<p>Other core peak detection functions: <code><a href="do_findChromPeaks_centWaveWithPredIsoROIs.html">do_findChromPeaks_centWaveWithPredIsoROIs</a></code>,
+<code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code>,
+<code><a href="do_findChromPeaks_massifquant.html">do_findChromPeaks_massifquant</a></code>,
+<code><a href="do_findPeaks_MSW.html">do_findPeaks_MSW</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Load the test file
+library(faahKO)
+fs &lt;- system.file('cdf/KO/ko15.CDF', package = "faahKO")
+xr &lt;- xcmsRaw(fs)
+
+## Extracting the data from the xcmsRaw for do_findChromPeaks_centWave
+mzVals &lt;- xr@env$mz
+intVals &lt;- xr@env$intensity
+## Define the values per spectrum:
+valsPerSpect &lt;- diff(c(xr@scanindex, length(mzVals)))
+
+res &lt;- do_findChromPeaks_matchedFilter(mz = mzVals, int = intVals,
+scantime = xr@scantime, valsPerSpect = valsPerSpect)
+head(res)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

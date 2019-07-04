@@ -1,3 +1,5 @@
+Sys.setenv(LANG = "en")
+
 appwd <- getwd()
 
 # Read the application config

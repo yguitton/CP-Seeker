@@ -111,8 +111,8 @@ observeEvent(input$target, {
 		updateProgressBar(session, id="pb", title="compute cholorpara mzs", value=0)
 		chloropara <- loadChloroParaMzs(input$targetAdduct, input$targetMachine %>% as.numeric)
 		chloropara <- lapply(chloropara, function(x) x %>% 
-			mutate(tolMDa = mz * input$targetTolPpm * 10**-6) %>%
-			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa))
+			dplyr::mutate(tolMDa = mz * input$targetTolPpm * 10**-6) %>%
+			dplyr::mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa))
 		
 		success <- c()
 		for(i in 1:length(input$targetSamples)){
@@ -189,7 +189,7 @@ observeEvent(input$target, {
 	print('------------------- END TARGET --------------------')
 })
 
-output$targetSuccessTable <- renderDataTable({
+output$targetSuccessTable <- DT::renderDataTable({
 	tryCatch({
 		data <- actualize$targetSuccess
 		if(nrow(data) == 0) return(data)
@@ -234,7 +234,7 @@ loadChloroParaMzs <- function(adduct, machine=NULL){
 		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
 	}
 	data <- lapply(1:length(data), function(i) data[[i]] %>% data.frame %>% 
-		arrange(desc(abundance)) %>% mutate(mz = round(`m.z`, digits=5)) %>% 
+		arrange(desc(abundance)) %>% dplyr::mutate(mz = round(`m.z`, digits=5)) %>% 
 		select(mz, abundance) %>% cbind(formula = formulas[i]))
 }
 
@@ -324,11 +324,11 @@ targetChloroPara <- function(msFile, eic, minScans, threshold, theo){
 		res <- data.frame(mz=c(), rtmin=c(), rtmax=c(), auc=c(), score=c())
 		
 		# search the ROI
-		rois <- which(eic$y > mean(eic$y) + (sd(eic$y)) & eic$y > threshold)
+		rois <- which(eic$y > mean(eic$y, trim=.05) & eic$y > threshold)
 		rois <- split(rois, cumsum(c(TRUE, diff(rois) > 3)))
 		rois <- rois[which(lengths(rois) > 1)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
-		rois <- map(rois, function(x) min(x):max(x))
+		rois <- purrr::map(rois, function(x) min(x):max(x))
 		rois <- rois[which(lengths(rois) > minScans)]
 		if(length(rois) == 0) custom_stop('fail', 'no chloroparaffin detected')
 		

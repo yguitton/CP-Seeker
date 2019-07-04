@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identity and number of rejected hypotheses</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mt.reject {multtest}"><tr><td>mt.reject {multtest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identity and number of rejected hypotheses </h2>
+
+<h3>Description</h3>
+
+<p>This function returns the identity and number of rejected hypotheses for several multiple testing procedures and different nominal Type I error rates.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mt.reject(adjp, alpha)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>adjp</code></td>
+<td>
+<p>A matrix of adjusted <em>p</em>-values, with rows
+corresponding to hypotheses and columns to multiple testing
+procedures. This matrix could be obtained from the function
+<code><a href="mt.rawp2adjp.html">mt.rawp2adjp</a></code>
+.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>A vector of nominal Type I error rates.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list with components
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>r</code></td>
+<td>
+<p>A matrix containing the number of rejected hypotheses for several multiple testing procedures and different nominal Type I error rates. Rows correspond to Type I error rates and columns to multiple testing procedures.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>A matrix of indicators for the rejection of individual hypotheses by different multiple testing procedures for a nominal Type I error rate <code>alpha[1]</code>. Rows correspond to hypotheses and columns to multiple testing procedures.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Sandrine Dudoit,  <a href="http://www.stat.berkeley.edu/~sandrine">http://www.stat.berkeley.edu/~sandrine</a>, <br />
+Yongchao Ge, <a href="mailto:yongchao.ge@mssm.edu">yongchao.ge@mssm.edu</a>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="mt.maxT.html">mt.maxT</a></code>, <code><a href="mt.maxT.html">mt.minP</a></code>, <code><a href="mt.rawp2adjp.html">mt.rawp2adjp</a></code>, <code><a href="golub.html">golub</a></code>.</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Gene expression data from Golub et al. (1999)
+# To reduce computation time and for illustrative purposes, we condider only
+# the first 100 genes and use the default of B=10,000 permutations.
+# In general, one would need a much larger number of permutations
+# for microarray data.
+
+data(golub)
+smallgd&lt;-golub[1:100,] 
+classlabel&lt;-golub.cl
+
+# Permutation unadjusted p-values and adjusted p-values for maxT procedure
+res&lt;-mt.maxT(smallgd,classlabel)
+mt.reject(cbind(res$rawp,res$adjp),seq(0,1,0.1))$r
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>multtest</em> version 2.40.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

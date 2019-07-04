@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generation of profile data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for profGenerate {xcms}"><tr><td>profGenerate {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generation of profile data</h2>
+
+<h3>Description</h3>
+
+<p>Generates profile (binned) data in a given range from an indexed pair
+of vectors.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+profBin(x, y, num, xstart = min(x), xend = max(x), param = list())
+profBinM(x, y, zidx, num, xstart = min(x), xend = max(x), NAOK = FALSE, param = list())
+profBinLin(x, y, num, xstart = min(x), xend = max(x), param = list())
+profBinLinM(x, y, zidx, num, xstart = min(x), xend = max(x), NAOK = FALSE, param = list())
+profBinLinBase(x, y, num, xstart = min(x), xend = max(x), param = list())
+profBinLinBaseM(x, y, zidx, num, xstart = min(x), xend = max(x), NAOK = FALSE, param = list())
+profIntLin(x, y, num, xstart = min(x), xend = max(x), param = list())
+profIntLinM(x, y, zidx, num, xstart = min(x), xend = max(x), NAOK = FALSE, param = list())
+profMaxIdx(x, y, num, xstart = min(x), xend = max(x), param = list())
+profMaxIdxM(x, y, zidx, num, xstart = min(x), xend = max(x), NAOK = FALSE, param = list())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>numeric vector of value positions</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>numeric vector of values to bin</p>
+</td></tr>
+<tr valign="top"><td><code>zidx</code></td>
+<td>
+<p>starting position of each new segment</p>
+</td></tr>
+<tr valign="top"><td><code>num</code></td>
+<td>
+<p>number of equally spaced x bins</p>
+</td></tr>
+<tr valign="top"><td><code>xstart</code></td>
+<td>
+<p>starting x value</p>
+</td></tr>
+<tr valign="top"><td><code>xend</code></td>
+<td>
+<p>ending x value</p>
+</td></tr>
+<tr valign="top"><td><code>NAOK</code></td>
+<td>
+<p>allow NA values (faster)</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>parameters for profile generation</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions take a vector of unequally spaced <code>y</code> values
+and transform them into either a vector or matrix, depending on
+whether there is an index or not. Each point in the vector or
+matrix represents the data for the point centered at its corresponding
+<code>x</code> value, plus or minus half the <code>x</code> step size
+(<code>xend-xstart/(num-1)</code>).
+</p>
+<p>The <code>Bin</code> functions set each matrix or vector value to the
+maximal point that gets binned into it.
+</p>
+<p>The <code>BinLin</code> functions do the same except that they linearly
+interpolate values into which nothing was binned.
+</p>
+<p>The <code>BinLinBase</code> functions do the same except that they populate
+empty parts of spectra with a base value. They take to two parameters:
+1) <code>baselevel</code>, the intensity level to fill in for empty parts
+of the spectra. It defaluts to half of the minimum intensity. 2)
+<code>basespace</code>, the m/z length after which the signal will drop to
+the base level. Linear interpolation will be used between consecuitive
+data points falling within <code>2*basespace</code> of eachother. It defaluts
+to 0.075.
+</p>
+<p>The <code>IntLin</code> functions set each matrix or vector value to
+the integral of the linearly interpolated data from plus to minus
+half the step size.
+</p>
+<p>The <code>MaxIdx</code> functions work similarly to the <code>Bin</code>
+functions execpt that the return the integer index of which x,y
+pair would be placed in a particular cell.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>prof*</code>, a numeric vector of length <code>num</code>.
+</p>
+<p>For <code>prof*M</code>, a matrix with dimensions <code>num</code> by
+<code>length(zidx)</code>.
+</p>
+<p>For <code>MaxIdx</code>, the data type is integer, for all others it
+is double.
+</p>
+
+
+<h3>Note</h3>
+
+<p>There are some issues with the <code>profBinLin</code> method, see
+<a href="https://github.com/sneumann/xcms/issues/46">https://github.com/sneumann/xcms/issues/46</a> and
+<a href="https://github.com/sneumann/xcms/issues/49">https://github.com/sneumann/xcms/issues/49</a>. Thus it is suggested
+to use the functions <code><a href="binYonX.html">binYonX</a></code> in combination with
+<code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> instead.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	## Not run: 
+		library(faahKO)
+		cdfpath &lt;- system.file("cdf", package = "faahKO")
+		cdffiles &lt;- list.files(cdfpath, recursive = TRUE, full.names = TRUE)
+		xraw &lt;- xcmsRaw(cdffiles[1])
+
+		image(xraw) ## not how with intLin the intensity's blur
+		profMethod(xraw) &lt;- "bin"
+		image(xraw) ## now with 'bin' there is no blurring good for centroid data
+		##try binlinbase for profile data
+	
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

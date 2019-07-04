@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Clean Affymetrix's CDF name</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for cleancdfname {affy}"><tr><td>cleancdfname {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Clean Affymetrix's CDF name</h2>
+
+<h3>Description</h3>
+
+<p>This function converts Affymetrix's names for CDF files to the names
+used in the annotation package and in all Bioconductor.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cleancdfname(cdfname, addcdf = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>cdfname</code></td>
+<td>
+<p>A <code>character</code> denoting Affymetrix'x CDF file name </p>
+</td></tr>
+<tr valign="top"><td><code>addcdf</code></td>
+<td>
+<p>A <code>logical</code>. If <code>TRUE</code> it adds the string &quot;cdf&quot;
+at the end of the cleaned CDF name. This is used to name the
+<code>cdfenvs</code> packages.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function takes a CDF filename obtained from an Affymetrix file
+(from a CEL file for example) and convert it to a convention of ours:
+all small caps and only alphanumeric characters. The details of the rule
+can be seen in the code.
+We observed exceptions that made us create a set of special cases for
+mapping CEL to CDF. The object <code>mapCdfName</code> holds information
+about these cases. It is a <code>data.frame</code> of three elements: the 
+first is the name as found in the CDF file, the second the name in the
+CEL file and the third the name in Bioconductor. <code>mapCdfName</code> can
+be loaded using <code>data(mapCdfName)</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>character</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+cdf.tags &lt;- c("HG_U95Av2", "HG-133A")
+for (i in cdf.tags)
+  cat(i, "becomes", cleancdfname(i), "\n")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

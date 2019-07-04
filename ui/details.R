@@ -10,7 +10,7 @@ tabItem(tabName='details',
 	),
 	
 	box(width=12, 
-		dataTableOutput('detailsTable')
+		DT::dataTableOutput('detailsTable')
 	),
 	column(width=12,
 		plotlyOutput('detailsEic', height='800px') %>% withSpinner())

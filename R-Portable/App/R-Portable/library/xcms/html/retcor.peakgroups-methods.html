@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Align retention times across samples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for retcor.peakgroups-methods {xcms}"><tr><td>retcor.peakgroups-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Align retention times across samples</h2>
+
+<h3>Description</h3>
+
+<p>These two methods use &ldquo;well behaved&rdquo; peak groups to calculate
+retention time deviations for every time point of each sample. Use
+smoothed deviations to align retention times.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsSet</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+
+<p>number of missing samples to allow in retention time correction
+groups
+</p>
+</td></tr>
+<tr valign="top"><td><code>extra</code></td>
+<td>
+
+<p>number of extra peaks to allow in retention time correction
+correction groups
+</p>
+</td></tr>
+<tr valign="top"><td><code>smooth</code></td>
+<td>
+
+<p>either <code>"loess"</code> for non-linear alignment or <code>"linear"</code>
+for linear alignment
+</p>
+</td></tr>
+<tr valign="top"><td><code>span</code></td>
+<td>
+
+<p>degree of smoothing for local polynomial regression fitting
+</p>
+</td></tr>
+<tr valign="top"><td><code>family</code></td>
+<td>
+
+<p>if <code>gaussian</code> fitting is by least-squares with no outlier
+removal, and if <code>symmetric</code> a re-descending M estimator
+is used with Tukey's biweight function, allowing outlier removal
+</p>
+</td></tr>
+<tr valign="top"><td><code>plottype</code></td>
+<td>
+
+<p>if <code>deviation</code> plot retention time deviation points and
+regression fit, and if <code>mdevden</code> also plot peak overall
+peak density and retention time correction peak density
+</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>vector of colors for plotting each sample</p>
+</td></tr>
+<tr valign="top"><td><code>ty</code></td>
+<td>
+<p>vector of line and point types for plotting each sample</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>xcmsSet</code> object
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsSet&quot;</dt><dd>
+<p><code>retcor(object, missing = 1, extra = 1,
+               smooth = c("loess", "linear"), span = .2,
+               family = c("gaussian", "symmetric"),
+               plottype = c("none", "deviation", "mdevden"),
+               col = NULL, ty = NULL)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSet-class.html">xcmsSet-class</a></code>,
+<code><a href="../../stats/html/loess.html">loess</a></code>
+<code><a href="retcor.obiwarp-methods.html">retcor.obiwarp</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count the number of quantitfied features.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nQuants {MSnbase}"><tr><td>nQuants {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count the number of quantitfied features.</h2>
+
+<h3>Description</h3>
+
+<p>This function counts the number of quantified features, i.e
+non NA quantitation values, for each group of features
+for all the samples in an <code>"<a href="MSnSet-class.html">MSnSet</a>"</code> object.
+The group of features are defined by a feature variable names, i.e
+the name of a column of <code>fData(object)</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nQuants(x, groupBy)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An instance of class <code>"<a href="MSnSet-class.html">MSnSet</a>"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>groupBy</code></td>
+<td>
+<p>An object of class <code>factor</code> defining how to
+summerise the features. (Note that this parameter was
+previously named <code>fcol</code> and referred to a feature
+variable label. This has been updated in version 1.19.12 for
+consistency with other functions.)</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function is typically used after <code><a href="MSnSet-class.html">topN</a></code> and before
+<code><a href="combineFeatures.html">combineFeatures</a></code>, when the summerising function is
+<code>sum</code>, or any function that does not normalise to the number of
+features aggregated. In the former case, sums of features might
+be the result of 0 (if no feature was quantified) to <code>n</code>
+(if all <code>topN</code>'s <code>n</code> features were quantified) features,
+and one might want to rescale the sums based on the number of
+non-NA features effectively summed.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>matrix</code> of dimensions
+<code>length(levels(groupBy))</code> by <code>ncol(x)</code>
+</p>
+<p>A <code>matrix</code> of dimensions
+<code>length(levels(factor(fData(object)[, fcol])))</code> by
+<code>ncol(object)</code> of integers.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;, Sebastian Gibb
+&lt;mail@sebastiangibb.de&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(msnset)
+n &lt;- 2
+msnset &lt;- topN(msnset, groupBy = fData(msnset)$ProteinAccession, n)
+m &lt;- nQuants(msnset, groupBy = fData(msnset)$ProteinAccession)
+msnset2 &lt;- combineFeatures(msnset,
+                           groupBy = fData(msnset)$ProteinAccession,
+                           method = sum)
+stopifnot(dim(n) == dim(msnset2))
+head(exprs(msnset2))
+head(exprs(msnset2) * (n/m))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

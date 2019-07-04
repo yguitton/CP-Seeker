@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Documenting missing data visualisation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for missing-data {MSnbase}"><tr><td>missing-data {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Documenting missing data visualisation</h2>
+
+<h3>Description</h3>
+
+<p>There is a need for adequate handling of missing value impuation in
+quantitative proteomics. Before developing a framework to handle
+missing data imputation optimally, we propose a set of visualisation
+tools. This document serves as an internal notebook for current
+progress and ideas that will eventually materialise in exported
+functionality in the <code>MSnbase</code> package.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The explore the structure of missing values, we propose to
+</p>
+<p>1. Explore missing values in the frame of the experimental design. The
+<code><a href="imageNA2.html">imageNA2</a></code> function offers such a simple visualisation. It
+is currently limited to 2-group designs/comparisons. In case of time
+course experiments or sub-cellular fractionation along a density
+gradient, we propose to split the time/gradient into 2 groups
+(early/late, top/bottom) as a first approximation.
+</p>
+<p>2. Explore the proportion of missing values in each group.
+</p>
+<p>3. Explore the total and group-wise feature intensity distributions.
+</p>
+<p>The existing <code><a href="plotNA-methods.html">plotNA</a></code> function illustrates the
+completeness/missingness of the data.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;, Samuel Wieczorek and Thomas
+Burger</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="plotNA-methods.html">plotNA</a></code>, <code><a href="imageNA2.html">imageNA2</a></code>.</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Other suggestions
+library("pRolocdata")
+library("pRoloc")
+data(dunkley2006)
+set.seed(1)
+nax &lt;- makeNaData(dunkley2006, pNA = 0.10)
+pcol &lt;- factor(ifelse(dunkley2006$fraction &lt;= 5, "A", "B"))
+sel1 &lt;- pcol == "A"
+
+## missing values in each sample
+barplot(colSums(is.na(nax)), col = pcol)
+
+
+## table of missing values in proteins
+par(mfrow = c(3, 1))
+barplot(table(rowSums(is.na(nax))), main = "All")
+barplot(table(rowSums(is.na(nax)[sel1,])), main = "Group A")
+barplot(table(rowSums(is.na(nax)[!sel1,])), main = "Group B")
+
+
+fData(nax)$nNA1 &lt;- rowSums(is.na(nax)[, sel1])
+fData(nax)$nNA2 &lt;- rowSums(is.na(nax)[, !sel1])
+fData(nax)$nNA &lt;- rowSums(is.na(nax))
+o &lt;- MSnbase:::imageNA2(nax, pcol)
+
+plot((fData(nax)$nNA1 - fData(nax)$nNA2)[o], type = "l")
+grid()
+
+plot(sort(fData(nax)$nNA1 - fData(nax)$nNA2), type = "l")
+grid()
+
+
+o2 &lt;- order(fData(nax)$nNA1 - fData(nax)$nNA2)
+MSnbase:::imageNA2(nax, pcol, Rowv=o2)
+
+layout(matrix(c(rep(1, 10), rep(2, 5)), nc = 3))
+MSnbase:::imageNA2(nax, pcol, Rowv=o2)
+plot((fData(nax)$nNA1 - fData(nax)$nNA)[o2], type = "l", col = "red",
+     ylim = c(-9, 9), ylab = "")
+lines((fData(nax)$nNA - fData(nax)$nNA2)[o2], col = "steelblue")
+lines((fData(nax)$nNA1 - fData(nax)$nNA2)[o2], type = "l",
+     lwd = 2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

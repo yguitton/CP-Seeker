@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Cross-validation for PCA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for Q2 {pcaMethods}"><tr><td>Q2 {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Cross-validation for PCA</h2>
+
+<h3>Description</h3>
+
+<p>Internal cross-validation can be used for estimating the level of
+structure in a data set and to optimise the choice of number of
+principal components.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+Q2(object, originalData = completeObs(object), fold = 5, nruncv = 1,
+  type = c("krzanowski", "impute"), verbose = interactive(),
+  variables = 1:nVar(object), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <code>pcaRes</code> object (result from previous PCA
+analysis.)</p>
+</td></tr>
+<tr valign="top"><td><code>originalData</code></td>
+<td>
+<p>The matrix (or ExpressionSet) that used to
+obtain the pcaRes object.</p>
+</td></tr>
+<tr valign="top"><td><code>fold</code></td>
+<td>
+<p>The number of groups to divide the data in.</p>
+</td></tr>
+<tr valign="top"><td><code>nruncv</code></td>
+<td>
+<p>The number of times to repeat the whole
+cross-validation</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>krzanowski or imputation type cross-validation</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><code>boolean</code> If TRUE Q2 outputs a primitive
+progress bar.</p>
+</td></tr>
+<tr valign="top"><td><code>variables</code></td>
+<td>
+<p>indices of the variables to use during
+cross-validation calculation. Other variables are kept as they are
+and do not contribute to the total sum-of-squares.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further arguments passed to the <code><a href="pca.html">pca</a></code> function called
+within Q2.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This method calculates <i>Q^2</i> for a PCA model. This is the
+cross-validated version of <i>R^2</i> and can be interpreted as the
+ratio of variance that can be predicted independently by the PCA
+model. Poor (low) <i>Q^2</i> indicates that the PCA model only
+describes noise and that the model is unrelated to the true data
+structure. The definition of <i>Q^2</i> is: </p>
+<p style="text-align: center;"><i>Q^2=1 - sum_i^k
+sum_j^n (x - \hat{x})^2 / &sum;_i^k &sum;_j^n(x^2)</i></p>
+<p> for the matrix
+<i>x</i> which has <i>n</i> rows and <i>k</i> columns. For a given
+number of PC's x is estimated as <i>\hat{x}=TP'</i> (T are scores
+and P are loadings). Although this defines the leave-one-out
+cross-validation this is  not what is performed if fold is less
+than the number of rows and/or columns.  In 'impute' type CV,
+diagonal rows of elements in the matrix are deleted and the
+re-estimated.  In 'krzanowski' type CV, rows are sequentially left
+out to build fold PCA models which give the loadings. Then,
+columns are sequentially left out to build fold models for
+scores. By combining scores and loadings from different models, we
+can estimate completely left out values.  The two types may seem
+similar but can give very different results, krzanowski typically
+yields more stable and reliable result for estimating data
+structure whereas impute is better for evaluating missing value
+imputation performance. Note that since Krzanowski CV operates on
+a reduced matrix, it is not possible estimate Q2 for all
+components and the result vector may therefore be shorter than
+<code>nPcs(object)</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix or vector with <i>Q^2</i> estimates.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig, Ondrej Mikula
+</p>
+
+
+<h3>References</h3>
+
+<p>Krzanowski, WJ. Cross-validation in principal
+component analysis. Biometrics. 1987(43):3,575-584
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(iris)
+x &lt;- iris[,1:4]
+pcIr &lt;- pca(x, nPcs=3)
+q2 &lt;- Q2(pcIr, x)
+barplot(q2, main="Krzanowski CV", xlab="Number of PCs", ylab=expression(Q^2))
+## q2 for a single variable
+Q2(pcIr, x, variables=2)
+pcIr &lt;- pca(x, nPcs=3, method="nipals")
+q2 &lt;- Q2(pcIr, x, type="impute")
+barplot(q2, main="Imputation CV", xlab="Number of PCs", ylab=expression(Q^2))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

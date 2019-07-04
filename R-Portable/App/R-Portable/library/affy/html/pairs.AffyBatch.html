@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: plot intensities using 'pairs'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pairs.AffyBatch {affy}"><tr><td>pairs.AffyBatch {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>plot intensities using 'pairs'</h2>
+
+<h3>Description</h3>
+
+<p>Plot intensities using the function 'pairs'
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'AffyBatch'
+pairs(x, panel=points, ..., transfo=I, main=NULL, oma=NULL,
+                  font.main = par("font.main"),
+                  cex.main = par("cex.main"), cex.labels = NULL, 
+                  lower.panel=panel, upper.panel=NULL, diag.panel=NULL,
+                  font.labels = 1, row1attop = TRUE, gap = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an <code><a href="AffyBatch-class.html">AffyBatch</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>panel</code></td>
+<td>
+<p>a function to produce a plot (see <code><a href="../../graphics/html/pairs.html">pairs</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra parameters for the 'panel' function.</p>
+</td></tr>
+<tr valign="top"><td><code>transfo</code></td>
+<td>
+<p>a function to transform the intensity values before
+generating the plot. 'log' and 'log2' are popular choices.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>title for the plot</p>
+</td></tr>
+<tr valign="top"><td><code>oma</code></td>
+<td>
+<p>see 'oma' in <code><a href="../../graphics/html/par.html">par</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>font.main</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cex.main</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cex.labels</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lower.panel</code></td>
+<td>
+<p>a function to produce the plots in the lower
+triangle (see <code><a href="../../graphics/html/pairs.html">pairs</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>upper.panel</code></td>
+<td>
+<p>a function to produce the plots in the upper
+triangle (see <code><a href="../../graphics/html/pairs.html">pairs</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>diag.panel</code></td>
+<td>
+<p>a function to produce the plots in the diagonal
+(see <code><a href="../../graphics/html/pairs.html">pairs</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>font.labels</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>row1attop</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>gap</code></td>
+<td>
+<p>see <code><a href="../../graphics/html/pairs.html">pairs</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Plots with several chips can represent zillions of points. They require
+a lot of memory and can be very slow to be displayed. You may want to
+try to split of the plots, or to plot them in a device like 'png' or
+'jpeg'. 
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -22,7 +22,7 @@ tabItem(tabName='projectFiles',
 				uiOutput('uiRawFiles')
 			)
 		),
-		dataTableOutput('sampleTable')
+		DT::dataTableOutput('sampleTable')
 	)#,
 	# box(title='Standards', width=6,
 		# dataTableOutput('standardTable')

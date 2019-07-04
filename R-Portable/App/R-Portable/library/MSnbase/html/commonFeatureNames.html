@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Keep only common feature names</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for commonFeatureNames {MSnbase}"><tr><td>commonFeatureNames {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Keep only common feature names</h2>
+
+<h3>Description</h3>
+
+<p>Subsets <code>MSnSet</code> instances to their common feature names.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+commonFeatureNames(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An instance of class <code><a href="MSnSet-class.html">MSnSet</a></code> or a
+<code>list</code> or <code>MSnSetList</code> with at least 2 <code>MSnSet</code>
+objects.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>An instance of class <code><a href="MSnSet-class.html">MSnSet</a></code>. Ignored
+if <code>x</code> is a <code>list</code>/<code>MSnSetList</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>linkS4class{MSnSetList}</code> composed of the input
+<code>MSnSet</code> containing only common features in the same
+order. The names of the output are either the names of the
+<code>x</code> and <code>y</code> input variables or the names of <code>x</code>
+if a list is provided.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("pRolocdata")
+data(tan2009r1)
+data(tan2009r2)
+cmn &lt;- commonFeatureNames(tan2009r1, tan2009r2)
+names(cmn)
+## as a named list
+names(commonFeatureNames(list(a = tan2009r1, b = tan2009r2)))
+## without message
+suppressMessages(cmn &lt;- commonFeatureNames(tan2009r1, tan2009r2))
+## more than 2 instance
+data(tan2009r3)
+cmn &lt;- commonFeatureNames(list(tan2009r1, tan2009r2, tan2009r3))
+length(cmn)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

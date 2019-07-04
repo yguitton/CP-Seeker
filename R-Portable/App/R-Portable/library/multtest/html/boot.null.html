@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Non-parametric bootstrap resampling function in package...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for boot.null {multtest}"><tr><td>boot.null {multtest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Non-parametric bootstrap resampling function in package &lsquo;multtest&rsquo;</h2>
+
+<h3>Description</h3>
+
+<p>Given a data set and a closure, which consists of a function for computing the test statistic and its enclosing environment, this function produces a non-parametric bootstrap estimated test statistics null distribution. The observations in the data are resampled using the ordinary non-parametric bootstrap is used to produce an estimated test statistics distribution. This distribution is then transformed to produce the null distribution. Options for transforming the nonparametric bootstrap distribution include <code>center.only</code>, <code>center.scale</code>, and <code>quant.trans</code>. Details are given below.  These functions are called by <code>MTP</code> and <code>EBMTP</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+boot.null(X, label, stat.closure, W = NULL, B = 1000, test, nulldist, theta0 = 0, tau0 = 1, marg.null = NULL, marg.par = NULL, 
+    ncp = 0, perm.mat, alternative = "two.sided", seed = NULL, 
+    cluster = 1, dispatch = 0.05, keep.nulldist, keep.rawdist)
+
+boot.resample(X, label, p, n, stat.closure, W, B, test)
+
+center.only(muboot, theta0, alternative)
+
+center.scale(muboot, theta0, tau0, alternative)
+
+quant.trans(muboot, marg.null, marg.par, ncp, alternative, perm.mat) 
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>X</code></td>
+<td>
+<p>A matrix, data.frame or ExpressionSet containing the raw data. In the case of an ExpressionSet, <code>exprs(X)</code> is the data of interest and <code>pData(X)</code> may contain outcomes and covariates of interest. For <code>boot.resample</code> <code>X</code> must be a matrix. For currently implemented tests, one hypothesis is tested for each row of the data.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>A vector containing the class labels for t- and F-tests.</p>
+</td></tr>
+<tr valign="top"><td><code>stat.closure</code></td>
+<td>
+<p>A closure for test statistic computation, like those produced internally by the <code>MTP</code> function. The closure consists of a function for computing the test statistic and its enclosing environment, with bindings for relevant additional arguments (such as null values, outcomes, and covariates).</p>
+</td></tr>
+<tr valign="top"><td><code>W</code></td>
+<td>
+<p>A vector or matrix containing non-negative weights to be used in computing the test statistics. If a matrix, <code>W</code> must be the same dimension as <code>X</code> with one weight for each value in <code>X</code>. If a vector, <code>W</code> may contain one weight for each observation (i.e. column) of <code>X</code> or one weight for each variable (i.e. row) of <code>X</code>. In either case, the weights are duplicated appropriately. Weighted F-tests are not available. Default is 'NULL'.</p>
+</td></tr>
+<tr valign="top"><td><code>B</code></td>
+<td>
+<p>The number of bootstrap iterations (i.e. how many resampled data sets) or the number of permutations (if <code>nulldist</code> is 'perm'). Can be reduced to increase the speed of computation, at a cost to precision. Default is 1000.</p>
+</td></tr>
+<tr valign="top"><td><code>test</code></td>
+<td>
+<p>Character string specifying the test statistics to use. See <code>MTP</code> for a list of tests.</p>
+</td></tr>
+<tr valign="top"><td><code>theta0</code></td>
+<td>
+<p>The value used to center the test statistics. For tests based on a form of t-statistics, this should be zero (default). For F-tests, this should be 1.</p>
+</td></tr>
+<tr valign="top"><td><code>tau0</code></td>
+<td>
+<p>The value used to scale the test statistics. For tests based on a form of t-statistics, this should be 1 (default). For F-tests, this should be 2/(K-1), where K is the number of groups. This argument is missing when <code>center.only</code> is chosen for transforming the raw bootstrap test statistics.</p>
+</td></tr>
+<tr valign="top"><td><code>marg.null</code></td>
+<td>
+<p>If <code>nulldist='boot.qt'</code>, the marginal null distribution to use for quantile transformation.  Can be one of 'normal', 't', 'f' or 'perm'.  Default is 'NULL', in which case the marginal null distribution is selected based on choice of test statistics.  Defaults explained below. If 'perm', the user must supply a vector or matrix of test statistics corresponding to another marginal null distribution, perhaps one created externally by the user, and possibly referring to empirically derived <em>marginal permutation distributions</em>, although the statistics could represent any suitable choice of marginal null distribution.</p>
+</td></tr>   
+<tr valign="top"><td><code>marg.par</code></td>
+<td>
+<p>If <code>nulldist='boot.qt'</code>, the parameters defining the marginal null distribution in <code>marg.null</code> to be used for quantile transformation.  Default is 'NULL', in which case the values are selected based on choice of test statistics and other available parameters (e.g., sample size, number of groups, etc.).  Defaults explained below.  User can override defaults, in which case a matrix of marginal null distribution parameters can be accepted.  Providing a matrix of values allows the user to perform multiple testing using parameters which may vary with each hypothesis, as may be desired in common-quantile minP procedures. In this way, factors affecting multiple testing procedure performance such as sample size or missingness may be assessed.</p>
+</td></tr>
+<tr valign="top"><td><code>ncp</code></td>
+<td>
+<p>If <code>nulldist='boot.qt'</code>, a value for a possible noncentrality parameter to be used during marginal quantile transformation. Default is 'NULL'.</p>
+</td></tr>
+<tr valign="top"><td><code>perm.mat</code></td>
+<td>
+<p>If <code>nulldist='boot.qt'</code> and <code>marg.null='perm'</code>, a  matrix of user-supplied test statistics from a particular distribution to be used during marginal quantile transformation.  The statistics may represent empirically derived marginal permutation values, may be theoretical values, or may represent a sample from some other suitable choice of marginal null distribution.</p>
+</td></tr>
+<tr valign="top"><td><code>alternative</code></td>
+<td>
+<p>Character string indicating the alternative hypotheses, by default 'two.sided'. For one-sided tests, use 'less' or 'greater' for null hypotheses of 'greater than or equal' (i.e. alternative is 'less') and 'less than or equal', respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p>Integer or vector of integers to be used as argument to <code>set.seed</code> to set the seed for the random number generator for bootstrap resampling. This argument can be used to repeat exactly a test performed with a given seed. If the seed is specified via this argument, the same seed will be returned in the seed slot of the MTP object created. Else a random seed(s) will be generated, used and returned. Vector of integers used to specify seeds for each node in a cluster used to to generate a bootstrap null distribution.</p>
+</td></tr>
+<tr valign="top"><td><code>cluster</code></td>
+<td>
+<p>Integer of 1 or a cluster object created through the package snow. With cluster=1, bootstrap is implemented on single node. Supplying a cluster object results in the bootstrap being implemented in parallel on the provided nodes. This option is only available for the bootstrap procedure.</p>
+</td></tr>
+<tr valign="top"><td><code>csnull</code></td>
+<td>
+<p>DEPRECATED as of <code>multtest</code> v. 2.0.0 given expanded null distribution options. Previously, this argument was an indicator of whether the bootstrap estimated test statistics distribution should be centered and scaled (to produce a null distribution) or not. If <code>csnull=FALSE</code>, the (raw) non-null bootstrap estimated test statistics distribution was returned.  If the non-null bootstrap distribution should be returned, this object is now stored in the 'rawdist' slot when <code>keep.rawdist=TRUE</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>dispatch</code></td>
+<td>
+<p>The number or percentage of bootstrap iterations to dispatch at a time to each node of the cluster if a computer cluster is used. If dispatch is a percentage, <code>B*dispatch</code> must be an integer. If dispatch is an integer, then <code>B/dispatch</code> must be an integer. Default is 5 percent.</p>
+</td></tr>
+<tr valign="top"><td><code>p</code></td>
+<td>
+<p>An integer of the number of variables of interest to be tested.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>An integer of the total number of samples.</p>
+</td></tr>
+<tr valign="top"><td><code>muboot</code></td>
+<td>
+<p>A matrix of bootstrapped test statistics.</p>
+</td></tr>
+<tr valign="top"><td><code>keep.nulldist</code></td>
+<td>
+<p>Logical indicating whether to return the computed bootstrap null distribution, by default 'TRUE'.  Not available for <code>nulldist</code>='perm'. Note that this matrix can be quite large.</p>
+</td></tr>
+<tr valign="top"><td><code>keep.rawdist</code></td>
+<td>
+<p>Logical indicating whether to return the computed non-null (raw) bootstrap distribution, by default 'FALSE'.  Not available for when using <code>nulldist</code>='perm' or 'ic'.  Note that this matrix can become quite large.  If one wishes to use subsequent calls to <code>update</code> in which one updates choice of bootstrap null distribution, <code>keep.rawdist</code> must be TRUE.  To save on memory, <code>update</code> only requires that one of <code>keep.nulldist</code> or <code>keep.rawdist</code> be 'TRUE'.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list with the following elements:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>rawboot</code></td>
+<td>
+<p>If <code>keep.rawdist=TRUE</code>, the matrix of non-null, non-transformed bootstrap test statistics.  If 'FALSE', an empty matrix with dimension 0-by-0.</p>
+</td></tr>
+<tr valign="top"><td><code>muboot</code></td>
+<td>
+<p>If <code>keep.rawdist=TRUE</code> (default), the matrix of appropriately transformed null test statistics as given by one of <code>center.scale</code>, <code>center.only</code>, or <code>quant.trans</code>. This is the estimated joint test statistics null distribution. <br />
+</p>
+<p>Both list elements <code>rawboot</code> and <code>muboot</code> contain matrices of dimension the number of hypotheses (typically <code>nrow(X)</code>) by the number of bootstrap iterations (<code>B</code>). Each row of <code>muboot</code> is the bootstrap estimated marginal null distribution for a single hypothesis.  For <code>boot.null</code> and <code>center.scale</code>, each column of <code>muboot</code> is a centered and scaled resampled vector of test statistics.  For <code>boot.null</code> and <code>center.only</code>, each column of <code>muboot</code> is a centered, resampled vector of test statistics.<br />
+</p>
+<p>For <code>boot.null</code> and <code>quant.trans</code>, each column of <code>muboot</code> is a marginal null quantile-transformed resampled vector of test statistics.  For each choice of marginal null distribution (defined by <code>marg.null</code> and <code>marg.par</code>), a random sample of size B is drawn and then rearranged based on the ranks of the marginal test statistics bootstrap distribution corresponding to each hypothesis (typically within rows of <code>X</code>).  This means that using <code>quant.trans</code> will set the RNG seed ahead by B * the number of hypotheses (similarly, typically <code>nrow(X)</code>).  Tie breaks in the marginal non-null bootstrap distribution are implemented inside the internal function <code>marg.samp</code> called by <code>quant.trans</code>.  Default values of <code>marg.null</code> and <code>marg.par</code> are available based on choice of test statistics, sample size 'n', and various other parameters.  By the time <code>boot.null</code> is called in either the <code>MTP</code> or <code>EBMTP</code> functions, the default marginal null distribution settings have already been formatted and passed in their correct form to <code>boot.null</code>.  These default values correspond to:
+</p>
+
+<dl>
+<dt>t.onesamp:</dt><dd><p>t-distribution with df=n-1;</p>
+</dd>
+<dt>t.twosamp.equalvar:</dt><dd><p>t-distribution with df=n-2;</p>
+</dd>
+<dt>t.twosamp.unequalvar:</dt><dd><p>N(0,1);</p>
+</dd>
+<dt>t.pair:</dt><dd><p>t-distribution with df=n-1, where n is the number of unique samples, i.e., the number of observed differences/paired samples;</p>
+</dd>
+<dt>f:</dt><dd><p>F-distribution with df1=k-1, df2=n-k, for k groups;</p>
+</dd>
+<dt>f.block:</dt><dd><p>NA. Only available with permutation distribution;</p>
+</dd>
+<dt>f.twoway:</dt><dd><p>F-distribution with df1=k-1,df2=n-k*l, for k groups and l blocks;</p>
+</dd>
+<dt>lm.XvsZ:</dt><dd><p>N(0,1);</p>
+</dd>
+<dt>lm.YvsXZ:</dt><dd><p>N(0,1);</p>
+</dd>
+<dt>coxph.YvsXZ:</dt><dd><p>N(0,1);</p>
+</dd>
+<dt>t.cor</dt><dd><p>t-distribution with df=n-2;</p>
+</dd>
+<dt>z.cor</dt><dd><p>N(0,1).</p>
+</dd>
+</dl>
+
+<p>The above defaults, however, can be overridden by manually setting values of <code>marg.null</code> and <code>marg.par</code>. <br /> 
+</p>
+<p>The <code>rawboot</code> and <code>muboot</code> objects are returned in the slots <code>rawdist</code> and <code>nulldist</code> of an object of class <code>MTP</code> or <code>EBMTP</code> when the arguments <code>keep.rawdist</code> or <code>keep.nulldist</code> to the <code>MTP</code> function are TRUE. For <code>boot.resample</code> a matrix of bootstrap samples prior to null transformation is returned.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>Thank you to Duncan Temple Lang and Peter Dimitrov for suggestions about the code.</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Katherine S. Pollard, Houston N. Gilbert, and Sandra Taylor, with design contributions from Sandrine Dudoit and Mark J. van der Laan.</p>
+
+
+<h3>References</h3>
+
+<p>M.J. van der Laan, S. Dudoit, K.S. Pollard (2004), Augmentation Procedures for Control of the Generalized Family-Wise Error Rate and Tail Probabilities for the Proportion of False Positives, Statistical Applications in Genetics and Molecular Biology, 3(1). 
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art15/">http://www.bepress.com/sagmb/vol3/iss1/art15/</a>
+</p>
+<p>M.J. van der Laan, S. Dudoit, K.S. Pollard (2004), Multiple Testing. Part II. Step-Down Procedures for Control of the Family-Wise Error Rate, Statistical Applications in Genetics and Molecular Biology, 3(1).
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art14/">http://www.bepress.com/sagmb/vol3/iss1/art14/</a>
+</p>
+<p>S. Dudoit, M.J. van der Laan, K.S. Pollard (2004), Multiple Testing. Part I. Single-Step Procedures for Control of General Type I Error Rates, Statistical Applications in Genetics and Molecular Biology, 3(1).
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art13/">http://www.bepress.com/sagmb/vol3/iss1/art13/</a>
+</p>
+<p>Katherine S. Pollard and Mark J. van der Laan, &quot;Resampling-based Multiple Testing: Asymptotic Control of Type I Error and Applications to Gene Expression Data&quot; (June 24, 2003). U.C. Berkeley Division of Biostatistics Working Paper Series. Working Paper 121.
+<a href="http://www.bepress.com/ucbbiostat/paper121">http://www.bepress.com/ucbbiostat/paper121</a>
+</p>
+<p>M.J. van der Laan and A.E. Hubbard (2006), Quantile-function Based Null Distributions in Resampling Based Multiple Testing, Statistical Applications in Genetics and Molecular Biology, 5(1).
+<a href="http://www.bepress.com/sagmb/vol5/iss1/art14/">http://www.bepress.com/sagmb/vol5/iss1/art14/</a>
+</p>
+<p>S. Dudoit and M.J. van der Laan.  Multiple Testing Procedures and Applications to Genomics.  Springer Series in Statistics. Springer, New York, 2008.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="corr.null.html">corr.null</a></code>, <code><a href="MTP.html">MTP</a></code>, <code><a href="MTP-class.html">MTP-class</a></code>, <code><a href="EBMTP.html">EBMTP</a></code>, <code><a href="EBMTP-class.html">EBMTP-class</a></code>, <code><a href="meanX.html">get.Tn</a></code>, <code><a href="ss.maxT.html">ss.maxT</a></code>, <code><a href="mt.sample.teststat.html">mt.sample.teststat</a></code>,<code><a href="meanX.html">get.Tn</a></code>, <code><a href="wapply.html">wapply</a></code>, <code><a href="boot.null.html">boot.resample</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+set.seed(99)
+data&lt;-matrix(rnorm(90),nr=9)
+
+#closure
+ttest&lt;-meanX(psi0=0,na.rm=TRUE,standardize=TRUE,alternative="two.sided",robust=FALSE)
+
+#test statistics
+obs&lt;-get.Tn(X=data,stat.closure=ttest,W=NULL)
+
+#bootstrap null distribution (B=100 for speed, default nulldist, "boot.cs")
+nulldistn&lt;-boot.null(X=data,W=NULL,stat.closure=ttest,B=100,test="t.onesamp",
+	nulldist="boot.cs",theta0=0,tau0=1,alternative="two.sided",
+	keep.nulldist=TRUE,keep.rawdist=FALSE)$muboot
+
+#bootstrap null distribution with marginal quantile transformation showing
+#default values that are passed to marg.null and marg.par arguments
+nulldistn.qt&lt;-boot.null(X=data,W=NULL,stat.closure=ttest,B=100,test="t.onesamp",
+	nulldist="boot.qt",theta0=0,tau0=1,alternative="two.sided",
+	keep.nulldist=TRUE,keep.rawdist=FALSE,marg.null="t",
+	marg.par=matrix(9,nr=10,nc=1))$muboot
+
+#unadjusted p-values
+rawp&lt;-apply((obs[1,]/obs[2,])&lt;=nulldistn,1,mean)
+sum(rawp&lt;=0.01)
+
+rawp.qt&lt;-apply((obs[1,]/obs[2,])&lt;=nulldistn.qt,1,mean)
+sum(rawp.qt&lt;=0.01)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>multtest</em> version 2.40.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

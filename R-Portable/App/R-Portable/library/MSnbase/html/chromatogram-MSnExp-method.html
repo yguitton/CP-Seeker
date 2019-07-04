@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract chromatogram object(s)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for chromatogram,MSnExp-method {MSnbase}"><tr><td>chromatogram,MSnExp-method {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract chromatogram object(s)</h2>
+
+<h3>Description</h3>
+
+<p>The <code>chromatogram</code> method extracts chromatogram(s) from an
+<code><a href="MSnExp-class.html">MSnExp</a></code> or <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object.
+Depending on the provided parameters this can be a total ion chromatogram
+(TIC), a base peak chromatogram (BPC) or an extracted ion chromatogram
+(XIC) extracted from each sample/file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'MSnExp'
+chromatogram(object, rt, mz, aggregationFun = "sum",
+  missing = NA_real_, msLevel = 1L, BPPARAM = bpparam())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>For <code>chromatogram</code>: a <code><a href="MSnExp-class.html">MSnExp</a></code> or
+<code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object from which the chromatogram
+should be extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>rt</code></td>
+<td>
+<p>A <code>numeric(2)</code> or two-column <code>matrix</code> defining the lower
+and upper boundary for the retention time range/window(s) for the
+chromatogram(s). If a <code>matrix</code> is provided, a chromatogram is
+extracted for each row. If not specified, a chromatogram representing the
+full retention time range is extracted. See examples below for details.</p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>A <code>numeric(2)</code> or two-column <code>matrix</code> defining the
+mass-to-charge (mz) range(s) for the chromatogram(s). For each
+spectrum/retention time, all intensity values within this mz range are
+aggregated to result in the intensity value for the spectrum/retention
+time. If not specified, the full mz range is considered. See examples
+below for details.</p>
+</td></tr>
+<tr valign="top"><td><code>aggregationFun</code></td>
+<td>
+<p><code>character</code> defining the function to be used for
+intensity value aggregation along the mz dimension. Allowed values are
+<code>"sum"</code> (TIC), <code>"max"</code> (BPC), <code>"min"</code> and <code>"mean"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to specify the intensity value for
+if for a given retention time (spectrum) no signal was measured within
+the mz range. Defaults to <code>NA_real_</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer</code> specifying the MS level from which the
+chromatogram should be extracted. Defaults to <code>msLevel = 1L</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>Parallelisation backend to be used, which will
+depend on the architecture. Default is
+<code>BiocParallel::bpparam()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Arguments <code>rt</code> and <code>mz</code> allow to specify the MS
+data slice from which the chromatogram should be extracted.
+The parameter <code>aggregationSum</code> allows to specify the function to be
+used to aggregate the intensities across the mz range for the same
+retention time. Setting <code>aggregationFun = "sum"</code> would e.g. allow
+to calculate the <em>total ion chromatogram</em> (TIC),
+<code>aggregationFun = "max"</code> the <em>base peak chromatogram</em> (BPC).
+The length of the extracted <code><a href="Chromatogram.html">Chromatogram</a></code> object,
+i.e. the number of available data points, corresponds to the number of
+scans/spectra measured in the specified retention time range. If in a
+specific scan (for a give retention time) no signal was measured in the
+specified mz range, a <code>NA_real_</code> is reported as intensity for the
+retention time (see Notes for more information). This can be changed
+using the <code>missing</code> parameter.
+</p>
+<p>By default or if <code>mz</code> and/or <code>rt</code> are numeric vectors, the
+function extracts one <code><a href="Chromatogram-class.html">Chromatogram</a></code> object for each file
+in the <code><a href="MSnExp-class.html">MSnExp</a></code> or <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+object. Providing a numeric matrix with argument <code>mz</code> or <code>rt</code>
+enables to extract multiple chromatograms per file, one for each row in
+the matrix. If the number of columns of <code>mz</code> or <code>rt</code> are not
+equal to 2, <code>range</code> is called on each row of the matrix.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>chromatogram</code> returns a <code><a href="Chromatograms-class.html">Chromatograms</a></code> object with
+the number of columns corresponding to the number of files in
+<code>object</code> and number of rows the number of specified ranges (i.e.
+number of rows of matrices provided with arguments <code>mz</code> and/or
+<code>rt</code>). The 'featureData' of the returned object contains columns
+<code>"mzmin"</code> and <code>"mzmax"</code> with the values from input argument
+<code>mz</code> (if used) and <code>"rtmin"</code> and <code>"rtmax"</code> if the input
+argument <code>rt</code> was used.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="Chromatogram-class.html">Chromatogram</a></code> and <code><a href="Chromatograms-class.html">Chromatograms</a></code> for the
+classes that represent single and multiple chromatograms.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Read a test data file.
+library(msdata)
+f &lt;- c(system.file("microtofq/MM14.mzML", package = "msdata"),
+     system.file("microtofq/MM8.mzML", package = "msdata"))
+
+## Read the data as an MSnExp
+msd &lt;- readMSData(f, msLevel = 1)
+
+## Extract the total ion chromatogram for each file:
+tic &lt;- chromatogram(msd)
+
+tic
+
+## Extract the TIC for the second file:
+tic[1, 2]
+
+## Plot the TIC for the first file
+plot(rtime(tic[1, 1]), intensity(tic[1, 1]), type = "l",
+    xlab = "rtime", ylab = "intensity", main = "TIC")
+
+## Extract chromatograms for a MS data slices defined by retention time
+## and mz ranges.
+rtr &lt;- rbind(c(10, 60), c(280, 300))
+mzr &lt;- rbind(c(140, 160), c(300, 320))
+chrs &lt;- chromatogram(msd, rt = rtr, mz = mzr)
+
+## Each row of the returned Chromatograms object corresponds to one mz-rt
+## range. The Chromatogram for the first range in the first file is empty,
+## because the retention time range is outside of the file's rt range:
+chrs[1, 1]
+
+## The mz and/or rt ranges used are provided as featureData of the object
+fData(chrs)
+
+## The mz method can be used to extract the m/z ranges directly
+mz(chrs)
+
+## Also the Chromatogram for the second range in the second file is empty
+chrs[2, 2]
+
+## Get the extracted chromatogram for the first range in the second file
+chr &lt;- chrs[1, 2]
+chr
+
+plot(rtime(chr), intensity(chr), xlab = "rtime", ylab = "intensity")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

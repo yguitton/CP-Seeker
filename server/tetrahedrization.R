@@ -14,9 +14,9 @@ triangulization <- function(data){
 	colnames(ids) <- c('x', 'y')
 	# the scritp pair all values at x+1 & y+1 so need to 
 	# add all x-1 & y-1
-	ids <- ids %>% rbind(ids %>% mutate(x=x-1)) %>% 
-		rbind(ids %>% mutate(y=y-1)) %>% 
-		rbind(ids %>% mutate(x=x-1, y=y-1)) %>% 
+	ids <- ids %>% rbind(ids %>% dplyr::mutate(x=x-1)) %>% 
+		rbind(ids %>% dplyr::mutate(y=y-1)) %>% 
+		rbind(ids %>% dplyr::mutate(x=x-1, y=y-1)) %>% 
 		filter(x > 0 & y > 0 & x < nrow(data)-1 & y < ncol(data)-1) %>% 
 		distinct %>% arrange(x, y)
 	
@@ -39,7 +39,7 @@ triangulization <- function(data){
 		trianglesTmp <- trianglesTmp %>% keep(function(x) any(x$z > 0))
 		if(length(trianglesTmp) == 0) next
 		triangles <- append(triangles, trianglesTmp %>%
-			map(function(tri) tri %>% arrange(desc(z))))
+			purrr::map(function(tri) tri %>% arrange(desc(z))))
 	}
 	triangles
 }
@@ -147,9 +147,9 @@ splitToZones <- function(triangles){
 
 scoreZones <- function(zone1, zone2){
 	pts1 <- purrr::reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+		distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
 	pts2 <- purrr::reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		distinct %>% mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+		distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
 	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
 	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
 	(200 - sum(abs(data1 - data2))) / 2 
@@ -199,11 +199,11 @@ contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl
 	pal <- pal(length(triangles))
 	
 	for(i in 1:length(triangles)){
-		zones <- map(triangles[[i]], function(zone) purrr::reduce(zone, function(a, b) a %>% 
+		zones <- purrr::map(triangles[[i]], function(zone) purrr::reduce(zone, function(a, b) a %>% 
 			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
 			.init=list()))
-		zones <- map(zones, function(zone) keep(zone, function(edge) all(edge$z == zVals[i])))
-		zones <- map(zones, function(zone) purrr::reduce(zone, function(a, b) a %>% 
+		zones <- purrr::map(zones, function(zone) keep(zone, function(edge) all(edge$z == zVals[i])))
+		zones <- purrr::map(zones, function(zone) purrr::reduce(zone, function(a, b) a %>% 
 			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
 		
 		if(length(zones) > 1) for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 

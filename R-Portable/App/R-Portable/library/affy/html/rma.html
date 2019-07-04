@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Robust Multi-Array Average expression measure</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for rma {affy}"><tr><td>rma {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Robust Multi-Array Average expression measure</h2>
+
+<h3>Description</h3>
+
+<p>This function converts an <code><a href="AffyBatch-class.html">AffyBatch</a></code>
+object into an <code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>
+object using the robust multi-array average (RMA) expression measure.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+rma(object, subset=NULL, verbose=TRUE, destructive=TRUE, normalize=TRUE,
+    background=TRUE, bgversion=2, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>an <code><a href="AffyBatch-class.html">AffyBatch</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>subset</code></td>
+<td>
+<p>a character vector with the the names of the probesets
+to be used in expression calculation.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, it writes out some messages
+indicating progress. If <code>FALSE</code> nothing should be printed.</p>
+</td></tr>
+<tr valign="top"><td><code>destructive</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, works on the PM matrix
+in place as much as possible, good for large datasets.</p>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, normalize data using
+quantile normalization.</p>
+</td></tr>
+<tr valign="top"><td><code>background</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, background correct
+using RMA background correction.</p>
+</td></tr>
+<tr valign="top"><td><code>bgversion</code></td>
+<td>
+<p>integer value indicating which RMA background to use
+1: use background similar to pure R rma background given in affy version 1.0 - 1.0.2
+2: use background similar to pure R rma background given in affy version 1.1 and above</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments to be passed (not currently implemented - stub for future use).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function computes the RMA (Robust Multichip Average) expression measure
+described in Irizarry et al Biostatistics (2003).
+</p>
+<p>Note that this expression measure is given to you in log base 2
+scale. This differs from most of the other expression measure methods.
+</p>
+<p>Please note that the default background adjustment method was changed during
+the lead up to the Bioconductor 1.2 release. This means that this function and
+<code><a href="expresso.html">expresso</a></code> should give results that directly agree.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An <code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ben Bolstad <a href="mailto:bmb@bmbolstad.com">bmb@bmbolstad.com</a></p>
+
+
+<h3>References</h3>
+
+<p>Rafael. A. Irizarry, Benjamin M. Bolstad, Francois Collin, Leslie M. Cope, Bridget Hobbs and Terence P. Speed (2003), Summaries of Affymetrix GeneChip probe level data Nucleic Acids Research 31(4):e15
+</p>
+<p>Bolstad, B.M., Irizarry R. A., Astrand M., and Speed, T.P. (2003), A Comparison of Normalization Methods for High Density Oligonucleotide Array Data Based on Bias and Variance. Bioinformatics 19(2):185-193
+</p>
+<p>Irizarry, RA, Hobbs, B, Collin, F, Beazer-Barclay, YD, Antonellis, KJ, Scherf, U, Speed, TP (2003) Exploration, Normalization, and Summaries of High Density Oligonucleotide Array Probe Level Data. Biostatistics .Vol. 4, Number 2: 249-264 
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="expresso.html">expresso</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+  eset &lt;- rma(Dilution)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Intensity data for one cDNA slide with two adjacent tissue...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for kidney {vsn}"><tr><td>kidney {vsn}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Intensity data for one cDNA slide with two adjacent tissue samples
+from a nephrectomy (kidney)</h2>
+
+<h3>Description</h3>
+
+<p>Intensity data for one cDNA slide with two adjacent tissue samples
+from a nephrectomy (kidney)</p>
+
+
+<h3>Usage</h3>
+
+<pre>data(kidney)</pre>
+
+
+<h3>Format</h3>
+
+<p><code>kidney</code> is an
+<code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>
+containing the data from one cDNA
+chip. The 8704x2 matrix <code>exprs(kidney)</code> contains the
+spot intensities for the red (635 nm) and green color channels
+(532 nm) respectively. For each spot, a background estimate from a
+surrounding region was subtracted.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The chip was produced in 2001 by Holger Sueltmann at
+the Division of Molecular Genome Analysis at the German Cancer
+Research Center in Heidelberg.</p>
+
+
+<h3>References</h3>
+
+<p>Huber W, Boer JM, von Heydebreck A, Gunawan B, Vingron M,
+Fuzesi L, Poustka A, Sueltmann H. Transcription profiling of renal
+cell carcinoma. Verh Dtsch Ges Pathol. 2002;86:153-64.
+PMID: 12647365</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ data("kidney")
+ plot(exprs(kidney), pch = ".", log = "xy")
+ abline(a = 0, b = 1, col = "blue")  
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vsn</em> version 3.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

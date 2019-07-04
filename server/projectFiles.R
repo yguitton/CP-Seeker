@@ -21,7 +21,7 @@ output$uiRawFiles <- renderUI({
 		options=list(`live-search` = TRUE))
 })
 
-output$sampleTable <- renderDataTable({	
+output$sampleTable <- DT::renderDataTable({	
 	print('--------------- SAMPLE TABLE ----------------')
 	data <- tryCatch({
 		if(is.null(input$sample)) custom_stop('invalid', 'picker input not initialized yet')
@@ -96,7 +96,7 @@ observeEvent(parseFilePaths(getVolumes()(), input$filesImport), {
 })
 
 
-output$sampleIDTable <- renderDataTable({
+output$sampleIDTable <- DT::renderDataTable({
 	tryCatch({
 	files <- parseFilePaths(getVolumes()(), input$filesImport)
 	print(list(files=files, polarity = input$filePolarity))
@@ -226,7 +226,7 @@ observeEvent(input$sampleIDsValidBttn, {
 	print('-------------------- END IMPORT FILES -----------------------')
 })
 
-output$importationSuccessTable <- renderDataTable({
+output$importationSuccessTable <- DT::renderDataTable({
 	if(nrow(actualize$importationSuccess) == 0) stop('none file(s) imported')
 	data <- actualize$importationSuccess
 	data$success <- sapply(data$success, function(x) 

@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identify overlapping features</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for overlappingFeatures {xcms}"><tr><td>overlappingFeatures {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identify overlapping features</h2>
+
+<h3>Description</h3>
+
+<p><code>overlappingFeatures</code> identifies features that are overlapping or close in
+the m/z - rt space.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+overlappingFeatures(x, expandMz = 0, expandRt = 0, ppm = 0)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>XCMSnExp</code> with the features.</p>
+</td></tr>
+<tr valign="top"><td><code>expandMz</code></td>
+<td>
+<p><code>numeric(1)</code> with the value to expand each feature (on each
+side) in m/z dimension before identifying overlapping features.
+The resulting <code>"mzmin"</code> for the feature is thus <code>mzmin - expandMz</code> and
+the <code>"mzmax"</code> <code>mzmax + expandMz</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>expandRt</code></td>
+<td>
+<p><code>numeric(1)</code> with the value to expand each feature (on each
+side) in retention time dimension before identifying overlapping
+features. The resulting <code>"rtmin"</code> for the
+feature is thus <code>rtmin - expandRt</code> and the <code>"rtmax"</code> <code>rtmax + expandRt</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> to grow the m/z width of the feature by a relative
+value: <code>mzmin - mzmin * ppm / 2e6</code>, <code>mzmax + mzmax * ppm / 2e6</code>. Each
+feature is thus expanded in m/z dimension by ppm/2 on each side before
+identifying overlapping features.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>list</code> with indices of features (in <code><a href="XCMSnExp-class.html">featureDefinitions()</a></code>) that
+are overlapping.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Load 2 test files.
+data &lt;- readMSData(c(system.file("cdf/KO/ko15.CDF", package = "faahKO"),
+                     system.file("cdf/KO/ko16.CDF", package = "faahKO")),
+                   mode = "onDisk")
+
+## Perform peak detection; parameters set to reduce processing speed
+data &lt;- findChromPeaks(data, CentWaveParam(noise = 10000, snthresh = 40))
+
+## Correspondence analysis
+data &lt;- groupChromPeaks(data, param = PeakDensityParam(sampleGroups = c(1, 1)))
+
+## Identify overlapping features
+overlappingFeatures(data)
+
+## Identify features that are separated on retention time by less than
+## 2 minutes
+overlappingFeatures(data, expandRt = 60)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Delete diagonals</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for deletediagonals {pcaMethods}"><tr><td>deletediagonals {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Delete diagonals</h2>
+
+<h3>Description</h3>
+
+<p>Replace a diagonal of elements of a matrix with NA
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+deletediagonals(x, diagonals = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>The matrix</p>
+</td></tr>
+<tr valign="top"><td><code>diagonals</code></td>
+<td>
+<p>The diagonal to be replaced, i.e. the first,
+second and so on when looking at the fat version of the matrix
+(transposed or not) counting from the bottom.
+Can be a vector to delete more than one diagonal.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Used for creating artifical missing values in matrices without
+causing any full row or column to be completely missing
+</p>
+
+
+<h3>Value</h3>
+
+<p>The original matrix with some values missing
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class representation of the NLPCA neural net</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pcaNet {pcaMethods}"><tr><td>pcaNet {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class representation of the NLPCA neural net</h2>
+
+<h3>Description</h3>
+
+<p>This is a class representation of a non-linear PCA neural
+network. The <code>nlpcaNet</code> class is not meant for user-level
+usage.
+</p>
+
+
+<h3>Details</h3>
+
+<p>Creating Objects
+</p>
+<p><code>new("nlpcaNet", net=[the network structure],
+hierarchic=[hierarchic design],
+fct=[the functions at each layer], fkt=[the functions used for
+forward propagation], weightDecay=[incremental decrease of weight
+changes over iterations (between 0 and 1)], featureSorting=[sort
+features or not], dataDist=[represents the present values],
+inverse=[net is inverse mode or not], fCount=[amount of times
+features were sorted], componentLayer=[which layer is the
+'bottleneck' (principal components)],
+erro=[the used error function], gradient=[the used gradient method],
+weights=[the present weights],
+maxIter=[the amount of iterations that was done], scalingFactor=[the
+scale of the original matrix])</code>
+</p>
+<p>Slots
+</p>
+
+<dl>
+<dt>net</dt><dd><p>&quot;matrix&quot;,  matrix showing the representation of the
+neural network, e.g. (2,4,6) for a network with two features, a
+hidden layer and six output neurons (original variables).</p>
+</dd>
+<dt>hierarchic</dt><dd><p>&quot;list&quot;,  the hierarchic design of the network,
+holds 'idx' (), 'var' () and layer (which layer is the principal
+component layer).</p>
+</dd>
+<dt>fct</dt><dd><p>&quot;character&quot;,  a vector naming the functions that will be
+applied on each layer. &quot;linr&quot; is linear (i.e.) standard matrix
+products and &quot;tanh&quot; means that the arcus tangens is applied on the
+result of the matrix product (for non-linearity).</p>
+</dd>
+<dt>fkt</dt><dd><p>&quot;character&quot;,  same as fct but the functions used during
+back propagation.</p>
+</dd>
+<dt>weightDecay</dt><dd><p>&quot;numeric&quot;,  the value that is used to
+incrementally decrease the weight changes to ensure convergence.</p>
+</dd>
+<dt>featureSorting</dt><dd><p>&quot;logical&quot;, indicates if features will be
+sorted or not. This is used to make the NLPCA assume properties
+closer to those of standard PCA were the first component is more
+important for reconstructing the data than the second component.</p>
+</dd>
+<dt>dataDist</dt><dd><p>&quot;matrix&quot;, a matrix of ones and zeroes indicating
+which values will add to the errror.</p>
+</dd>
+<dt>inverse</dt><dd><p>&quot;logical&quot;, network is inverse mode (currently only
+inverse is supported) or not. Eg. the case when we have truly
+missing values and wish to impute them.</p>
+</dd>
+<dt>fCount</dt><dd><p>&quot;integer&quot;, Counter for the amount of times features
+were really sorted.</p>
+</dd>
+<dt>componentLayer</dt><dd><p>&quot;numeric&quot;, the index of 'net' that is the
+component layer.</p>
+</dd>
+<dt>error</dt><dd><p>&quot;function&quot;, the used error function. Currently only one
+is provided <code>errorHierarchic</code>.</p>
+</dd>
+<dt>gradient</dt><dd><p>&quot;function&quot;, the used gradient function. Currently
+only one is provided  <code>derrorHierarchic</code></p>
+</dd>
+<dt>weights</dt><dd><p>&quot;list&quot;, A list holding managements of the
+weights. The list has two functions, weights$current() and
+weights$set() which access a matrix in the local environment of
+this object.</p>
+</dd>
+<dt>maxIter</dt><dd><p>&quot;integer&quot;, the amount of iterations used to train
+this network.</p>
+</dd>
+<dt>scalingFactor</dt><dd><p>&quot;numeric&quot;, training the network is best made
+with 'small' values so the original data is scaled down to a
+suitable range by division with this number.</p>
+</dd></dl>
+
+<p>Methods
+</p>
+ <dl>
+<dt>vector2matrices</dt><dd><p>Returns the
+weights in a matrix representation.</p>
+</dd> </dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="nlpca.html">nlpca</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Estimate the m/z resolution of a spectrum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for estimateMzResolution,MSnExp-method {MSnbase}"><tr><td>estimateMzResolution,MSnExp-method {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Estimate the m/z resolution of a spectrum</h2>
+
+<h3>Description</h3>
+
+<p><code>estimateMzResolution</code> estimates the m/z resolution of a profile-mode
+<code>Spectrum</code> (or of all spectra in an <a href="MSnExp-class.html">MSnExp</a> or <a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a> object.
+The m/z resolution is defined as the most frequent difference between a
+spectrum's m/z values.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'MSnExp'
+estimateMzResolution(object, ...)
+
+## S4 method for signature 'Spectrum'
+estimateMzResolution(object, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>either a <code>Spectrum</code>, <code>MSnExp</code> or <code>OnDiskMSnExp</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>numeric(1)</code> with the m/z resolution. If called on a <code>MSnExp</code> or
+<code>OnDiskMSnExp</code> a <code>list</code> of m/z resolutions are returned (one for
+each spectrum).
+</p>
+
+
+<h3>Note</h3>
+
+<p>This assumes the data to be in profile mode and does not return meaningful
+results for centroided data.
+</p>
+<p>The estimated m/z resolution depends on the number of ions detected in a
+spectrum, as some instrument don't measure (or report) signal if below a
+certain threshold.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Load a profile mode example file
+library(MSnbase)
+library(msdata)
+f &lt;- proteomics(full.names = TRUE,
+    pattern = "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.mzML.gz")
+
+od &lt;- readMSData(f, mode = "onDisk")
+
+## Estimate the m/z resolution on the 3rd spectrum.
+estimateMzResolution(od[[3]])
+
+## Estimate the m/z resolution for each spectrum
+mzr &lt;- estimateMzResolution(od)
+
+## plot the distribution of estimated m/z resolutions. The bimodal
+## distribution represents the m/z resolution of the MS1 (first peak) and
+## MS2 spectra (second peak).
+plot(density(unlist(mzr)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

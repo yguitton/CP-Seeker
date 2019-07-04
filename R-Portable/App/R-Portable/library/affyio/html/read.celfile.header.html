@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read header information from cel file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for read.celfile.header {affyio}"><tr><td>read.celfile.header {affyio}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read header information from cel file</h2>
+
+<h3>Description</h3>
+
+<p>This function reads some of the header information (appears before probe
+intensity data) from the supplied cel file.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>read.celfile.header(filename,info=c("basic","full"),verbose=FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filename</code></td>
+<td>
+<p>name of CEL file. May be fully pathed</p>
+</td></tr>
+<tr valign="top"><td><code>info</code></td>
+<td>
+<p>A string. <code>basic</code> returns the dimensions of the chip
+and the name of the CDF file used when the CEL file was
+produced. <code>full</code> returns more information in greater detail.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>a <code><a href="../../base/html/logical.html">logical</a></code>. When true the parsing routine
+prints more information, typically useful for debugging.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>list</code> data structure.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>B. M. Bolstad &lt;bmb@bmbolstad.com&gt;</p>
+
+<hr /><div style="text-align: center;">[Package <em>affyio</em> version 1.54.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

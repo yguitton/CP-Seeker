@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Initialize BPCA model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for BPCA_initmodel {pcaMethods}"><tr><td>BPCA_initmodel {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Initialize BPCA model</h2>
+
+<h3>Description</h3>
+
+<p>Model initialization for Bayesian PCA. This function is NOT
+inteded to be run separately!
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+BPCA_initmodel(y, components)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>numeric matrix containing missing values. Missing values
+are denoted as 'NA'</p>
+</td></tr>
+<tr valign="top"><td><code>components</code></td>
+<td>
+<p>Number of components used for estimation</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function calculates the initial Eigenvectors by use of SVD
+from the complete rows.  The data structure M is created and
+initial values are  assigned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>List containing
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>rows</code></td>
+<td>
+<p>Row number of input matrix</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>Column number of input matrix</p>
+</td></tr>
+<tr valign="top"><td><code>comps</code></td>
+<td>
+<p>Number of components to use</p>
+</td></tr>
+<tr valign="top"><td><code>yest</code></td>
+<td>
+<p>(working variable) current estimate of complete data</p>
+</td></tr>
+<tr valign="top"><td><code>row_miss</code></td>
+<td>
+<p>(Array) Indizes of rows containing missing values</p>
+</td></tr>
+<tr valign="top"><td><code>row_nomiss</code></td>
+<td>
+<p>(Array) Indices of complete rows (such with no
+missing values)</p>
+</td></tr>
+<tr valign="top"><td><code>nans</code></td>
+<td>
+<p>Matrix of same size as input data. TRUE if <code>input == NA</code>,
+false otherwise</p>
+</td></tr>
+<tr valign="top"><td><code>mean</code></td>
+<td>
+<p>Column wise data mean</p>
+</td></tr>
+<tr valign="top"><td><code>PA</code></td>
+<td>
+<p> (d x k) Estimated principal axes (eigenvectors,
+loadings) The matrix ROWS are the vectors</p>
+</td></tr>
+<tr valign="top"><td><code>tau</code></td>
+<td>
+<p>Estimated precision of the residual error</p>
+</td></tr>
+<tr valign="top"><td><code>scores</code></td>
+<td>
+<p> Estimated scores</p>
+</td></tr>
+</table>
+<p>Further elements are: galpha0, balpha0, alpha, gmu0, btau0, gtau0,
+SigW. These are working variables or constants.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

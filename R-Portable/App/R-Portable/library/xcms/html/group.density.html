@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Group peaks from different samples together</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group.density {xcms}"><tr><td>group.density {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Group peaks from different samples together</h2>
+
+<h3>Description</h3>
+
+<p>Group peaks together across samples using overlapping m/z bins and
+calculation of smoothed peak distributions in chromatographic time.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsSet</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>minfrac</code></td>
+<td>
+
+<p>minimum fraction of samples necessary in at least one of the sample
+groups for it to be a valid group
+</p>
+</td></tr>
+<tr valign="top"><td><code>minsamp</code></td>
+<td>
+
+<p>minimum number of samples necessary in at least one of the sample
+groups for it to be a valid group
+</p>
+</td></tr>
+<tr valign="top"><td><code>bw</code></td>
+<td>
+
+<p>bandwidth (standard deviation or half width at half maximum)
+of gaussian smoothing kernel to apply to the peak density
+chromatogram
+</p>
+</td></tr>
+<tr valign="top"><td><code>mzwid</code></td>
+<td>
+
+<p>width of overlapping m/z slices to use for creating peak density
+chromatograms and grouping peaks across samples
+</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+
+<p>maximum number of groups to identify in a single m/z slice
+</p>
+</td></tr>
+<tr valign="top"><td><code>sleep</code></td>
+<td>
+
+<p>seconds to pause between plotting successive steps of the peak
+grouping algorithm. peaks are plotted as points showing relative
+intensity. identified groups are flanked by dotted vertical
+lines.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>xcmsSet</code> object with peak group assignments and statistics.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsSet&quot;</dt><dd>
+<p><code>
+    group(object, bw = 30, minfrac = 0.5, minsamp = 1,
+    mzwid = 0.25, max = 50, sleep = 0)
+  </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="do_groupChromPeaks_density.html">do_groupChromPeaks_density</a></code> for the core API function
+performing the analysis.
+<code><a href="xcmsSet-class.html">xcmsSet-class</a></code>,
+<code><a href="../../stats/html/density.html">density</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

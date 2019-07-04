@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A class to store peptide information from an mzIdentML file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mzIDpeptides-class {mzID}"><tr><td>mzIDpeptides-class {mzID}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A class to store peptide information from an mzIdentML file</h2>
+
+<h3>Description</h3>
+
+<p>This class handles parsing and storage of peptide information from mzIDentML 
+files, residing at the /x:MzIdentML/x:SequenceCollection/x:Peptide node.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'mzIDpeptides'
+show(object)
+
+## S4 method for signature 'mzIDpeptides'
+length(x)
+
+## S4 method for signature 'mzIDpeptides'
+peptides(object, safeNames = TRUE)
+
+## S4 method for signature 'mzIDpeptides'
+modifications(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An mzIDpeptides object</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An mzIDpeptides object</p>
+</td></tr>
+<tr valign="top"><td><code>safeNames</code></td>
+<td>
+<p>Should column names be lowercased to ensure compatibility
+between v1.0 and v1.1 files?</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The information is stored in a dataframe with an id, an optinal name and the 
+amino acid sequence of the peptide. Alongside a list is stored with 
+modification information of each peptide. Each row in the dataframe has a
+corresponding entry en the list. If no modification of the peptide is present
+the entry is NULL, if a modification is present the entry is a dataframe, 
+listing the different modifications of the peptide.
+</p>
+
+
+<h3>Methods (by generic)</h3>
+
+
+<ul>
+<li> <p><code>show</code>: Short summary of the content of the object
+</p>
+</li>
+<li> <p><code>length</code>: Report the number of peptides
+</p>
+</li>
+<li> <p><code>peptides</code>: Get the peptides identified.
+</p>
+</li>
+<li> <p><code>modifications</code>: Get the modification on the identified peptides
+</p>
+</li></ul>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>peptides</code></dt><dd><p>A data.frame containing all peptides used in the search</p>
+</dd>
+<dt><code>modifications</code></dt><dd><p>A list containing possible modifications of the peptides 
+listed in @peptides</p>
+</dd>
+</dl>
+
+
+<h3>Objects from the class</h3>
+
+<p>Objects of mzIDpeptides are not meant to be created explicitly but as part of
+the <code><a href="mzID-class.html">mzID-class</a></code>. Still object can be created with the 
+constructor <code><a href="mzIDpeptides.html">mzIDpeptides</a></code>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="mzIDpeptides.html">mzIDpeptides</a></code>
+</p>
+<p>Other mzID.classes: <code><a href="mzID-class.html">mzID-class</a></code>,
+<code><a href="mzIDCollection-class.html">mzIDCollection-class</a></code>,
+<code><a href="mzIDdatabase-class.html">mzIDdatabase-class</a></code>,
+<code><a href="mzIDevidence-class.html">mzIDevidence-class</a></code>,
+<code><a href="mzIDparameters-class.html">mzIDparameters-class</a></code>,
+<code><a href="mzIDpsm-class.html">mzIDpsm-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>mzID</em> version 1.22.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

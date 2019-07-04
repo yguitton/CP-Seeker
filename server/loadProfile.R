@@ -18,7 +18,7 @@ output$uiDbProfileSampleAdduct <- renderUI({
 
 getDbProfileContent <- function(project_samples=NULL){
 	if(is.null(project_samples)) return(list())
-	datas <- map(project_samples, function(project_sample) 
+	datas <- purrr::map(project_samples, function(project_sample) 
 		dbGetQuery(db, sprintf('select C as x, Cl as y, sum(auc) as z from observed 
 			where project_sample == %s and score between -20 and 20 group by(formula);', 
 		project_sample)))

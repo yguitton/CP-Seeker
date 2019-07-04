@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine spectra to a consensus spectrum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for consensusSpectrum {MSnbase}"><tr><td>consensusSpectrum {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine spectra to a consensus spectrum</h2>
+
+<h3>Description</h3>
+
+<p><code>consensusSpectrum</code> takes a list of spectra and combines them to a
+consensus spectrum containing mass peaks that are present in a user
+definable proportion of spectra.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+consensusSpectrum(x, mzd, minProp = 0.5, intensityFun = base::max,
+  ppm = 0, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>list</code> of <a href="Spectrum-class.html">Spectrum</a> objects (either <a href="Spectrum1-class.html">Spectrum1</a> or
+<a href="Spectrum2-class.html">Spectrum2</a>).</p>
+</td></tr>
+<tr valign="top"><td><code>mzd</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal m/z difference below which
+mass peaks are grouped in to the same final mass peak (see details for
+more information). If not provided this value is estimated from the
+distribution of differences of m/z values from the spectra (see
+<code><a href="meanMzInts.html">meanMzInts()</a></code> for more details). See also parameter <code>ppm</code> below for
+the definition of an m/z dependent peak grouping.</p>
+</td></tr>
+<tr valign="top"><td><code>minProp</code></td>
+<td>
+<p><code>numeric(1)</code> defining the minimal proportion of spectra in
+which a mass peak has to be present in order to include it in the
+final consensus spectrum. Should be a number between 0 and 1 (present in
+all spectra).</p>
+</td></tr>
+<tr valign="top"><td><code>intensityFun</code></td>
+<td>
+<p><code>function</code> to be used to define the intensity of the
+aggregated peak. By default the maximum signal for a mass peak is
+reported.</p>
+</td></tr>
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to perform a m/z dependent grouping of mass
+peaks. See details for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments to be passed to <code>intensityFun</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Peaks from spectra with a difference of their m/z being smaller than <code>mzd</code>
+are grouped into the same final mass peak with their intensities being
+aggregated with <code>intensityFun</code>. The m/z of the final mass peaks is calculated
+using a intensity-weighted mean of the m/z values from the individual mass
+peaks. Alternatively (or in addition) it is possible to perform an m/z dependent
+grouping of mass peaks with parameter <code>ppm</code>: mass peaks from different spectra
+with a difference in their m/z smaller than <code>ppm</code> of their m/z are grouped
+into the same final peak.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other spectra combination functions: <code><a href="meanMzInts.html">meanMzInts</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(MSnbase)
+## Create 3 example spectra.
+sp1 &lt;- new("Spectrum2", rt = 1, precursorMz = 1.41,
+    mz = c(1.2, 1.5, 1.8, 3.6, 4.9, 5.0, 7.8, 8.4),
+    intensity = c(10, 3, 140, 14, 299, 12, 49, 20))
+sp2 &lt;- new("Spectrum2", rt = 1.1, precursorMz = 1.4102,
+    mz = c(1.4, 1.81, 2.4, 4.91, 6.0, 7.2, 9),
+    intensity = c(3, 184, 8, 156, 12, 23, 10))
+sp3 &lt;- new("Spectrum2", rt = 1.2, precursorMz = 1.409,
+    mz = c(1, 1.82, 2.2, 3, 7.0, 8),
+    intensity = c(8, 210, 7, 101, 17, 8))
+spl &lt;- Spectra(sp1, sp2, sp3)
+
+## Plot the spectra, each in a different color
+par(mfrow = c(2, 1), mar = c(4.3, 4, 1, 1))
+plot(mz(sp1), intensity(sp1), type = "h", col = "#ff000080", lwd = 2,
+    xlab = "m/z", ylab = "intensity", xlim = range(mz(spl)),
+    ylim = range(intensity(spl)))
+points(mz(sp2), intensity(sp2), type = "h", col = "#00ff0080", lwd = 2)
+points(mz(sp3), intensity(sp3), type = "h", col = "#0000ff80", lwd = 2)
+
+cons &lt;- consensusSpectrum(spl, mzd = 0.02, minProp = 2/3)
+
+## Peaks of the consensus spectrum
+mz(cons)
+intensity(cons)
+
+## Other Spectrum data is taken from the first Spectrum in the list
+rtime(cons)
+precursorMz(cons)
+
+plot(mz(cons), intensity(cons), type = "h", xlab = "m/z", ylab = "intensity",
+    xlim = range(mz(spl)), ylim = range(intensity(spl)), lwd = 2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

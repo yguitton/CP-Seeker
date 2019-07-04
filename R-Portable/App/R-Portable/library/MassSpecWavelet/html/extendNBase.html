@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extend the row number of a matrix as the exponential of base...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for extendNBase {MassSpecWavelet}"><tr><td>extendNBase {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Extend the row number of a matrix as the exponential of base N</h2>
+
+<h3>Description</h3>
+
+<p>Extend the data as the exponential of base N by increasing row number.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+extendNBase(x, nLevel=1, base=2, ...) 
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p> data matrix </p>
+</td></tr>
+<tr valign="top"><td><code>nLevel</code></td>
+<td>
+<p> the level of DWT decomposition. Basically, it is equivalent to changing the 'base' as base\^nLevel</p>
+</td></tr>
+<tr valign="top"><td><code>base</code></td>
+<td>
+<p> the base, 2 by default </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> other parameters of used by <code><a href="extendLength.html">extendLength</a></code> </p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The method 'open' is padding the the matrix with the last row.   
+</p>
+
+
+<h3>Value</h3>
+
+<p>Return a extended matrix
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p> Pan Du </p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="extendLength.html">extendLength</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	# a = matrix(rnorm(9), 3)
+	# extendNBase(a)	## not exposed function
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.50.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

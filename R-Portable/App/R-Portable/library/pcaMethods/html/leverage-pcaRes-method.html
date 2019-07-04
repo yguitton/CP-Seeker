@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract leverages of a PCA model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for leverage,pcaRes-method {pcaMethods}"><tr><td>leverage,pcaRes-method {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract leverages of a PCA model</h2>
+
+<h3>Description</h3>
+
+<p>The leverages of PCA model indicate how much influence each
+observation has on the PCA model. Observations with high leverage
+has caused the principal components to rotate towards them. It can
+be used to extract both &quot;unimportant&quot; observations as well as
+picking potential outliers.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'pcaRes'
+leverage(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a <code>pcaRes</code> object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Defined as <i>Tr(T(T'T)^(-1)T')</i>
+</p>
+
+
+<h3>Value</h3>
+
+<p>The observation leverages as a numeric vector
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>References</h3>
+
+<p>Introduction to Multi- and Megavariate Data Analysis
+using Projection Methods (PCA and PLS), L. Eriksson, E. Johansson,
+N. Kettaneh-Wold and S. Wold, Umetrics 1999, p. 466
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(iris)
+pcIr &lt;- pca(iris[,1:4])
+## versicolor has the lowest leverage
+with(iris, plot(leverage(pcIr)~Species))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

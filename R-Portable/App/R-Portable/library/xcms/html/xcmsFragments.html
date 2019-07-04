@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Constructor for xcmsFragments objects which holds Tandem MS...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsFragments {xcms}"><tr><td>xcmsFragments {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Constructor for xcmsFragments objects which holds Tandem MS
+peaks</h2>
+
+<h3>Description</h3>
+
+<p>EXPERIMANTAL FEATURE
+</p>
+<p>xcmsFragments is an object similar to xcmsSet, which holds peaks
+picked (or collected) from one or several xcmsRaw objects.
+</p>
+<p>There are still discussions going on about the exact API for MS$^n$
+data, so this is likely to change in the future. The code is not yet
+pipeline-ified.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xcmsFragments(xs, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>xs</code></td>
+<td>
+<p>A <code><a href="xcmsSet-class.html">xcmsSet-class</a></code> object which contains
+picked ms1-peaks from one or several experiments</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+
+<p>further arguments to the <code>collect</code> method
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>After running collect(xFragments,xSet) The peaktable of the
+xcmsFragments includes the ms1Peaks from all experinemts stored in a
+xcmsSet-object. Further it contains the relevant MSn-peaks from the
+xcmsRaw-objects, which were created temporarily with the paths in
+xcmsSet.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An <code>xcmsFragments</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Joachim Kutzera, Steffen Neumann, <a href="mailto:sneumann@ipb-halle.de">sneumann@ipb-halle.de</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsFragments-class.html">xcmsFragments-class</a></code>,
+<code><a href="collect-methods.html">collect</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

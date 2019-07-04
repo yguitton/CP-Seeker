@@ -1,0 +1,19 @@
+Package: ProtGenerics
+Title: S4 generic functions for Bioconductor proteomics infrastructure
+Description: S4 generic functions needed by Bioconductor proteomics
+        packages.
+Version: 1.16.0
+Author: Laurent Gatto <lg390@cam.ac.uk>
+Maintainer: Laurent Gatto <lg390@cam.ac.uk>
+biocViews: Infrastructure, Proteomics, MassSpectrometry
+URL: https://github.com/lgatto/ProtGenerics
+Depends: methods
+License: Artistic-2.0
+NeedsCompilation: no
+git_url: https://git.bioconductor.org/packages/ProtGenerics
+git_branch: RELEASE_3_9
+git_last_commit: 960a5fd
+git_last_commit_date: 2019-05-02
+Date/Publication: 2019-05-02
+Packaged: 2019-05-03 03:27:59 UTC; biocbuild
+Built: R 3.6.0; ; 2019-05-03 14:11:15 UTC; windows

@@ -6,8 +6,7 @@ SET registreValeurVirgule=,
 SET registreValeurPoint=.
 REG QUERY "%registreChemin%" /v "%registreCle%" | FIND "%registreValeurVirgule%"
 CLS
-IF %ERRORLEVEL%==0 GOTO :ERROR
-else GOTO :LAUNCH
+IF %ERRORLEVEL%==0 (GOTO :ERROR) ELSE (GOTO :LAUNCH)
 
 :LAUNCH
 WSCRIPT utils\wsf\run.wsf

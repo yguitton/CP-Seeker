@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identify local maximum within a slide window.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for localMaximum {MassSpecWavelet}"><tr><td>localMaximum {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identify local maximum within a slide window.</h2>
+
+<h3>Description</h3>
+
+<p>Find local maximum by transform the vector as matrix, then get the the maximum of each column. This operation is performed twice with vecctor shifted half of the winSize.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+localMaximum(x, winSize = 5)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p> a vector represents a signal profile</p>
+</td></tr>
+<tr valign="top"><td><code>winSize</code></td>
+<td>
+<p> the slide window size, 5 by default.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Instead of find the local maximum by a slide window, which slide all possible positions, we find local maximum by transform the vector as matrix, then get the the maximum of each column. This operation is performed twice with vecctor shifted half of the winSize. The main purpose of this is to increase the efficiency of the algorithm.</p>
+
+
+<h3>Value</h3>
+
+<p>Return a vector with the same length of the input x. The position of local maximum is set as 1, 0 else where.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p> Pan Du </p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="getLocalMaximumCWT.html">getLocalMaximumCWT</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- rnorm(200)
+lmax &lt;- localMaximum(x, 5)
+maxInd &lt;- which(lmax &gt; 0)
+plot(x, type='l')
+points(maxInd, x[maxInd], col='red')
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.50.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

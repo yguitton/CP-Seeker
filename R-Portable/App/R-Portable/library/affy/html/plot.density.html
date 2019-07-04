@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot Densities</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotDensity {affy}"><tr><td>plotDensity {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot Densities</h2>
+
+<h3>Description</h3>
+
+<p>Plots the non-parametric density estimates using values contained in the
+columns of a matrix.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+
+plotDensity(mat, ylab = "density", xlab="x", type="l", col=1:6,
+            na.rm = TRUE, ...)
+
+plotDensity.AffyBatch(x, col = 1:6, log = TRUE,
+                      which=c("pm","mm","both"),
+                      ylab = "density",
+                      xlab = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mat</code></td>
+<td>
+<p>a matrix containing the values to make densities in the columns.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an object of class <code><a href="AffyBatch-class.html">AffyBatch</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+<p>logical value. If <code>TRUE</code> the log of the intensities in
+the <code>AffyBatch</code> are plotted.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>should a histogram of the PMs, MMs, or both be made?</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>the colors to use for the different arrays.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>a title for the y axis.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>a title for the x axis.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>type for the plot.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>handling of <code>NA</code> values.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>graphical parameters can be given as arguments to
+<code><a href="../../graphics/html/plot.html">plot</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The list returned can be convenient for plotting large input matrices
+with different colors/line types schemes
+(the computation of the densities can take some time).
+</p>
+<p>To match other functions in base R, this function should probably be
+called <code>matdensity</code>, as it is sharing similarities with
+<code>matplot</code> and <code>matlines</code>. 
+</p>
+
+
+<h3>Value</h3>
+
+<p>It returns invisibly a list of two matrices &lsquo;x&rsquo; and &lsquo;y&rsquo;.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ben Bolstad and Laurent Gautier</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+  plotDensity(exprs(Dilution), log="x")
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

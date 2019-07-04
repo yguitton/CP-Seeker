@@ -32,7 +32,7 @@ output$uiDetailsAdduct <- renderUI({
 	pickerInput('detailsAdduct', 'adduct', choices=choices, multiple=FALSE)
 })
 
-output$detailsTable <- renderDataTable({
+output$detailsTable <- DT::renderDataTable({
 	print('------------------- DETAILS TABLE ------------------')
 	print(list(project_sample=input$detailsSample, 
 		adduct=input$detailsAdduct, switch=input$detailsSwitch))
@@ -46,11 +46,11 @@ output$detailsTable <- renderDataTable({
 		query <- sprintf('select * from observed where project_sample == %s;', input$detailsSample)
 		print(query)
 		data <- dbGetQuery(db, query)
-		data <- if(input$detailsSwitch) data %>% group_by(formula) %>% 
-				summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=max(roiNb)) %>% 
+		data <- if(input$detailsSwitch) data %>% dplyr::group_by(formula) %>% 
+				dplyr::summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=max(roiNb)) %>% 
 				data.frame
-			else data %>% group_by(formula) %>% 
-				summarise(C=C[1], Cl=Cl[1], rt=(mean(rt) / 60) %>% round, rois=max(roiNb)) %>% 
+			else data %>% dplyr::group_by(formula) %>% 
+				dplyr::summarise(C=C[1], Cl=Cl[1], rt=(mean(rt) / 60) %>% round, rois=max(roiNb)) %>% 
 				data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
@@ -192,8 +192,8 @@ output$detailsEic <- renderPlotly({
 		mzs <- if(nrow(data) > 0) data.frame(mz = data$mz %>% unique)
 			else getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric)[1:2, ]
-		mzs <- mzs %>% mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
-			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa)
+		mzs <- mzs %>% dplyr::mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
+			dplyr::mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa)
 		eics <- lapply(1:nrow(mzs), function(row)
 			rawEIC(msFile, mzrange=mzs[row, c('mzmin', 'mzmax')] %>% as.matrix))
 		eics <- lapply(eics, function(eic) arrangeEics(eic, msFile))
@@ -242,8 +242,8 @@ observeEvent(event_data(event='plotly_selected'), {
 		
 		theo <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
 			input$detailsAdduct, input$detailsMachine %>% as.numeric) %>% 
-			mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
-			mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa) %>% 
+			dplyr::mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
+			dplyr::mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa) %>% select(-tolMDa) %>% 
 			filter(mzmin >= msFile@mzrange[1] & 
 			mzmax <= msFile@mzrange[2])
 		if(nrow(theo) == 0) custom_stop('minor_error', 
@@ -271,7 +271,7 @@ observeEvent(event_data(event='plotly_selected'), {
 		abdObs <- sapply(res$auc, function(x) x * 100 / res[1, 'auc'])
 		score <- computeScore(abdObs[-1], theo$abundance[-1])
 		annotations <- getAnnotations(res$mz)
-		res <- res %>% mutate(abd = abdObs, score = score, formula = theo[1, 'formula'],
+		res <- res %>% dplyr::mutate(abd = abdObs, score = score, formula = theo[1, 'formula'],
 			roiNb = 1, annotation = annotations, C=input$detailsTable_selected$C, 
 			Cl = input$detailsTable_selected$Cl)
 			
@@ -332,7 +332,7 @@ getChloroPara <- function(C, Cl, adduct, machine=NULL){
 		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
 	}
 	data[[1]] %>% data.frame %>% arrange(desc(abundance)) %>% 
-		mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
+		dplyr::mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
 		cbind(formula = formula)
 }
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Number of precursor selection events</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for precSelection {MSnbase}"><tr><td>precSelection {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Number of precursor selection events </h2>
+
+<h3>Description</h3>
+
+<p><code>precSelection</code> computes the number of selection events each
+precursor ions has undergone in an tandem MS experiment. This will be
+a function of amount of peptide loaded, chromatography efficiency,
+exclusion time,... and is useful when optimising and experimental
+setup. This function returns a named integer vector or length equal to
+the number of unique precursor MZ values in the original
+experiment. See <code>n</code> parameter to set the number of MZ significant
+decimals.
+</p>
+<p><code>precSelectionTable</code> is a wrapper around <code>precSelection</code> and
+returns a table with the number of single, 2-fold, ... selection events.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+precSelection(object,n)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p> An instane of class <code>"<a href="MSnExp-class.html">MSnExp</a>"</code>. </p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p> The number of decimal places to round the precursor MZ
+to. Is passed to the <a href="../../base/html/Round.html">round</a> function. </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A named integer in case of <code>precSelection</code> and a <code>table</code> for
+<code>precSelectionTable</code>. 
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+precSelection(itraqdata)
+precSelection(itraqdata,n=2)
+precSelectionTable(itraqdata)
+## only single selection event in this reduced exeriment
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

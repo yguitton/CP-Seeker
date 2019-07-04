@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Distance methods for xcmsSet, xcmsRaw and xsAnnotate</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for specDist-methods {xcms}"><tr><td>specDist-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Distance methods for xcmsSet, xcmsRaw and xsAnnotate</h2>
+
+<h3>Description</h3>
+
+<p>There are several methods for calculating a distance between two sets of peaks in xcms. <code>specDist</code>
+is the generic method.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a xcmsSet or xcmsRaw.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Method to use for distance calculation. See details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>mzabs, mzppm and parameters for the distance function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Different algorithms can be used by specifying them with the
+<code>method</code> argument. For example to use the &quot;meanMZmatch&quot;
+approach with xcmsSet one would use:
+<code>specDist(object, peakIDs1, peakIDs2, method="meanMZmatch")</code>. This is also
+the default.
+</p>
+<p>Further arguments given by <code>...</code> are
+passed through to the function implementing
+the <code>method</code>.
+</p>
+<p>A character vector of <em>nicknames</em> for the
+algorithms available is returned by
+<code>getOption("BioC")$xcms$specDist.methods</code>.
+If the nickname of a method is called &quot;meanMZmatch&quot;,
+the help page for that specific method can
+be accessed with <code>?specDist.meanMZmatch</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code>mzabs</code></td>
+<td>
+
+<p>maximum absolute deviation for two matching peaks
+</p>
+</td></tr>
+<tr valign="top"><td><code>mzppm</code></td>
+<td>
+
+<p>relative deviations in ppm for two matching peaks
+</p>
+</td></tr>
+<tr valign="top"><td><code>symmetric</code></td>
+<td>
+
+<p>use symmetric pairwise m/z-matches only, or each match
+</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsSet&quot;</dt><dd>
+<p><code>
+		specDist(object, peakIDs1, peakIDs2,...)
+		</code>
+</p>
+</dd>
+</dl>
+
+
+<dl>
+<dt>object = &quot;xsAnnotate&quot;</dt><dd>
+<p><code>
+	specDist(object, PSpec1, PSpec2,...)
+		</code>
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Joachim Kutzera, <a href="mailto:jkutzer@ipb-halle.de">jkutzer@ipb-halle.de</a></p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

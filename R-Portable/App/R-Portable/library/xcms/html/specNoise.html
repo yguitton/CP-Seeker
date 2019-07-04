@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate noise for a sparse continuum mass spectrum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for specNoise {xcms}"><tr><td>specNoise {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculate noise for a sparse continuum mass spectrum</h2>
+
+<h3>Description</h3>
+
+<p>Given a sparse continuum mass spectrum, determine regions where
+no signal is present, substituting half of the minimum intensity
+for those regions. Calculate the noise level as the weighted mean
+of the regions with signal and the regions without signal.
+If there is only one raw peak, return zero.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+specNoise(spec, gap = quantile(diff(spec[, "mz"]), 0.9))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>spec</code></td>
+<td>
+<p>matrix with named columns <code>mz</code> and <code>intensity</code></p>
+</td></tr>
+<tr valign="top"><td><code>gap</code></td>
+<td>
+
+<p>threshold above which to data points are considerd to be separated
+by a blank region and not bridged by an interpolating line
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The default gap value is determined from the 90th percentile of
+the pair-wise differences between adjacent mass values.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric noise level
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="getSpec-methods.html">getSpec</a></code>,
+<code><a href="specPeaks.html">specPeaks</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

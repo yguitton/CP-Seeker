@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Options for the affy package</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for affy-options {affy}"><tr><td>affy-options {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Options for the affy package</h2>
+
+<h3>Description</h3>
+
+<p>Description of the options for the affy package.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The affy package options are contained in the Bioconductor options.
+The options are:
+</p>
+
+<ul>
+<li> <p><code>use.widgets</code>: a logical used to decide on the default of
+widget use.
+</p>
+</li>
+<li> <p><code>compress.cel</code>: a logical
+</p>
+</li>
+<li> <p><code>compress.cdf</code>: a logical
+</p>
+</li>
+<li> <p><code>probes.loc</code>: a list. Each element of the list is it self a
+list with two elements <em>what</em> and <em>where</em>. When looking for
+the informations about the locations of the probes on the array, the
+elements in the list will be looked at one after the other. The first
+one for which <em>what</em> and <em>where</em> lead to the matching
+locations information is used. The element <em>what</em> can be one of
+<em>package</em>, <em>environment</em> or <em>file</em>. The element <em>where</em>
+depends on the corresponding element <em>what</em>.
+</p>
+
+<ul>
+<li><p> if <em>package</em>: location for the package (like it would be for
+the argument <code>lib.loc</code> for the function <code>library</code>.)
+</p>
+</li>
+<li><p> if <em>environment</em>: an <code>environment</code> to look for the
+information (like the argument <code>env</code> for the function <code>get</code>).
+</p>
+</li>
+<li><p> if <em>file</em>: a <code>character</code> with the path in which a CDF
+file can be found.
+</p>
+</li></ul>
+
+</li></ul>
+
+
+
+<h3>Examples</h3>
+
+<pre>
+## get the options
+opt &lt;- getOption("BioC")
+affy.opt &lt;- opt$affy
+
+## list their names
+names(affy.opt)
+
+## set the option compress.cel
+affy.opt$compress.cel &lt;- TRUE
+options(BioC=opt)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

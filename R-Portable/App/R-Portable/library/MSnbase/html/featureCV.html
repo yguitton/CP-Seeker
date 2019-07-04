@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculates coeffivient of variation for features</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for featureCV {MSnbase}"><tr><td>featureCV {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculates coeffivient of variation for features</h2>
+
+<h3>Description</h3>
+
+<p>This function calculates the column-wise coefficient of variation
+(CV), i.e.  the ration between the standard deviation and the
+mean, for the features in an <code><a href="MSnSet-class.html">MSnSet</a></code>. The CVs are calculated
+for the groups of features defined by <code>groupBy</code>. For groups
+defined by single features, <code>NA</code> is returned.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+featureCV(x, groupBy, na.rm = TRUE, norm = "none", suffix = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An instance of class <code><a href="MSnSet-class.html">MSnSet</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>groupBy</code></td>
+<td>
+<p>An object of class <code>factor</code> defining how to
+summarise the features.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>A <code>logical(1)</code> defining whether missing values should
+be removed.</p>
+</td></tr>
+<tr valign="top"><td><code>norm</code></td>
+<td>
+<p>One of normalisation methods applied prior to CV
+calculation. See <code><a href="normalise-methods.html">normalise()</a></code> for more details. Here, the
+default is <code>'none'</code>, i.e. no normalisation.</p>
+</td></tr>
+<tr valign="top"><td><code>suffix</code></td>
+<td>
+<p>A <code>character(1)</code> to be used to name the new CV
+columns. Default is <code>NULL</code> to ignore this. This argument
+should be set when CV values are already present in the
+<code><a href="MSnSet-class.html">MSnSet</a></code> feature variables.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>matrix</code> of dimensions <code>length(levels(groupBy))</code> by
+<code>ncol(x)</code> with the respecive CVs. The column names are formed
+by pasting <code>CV.</code> and the sample names of object <code>x</code>, possibly
+suffixed by <code>.suffix</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto and Sebastian Gibb
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="combineFeatures.html">combineFeatures()</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(msnset)
+msnset &lt;- msnset[1:4]
+gb &lt;- factor(rep(1:2, each = 2))
+featureCV(msnset, gb)
+featureCV(msnset, gb, suffix = "2")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

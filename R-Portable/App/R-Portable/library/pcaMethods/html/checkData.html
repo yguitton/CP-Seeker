@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Do some basic checks on a given data matrix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for checkData {pcaMethods}"><tr><td>checkData {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Do some basic checks on a given data matrix</h2>
+
+<h3>Description</h3>
+
+<p>Check a given data matrix for consistency with the format
+required for further analysis.
+The data must be a numeric matrix and not contain:
+</p>
+
+<ul>
+<li><p> Inf values
+</p>
+</li>
+<li><p> NaN values
+</p>
+</li>
+<li><p> Rows or columns that consist of NA only
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+checkData(data, verbose = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p><code>matrix</code> &ndash; Data to check.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><code>boolean</code> &ndash; If TRUE, the function prints
+messages whenever an error in the data set is found.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code>isValid</code></td>
+<td>
+<p><code>boolean</code> &ndash; TRUE if no errors were
+found, FALSE otherwise.  isValid contains a set of attributes,
+these are: </p>
+ <ul>
+<li><p> isNumeric - TRUE if data is numeric,
+false otherwise </p>
+</li>
+<li><p> isInfinite - TRUE if data contains 'Inf'
+values, false otherwise </p>
+</li>
+<li><p> isNaN - TRUE if data contains 'NaN'
+values, false otherwise </p>
+</li>
+<li><p> isMatrix - TRUE if the data is in
+matrix format, FALSE otherwise </p>
+</li>
+<li><p> naRows - TRUE if data
+contains rows in which all elements are 'NA',  FALSE otherwise
+</p>
+</li>
+<li><p> naCols - TRUE if data contains columns in which all elements
+are 'NA',  FALSE otherwise </p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

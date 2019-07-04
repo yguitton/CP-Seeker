@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create a data with missing values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for makeNaData {MSnbase}"><tr><td>makeNaData {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Create a data with missing values</h2>
+
+<h3>Description</h3>
+
+<p>These functions take an instance of class
+<code>"<a href="MSnSet-class.html">MSnSet</a>"</code> and sets randomly selected values to
+<code>NA</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+makeNaData(object, nNA, pNA, exclude)
+
+makeNaData2(object, nRows, nNAs, exclude)
+
+whichNA(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An instance of class <code>MSnSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>nNA</code></td>
+<td>
+<p>The absolute number of missing values to be assigned.</p>
+</td></tr>
+<tr valign="top"><td><code>pNA</code></td>
+<td>
+<p>The proportion of missing values to be assignmed.</p>
+</td></tr>
+<tr valign="top"><td><code>exclude</code></td>
+<td>
+<p>A <code>vector</code> to be used to subset <code>object</code>,
+defining rows that should not be used to set <code>NA</code>s.</p>
+</td></tr>
+<tr valign="top"><td><code>nRows</code></td>
+<td>
+<p>The number of rows for each set.</p>
+</td></tr>
+<tr valign="top"><td><code>nNAs</code></td>
+<td>
+<p>The number of missing values for each set.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>matrix</code> or an instance of class <code>MSnSet</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>makeNaData</code> randomly selects a number <code>nNA</code> (or a
+proportion <code>pNA</code>) of cells in the expression matrix to be set
+to <code>NA</code>.
+</p>
+<p><code>makeNaData2</code> will select <code>length(nRows)</code> sets of rows
+from <code>object</code>, each with <code>nRows[i]</code> rows respectively.
+The first set will be assigned <code>nNAs[1]</code> missing values, the
+second <code>nNAs[2]</code>, ... As opposed to <code>makeNaData</code>, this
+permits to control the number of <code>NAs</code> per rows.
+</p>
+<p>The <code>whichNA</code> can be used to extract the indices
+of the missing values, as illustrated in the example.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An instance of class <code>MSnSet</code>, as <code>object</code>, but
+with the appropriate number/proportion of missing values.  The
+returned object has an additional feature meta-data columns,
+<code>nNA</code>
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Example 1
+library(pRolocdata)
+data(dunkley2006)
+sum(is.na(dunkley2006))
+dunkleyNA &lt;- makeNaData(dunkley2006, nNA = 150)
+processingData(dunkleyNA)
+sum(is.na(dunkleyNA))
+table(fData(dunkleyNA)$nNA)
+naIdx &lt;- whichNA(dunkleyNA)
+head(naIdx)
+## Example 2
+dunkleyNA &lt;- makeNaData(dunkley2006, nNA = 150, exclude = 1:10)
+processingData(dunkleyNA)
+table(fData(dunkleyNA)$nNA[1:10])
+table(fData(dunkleyNA)$nNA)
+## Example 3
+nr &lt;- rep(10, 5)
+na &lt;- 1:5
+x &lt;- makeNaData2(dunkley2006[1:100, 1:5],
+                 nRows = nr,
+                 nNAs = na)
+processingData(x)
+(res &lt;- table(fData(x)$nNA))
+stopifnot(as.numeric(names(res)[-1]) ==  na)
+stopifnot(res[-1] ==  nr)
+## Example 3
+nr2 &lt;- c(5, 12, 11, 8)
+na2 &lt;- c(3, 8, 1, 4)
+x2 &lt;- makeNaData2(dunkley2006[1:100, 1:10],
+                  nRows = nr2,
+                  nNAs = na2)
+processingData(x2)
+(res2 &lt;- table(fData(x2)$nNA))
+stopifnot(as.numeric(names(res2)[-1]) ==  sort(na2))
+stopifnot(res2[-1] ==  nr2[order(na2)])
+## Example 5
+nr3 &lt;- c(5, 12, 11, 8)
+na3 &lt;- c(3, 8, 1, 3)
+x3 &lt;- makeNaData2(dunkley2006[1:100, 1:10],
+                  nRows = nr3,
+                  nNAs = na3)
+processingData(x3)
+(res3 &lt;- table(fData(x3)$nNA))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

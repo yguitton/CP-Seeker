@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract fitted values from PCA.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fitted-methods {pcaMethods}"><tr><td>fitted-methods {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract fitted values from PCA.</h2>
+
+<h3>Description</h3>
+
+<p>Fitted values of a PCA model
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'pcaRes'
+fitted(object, data = NULL, nPcs = nP(object),
+  pre = TRUE, post = TRUE, ...)
+
+## S4 method for signature 'pcaRes'
+fitted(object, data = NULL, nPcs = nP(object),
+  pre = TRUE, post = TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>pcaRes</code> object of interest.</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>For standard PCA methods this can safely be left null
+to get scores x loadings but if set, then the scores are obtained
+by projecting provided data onto the loadings.  If data contains
+missing values the result will be all NA. Non-linear PCA is an
+exception, here if data is NULL then data is set to the
+completeObs and propaged through the network.</p>
+</td></tr>
+<tr valign="top"><td><code>nPcs</code></td>
+<td>
+<p>The number of PC's to consider</p>
+</td></tr>
+<tr valign="top"><td><code>pre</code></td>
+<td>
+<p>pre-process <code>data</code> based on the pre-processing
+chosen for the PCA model</p>
+</td></tr>
+<tr valign="top"><td><code>post</code></td>
+<td>
+<p>unpre-process the final data (add the center back etc
+to get the final estimate)</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Not used</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function extracts the fitted values from a pcaResobject. For
+PCA methods like SVD, Nipals, PPCA etc this is basically just the
+scores multipled by the loadings and adjusted for pre-processing.
+for non-linear PCA the original data is propagated through the
+network to obtain the approximated data.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix representing the fitted data
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+pc &lt;- pca(iris[,1:4], nPcs=4, center=TRUE, scale="uv")
+sum( (fitted(pc) - iris[,1:4])^2 )
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

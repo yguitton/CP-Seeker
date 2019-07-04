@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: TMT 6/10-plex sets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for TMT6 {MSnbase}"><tr><td>TMT6 {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> TMT 6/10-plex sets </h2>
+
+<h3>Description</h3>
+
+<p>This instance of class <code>"<a href="ReporterIons-class.html">ReporterIons</a>"</code> corresponds
+to the TMT 6-plex set, i.e the 126, 127, 128, 129, 130 and 131
+isobaric tags. In the <code>TMT7</code> data set, an unfragmented tag, i.e
+reporter and attached isobaric tag, is also included at MZ 229. A
+second <code>TMT6b</code> has slightly different values.
+</p>
+<p>The <code>TMT10</code> instance corresponds to the 10-plex version. There
+are spectific HCD (<code>TMT10HCD</code>, same as <code>TMT10</code>) and ETD
+(<code>TMT10ETD</code>) sets.
+</p>
+<p>These objects are used to plot the reporter ions of interest in an
+MSMS spectra (see <code>"<a href="Spectrum2-class.html">Spectrum2</a>"</code>) as well as for
+quantification (see <code><a href="quantify-methods.html">quantify</a></code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+TMT6
+TMT6b
+TMT7
+TMT7b
+TMT10
+TMT10ETD
+TMT10HCD
+TMT11
+TMT11HCD
+</pre>
+
+
+<h3>References</h3>
+
+<p>Thompson A, Sch\&quot;afer J, Kuhn K, Kienle S, Schwarz J, Schmidt G,
+Neumann T, Johnstone R, Mohammed AK, Hamon C.
+&quot;Tandem mass tags: a novel quantification strategy for comparative
+analysis of complex protein mixtures by MS/MS.&quot;
+<em>Anal Chem.</em> 2003 Apr 15;75(8):1895-904. <em>Erratum</em> in:
+<em>Anal Chem.</em> 2006 Jun 15;78(12):4235. Mohammed, A Karim A [added]
+and  
+<em>Anal Chem.</em> 2003 Sep 15;75(18):4942. Johnstone, R [added].
+PubMed PMID: 12713048. 
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="iTRAQ4.html">iTRAQ4</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+TMT6
+TMT6[1:2]
+
+TMT10
+
+newReporter &lt;- new("ReporterIons",
+                   description="an example",
+                   name="my reporter ions",
+                   reporterNames=c("myrep1","myrep2"),
+                   mz=c(121,122),
+                   col=c("red","blue"),
+                   width=0.05)
+newReporter
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

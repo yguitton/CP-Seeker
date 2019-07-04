@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Pre-process a matrix for PCA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for prep {pcaMethods}"><tr><td>prep {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Pre-process a matrix for PCA</h2>
+
+<h3>Description</h3>
+
+<p>Scaling and centering a matrix.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+prep(object, scale = c("none", "pareto", "vector", "uv"),
+  center = TRUE, eps = 1e-12, simple = TRUE, reverse = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Numerical matrix (or an object coercible to such)
+with samples in rows and variables as columns. Also takes
+<code>ExpressionSet</code> in which case the transposed expression
+matrix is used.</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>One of &quot;UV&quot; (unit variance <i>a=a/&sigma;_{a}</i>)
+&quot;vector&quot; (vector normalisation <i>b=b/||b||</i>), &quot;pareto&quot; (sqrt
+UV) or &quot;none&quot; to indicate which scaling should be used to scale
+the matrix with <i>a</i> variables and <i>b</i> samples. Can also be
+a vector of scales which should be used to scale the
+matrix. <code>NULL</code> value is interpreted as <code>"none"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>center</code></td>
+<td>
+<p>Either a logical which indicates if the matrix
+should be mean centred or not, or a vector with averages which
+should be suntracted from the matrix. <code>NULL</code> value is
+interpreted as <code>FALSE</code></p>
+</td></tr>
+<tr valign="top"><td><code>eps</code></td>
+<td>
+<p>Minimum variance, variable with lower variance are not
+scaled and warning is issued instead.</p>
+</td></tr>
+<tr valign="top"><td><code>simple</code></td>
+<td>
+<p>Logical indicating if only the data should be
+returned or a list with the pre-processing statistics as well.</p>
+</td></tr>
+<tr valign="top"><td><code>reverse</code></td>
+<td>
+<p>Logical indicating  if matrix should be
+'post-processed' instead by multiplying each column with its scale
+and adding the center. In this case, center and scale should be
+vectors with the statistics (no warning is issued if not, instead
+output becomes the same as input).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Only used for passing through arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Does basically the same as <code><a href="../../base/html/scale.html">scale</a></code> but adds some
+alternative scaling options and functionality for treating
+pre-processing as part of a model.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A pre-processed matrix or a list with
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>center</code></td>
+<td>
+<p>a vector with the estimated centers</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>a vector with the estimated scales</p>
+</td></tr>
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>the pre (or post) processed data</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+object &lt;- matrix(rnorm(50), nrow=10)
+res &lt;- prep(object, scale="uv", center=TRUE, simple=FALSE)
+obj &lt;- prep(object, scale=res$scale, center=res$center)
+## same as original
+sum((object - prep(obj, scale=res$scale, center=res$center, rev=TRUE))^2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

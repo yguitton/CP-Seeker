@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Background adjustment (internal function)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bg.adjust {affy}"><tr><td>bg.adjust {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Background adjustment (internal function)</h2>
+
+<h3>Description</h3>
+
+<p>An internal function to be used by <code><a href="bgc.html">bg.correct.rma</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bg.adjust(pm, n.pts = 2^14, ...)
+bg.parameters(pm, n.pts = 2^14)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pm</code></td>
+<td>
+<p>a pm matrix</p>
+</td></tr>
+<tr valign="top"><td><code>n.pts</code></td>
+<td>
+<p>number of points to use in call to <code>density</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra arguments to pass to bg.adjust.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Assumes PMs are a convolution of normal and exponential. So we
+observe X+Y where X is background and Y is signal. <code>bg.adjust</code>
+returns E[Y|X+Y, Y&gt;0] as our background corrected PM.
+<code>bg.parameters</code> provides ad hoc estimates of the parameters of the
+normal and exponential distributions.</p>
+
+
+<h3>Value</h3>
+
+<p>a matrix</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="bgc.html">bg.correct.rma</a></code></p>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

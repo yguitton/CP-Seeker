@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Apply a function over the ProbeSets in an AffyBatch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ppsetApply {affy}"><tr><td>ppsetApply {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Apply a function over the ProbeSets in an AffyBatch </h2>
+
+<h3>Description</h3>
+
+<p>Apply a function over the ProbeSets in an AffyBatch
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ppsetApply(abatch, FUN, genenames = NULL, ...)
+
+ppset.ttest(ppset, covariate, pmcorrect.fun = pmcorrect.pmonly, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>abatch</code></td>
+<td>
+<p>an object inheriting from <code>AffyBatch</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ppset</code></td>
+<td>
+<p>an object of class <code>ProbeSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>covariate</code></td>
+<td>
+<p>the name a covariate in the slot <code>phenoData</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>pmcorrect.fun</code></td>
+<td>
+<p>a function to correct PM intensities.</p>
+</td></tr>
+<tr valign="top"><td><code>FUN</code></td>
+<td>
+<p>a function working on a <code>ProbeSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>genenames</code></td>
+<td>
+<p>a list of Affymetrix probesets ids to work with. All
+probe set ids used when <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>optional parameters to the function <code>FUN</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Returns a <code>list</code> of objects, or values, as returned by the
+function <code>FUN</code> for each <code>ProbeSet</code> it processes.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gautier &lt;laurent@cbs.dtu.dk&gt;</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="ProbeSet-class.html">ProbeSet-class</a></code> </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ppset.ttest &lt;- function(ppset, covariate, pmcorrect.fun = pmcorrect.pmonly, ...) {
+  probes &lt;- do.call("pmcorrect.fun", list(ppset))
+  my.ttest &lt;- function(x) {
+    y &lt;- split(x, get(covariate))
+    t.test(y[[1]], y[[2]])$p.value
+  }
+  r &lt;- apply(probes, 1, my.ttest)
+  return(r)
+}
+##this takes a long time - and rowttests is a good alternative
+## eg: rt = rowttests(exprs(Dilution), Dilution$liver)
+## Not run: 
+  data(Dilution)
+  all.ttest &lt;- ppsetApply(Dilution, ppset.ttest, covariate="liver")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.62.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

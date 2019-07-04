@@ -1,0 +1,84 @@
+Package: xcms
+Version: 3.6.1
+Date: 2019-05-14
+Title: LC/MS and GC/MS Data Analysis
+Authors@R: c(
+	   person(given = "Colin", family = "Smith",
+	   email = "csmith@scripps.edu",
+	   role = "ctb"),
+	   person(given = "Ralf", family = "Tautenhahn",
+	   email = "rtautenh@gmail.com",
+	   role = "ctb"),
+	   person(given = "Steffen", family = "Neumann",
+	   email = "sneumann@ipb-falle.de",
+	   role = c("aut", "cre"),
+	   comment = c(ORCID = "0000-0002-7899-7192")),
+	   person(given = "Paul", family = "Benton",
+	   email = "hpbenton@scripps.edu",
+	   role = "ctb"),
+	   person(given = "Christopher", family = "Conley",
+	   email = "cjconley@ucdavis.edu",
+	   role = "ctb"),
+	   person(given = "Johannes", family = "Rainer",
+	   email = "johannes.rainer@eurac.edu",
+	   role = "ctb",
+	   comment = c(ORCID = "0000-0002-6977-7147"))
+	   )
+Author: Colin A. Smith <csmith@scripps.edu>,
+    Ralf Tautenhahn <rtautenh@gmail.com>,
+    Steffen Neumann <sneumann@ipb-halle.de>,
+    Paul Benton <hpbenton@scripps.edu>,
+    Christopher Conley <cjconley@ucdavis.edu>,
+    Johannes Rainer <Johannes.Rainer@eurac.edu>
+Maintainer: Steffen Neumann <sneumann@ipb-halle.de>
+Depends: R (>= 2.14.0), methods, Biobase, BiocParallel (>= 1.8.0),
+        MSnbase (>= 2.9.3)
+Imports: mzR (>= 2.13.3), BiocGenerics, ProtGenerics, lattice,
+        RColorBrewer, plyr, RANN, multtest, MassSpecWavelet (>= 1.5.2),
+        S4Vectors, robustbase
+Suggests: BiocStyle, caTools, knitr (>= 1.1.0), faahKO, msdata, ncdf4,
+        rgl, microbenchmark, testthat, pander, magrittr, MALDIquant,
+        pheatmap
+Enhances: Rgraphviz, Rmpi, XML
+Description: Framework for processing and visualization of chromatographically
+    separated and single-spectra mass spectral data. Imports from AIA/ANDI NetCDF,
+    mzXML, mzData and mzML files. Preprocesses data for high-throughput, untargeted
+    analyte profiling.
+License: GPL (>= 2) + file LICENSE
+URL: http://metlin.scripps.edu/download/ and
+        https://github.com/sneumann/xcms
+VignetteBuilder: knitr
+BugReports: https://github.com/sneumann/xcms/issues/new
+biocViews: ImmunoOncology, MassSpectrometry, Metabolomics
+RoxygenNote: 6.1.1
+Collate: 'AllGenerics.R' 'functions-XChromatograms.R'
+        'functions-XChromatogram.R' 'DataClasses.R' 'Deprecated.R'
+        'MPI.R' 'c.R' 'cwTools.R' 'databases.R'
+        'functions-MsFeatureData.R' 'do_adjustRtime-functions.R'
+        'functions-binning.R' 'do_findChromPeaks-functions.R'
+        'functions-Params.R' 'do_groupChromPeaks-functions.R'
+        'fastMatch.R' 'functions-utils.R' 'functions-IO.R'
+        'functions-OnDiskMSnExp.R' 'functions-ProcessHistory.R'
+        'functions-XCMSnExp.R' 'functions-imputation.R'
+        'functions-normalization.R' 'functions-xcmsEIC.R'
+        'functions-xcmsFragments.R' 'functions-xcmsRaw.R'
+        'functions-xcmsSet.R' 'init.R' 'matchpeaks.R'
+        'methods-Chromatogram.R' 'methods-Chromatograms.R'
+        'methods-IO.R' 'methods-MsFeatureData.R'
+        'methods-OnDiskMSnExp.R' 'methods-Params.R'
+        'methods-ProcessHistory.R' 'methods-XCMSnExp.R'
+        'methods-XChromatogram.R' 'methods-XChromatograms.R'
+        'methods-xcmsEIC.R' 'methods-xcmsFileSource.R'
+        'methods-xcmsFragments.R' 'methods-xcmsPeaks.R'
+        'methods-xcmsRaw.R' 'methods-xcmsSet.R' 'models.R' 'mzClust.R'
+        'netCDF.R' 'plotQC.R' 'ramp.R' 'specDist.R' 'write.mzquantML.R'
+        'writemzdata.R' 'writemztab.R' 'xcmsSource.R' 'zzz.R'
+git_url: https://git.bioconductor.org/packages/xcms
+git_branch: RELEASE_3_9
+git_last_commit: 5f092d6
+git_last_commit_date: 2019-05-15
+Date/Publication: 2019-05-16
+NeedsCompilation: yes
+Packaged: 2019-05-17 01:12:54 UTC; biocbuild
+Built: R 3.6.0; i386-w64-mingw32; 2019-05-17 14:09:59 UTC; windows
+Archs: i386, x64

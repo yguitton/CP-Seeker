@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write MS spectrum data to a MS file copying metadata from the...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for copyWriteMSData {mzR}"><tr><td>copyWriteMSData {mzR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Write MS spectrum data to a MS file copying metadata from the
+originating file
+</h2>
+
+<h3>Description</h3>
+
+<p>Copy general information from the originating MS file and write this,
+along with the provided spectra data, to a new file. The expected
+workflow is the following: data is first loaded from an MS file,
+e.g. using <code><a href="peaks.html">peaks</a></code> and <code><a href="peaks.html">header</a></code> methods,
+processed in R and then saved again to an MS file providing the
+(eventually) manipulated spectra and header data with arguments
+<code>header</code> and <code>data</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+  copyWriteMSData(object, file, original_file, header, backend =
+    "pwiz", outformat = "mzml", rtime_seconds = TRUE, software_processing)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+
+<p><code>list</code> containing for each spectrum one <code>matrix</code> with
+columns <code>mz</code> (first column) and <code>intensity</code> (second
+column). See also <code><a href="peaks.html">peaks</a></code> for the method that reads such
+data from an MS file.
+</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+
+<p><code>character(1)</code> defining the name of the file.
+</p>
+</td></tr>
+<tr valign="top"><td><code>original_file</code></td>
+<td>
+
+<p><code>character(1)</code> with the name of the original file from which
+the spectrum data was first read.
+</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+
+<p><code>data.frame</code> with the header data for the spectra. Has to be in
+the format as the <code>data.frame</code> returned by the
+<code><a href="peaks.html">header</a></code> method.
+</p>
+</td></tr>
+<tr valign="top"><td><code>backend</code></td>
+<td>
+
+<p><code>character(1)</code> defining the backend that should be used for
+writing. Currently only <code>"pwiz"</code> backend is supported.
+</p>
+</td></tr>
+<tr valign="top"><td><code>outformat</code></td>
+<td>
+
+<p><code>character(1)</code> the format of the output file. One of
+<code>"mzml"</code> or <code>"mzxml"</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>rtime_seconds</code></td>
+<td>
+
+<p><code>logical(1)</code> whether the retention time is provided in seconds
+or minutes (defaults to <code>TRUE</code>).
+</p>
+</td></tr>
+<tr valign="top"><td><code>software_processing</code></td>
+<td>
+
+<p><code>list</code> of <code>character</code> vectors (or single <code>character</code>
+vector). Each <code>character</code> vector providing information about
+the software that was used to process the data with optional
+additional description of processing steps. The length of each
+<code>character</code> vector has to be &gt;= 3: the first element being the
+name of the software, the second string its version and the third
+element the MS CV ID of the software (or <code>"MS:-1"</code> if not
+known). All additional elements are optional and represent the MS CV
+ID of each processing step performed with the software.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p><code>copyWriteMSData</code> supports at present copying data from
+<code>mzXML</code> and <code>mzML</code> and exporting to <code>mzML</code>. Copying and
+exporting to <code>mzXML</code> can fail for some input files.
+</p>
+<p>The intention of this function is to copy data from an existing file
+and save it along with eventually modified data to a new file. To
+write new MS data files use the <code><a href="writeMSData.html">writeMSData</a></code> function
+instead.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="writeMSData.html">writeMSData</a></code> for a function to save MS data to a new mzML
+or mzXML file.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Open a MS file and read the spectrum and header information
+library(msdata)
+fl &lt;- system.file("threonine", "threonine_i2_e35_pH_tree.mzXML",
+    package = "msdata")
+ms_fl &lt;- openMSfile(fl, backend = "pwiz")
+
+## Get the spectra
+pks &lt;- spectra(ms_fl)
+## Get the header
+hdr &lt;- header(ms_fl)
+
+## Modify the spectrum data adding 100 to each intensity.
+pks &lt;- lapply(pks, function(z) {
+    z[, 2] &lt;- z[, 2] + 100
+    z
+})
+
+## Copy metadata and additional information from the originating file
+## and save it, along with the modified data, to a new mzML file.
+out_file &lt;- tempfile()
+copyWriteMSData(pks, file = out_file, original_file = fl,
+    header = hdr)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>mzR</em> version 2.18.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

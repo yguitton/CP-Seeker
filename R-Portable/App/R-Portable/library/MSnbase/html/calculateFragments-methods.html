@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate ions produced by fragmentation.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for calculateFragments-methods {MSnbase}"><tr><td>calculateFragments-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Calculate ions produced by fragmentation. </h2>
+
+<h3>Description</h3>
+
+<p>These method calculates a-, b-, c-, x-, y- and z-ions produced by
+fragmentation.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>sequence</code></td>
+<td>
+ <p><code>character</code>, peptide sequence. </p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p> Object of class <code>"<a href="Spectrum2-class.html">Spectrum2</a>"</code> or
+<code>"missing"</code> . </p>
+</td></tr>
+<tr valign="top"><td><code>tolerance</code></td>
+<td>
+ <p><code>numeric</code> tolerance between the theoretical and
+measured MZ values (only available if <code>object</code> is not <code>missing</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+ <p><code>method</code> used for for duplicated matches. Choose
+<code>"highest"</code> or <code>"closest"</code> to select the peak with the highest
+intensity respectively the closest MZ in the tolerance range. If
+<code>"all"</code> is given all possible matches in the tolerance range are
+reported (only available if <code>object</code> is not <code>missing</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+ <p><code>character</code> vector of target ions; possible values:
+<code>c("a", "b", "c", "x", "y", "z")</code>; default: <code>type=c("b", "y")</code>. </p>
+</td></tr>
+<tr valign="top"><td><code>z</code></td>
+<td>
+ <p><code>numeric</code> desired charge state; default <code>z=1</code>. </p>
+</td></tr>
+<tr valign="top"><td><code>modifications</code></td>
+<td>
+<p> named <code>numeric</code> vector of used modifications. The
+name must correspond to the one-letter-code of the modified amino acid and
+the <code>numeric</code> value must represent the mass that should be added to the
+original amino accid mass, default:
+Carbamidomethyl <code>modifications=c(C=57.02146)</code>. Use <code>Nterm</code> or
+<code>Cterm</code> as names for modifications that should be added to the amino
+respectively carboxyl-terminus.</p>
+</td></tr>
+<tr valign="top"><td><code>neutralLoss</code></td>
+<td>
+ <p><code>list</code>, it has to have two named elments,
+namely <code>water</code> and <code>ammonia</code> that contain a
+<code>character</code> vector which type of neutral loss should be calculated.
+Currently neutral loss on the C terminal <code>"Cterm"</code>, at the amino acids
+<code>c("D", "E", "S", "T")</code> for <code>"water"</code> (shown with an <code>_</code>)
+and <code>c("K", "N", "Q", "R")</code> for <code>"ammonia"</code> (shown with an
+<code>*</code>) are supported.<br />
+There is a helper function <code>defaultNeutralLoss</code> that returns the
+correct list. It has two arguments <code>disableWaterLoss</code> and
+<code>disableAmmoniaLoss</code> to remove single neutral loss options. See the
+example section for use cases.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+ <p><code>logical</code> if <code>TRUE</code> (default) the used
+modifications are printed. </p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(sequence = "character", object = "missing", ...)</code></dt><dd>
+<p>Calculates the theoretical fragments for a peptide <code>sequence</code>.
+Returns a <code>data.frame</code> with the columns <code>c("mz", "ion", "type",
+        "pos", "z", "seq")</code>.
+</p>
+</dd>
+<dt><code>signature(sequence = "character", object = "Spectrum2", ...)</code></dt><dd>
+<p>Calculates and matches the theoretical fragments for a peptide
+<code>sequence</code> and a <code>"<a href="Spectrum2-class.html">Spectrum2</a>"</code> <code>object</code>.
+The <code>...</code> arguments are passed to the internal functions.
+Currently <code>tolerance</code>, <code>method</code> and <code>relative</code> are
+supported.
+You could change the <code>tolerance</code> (default <code>25e-6</code>) and
+decide whether this tolerance should be applied relative to the target m/z
+(default <code>relative = TRUE</code>) or absolute (<code>relative = FALSE</code>)
+to match the theoretical fragment MZ with the MZ of the spectrum. When
+(<code>relative = TRUE</code>) the mass tolerance window is set to <code>target mz
+      +/- (target mz * tolerance)</code> and <code>target mz +/- tolerance</code> otherwise.
+In cases of multiple matches use <code>method</code> to select the peak with
+the highest intensity (<code>method = "highest"</code>, default) respectively
+closest MZ (<code>method = "closes"</code>). If <code>method = "all"</code> is set
+all possible matches in the current tolerance range are reported.
+Returns the same <code>data.frame</code> as above but the <code>mz</code> column
+represents the matched MZ values of the spectrum. Additionally there
+is a column <code>error</code> that contains the difference between the observed
+MZ (from the spectrum) to the theoretical fragment MZ.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Sebastian Gibb &lt;mail@sebastiangibb.de&gt;
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## find path to a mzXML file
+file &lt;- dir(system.file(package = "MSnbase", dir = "extdata"),
+            full.name = TRUE, pattern = "mzXML$")
+
+## create basic MSnExp
+msexp &lt;- readMSData(file, centroided = FALSE)
+
+## centroid them
+msexp &lt;- pickPeaks(msexp)
+
+## calculate fragments for ACE with default modification
+calculateFragments("ACE", modifications=c(C=57.02146))
+
+## calculate fragments for ACE with an addition N-terminal modification
+calculateFragments("ACE", modifications=c(C=57.02146, Nterm=229.1629))
+
+## calculate fragments for ACE without any modifications
+calculateFragments("ACE", modifications=NULL)
+
+calculateFragments("VESITARHGEVLQLRPK",
+                   type=c("a", "b", "c", "x", "y", "z"),
+                   z=1:2)
+
+calculateFragments("VESITARHGEVLQLRPK", msexp[[1]])
+
+## neutral loss
+defaultNeutralLoss()
+
+## disable water loss on the C terminal
+defaultNeutralLoss(disableWaterLoss="Cterm")
+
+## real example
+calculateFragments("PQR")
+calculateFragments("PQR",
+                   neutralLoss=defaultNeutralLoss(disableWaterLoss="Cterm"))
+calculateFragments("PQR",
+                   neutralLoss=defaultNeutralLoss(disableAmmoniaLoss="Q"))
+
+## disable neutral loss completely
+calculateFragments("PQR", neutralLoss=NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

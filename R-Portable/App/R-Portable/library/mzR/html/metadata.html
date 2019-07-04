@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Access the metadata from an 'mzR' object.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for metadata {mzR}"><tr><td>metadata {mzR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Access the metadata from an <code>mzR</code> object.
+</h2>
+
+<h3>Description</h3>
+
+<p>Accessors to the analytical setup metadata of a run.
+<code>runInfo</code> will show a summary of the experiment as a named list,
+including <code>scanCount</code>, <code>lowMZ</code>, <code>highMZ</code>,
+<code>dStartTime</code>, <code>dEndTime</code> and <code>startTimeStamp</code>. Note
+that <code>startTimeStamp</code> can only be extracted from <em>mzML</em>
+files using the <em>pwiz</em> backend or from <em>CDF</em> files. A
+<code>NA</code> is reported if its value is not available.
+The <code>instrumentInfo</code> method returns a named <code>list</code> including
+instrument manufacturer, model, ionisation technique, analyzer and
+detector. <code>mzRpwiz</code> will give more additional information including
+information on sample, software using and original source file. 
+These individual pieces of information can also be directly
+accessed by the specific methods.
+<code>mzidInfo</code> is used for the <code>mzR</code> object created from a mzid file.
+It returns basic information on this mzid file including file provider,
+creation date, software, database, enzymes and spectra data format.
+The <code>mzidInfo</code> will return the scoring results in identification.
+It will return different results for different searching software used.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+runInfo(object)
+chromatogramsInfo(object)
+analyzer(object)
+detector(object)
+instrumentInfo(object)
+ionisation(object)
+softwareInfo(object)
+sampleInfo(object)
+sourceInfo(object)
+model(object)
+mzidInfo(object)
+modifications(object, ...)
+psms(object, ...)
+substitutions(object)
+database(object, ...)
+enzymes(object)
+tolerance(object)
+score(x, ...)
+para(object)
+specParams(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An instantiated <code>mzR</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An instantiated <code>mzR</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> Additional arguments, currently ignored. </p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Steffen Neumann, Laurent Gatto and Qiang Kou
+</p>
+
+
+<h3>See Also</h3>
+
+<p>See for example <code><a href="peaks.html">peaks</a></code> to access the data for the spectra
+in a <code>"<a href="mzR-class.html">mzR</a>"</code> class.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ library(msdata)
+
+ file &lt;- system.file("microtofq/MM8.mzML", package = "msdata")
+ mz &lt;- openMSfile(file)
+ fileName(mz)
+ instrumentInfo(mz)
+ runInfo(mz)
+ close(mz)
+
+ file &lt;- system.file("cdf/ko15.CDF", package = "msdata")
+ mz &lt;- openMSfile(file, backend = "netCDF")
+ fileName(mz)
+ instrumentInfo(mz)
+ runInfo(mz)
+ close(mz)
+ 
+ file &lt;- system.file("mzid", "Tandem.mzid.gz", package="msdata")
+ mzid &lt;- openIDfile(file)
+ softwareInfo(mzid)
+ enzymes(mzid)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>mzR</em> version 2.18.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

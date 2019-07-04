@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Empirically Transformed Gaussian function</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for etg {xcms}"><tr><td>etg {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Empirically Transformed Gaussian function</h2>
+
+<h3>Description</h3>
+
+<p>A general function for asymmetric chromatographic peaks.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+etg(x, H, t1, tt, k1, kt, lambda1, lambdat, alpha, beta)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>times to evaluate function at</p>
+</td></tr>
+<tr valign="top"><td><code>H</code></td>
+<td>
+<p>peak height</p>
+</td></tr>
+<tr valign="top"><td><code>t1</code></td>
+<td>
+<p>time of leading edge inflection point</p>
+</td></tr>
+<tr valign="top"><td><code>tt</code></td>
+<td>
+<p>time of trailing edge inflection point</p>
+</td></tr>
+<tr valign="top"><td><code>k1</code></td>
+<td>
+<p>leading edge parameter</p>
+</td></tr>
+<tr valign="top"><td><code>kt</code></td>
+<td>
+<p>trailing edge parameter</p>
+</td></tr>
+<tr valign="top"><td><code>lambda1</code></td>
+<td>
+<p>leading edge parameter</p>
+</td></tr>
+<tr valign="top"><td><code>lambdat</code></td>
+<td>
+<p>trailing edge parameter</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>leading edge parameter</p>
+</td></tr>
+<tr valign="top"><td><code>beta</code></td>
+<td>
+<p>trailing edge parameter</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>The function evaluated at times <code>x</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>References</h3>
+
+<p>Jianwei Li. Development and Evaluation of Flexible Empirical Peak
+Functions for Processing Chromatographic Peaks. Anal. Chem., 69
+(21), 4452-4462, 1997.
+<a href="http://dx.doi.org/10.1021/ac970481d">http://dx.doi.org/10.1021/ac970481d</a>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

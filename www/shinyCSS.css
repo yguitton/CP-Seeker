@@ -1,27 +1,54 @@
+/* This file is part of the HaloSeeker software for analyzing LC-MS data
+   
+   Copyright (C) 2018  Sébastien HUTINET, Ronan CARIOU, Alexis LÉON, Julie HUREL, Yann GUITTON, Céline TIXIER, Catherine MUNSCHY, Jean-Philippe ANTIGNAC, Gaud DERVILLY-PINEL, Bruno LE BIZEC
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/ 
+
+
+.shinyDisplayElements{
+	text-align: center;
+	vertical-align: bottom;
+	position: relative;
+}
+
+#inputs-table{
+	table-layout: fixed;
+	width: 100%;
+}
+
+#inputs-table2{
+	table-layout: fixed;
+	width: 100%;
+}
+
+#inputs-table td { 
+	width: 50%;
+	padding:5px;
+	text-align:center; 
+	vertical-align: bottom;
+}
+
+#inputs-table2 td { 
+	padding:5px;
+	text-align:center; 
+	vertical-align: bottom;
+}
+
+	
 #shiny-notification-panel{
 	width: 50%;
 }
 
-#inputsTable{
-	border-collapse:collapse;
-	table-layout:fixed;
-}
-
-#inputsTable td{
-	padding: 10px;
-	vertical-align: top;
-}
-
-pre{
-	padding: 6.5px;
-}
-
 .shiny-progress-notification .progress{
 	height: 20px;
-}
-
-.input-group-btn{
-	vertical-align: top;
 }
 
 .shiny-output-error { 
@@ -36,10 +63,51 @@ pre{
 	width: 95%;
 } 
 .modal-sm {
-	width: 20%;
+	width: 50%;
 }
 .selectize-dropdown-content {
 	max-height: 200px; 
+}
+
+#loader { 
+	color: #0000ff; 
+	font-size: 90px; 
+	text-indent: -9999em; 
+	overflow: hidden; 
+	width: 1em; 
+	height: 1em; 
+	border-radius: 50%; 
+	margin: 400px auto; 
+	position: relative; 
+	-webkit-transform: translateZ(0); 
+	-ms-transform: translateZ(0); 
+	transform: translateZ(0); 
+	-webkit-animation: load6 1.7s infinite ease, round 1.7s infinite ease; 
+	animation: load6 1.7s infinite ease, round 1.7s infinite ease; 
+} 
+@-webkit-keyframes load6 { 
+	0% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 5%, 
+	95% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 10%, 
+	59% { box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em, -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em, -0.297em -0.775em 0 -0.477em; } 
+	20% { box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em, -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em, -0.749em -0.34em 0 -0.477em; } 
+	38% { box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em, -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em, -0.82em -0.09em 0 -0.477em; } 
+	100% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 
+} 
+@keyframes load6 { 
+	0% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 5%, 
+	95% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 10%, 
+	59% { box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em, -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em, -0.297em -0.775em 0 -0.477em; } 
+	20% { box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em, -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em, -0.749em -0.34em 0 -0.477em; } 
+	38% { box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em, -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em, -0.82em -0.09em 0 -0.477em; } 
+	100% { box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em; } 
+} 
+@-webkit-keyframes round { 
+	0% { -webkit-transform: rotate(0deg); transform: rotate(0deg);} 
+	100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } 
+} 
+@keyframes round { 
+	0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 
+	100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } 
 }
 
 .dropdown-menu {
@@ -71,7 +139,33 @@ pre{
    background-color: #f5f5f5;
 }
  
+.additem .check-mark
+{
+   opacity: 0;
+   z-index: -1000;
+}
+ 
+.addnewicon {
+   position: relative;
+   padding: 4px;
+   margin: -8px;
+   padding-right: 50px;
+   margin-right: -50px;
+   color: #aaa;
+}
+ 
+.addnewicon:hover {
+   color: #222;
+}
+
 .material-switch > label {
 	width: auto;
 }
 
+.introjs-fixParent.modal {
+   z-index:1050 !important;
+}
+
+.introjs-overlay {
+     height: 200% !important;
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Procedures to perform multiple testing</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ss.maxT {multtest}"><tr><td>ss.maxT {multtest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Procedures to perform multiple testing</h2>
+
+<h3>Description</h3>
+
+<p>Given observed test statistics, a test statistics null distribution, and alternetive hyptheses, these multiple testing procedures provide family-wise error rate (FWER) adjusted p-values, cutoffs for test statistics, and possibly confidence regions for estimates. Four methods are implemented, based on minima of p-values and maxima of test statistics. 
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ss.maxT(null, obs, alternative, get.cutoff, get.cr, 
+get.adjp, alpha = 0.05)
+
+ss.minP(null, obs, rawp, alternative, get.cutoff, get.cr, 
+get.adjp, alpha=0.05)
+
+sd.maxT(null, obs, alternative, get.cutoff, get.cr, 
+get.adjp, alpha = 0.05)
+
+sd.minP(null, obs, rawp, alternative, get.cutoff, get.cr, 
+get.adjp, alpha=0.05)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>null</code></td>
+<td>
+<p>A matrix containing the test statistics null distribution, e.g. the output of <code>boot.resample</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>obs</code></td>
+<td>
+<p>A vector of observed test statistics, e.g. the output of a test statistics closure such as <code>meanX</code>. These are stored as a matrix with numerator (possibly absolute value or negative, depending on the value of alternative) in the first row, denominator in the second row, and a 1 or -1 in the third row (depending on the value of alternative). The observed test statistics are obs[1,]*obs[3,]/obs[2,].</p>
+</td></tr>
+<tr valign="top"><td><code>rawp</code></td>
+<td>
+<p>Numeric vector of unadjusted (&quot;raw&quot;) marginal p-values.</p>
+</td></tr>
+<tr valign="top"><td><code>alternative</code></td>
+<td>
+<p>Character string indicating the alternative hypotheses, by default 'two.sided'. For one-sided tests, use 'less' or 'greater' for null hypotheses of 'greater than or equal' (i.e. alternative is 'less') and 'less than or equal', respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>get.cutoff</code></td>
+<td>
+<p>Logical indicating whether to compute thresholds for the test statistics. Default is 'FALSE'.</p>
+</td></tr>
+<tr valign="top"><td><code>get.cr</code></td>
+<td>
+<p>Logical indicating whether to compute confidence intervals for the estimates. Not available for f-tests. Default is 'FALSE'.</p>
+</td></tr>
+<tr valign="top"><td><code>get.adjp</code></td>
+<td>
+<p>Logical indicating whether to compute adjusted p-values. Default is 'TRUE'.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha</code></td>
+<td>
+<p>The target nominal type I error rate, which may be a vector of error rates. Default is 0.05.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Having selected a suitable test statistics null distribution, there remains the main task of specifying rejection regions for each null hypothesis, i.e., cut-offs for each test statistic. One usually distinguishes between two main classes of multiple testing procedures, single-step and stepwise procedures. In single-step procedures, each null hypothesis is evaluated using a rejection region that is  independent of the results of the tests of other hypotheses. Improvement in power, while preserving Type I error rate control, may be achieved by stepwise (step-down or step-up) procedures, in which rejection of a particular null hypothesis depends on the outcome of the tests of other hypotheses. That is, the (single-step) test procedure is applied to a sequence of successively smaller nested random (i.e., data-dependent) subsets of null hypotheses, defined by the ordering of the test statistics (common cut-offs or maxT procedures) or unadjusted p-values (common-quantiles or minP procedures). 
+</p>
+<p>In step-down procedures, the hypotheses corresponding to the most significant test statistics (i.e., largest absolute test statistics or smallest unadjusted p-values) are considered successively, with further tests depending on the outcome of earlier ones. As soon as one fails to reject a null hypothesis, no further
+hypotheses are rejected. In contrast, for step-up procedures, the hypotheses corresponding to the least significant test statistics are considered successively, again with further tests depending on the outcome of earlier ones. As soon as one hypothesis is rejected, all remaining more significant hypotheses are rejected.
+</p>
+<p>These functions perform the following procedures: <br />
+ss.maxT: single-step, common cut-off (maxima of test statistics) <br />
+ss.minP: single-step, common quantile (minima of p-values) <br />
+sd.maxT: step-down, common cut-off (maxima of test statistics) <br />
+sd.minP: step-down, common quantile (minima of p-values) <br />
+</p>
+
+
+<h3>Value</h3>
+
+<p>A list with the following components:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>c</code></td>
+<td>
+<p>Object of class <code>"matrix"</code>, for each nominal (i.e. target) level for the test, a vector of threshold values for the vector of test statistics.</p>
+</td></tr>
+<tr valign="top"><td><code>cr</code></td>
+<td>
+<p>Object of class <code>"array"</code>, for each nominal (i.e. target) level for the test, a matrix of lower and upper confidence bounds for the parameter of interest for each hypothesis. Not available for f-tests.</p>
+</td></tr>
+<tr valign="top"><td><code>adjp</code></td>
+<td>
+<p>Object of class <code>"numeric"</code>, adjusted p-values for each hypothesis.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Katherine S. Pollard with design contributions from Sandrine Dudoit and Mark J. van der Laan.</p>
+
+
+<h3>References</h3>
+
+<p>M.J. van der Laan, S. Dudoit, K.S. Pollard (2004), Augmentation Procedures for Control of the Generalized Family-Wise Error Rate and Tail Probabilities for the Proportion of False Positives, Statistical Applications in Genetics and Molecular Biology, 3(1). 
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art15/">http://www.bepress.com/sagmb/vol3/iss1/art15/</a>
+</p>
+<p>M.J. van der Laan, S. Dudoit, K.S. Pollard (2004), Multiple Testing. Part II. Step-Down Procedures for Control of the Family-Wise Error Rate, Statistical Applications in Genetics and Molecular Biology, 3(1).
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art14/">http://www.bepress.com/sagmb/vol3/iss1/art14/</a>
+</p>
+<p>S. Dudoit, M.J. van der Laan, K.S. Pollard (2004), Multiple Testing. Part I. Single-Step Procedures for Control of General Type I Error Rates, Statistical Applications in Genetics and Molecular Biology, 3(1).
+<a href="http://www.bepress.com/sagmb/vol3/iss1/art13/">http://www.bepress.com/sagmb/vol3/iss1/art13/</a>
+</p>
+<p>Katherine S. Pollard and Mark J. van der Laan, &quot;Resampling-based Multiple Testing: Asymptotic Control of Type I Error and Applications to Gene Expression Data&quot; (June 24, 2003). U.C. Berkeley Division of Biostatistics Working Paper Series. Working Paper 121.
+<a href="http://www.bepress.com/ucbbiostat/paper121">http://www.bepress.com/ucbbiostat/paper121</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="MTP.html">MTP</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## These functions are used internally by the MTP function
+## See MTP function: ? MTP
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>multtest</em> version 2.40.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

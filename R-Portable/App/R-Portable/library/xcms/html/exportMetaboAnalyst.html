@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Export data for use in MetaboAnalyst</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for exportMetaboAnalyst {xcms}"><tr><td>exportMetaboAnalyst {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Export data for use in MetaboAnalyst</h2>
+
+<h3>Description</h3>
+
+<p>Export the feature table for further analysis in the MetaboAnalyst
+software (or the <code>MetaboAnalystR</code> R package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+exportMetaboAnalyst(x, file = NULL, label, value = "into",
+  digits = NULL, groupnames = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><a href="XCMSnExp-class.html">XCMSnExp</a> object with identified chromatographic peaks grouped
+across samples.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p><code>character(1)</code> defining the file name. If not specified, the
+<code>matrix</code> with the content is returned.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>either <code>character(1)</code> specifying the phenodata column in <code>x</code>
+defining the sample grouping or a vector with the same length than
+samples in <code>x</code> defining the group assignment of the samples.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p><code>character(1)</code> specifying the value to be returned for each
+feature. See <code><a href="XCMSnExp-peak-grouping-results.html">featureValues()</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>digits</code></td>
+<td>
+<p><code>integer(1)</code> defining the number of significant digits to be
+used for numeric. The default <code>NULL</code> uses <code>getOption("digits")</code>. See
+<code><a href="../../base/html/format.html">format()</a></code> for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>groupnames</code></td>
+<td>
+<p><code>logical(1)</code> whether row names of the resulting matrix
+should be the feature IDs (<code>groupnames = FALSE</code>; default) or IDs that
+are composed of the m/z and retention time of the features (in the
+format <em>M&lt;m/z&gt;T&lt;rt&gt;</em> (<code>groupnames = TRUE</code>). See help of the <a href="groupnames-methods.html">groupnames</a>
+function for details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional parameters to be passed to the <code><a href="XCMSnExp-peak-grouping-results.html">featureValues()</a></code>
+function.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>file</code> is not specified, the function returns the <code>matrix</code> in
+the format supported by MetaboAnalyst.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

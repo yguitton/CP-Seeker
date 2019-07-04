@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate breaks for binning</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for breaks_on_nBins {xcms}"><tr><td>breaks_on_nBins {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate breaks for binning</h2>
+
+<h3>Description</h3>
+
+<p>Calculate breaks for same-sized bins for data values
+from <code>fromX</code> to <code>toX</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+breaks_on_nBins(fromX, toX, nBins, shiftByHalfBinSize = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fromX</code></td>
+<td>
+<p>numeric(1) specifying the lowest value for the bins.</p>
+</td></tr>
+<tr valign="top"><td><code>toX</code></td>
+<td>
+<p>numeric(1) specifying the largest value for the bins.</p>
+</td></tr>
+<tr valign="top"><td><code>nBins</code></td>
+<td>
+<p>numeric(1) defining the number of bins.</p>
+</td></tr>
+<tr valign="top"><td><code>shiftByHalfBinSize</code></td>
+<td>
+<p>Logical indicating whether the bins should be shifted
+left by half bin size. This results centered bins, i.e. the first bin being
+centered at <code>fromX</code> and the last around <code>toX</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This generates bins such as a call to
+<code>seq(fromX, toX, length.out = nBins)</code> would. The first and second element
+in the result vector thus defines the lower and upper boundary for the first
+bin, the second and third value for the second bin and so on.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector of length <code>nBins + 1</code> defining the lower and
+upper bounds of the bins.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="binYonX.html">binYonX</a></code> for a binning function.
+</p>
+<p>Other functions to define bins: <code><a href="breaks_on_binSize.html">breaks_on_binSize</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Create breaks to bin values from 3 to 20 into 20 bins
+breaks_on_nBins(3, 20, nBins = 20)
+## The same call but using shiftByHalfBinSize
+breaks_on_nBins(3, 20, nBins = 20, shiftByHalfBinSize = TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

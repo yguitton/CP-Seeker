@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Functions to create test statistic closures and apply them to...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for meanX {multtest}"><tr><td>meanX {multtest}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Functions to create test statistic closures and apply them to data</h2>
+
+<h3>Description</h3>
+
+<p>The package <code>multtest</code> uses closures in the function <code>MTP</code> to compute test statistics. The closure used depends on the value of the argument <code>test</code>. These functions create the closures for different tests, given any additional variables, such as outcomes or covariates. The function <code>get.Tn</code> calls <code>wapply</code> to apply one of these closures to observed data (and possibly weights).  <br />
+</p>
+<p>One exception for how test statistics are calculated in <code>multtest</code> involve tests of correlation parameters, where the change of dimensionality between the p variables in <code>X</code> and the p-choose-2 hypotheses corresponding to the number of pairwise correlations presents a challenge.  In this case, the test statistics are calculated directly in <code>corr.Tn</code> and returned in a manner similar to the test statistic function closures.  No resampling is done either, since the null distribution for tests of correlation parameters are only implemented when <code>nulldist='ic'</code>.  Details are given below. 
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+meanX(psi0 = 0, na.rm = TRUE, standardize = TRUE, 
+alternative = "two.sided", robust = FALSE)
+
+diffmeanX(label, psi0 = 0, var.equal = FALSE, na.rm = TRUE, 
+standardize = TRUE, alternative = "two.sided", robust = FALSE)
+
+FX(label, na.rm = TRUE, robust = FALSE)
+
+blockFX(label, na.rm = TRUE, robust = FALSE)
+
+twowayFX(label, na.rm = TRUE, robust = FALSE)
+
+lmX(Z = NULL, n, psi0 = 0, na.rm = TRUE, standardize = TRUE, 
+alternative = "two.sided", robust = FALSE)
+
+lmY(Y, Z = NULL, n, psi0 = 0, na.rm = TRUE, standardize = TRUE, 
+alternative = "two.sided", robust = FALSE)
+
+coxY(surv.obj, strata = NULL, psi0 = 0, na.rm = TRUE, standardize = TRUE, 
+alternative = "two.sided", init = NULL, method = "efron")
+
+get.Tn(X, stat.closure, W = NULL)
+
+corr.Tn(X, test, alternative, use = "pairwise")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>X</code></td>
+<td>
+<p>A matrix, data.frame or ExpressionSet containing the raw data. In the case of an ExpressionSet, <code>exprs(X)</code> is the data of interest and <code>pData(X)</code> may contain outcomes and covariates of interest. For currently implemented tests, one hypothesis is tested for each row of the data.</p>
+</td></tr>
+<tr valign="top"><td><code>W</code></td>
+<td>
+<p>A vector or matrix containing non-negative weights to be used in computing the test statistics. If a matrix, <code>W</code> must be the same dimension as <code>X</code> with one weight for each value in <code>X</code>. If a vector, <code>W</code> may contain one weight for each observation (i.e. column) of <code>X</code> or one weight for each variable (i.e. row) of <code>X</code>. In either case, the weights are duplicated apporpraiately. Weighted f-tests are not available. Default is 'NULL'.</p>
+</td></tr>
+<tr valign="top"><td><code>label</code></td>
+<td>
+<p>A vector containing the class labels for t- and f-tests. For the <code>blockFX</code> function, observations are divided into <code>l</code> blocks of <code>n/l</code> observations. Within each block there may be <code>k</code> groups with <code>k&gt;2</code>. For this test, there is only one observation per block*group combination. The labels (and corresponding rows of <code>Z</code> and columns of <code>X</code> and <code>W</code>) must be ordered by block and within each block ordered by group. Groups must be labeled with integers <code>1,...,k</code>. For the <code>twowayFX</code> function, observations are divided into <code>l</code> blocks. Within each block there may be <code>k</code> groups with <code>k&gt;2</code>. There must be more than one observation per group*block combination for this test. The labels (and corresponding rows of <code>Z</code> and columns of <code>X</code> and <code>W</code>) must be ordered by block and within each block ordered by group. Groups must be labeled with integers <code>1,...,k</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>Y</code></td>
+<td>
+<p>A vector or factor containing the outcome of interest for linear models. This may be a continuous or polycotomous dependent variable.</p>
+</td></tr>
+<tr valign="top"><td><code>surv.object</code></td>
+<td>
+<p>A survival object as returned by the <code>Surv</code> function, to be used as response in <code>coxY</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>Z</code></td>
+<td>
+<p>A vector, factor, or matrix containing covariate data to be used in the linear regression models. Each variable should be in one column.</p>
+</td></tr>
+<tr valign="top"><td><code>strata</code></td>
+<td>
+<p>A vector, factor, or matrix containing covariate data to be used in the Cox regression models. Covariate data will be converted to a factor variable (via the <code>strata</code> function) for use in the <code>coxph</code> function. Each variable should be in one column.</p>
+</td></tr> 
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>The sample size, e.g. <code>length(Y)</code> or <code>nrow(Z)</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>psi0</code></td>
+<td>
+<p>Hypothesized null value for the parameter of interest (e.g. mean or difference in means), typically zero (default).</p>
+</td></tr>
+<tr valign="top"><td><code>var.equal</code></td>
+<td>
+<p>Indicator of whether to use t-statistics that assume equal variance in the two groups when computing the denominator of the test statistics.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>Logical indicating whether to remove observations with an NA. Default is 'TRUE'.</p>
+</td></tr>
+<tr valign="top"><td><code>standardize</code></td>
+<td>
+<p>Logical indicating whether to use the standardized version of the test statistics (usual t-statistics are standardized). Default is 'TRUE'.</p>
+</td></tr>
+<tr valign="top"><td><code>alternative</code></td>
+<td>
+<p>Character string indicating the alternative hypotheses, by default 'two.sided'. For one-sided tests, use 'less' or 'greater' for null hypotheses of 'greater than or equal' (i.e. alternative is 'less') and 'less than or equal', respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>robust</code></td>
+<td>
+<p>Logical indicating whether to use robust versions of the test statistics.</p>
+</td></tr>
+<tr valign="top"><td><code>init</code></td>
+<td>
+<p>Vector of initial values of the iteration in <code>coxY</code> function, as used in <code>coxph</code> in the <code>survival</code> package. Default initial value is zero for all variables (<code>init=NULL</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>A character string specifying the method for tie handling in <code>coxY</code> function, as used in <code>coxph</code> in the <code>survival</code> package. Default is &quot;efron&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>test</code></td>
+<td>
+<p>For <code>corr.Tn</code>, a character string of either 't.cor' or 'z.cor' indicating whether t-statistics or Fisher's z-statistics are to be calculated when probing hypotheses involving correlation parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>use</code></td>
+<td>
+<p>Similar to the options in <code>cor</code>, a character string giving a method for computing covariances in the presence of missing values.  Default is 'pairwise', which allows for the covariance/correlation matrix to be calculated using the most information possible when <code>NA</code>s are present.</p>
+</td></tr> 
+</table>
+
+
+<h3>Details</h3>
+
+<p>The use of closures, in the style of the <code>genefilter</code> package, allows uniform data input for all MTPs and facilitates the extension of the package's functionality by adding, for example, new types of test statistics. 
+Specifically, for each value of the <code>MTP</code> argument <code>test</code>, a closure is defined which consists of a function for computing the test statistic (with only two arguments, a data vector <code>x</code> and a corresponding weight vector <code>w</code>, with default value of <code>NULL</code>) and its enclosing environment, with bindings for relevant additional arguments. These arguments may include null values <code>psi0</code>, outcomes (<code>Y</code>, <code>label</code>, <code>surv.object</code>), and covariates <code>Z</code>. The vectors <code>x</code> and <code>w</code> are rows of the matrices <code>X</code> and <code>W</code>.
+</p>
+<p>In the <code>MTP</code> function, the closure is first used to compute the vector of observed test statistics, and then, in each bootstrap iteration, to produce the estimated joint null distribution of the test statistics. In both cases, the function <code>get.Tn</code> is used to apply the closure to rows of the matrices of data (<code>X</code>) and weights (<code>W</code>). Thus, new test statistics can be added to <code>multtest</code> package by simply defining a new closure and adding a corresponding value for the <code>test</code> argument to the <code>MTP</code> function.
+</p>
+<p>As mentioned above, one exception made to the closure rule in <code>multtest</code> was done for the case of tests involving correlation parameters (i.e., when <code>test='t.cor'</code> or <code>test='z.cor'</code>).  In particular, the change of dimension between the number of variables in <code>X</code> and the number of hypotheses corresponding to all pairwise correlation parameters presented a challenge.  In this setting, a 'closure-like' function was written which returns <code>choose(dim(X)[2],2)</code> test statistics stored in a matrix <code>obs</code> described below.  No resampling methods are available for 't.cor' and 'z.cor', as their only current available null distribution is based on influence curves (<code>nulldist='ic'</code>), meaning that the test statistics null distribution is sampled directly from an appropriate multivariate normal distribution.  In this manner, the data are used to calculate test statistics and null distribution estimates of the appropriate length and dimension, with sidedness correctly accounted for.  With care, these objects for tests of correlation can then be integrated into the rest of the (modular) <code>multtest</code> functionality to perform multiple testing using other available argument options in the functions <code>MTP</code> or <code>EBMTP</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>meanX</code>, <code>diffmeanX</code>, <code>FX</code>, <code>blockFX</code>, <code>twowayFX</code>, <code>lmX</code>, <code>lmY</code>, and <code>coxY</code>, a closure consisting of a function for computing test statistics and its enclosing environment. For <code>get.Tn</code> and <code>corr.Tn</code>, the observed test statistics stored in a matrix <code>obs</code> with numerator (possibly absolute value or negative, depending on the value of <code>alternative</code>) in the first row, denominator in the second row, and a 1 or -1 in the third row (depending on the value of alternative). The vector of observed test statistics is obs[1,]*obs[3,]/obs[2,].  
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Katherine S. Pollard, Houston N. Gilbert, and Sandra Taylor, with design contributions from Duncan Temple Lang, Sandrine Dudoit and Mark J. van der Laan</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="MTP.html">MTP</a></code>, <code><a href="meanX.html">get.Tn</a></code>, <code><a href="wapply.html">wapply</a></code>, <code><a href="boot.null.html">boot.resample</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data&lt;-matrix(rnorm(200),nr=20)
+#one-sample t-statistics
+ttest&lt;-meanX(psi0=0,na.rm=TRUE,standardize=TRUE,alternative="two.sided",robust=FALSE)
+obs&lt;-wapply(data,1,ttest,W=NULL)
+statistics&lt;-obs[1,]*obs[3,]/obs[2,]
+statistics
+
+#for tests of correlation parameters,
+#note change of dimension compared to dim(data),
+#function calculate statistics directly in same form as above
+obs &lt;- corr.Tn(data,test="t.cor",alternative="greater")
+dim(obs)
+statistics&lt;-obs[1,]*obs[3,]/obs[2,]
+length(statistics)
+
+#two-way F-statistics
+FData &lt;- matrix(rnorm(5*60),nr=5)
+label&lt;-rep(c(rep(1,10), rep(2,10), rep(3,10)),2)
+twowayf&lt;-twowayFX(label)
+obs&lt;-wapply(FData,1,twowayf,W=NULL)
+statistics&lt;-obs[1,]*obs[3,]/obs[2,]
+statistics
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>multtest</em> version 2.40.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

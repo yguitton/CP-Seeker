@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Simple feature summaries</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for featureSummary {xcms}"><tr><td>featureSummary {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Simple feature summaries</h2>
+
+<h3>Description</h3>
+
+<p>Simple function to calculate feature summaries. These include counts and
+percentages of samples in which a chromatographic peak is present for each
+feature and counts and percentages of samples in which more than one
+chromatographic peak was annotated to the feature. Also relative standard
+deviations (RSD) are calculated for the integrated peak areas per feature
+across samples. For 'perSampleCounts = TRUE' also the individual
+chromatographic peak counts per sample are returned.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+featureSummary(x, group, perSampleCounts = FALSE, method = "maxint",
+  skipFilled = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>'XCMSnExp' object with correspondence results.</p>
+</td></tr>
+<tr valign="top"><td><code>group</code></td>
+<td>
+<p>'numeric', 'logical', 'character' or 'factor' with the same
+length than 'x' has samples to aggregate counts by the groups defined
+in 'group'.</p>
+</td></tr>
+<tr valign="top"><td><code>perSampleCounts</code></td>
+<td>
+<p>'logical(1)' whether feature wise individual peak
+counts per sample should be returned too.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>'character' passed to the [featureValues()] function. See
+respective help page for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>skipFilled</code></td>
+<td>
+<p>'logical(1)' whether filled-in peaks should be excluded
+(default) or included in the summary calculation.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>'matrix' with one row per feature and columns:
+</p>
+<p>- '&quot;count&quot;': the total number of samples in which a peak was found.
+- '&quot;perc&quot;': the percentage of samples in which a peak was found.
+- '&quot;multi_count&quot;': the total number of samples in which more than one peak
+was assigned to the feature.
+- '&quot;multi_perc&quot;': the percentage of those samples in which a peak was found,
+that have also multiple peaks annotated to the feature. Example: for a
+feature, at least one peak was detected in 50 samples. In 5 of them 2 peaks
+were assigned to the feature. '&quot;multi_perc&quot;' is in this case 10
+- '&quot;rsd&quot;': relative standard deviation (coefficient of variation) of the
+integrated peak area of the feature's peaks.
+- The same 4 columns are repeated for each unique element (level) in 'group'
+if 'group' was provided.
+</p>
+<p>If 'perSampleCounts = TRUE' also one column for each sample is returned
+with the peak counts per sample.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

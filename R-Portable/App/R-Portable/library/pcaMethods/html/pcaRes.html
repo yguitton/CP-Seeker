@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class for representing a PCA result</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pcaRes {pcaMethods}"><tr><td>pcaRes {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class for representing a PCA result</h2>
+
+<h3>Description</h3>
+
+<p>This is a class representation of a PCA result
+</p>
+
+
+<h3>Details</h3>
+
+<p><b>Creating Objects</b><br />
+<code>new("pcaRes", scores=[the scores], loadings=[the loadings],
+nPcs=[amount of PCs], R2cum=[cumulative R2], nObs=[amount of
+observations], nVar=[amount of variables], R2=[R2 for each
+individual PC], sDev=[stdev for each individual PC],
+centered=[was data centered], center=[original means],
+varLimit=[what variance limit was exceeded], method=[method used to
+calculate PCA], missing=[amount of NAs], 
+completeObs=[estimated complete observations])</code>
+</p>
+<p><b>Slots</b><br />
+</p>
+
+<dl>
+<dt>scores</dt><dd><p>&quot;matrix&quot;,  the calculated scores</p>
+</dd>
+<dt>loadings</dt><dd><p>&quot;matrix&quot;,  the calculated loadings</p>
+</dd>
+<dt>R2cum</dt><dd><p>&quot;numeric&quot;,  the cumulative R2 values</p>
+</dd>
+<dt>sDev</dt><dd><p>&quot;numeric&quot;,  the individual standard
+deviations of the score vectors</p>
+</dd>
+<dt>R2</dt><dd><p>&quot;numeric&quot;,  the individual R2 values</p>
+</dd>
+<dt>cvstat</dt><dd><p>&quot;numeric&quot;,  cross-validation statistics</p>
+</dd>
+<dt>nObs</dt><dd><p>&quot;numeric&quot;, number of observations</p>
+</dd>
+<dt>nVar</dt><dd><p>&quot;numeric&quot;, number of variables</p>
+</dd>
+<dt>centered</dt><dd><p>&quot;logical&quot;, data was centered or not</p>
+</dd>
+<dt>center</dt><dd><p>&quot;numeric&quot;, the original variable centers</p>
+</dd>
+<dt>scaled</dt><dd><p>&quot;logical&quot;, data was scaled or not</p>
+</dd>
+<dt>scl</dt><dd><p>&quot;numeric&quot;, the original variable scales</p>
+</dd>
+<dt>varLimit</dt><dd><p>&quot;numeric&quot;, the exceeded variance limit</p>
+</dd>
+<dt>nPcs,nP</dt><dd><p>&quot;numeric&quot;, the number of calculated PCs</p>
+</dd>
+<dt>method</dt><dd><p>&quot;character&quot;, the method used to perform PCA</p>
+</dd>
+<dt>missing</dt><dd><p>&quot;numeric&quot;, the total amount of missing values in
+original data</p>
+</dd>
+<dt>completeObs</dt><dd><p>&quot;matrix&quot;, the estimated complete observations</p>
+</dd>
+<dt>network</dt><dd><p>&quot;nlpcaNet&quot;, the network used by non-linear PCA</p>
+</dd>
+</dl>
+
+<p><b>Methods (not necessarily exhaustive)</b><br />
+</p>
+
+<dl>
+<dt>print</dt><dd><p>Print function</p>
+</dd>
+<dt>summary</dt><dd><p>Extract information about PC relevance</p>
+</dd>
+<dt>screeplot</dt><dd><p>Plot a barplot of standard deviations for PCs</p>
+</dd>
+<dt>slplot</dt><dd><p>Make a side by side score and loadings plot</p>
+</dd>
+<dt>nPcs</dt><dd><p>Get the number of PCs</p>
+</dd>
+<dt>nObs</dt><dd><p>Get the number of observations</p>
+</dd>
+<dt>cvstat</dt><dd><p>Cross-validation statistics</p>
+</dd>
+<dt>nVar</dt><dd><p>Get the number of variables</p>
+</dd>
+<dt>loadings</dt><dd><p>Get the loadings</p>
+</dd>
+<dt>scores</dt><dd><p>Get the scores</p>
+</dd>
+<dt>dim</dt><dd><p>Get the dimensions (number of observations, number of
+features)</p>
+</dd>
+<dt>centered</dt><dd><p>Get a logical indicating if centering was done as
+part of the model</p>
+</dd>
+<dt>center</dt><dd><p>Get the averages of the original variables.</p>
+</dd>
+<dt>completeObs</dt><dd><p>Get the imputed data set</p>
+</dd>
+<dt>method</dt><dd><p>Get a string naming the used PCA method</p>
+</dd>
+<dt>sDev</dt><dd><p>Get the standard deviations of the PCs</p>
+</dd>
+<dt>scaled</dt><dd><p>Get a logical indicating if scaling was done as
+part of the model</p>
+</dd>
+<dt>scl</dt><dd><p>Get the scales of the original variablesb</p>
+</dd>
+<dt>R2cum</dt><dd><p>Get the cumulative R2</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.76.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read 'MSnSet'</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readMSnSet {MSnbase}"><tr><td>readMSnSet {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Read 'MSnSet' </h2>
+
+<h3>Description</h3>
+
+<p>This function reads data files to generate an
+<code><a href="MSnSet-class.html">MSnSet</a></code> instance. It is a wrapper around
+<code>Biobase</code>'s <code><a href="../../Biobase/html/readExpressionSet.html">readExpressionSet</a></code> function with an
+additional <code>featureDataFile</code> parameter to include feature data.
+See also <code><a href="../../Biobase/html/readExpressionSet.html">readExpressionSet</a></code> for more details.
+<code>readMSnSet2</code> is a simple version that takes a single text
+spreadsheet as input and extracts the expression data and feature
+meta-data to create and <code>MSnSet</code>.
+</p>
+<p>Note that when using <code>readMSnSet2</code>, one should not set
+<code>rownames</code> as additional argument to defined feature names. It is
+ignored and used to set <code>fnames</code> if not provided otherwise.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readMSnSet(exprsFile,
+           phenoDataFile,
+           featureDataFile,
+           experimentDataFile,
+           notesFile,
+           path, annotation,
+           exprsArgs = list(sep = sep, header = header, row.names = row.names, quote = quote, ...),
+           phenoDataArgs = list(sep = sep, header = header, row.names = row.names, quote = quote, stringsAsFactors = stringsAsFactors, ...),
+           featureDataArgs = list(sep = sep, header = header, row.names = row.names, quote = quote, stringsAsFactors = stringsAsFactors, ...),
+           experimentDataArgs = list(sep = sep, header = header, row.names = row.names, quote = quote, stringsAsFactors = stringsAsFactors, ...),
+           sep = "\t",
+           header = TRUE,
+           quote = "",
+           stringsAsFactors = FALSE,
+           row.names = 1L,
+           widget = getOption("BioC")$Base$use.widgets, ...)
+
+readMSnSet2(file, ecol, fnames, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<p>Arguments direclty passed to <code>readExpressionSet</code>. The description
+is from the <code>readExpressionSet</code> documentation page.
+</p>
+<table summary="R argblock">
+<tr valign="top"><td><code>exprsFile</code></td>
+<td>
+<p>(character) File or connection from which to read
+expression values. The file should contain a matrix with rows as
+features and columns as samples. <code><a href="../../utils/html/read.table.html">read.table</a></code> is called
+with this as its <code>file</code> argument and further arguments given by
+<code>exprsArgs</code>.</p>
+</td></tr>  
+<tr valign="top"><td><code>phenoDataFile</code></td>
+<td>
+<p>(character) File or connection from which to read
+phenotypic data. <code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code> is called
+with this as its <code>file</code> argument and further arguments given by
+<code>phenoDataArgs</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>experimentDataFile</code></td>
+<td>
+<p>(character) File or connection from which to
+read experiment data. <code><a href="../../Biobase/html/read.MIAME.html">read.MIAME</a></code> is called with this
+as its <code>file</code> argument and further arguments given by
+<code>experimentDataArgs</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>notesFile</code></td>
+<td>
+<p>(character) File or connection from which to read
+notes; <code><a href="../../base/html/readLines.html">readLines</a></code> is used to input the file.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>(optional) directory in which to find all the above
+files.</p>
+</td></tr>
+<tr valign="top"><td><code>annotation</code></td>
+<td>
+<p>(character) A single character string indicating the
+annotation associated with this ExpressionSet.</p>
+</td></tr> 
+<tr valign="top"><td><code>exprsArgs</code></td>
+<td>
+<p>A list of arguments to be used with
+<code><a href="../../utils/html/read.table.html">read.table</a></code> when reading in the expression matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>phenoDataArgs</code></td>
+<td>
+<p>A list of arguments to be used (with
+<code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code>) when reading
+the phenotypic data.</p>
+</td></tr>
+<tr valign="top"><td><code>experimentDataArgs</code></td>
+<td>
+<p>A list of arguments to be used (with
+<code><a href="../../Biobase/html/read.MIAME.html">read.MIAME</a></code>) when reading the experiment data.</p>
+</td></tr>
+<tr valign="top"><td><code>sep, header, quote, stringsAsFactors, row.names</code></td>
+<td>
+<p>arguments used
+by the <code><a href="../../utils/html/read.table.html">read.table</a></code>-like functions.</p>
+</td></tr>
+<tr valign="top"><td><code>widget</code></td>
+<td>
+<p>A boolean value indicating whether widgets can be
+used. Widgets are NOT yet implemented for
+<code>read.AnnotatedDataFrame</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further arguments that can be passed on to the
+<code><a href="../../utils/html/read.table.html">read.table</a></code>-like functions. </p>
+</td></tr>
+</table>
+<p>Additional argument, specific to <code>readMSnSet</code>:
+</p>
+<table summary="R argblock">
+<tr valign="top"><td><code>featureDataFile</code></td>
+<td>
+<p>(character) File or connection from which to read
+feature data. <code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code> is called
+with this as its <code>file</code> argument and further arguments given by
+<code>phenoDataArgs</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>featureDataArgs</code></td>
+<td>
+<p>A list of arguments to be used (with
+<code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code>) when reading the phenotypic
+data. </p>
+</td></tr>
+</table>
+<p>Arguments for <code>readMSnSet2</code>:
+</p>
+<table summary="R argblock">
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>A <code>character</code> indicating the spreadsheet file or a
+<code>data.frame</code> (new in version 1.19.8). Default, when <code>file</code>
+is a <code>character</code>, is to read the file as a comma-separated
+values (csv). If different, use the additional arguments, passed to
+<code><a href="../../utils/html/read.table.html">read.csv</a></code>, to parametrise file import.
+</p>
+<p>Passing a <code>data.frame</code> can be particularly useful if the
+spreadsheet is in Excel format. The appropriate sheet can first be
+read into R as a <code>data.frame</code> using, for example
+<code>readxl::read_excel</code>, and then pass it to <code>readMSnSet2</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>ecol</code></td>
+<td>
+<p>A <code>numeric</code> indicating the indices of the columns to
+be used as expression values. Can also be a <code>character</code>
+indicating the names of the columns. Caution must be taken if the
+column names are composed of special characters like <code>(</code> or
+<code>-</code> that will be converted to a <code>.</code>. If <code>ecol</code> does
+not match, the error message will dislpay the column names are see
+by <code>R</code>.  </p>
+</td></tr>
+<tr valign="top"><td><code>fnames</code></td>
+<td>
+<p>An optional <code>character</code> or <code>numeric</code> of length
+1 indicating the column to be used as feature names. </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p> An instance of the <code><a href="MSnSet-class.html">MSnSet</a></code> class. </p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="grepEcols.html">grepEcols</a></code> and <code><a href="grepEcols.html">getEcols</a></code> helper
+functions to identify the <code>ecol</code> values.  The <code>MSnbase-io</code>
+vignette illustrates these functions in detail. It can be accessed
+with <code>vignette("MSnbase-io")</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+exprsFile &lt;- "path_to_intensity_file.csv"
+fdatafile &lt;- "path_to_featuredata_file.csv"
+pdatafile &lt;- "path_to_sampledata_file.csv"
+## Read ExpressionSet with appropriate parameters
+res &lt;- readMSnSet(exprsFile, pdataFile, fdataFile, sep = "\t", header=TRUE)
+
+## End(Not run)
+
+library("pRolocdata")
+f0 &lt;- dir(system.file("extdata", package = "pRolocdata"),
+          full.names = TRUE,
+          pattern = "Dunkley2006")
+basename(f0)
+res &lt;- readMSnSet2(f0, ecol = 5:20)
+res
+head(exprs(res)) ## columns 5 to 20
+head(fData(res)) ## other columns
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.10.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Impute values for empty elements in a vector using linear...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for imputeLinInterpol {xcms}"><tr><td>imputeLinInterpol {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Impute values for empty elements in a vector using linear interpolation</h2>
+
+<h3>Description</h3>
+
+<p>This function provides missing value imputation based on linear
+interpolation and resembles some of the functionality of the
+<code>profBinLin</code> and <code>profBinLinBase</code> functions deprecated from
+version 1.51 on.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+imputeLinInterpol(x, baseValue, method = "lin", distance = 1L,
+  noInterpolAtEnds = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A numeric vector with eventual missing (<code>NA</code>) values.</p>
+</td></tr>
+<tr valign="top"><td><code>baseValue</code></td>
+<td>
+<p>The base value to which empty elements should be set. This
+is only considered for <code>method = "linbase"</code> and corresponds to the
+<code>profBinLinBase</code>'s <code>baselevel</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>One of <code>"none"</code>, <code>"lin"</code> or <code>"linbase"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>distance</code></td>
+<td>
+<p>For <code>method = "linbase"</code>: number of non-empty
+neighboring element of an empty element that should be considered for
+linear interpolation. See details section for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>noInterpolAtEnds</code></td>
+<td>
+<p>For <code>method = "lin"</code>: Logical indicating
+whether linear interpolation should also be performed at the ends of the
+data vector (i.e. if missing values are present at the beginning or the
+end of the vector).</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Values for NAs in input vector <code>x</code> can be imputed using methods
+<code>"lin"</code> and <code>"linbase"</code>:
+</p>
+<p><code>impute = "lin"</code> uses simple linear imputation to derive a value
+for an empty element in input vector <code>x</code> from its neighboring
+non-empty elements. This method is equivalent to the linear
+interpolation in the <code>profBinLin</code> method. Whether interpolation is
+performed if missing values are present at the beginning and end of
+<code>x</code> can be set with argument <code>noInterpolAtEnds</code>. By default
+interpolation is also performed at the ends interpolating from <code>0</code>
+at the beginning and towards <code>0</code> at the end. For
+<code>noInterpolAtEnds = TRUE</code> no interpolation is performed at both
+ends replacing the missing values at the beginning and/or the end of
+<code>x</code> with <code>0</code>.
+</p>
+<p><code>impute = "linbase"</code> uses linear interpolation to impute values for
+empty elements within a user-definable proximity to non-empty elements
+and setting the element's value to the <code>baseValue</code> otherwise. The
+default for the <code>baseValue</code> is half of the smallest value in
+<code>x</code> (<code>NA</code>s being removed). Whether linear interpolation based
+imputation is performed for a missing value depends on the
+<code>distance</code> argument. Interpolation is only performed if one of the
+next <code>distance</code> closest neighbors to the current empty element has
+a value other than <code>NA</code>. No interpolation takes place for
+<code>distance = 0</code>, while <code>distance = 1</code> means that the value for
+an empty element is interpolated from directly adjacent non-empty
+elements while, if the next neighbors of the current empty element are
+also <code>NA</code>, it's vale is set to <code>baseValue</code>.
+This corresponds to the linear interpolation performed by the
+<code>profBinLinBase</code> method. For more details see examples below.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector with empty values imputed based on the selected
+<code>method</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+#######
+## Impute missing values by linearly interpolating from neighboring
+## non-empty elements
+x &lt;- c(3, NA, 1, 2, NA, NA, 4, NA, NA, NA, 3, NA, NA, NA, NA, 2)
+imputeLinInterpol(x, method = "lin")
+## visualize the interpolation:
+plot(x = 1:length(x), y = x)
+points(x = 1:length(x), y = imputeLinInterpol(x, method = "lin"), type = "l", col = "grey")
+
+## If the first or last elements are NA, interpolation is performed from 0
+## to the first non-empty element.
+x &lt;- c(NA, 2, 1, 4, NA)
+imputeLinInterpol(x, method = "lin")
+## visualize the interpolation:
+plot(x = 1:length(x), y = x)
+points(x = 1:length(x), y = imputeLinInterpol(x, method = "lin"), type = "l", col = "grey")
+
+## If noInterpolAtEnds is TRUE no interpolation is performed at both ends
+imputeLinInterpol(x, method = "lin", noInterpolAtEnds = TRUE)
+
+######
+## method = "linbase"
+## "linbase" performs imputation by interpolation for empty elements based on
+## 'distance' adjacent non-empty elements, setting all remaining empty elements
+## to the baseValue
+x &lt;- c(3, NA, 1, 2, NA, NA, 4, NA, NA, NA, 3, NA, NA, NA, NA, 2)
+## Setting distance = 0 skips imputation by linear interpolation
+imputeLinInterpol(x, method = "linbase", distance = 0)
+
+## With distance = 1 for all empty elements next to a non-empty element the value
+## is imputed by linear interpolation.
+xInt &lt;- imputeLinInterpol(x, method = "linbase", distance = 1L)
+xInt
+
+plot(x = 1:length(x), y = x, ylim = c(0, max(x, na.rm = TRUE)))
+points(x = 1:length(x), y = xInt, type = "l", col = "grey")
+
+## Setting distance = 2L would cause that for all empty elements for which the
+## distance to the next non-empty element is &lt;= 2 the value is imputed by
+## linear interpolation:
+xInt &lt;- imputeLinInterpol(x, method = "linbase", distance = 2L)
+xInt
+
+plot(x = 1:length(x), y = x, ylim = c(0, max(x, na.rm = TRUE)))
+points(x = 1:length(x), y = xInt, type = "l", col = "grey")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

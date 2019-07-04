@@ -1,10 +1,10 @@
-#define MyAppName "targetROI"
+#define MyAppName "CPSeeker"
 #define MyAppVersion "0.1"
-#define MyAppExeName "targetROI.bat"
+#define MyAppExeName "CPSeeker.bat"
 
 [Setup]
 AppName = {#MyAppName}
-DefaultDirName = {pf}\{#MyAppName}
+DefaultDirName = {commondesktop}\{#MyAppName}
 DefaultGroupName = {#MyAppName}
 OutputDir = C:/Users/shu/Documents/Inno_installer
 OutputBaseFilename = setup_{#MyAppName}
