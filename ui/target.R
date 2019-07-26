@@ -3,25 +3,24 @@ tabItem(tabName='target',
 		column(width=12,
 			uiOutput('uiTargetSamples'),
 			column(width=6, 
-				pickerInput('targetAdduct', 'adduct', choices=
+				pickerInput('targetAdducts', 'adduct', choices=
 					setNames(c('M+Cl', 'M-H', 'M+Hac-H', 'M-Cl', 'M-H-Cl'), 
-						c('[M+Cl]-', '[M-H]-', '[M+Hac-H]-', '[M-Cl]-', '[M-H-Cl]-')))
+						c('[M+Cl]-', '[M-H]-', '[M+Hac-H]-', '[M-Cl]-', '[M-H-Cl]-')),
+					multiple=TRUE)
 			),
 			column(width=6, 
 				pickerInput('targetMachine', 'machine', choices=
 					setNames(1:length(resolution_list), names(resolution_list)), option=list(`live-search`=TRUE))
 			),
 			column(width=12, 
-				sliderInput('targetRT', 'Range rT', min=0, max=20, value=c(0, 20), step=1)
+				sliderInput('targetRT', 'Range rT', min=0, max=20, value=c(2, 14), step=1)
 			),
-			column(width=6, 
-				numericInput('targetTolPpm', 'tol ppm', value=5, min=0, step=1)
+			column(width=12, 
+				sliderInput('targetTolPpm', 'tol ppm', value=5, min=0, max=50, step=1)
 			),
-			column(width=6, 
-				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=15, min=0, max=60, step=1)
-			),
-			column(width=6,
-				numericInput('targetThreshold', 'threshold', value=100, min=0, max=1*10**99)
+			column(width=12, 
+				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=c(30, 270), 
+					min=0, max=300, step=1)
 			)
 		),
 		tags$div(style="text-align:center;", actionBttn('target', 'target'))

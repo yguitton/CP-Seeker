@@ -3,8 +3,11 @@ shinyServer(function(input, output, session) {
 
 #to close the connection
 session$onSessionEnded(function() {
-	dbSendQuery(db, 'vacuum;')
-	dbSendQuery(db, 'pragma wal_checkpoint(truncate);')
+	tryCatch({
+		dbSendQuery(db, 'pragma wal_checkpoint(truncate);')
+	}, error = function(e){
+		dbSendQuery(db, 'pragma wal_checkpoint(passive);')
+	})
 	dbDisconnect(db)
 	stopApp()
 	# comment line above because it's still in developement
@@ -14,7 +17,7 @@ session$onSessionEnded(function() {
 values <- reactiveValues()
 actualize <- reactiveValues()
 
-minC <- 4
+minC <- 8
 maxC <- 36
 minCl <- 2
 maxCl <- 30
@@ -28,14 +31,18 @@ adducts <- adducts %>% rbind(data.frame(
 	
 samples <- reactive({
 	actualize$samples
-	samples <- dbGetQuery(db, 'select * from sample;')
+	# select all except data column which contains blobs
+	samples <- dbGetQuery(db, 'select sample, rawPath, instrumentModel, 
+		instrumentManufacturer, softwareName, softwareVersion, ionSource, 
+		analyzer, detectorType, method, resolution, agcTarget, maximumIT, 
+		numberOfScanRange, scanRange, polarity from sample;')
 	actualize$samples <- FALSE
 	samples
 })
 
 projects <- reactive({
 	actualize$projects
-	projects <- dbGetQuery(db, 'select name from project;')$name
+	projects <- dbGetQuery(db, 'select * from project;')
 	actualize$projects <- FALSE
 	projects
 })
@@ -45,6 +52,13 @@ project_samples <- reactive({
 	project_samples <- dbGetQuery(db, 'select * from project_sample;')
 	actualize$project_samples <- FALSE
 	project_samples
+})
+
+params <- reactive({
+	actualize$params
+	params <- dbGetQuery(db, 'select * from param;')
+	actualize$params <- FALSE
+	params
 })
 
 output$downloadProject <- downloadHandler(

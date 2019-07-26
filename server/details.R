@@ -3,7 +3,8 @@ output$uiDetailsSample <- renderUI({
 		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
 		else if(input$project == '') custom_stop('invalid', 'no project')
 		else project_samples() %>% filter(project == input$project & 
-			!is.na(adduct)) %>% select(sampleID, project_sample)
+			project_sample %in% params()$project_sample) %>% 
+			select(sampleID, project_sample)
 	}, invalid = function(i){
 		print(paste(i))
 		data.frame(sampleID = c(), project_sample = c())
@@ -16,11 +17,12 @@ output$uiDetailsSample <- renderUI({
 		multiple=FALSE, options=list(`live-search`=TRUE))
 })
 
-output$uiDetailsAdduct <- renderUI({
+output$uiDetailsParam <- renderUI({
 	choices <- tryCatch({
 		if(is.null(input$detailsSample)) custom_stop('invalid', 'detailsSample picker is not yet initialized')
 		else if(input$detailsSample == '') custom_stop('invalid', 'no details sample selected')
-		else project_samples() %>% filter(project_sample == input$detailsSample) %>% pull(adduct)
+		else params() %>% filter(project_sample == input$detailsSample) %>% 
+			select(param, adduct)
 	}, invalid = function(i){
 		print(paste(i))
 		c()
@@ -29,28 +31,25 @@ output$uiDetailsAdduct <- renderUI({
 		sendSweetAlert(paste(e$message))
 		c()
 	})
-	pickerInput('detailsAdduct', 'adduct', choices=choices, multiple=FALSE)
+	pickerInput('detailsParam', 'adduct', choices=setNames(
+		choices$param, choices$adduct), multiple=FALSE)
 })
 
 output$detailsTable <- DT::renderDataTable({
-	print('------------------- DETAILS TABLE ------------------')
-	print(list(project_sample=input$detailsSample, 
-		adduct=input$detailsAdduct, switch=input$detailsSwitch))
 	actualize$project_samples
 	data <- tryCatch({
-		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample not initialized')
-		else if(input$detailsSample == "") custom_stop('invalid', 'no sample processed in project')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct not initialized')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct in project_sample???')
+		if(is.null(input$detailsParam)) custom_stop('invalid', 'param picker not initialized')
+		else if(input$detailsParam == "") custom_stop('invalid', 'no param for the file')
 		
-		query <- sprintf('select * from observed where project_sample == %s;', input$detailsSample)
+		query <- sprintf('select * from cluster where project_sample == %s 
+			and param == %s;', input$detailsSample, input$detailsParam)
 		print(query)
 		data <- dbGetQuery(db, query)
 		data <- if(input$detailsSwitch) data %>% dplyr::group_by(formula) %>% 
-				dplyr::summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=max(roiNb)) %>% 
+				dplyr::summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=dplyr::n()) %>% 
 				data.frame
-			else data %>% dplyr::group_by(formula) %>% 
-				dplyr::summarise(C=C[1], Cl=Cl[1], rt=(mean(rt) / 60) %>% round, rois=max(roiNb)) %>% 
+			else data %>% dplyr::group_by(formula) %>% arrange(desc(score)) %>% 
+				dplyr::summarise(C=C[1], Cl=Cl[1], rt=rtMean[1] %>% round, rois=dplyr::n()) %>% 
 				data.frame
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
@@ -65,10 +64,9 @@ output$detailsTable <- DT::renderDataTable({
 	})
 	colnames(data) <- paste0('Cl', minCl:maxCl)
 	rownames(data) <- paste0('C', minC:maxC)
-	print('------------------- END DETAILS TABLE ------------------')
 	data
 }, selection="none", extensions='Scroller', class='display cell-border compact nowrap', options=list(
-	info=FALSE, paging=FALSE, dom='Bfrtip', scoller=TRUE, scrollX=TRUE, scrollY=input$dimension[2]/1.6, bFilter=FALSE, ordering=FALSE,
+	info=FALSE, paging=FALSE, dom='Bfrtip', scoller=TRUE, scrollX=TRUE, bFilter=FALSE, ordering=FALSE,
 	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
 		function(settings, json){
 			var table = settings.oInstance.api();
@@ -77,7 +75,7 @@ output$detailsTable <- DT::renderDataTable({
 				if(this.data() != null){
 					var value = this.data().split(' ');
 					this.data(Number(value[0]));
-					if(switchVal && (this.data() < -20 || this.data() > 20)) $(this.node()).css('background-color', 'rgb(255,36,0)');
+					if(switchVal && this.data() < 50) $(this.node()).css('background-color', 'rgb(255,36,0)');
 					if(Number(value[1]) > 1) $(this.node()).css('border', '5px solid orange');
 				}
 			})
@@ -93,14 +91,14 @@ output$detailsTable <- DT::renderDataTable({
 					$(table.cells('.selected').nodes()).toggleClass('selected');
 					$(this).toggleClass('selected');
 					Shiny.onInputChange('detailsTable_selected', {
-						C: table.cell(this).index().row+4, 
+						C: table.cell(this).index().row+8, 
 						Cl: table.cell(this).index().column+1});
 				}
 			//}
 		});
 		Shiny.addCustomMessageHandler('updateDetailsTable', function(value){
 			table.cell('.selected').data(value);
-			if(value < -20 || value > 20) var backColor = 'rgb(255,36,0)'
+			if(value < 50 ) var backColor = 'rgb(255,36,0)'
 			else var backColor = 'rgba(0,0,0,0)'
 			$(table.cell('.selected').node()).css('background-color', backColor);
 			$(table.cell('.selected').node()).css('border', '');
@@ -115,44 +113,34 @@ output$detailsTable <- DT::renderDataTable({
 	"))
 	
 observeEvent(input$detailsTable_selected, {
-	if(is.null(input$detailsSample)) return()
-	else if(is.null(input$detailsTable_selected)) return()
-	else if(input$detailsSample == "") return()
-	else if(length(input$detailsTable_selected) == 0) return()
-	data <- dbGetQuery(db, sprintf('select ppm, machine from observed where C == %s and Cl == %s and 
-		project_sample == %s;', input$detailsTable_selected$C, 
-			input$detailsTable_selected$Cl, input$detailsSample))[1, ]
-	if(!is.na(data$ppm)) updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=data$ppm, min=0, step=1)
-	if(!is.na(data$machine)) updatePickerInput(session, 'detailsMachine', 'machine', choices=setNames(1:length(resolution_list),
-			names(resolution_list)), selected=data$machine)
+	if(is.null(input$detailsParam)) return()
+	else if(input$detailsParam == "") return()
+	updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=params() %>% 
+		filter(param == input$detailsParam) %>% pull(ppm), min=0, step=1)
 })	
 
-plotEIC <- function(data, mz, rois=data.frame()){
+plotEIC <- function(data, mz, rois=data.frame(), windowSc){
+	baseline <- runmed(data$y, windowSc, endrule="median", algorithm="Turlach")
 	eicPlot <- plot_ly(type="scatter", mode="lines") %>% 
 		add_trace(mode="lines+markers", 
-			data=data, x=~x / 60, y=~y, color=I('black'), showlegend=FALSE, 
+			data=data, x=~x, y=~y, color=I('black'), showlegend=FALSE, 
 			marker=list(opacity=1, size=1*10**-9),
 			hoverinfo="text", text=~paste('mz:', round(mz, 5), 
-				'<br />rt:', round(data$x / 60, digits=2), 
-				'<br />intensity:', formatC(data$y)))
+				'<br />rt:', round(data$x, digits=2), 
+				'<br />intensity:', formatC(data$y))) %>% 
+		add_lines(x=data$x, y=baseline, showlegend=FALSE, color=I('red'), 
+			hoverinfo="text", text=~paste('rt:', 
+				round(data$x, digits=2), '<br />intensity:', formatC(baseline)))
 	if(nrow(rois) > 0){
 		scans <- lapply(1:nrow(rois), function(x) 
 			which(data$x >= rois[x, 'rtmin'] & data$x <= rois[x, 'rtmax']))
-		windowRTMed <- 1 + 2 * min(
-			(nrow(data)+length(unlist(scans))-1)%/% 2, 
-			ceiling(0.1*(nrow(data)+length(unlist(scans)))))
 	
-		baseline <- runmed(data$y, windowRTMed, endrule="median", algorithm="Turlach")
 		# trace a line under the roi for filling it 
-		for(i in 1:length(scans)) eicPlot <- eicPlot %>% 
-			add_lines(x=data[scans[[i]], 'x'] / 60, y=baseline[scans[[i]]], showlegend=FALSE) %>% 
-			add_trace(mode='none', data=data[scans[[i]], ], x=~x / 60, y=~y, fill='tonexty', 
-				showlegend=FALSE)
+		for(i in 1:nrow(rois)) eicPlot <- eicPlot %>% add_trace(mode='none', 
+			x=rois[i, c('rtmin', 'rtmax')] %>% unlist, y=max(data$y), hoverinfo='none', 
+				fill='tozeroy', showlegend=FALSE)
 		eicPlot <- eicPlot %>% 
-			add_lines(name="baseline", x=data$x / 60, y=baseline, color=I('red'), 
-				showlegend=FALSE, hoverinfo="text", text=~paste(
-				'rt:', round(data$x / 60, digits=2), '<br />intensity:', formatC(baseline))) %>%
-			add_annotations(x=.5, y=1, text=rois[1, 'annotation'], showarrow=FALSE, 
+			add_annotations(x=.5, y=1, text=rois[1, 'iso'], showarrow=FALSE, 
 				xref='paper', yref='paper', showlegend=FALSE, font=list(size=30)) %>% 
 		layout(xaxis=list(title="retention time"), yaxis=list(title="intensity"), selectdirection="h")
 	}
@@ -160,48 +148,47 @@ plotEIC <- function(data, mz, rois=data.frame()){
 }
 
 output$detailsEic <- renderPlotly({
-	print('------------------- DETAILS EIC -------------------')
-	print(list(project_sample=input$detailsSample, 
-		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]], 
-		table_rows=input$detailsTable_selected))
-	
 	actualize$detailsEic
 	eicPlot <- tryCatch({
-		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
-		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
+		if(is.null(input$detailsParam)) custom_stop('invalid', 'param picker is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')	
-		else if(input$detailsSample == "") custom_stop('invalid', 'no sample selected')
-		else if(input$detailsMachine == '') custom_stop("invalid", "no machine selected")
+		else if(input$detailsParam == "") custom_stop('invalid', 'no param selected')
 		else if(length(input$detailsTable_selected) == 0) custom_stop('invalid', 'no cell clicked')
-		feedbackDanger('detailsTolPpm', !is.numeric(input$detailsTolPpm), 'tol ppm is not numeric')
 		if(!is.numeric(input$detailsTolPpm)) custom_stop('invalid', 'tol ppm is not numeric')
+		
 		C <- input$detailsTable_selected$C
 		Cl <- input$detailsTable_selected$Cl
 		if(C == 0 | Cl == 0) custom_stop('invalid', 'no cell clicked')
 		
-		query <- sprintf('select * from observed where C == %s and Cl == %s and 
-			project_sample == %s;',
-			input$detailsTable_selected[1], input$detailsTable_selected[2], 
-				input$detailsSample)
+		query <- sprintf('select data from sample where sample == (
+			select sample from project_sample where project_sample == %s);', 
+			input$detailsSample)
+		msFile <- dbGetQuery(db, query)$data[[1]] %>% unserialize
+		rtScan <- mean(diff(msFile@scantime))
+		param <- params() %>% filter(param == input$detailsParam)
+		
+		query <- sprintf('select * from feature where cluster in (select cluster 
+			from cluster where C == %s and Cl == %s and project_sample == %s and 
+			param == %s);', input$detailsTable_selected[1], input$detailsTable_selected[2], 
+				input$detailsSample, input$detailsParam)
 		print(query)
 		data <- dbGetQuery(db, query)
 		
-		path <- samples() %>% filter(sample == project_samples() %>% filter(
-			project_sample == input$detailsSample) %>% pull(sample)) %>% pull(path)
-		msFile <- xcmsRaw(path, mslevel=1)
-		mzs <- if(nrow(data) > 0) data.frame(mz = data$mz %>% unique)
-			else getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-			input$detailsAdduct, input$detailsMachine %>% as.numeric)[1:2, ]
-		mzs <- mzs %>% dplyr::mutate(tolMDa = mz * input$detailsTolPpm * 10**-6) %>% 
-			dplyr::mutate(mzmin = mz - tolMDa, mzmax = mz + tolMDa)
-		eics <- lapply(1:nrow(mzs), function(row)
-			rawEIC(msFile, mzrange=mzs[row, c('mzmin', 'mzmax')] %>% as.matrix))
-		eics <- lapply(eics, function(eic) arrangeEics(eic, msFile))
+		theoric <- getChloroPara(input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+				param$adduct, param$machine %>% as.numeric) %>% 
+			dplyr::mutate(tolMDa = mz * input$detailsTolPpm * 10**-6, 
+				mzmin = mz - tolMDa, mzmax = mz + tolMDa)
+		theoric <- if(nrow(data) == 0) theoric[1:2, ] else theoric[1:length(unique(data$iso)), ]
+		eics <- lapply(1:nrow(theoric), function(row)
+			rawEIC(msFile, mzrange=theoric[row, c('mzmin', 'mzmax')] %>% as.double) %>% 
+			arrangeEic2(msFile))
+		
 		
 		subplot(lapply(1:length(eics), function(i) 
-			plotEIC(eics[[i]], mzs[i, "mz"], data %>% filter(mz == mzs[i, 'mz']) %>% 
-				select(rtmin, rtmax, annotation))), 
-			nrows=if(length(eics) > 5) ceiling(length(eics) * 5 / (length(eics) + 5))  else length(eics))
+			plotEIC(eics[[i]], theoric[i, "mz"], data %>% filter(iso == 
+				theoric[i, 'theoricIso']) %>% 
+				select(rtmin, rtmax, iso), round((param$pw2 / rtScan) * 2))), 
+			shareX=TRUE, nrows=length(eics))
 	}, invalid = function(i){
 		print(paste(i))
 		plot_ly(type="scatter", mode="lines")
@@ -211,7 +198,6 @@ output$detailsEic <- renderPlotly({
 		plot_ly(type="scatter", mode="lines")
 	})	
 	actualize$detailsEic <- FALSE
-	print('------------------- END DETAILS EIC -------------------')
 	eicPlot %>%
 		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(list('zoom2d', 'select2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 })
@@ -220,15 +206,12 @@ observeEvent(event_data(event='plotly_selected'), {
 	print('------------------------------ RE-INTEGRATE ------------------------')
 	pts <- event_data(event='plotly_selected')
 	print(list(project_sample=input$detailsSample, tolPpm=input$detailsTolPpm, 
-		machine = names(resolution_list)[[input$detailsMachine %>% as.numeric]],
 		rtmin=min(pts$x), rtmax=max(pts$x),	table_rows=input$detailsTable_selected,
 		switch=input$detailsSwitch))
 	tryCatch({
 		if(is.null(input$detailsSample)) custom_stop('invalid', 'sample is not yet initialized')
-		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine is not yet initialized')
 		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell clicked')
 		else if(input$detailsSample == "") custom_stop('invalid', 'no sample')
-		else if(input$detailsMachine == '') custom_stop('invalid', 'no machine selected')
 		else if(all(input$detailsTable_selected == 0)) custom_stop('invalid', 'no cell selected')
 		else if(any(!is.numeric(c(min(pts$x), max(pts$x))))) custom_stop('invalid', 'no pts selected')
 		
@@ -331,9 +314,13 @@ getChloroPara <- function(C, Cl, adduct, machine=NULL){
 		data <- envelope(data, resolution=resolution, verbose=FALSE)
 		data <- vdetect(data, detect='centroid', plotit=FALSE, verbose=FALSE)
 	}
-	data[[1]] %>% data.frame %>% arrange(desc(abundance)) %>% 
-		dplyr::mutate(mz = round(`m.z`, digits=5)) %>% select(mz, abundance) %>% 
-		cbind(formula = formula)
+	data[[1]] %>% data.frame %>% 
+		arrange(desc(abundance)) %>% dplyr::mutate(mz = round(`m.z`, digits=5), 
+		theoricIso = ceiling(mz), theoricIso = theoricIso - theoricIso[1], 
+		theoricIso = case_when(theoricIso < 0 ~ paste0('A', theoricIso), 
+			theoricIso > 0 ~ paste0('A+', theoricIso), TRUE ~ 'A')) %>% 
+			distinct(theoricIso, .keep_all=TRUE) %>% 
+		select(mz, abundance, theoricIso) %>% cbind(formula = formula)
 }
 
 observeEvent(input$detailsErase, {

@@ -48,23 +48,9 @@ for (i in seq_along(pkgs)) {
 	}
 }
 
-# add the column thresold if it doesn't exist
 db <- dbConnect(SQLite(), sqlitePath)
-cols <- dbGetQuery(db, 'pragma table_info("observed");')
-if(!any(cols$name == "threshold")) dbSendQuery(db, 'alter table observed add column threshold integer default 0 not null;')
-cols <- dbGetQuery(db, 'pragma table_info("project_sample");')
-if(!any(cols$name == "zVal")) dbSendQuery(db, 'alter table project_sample add column 
-	zVal float default null;')
-cols <- dbGetQuery(db, 'pragma table_info("sample");')
-if(!any(cols$name == "polarity")) dbSendQuery(db, 'alter table sample add column 
-	polarity varchar (45) default "negative";')
-tableNames <- dbGetQuery(db, 'select name from sqlite_master where type == "table";')$name
-if(!any(tableNames == "triangle")) dbSendQuery(db, 'create table triangle (id integer primary key autoincrement,
-	project_sample integer not null, x float not null, y float not null, 
-	z float not null, triangle integer not null, 
-	foreign key(project_sample) references project_sample(project_sample));')
-
 dbSendQuery(db, 'pragma journal_mode=wal;')
+dbSendQuery(db, 'pragma auto_vacuum = incremental;')
 
 source(file.path(appwd, "utils/app.R"))
 },
