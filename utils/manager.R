@@ -28,7 +28,7 @@ applibpath <- file.path(appwd, file.path(reg_paths$r, "library", sep='\\'))
 # Load functions to ensure software dependencies
 source("utils/ensure.R")
 
-.libPaths(c(applibpath, .libPaths()))
+.libPaths(applibpath)
 
 message("library paths:\n", paste0("... ", .libPaths(), collapse = "\n"))
 message("working path:\n", paste("...", appwd))
@@ -49,18 +49,17 @@ for (i in seq_along(pkgs)) {
 }
 
 db <- dbConnect(SQLite(), sqlitePath)
-dbSendQuery(db, 'pragma journal_mode=wal;')
-dbSendQuery(db, 'pragma auto_vacuum = incremental;')
+dbExecute(db, 'pragma journal_mode=wal;')
+dbExecute(db, 'pragma auto_vacuum = incremental;')
 
 source(file.path(appwd, "utils/app.R"))
 },
 error = function(e) {
 msg <- sprintf("Startup failed with error(s):\n\n%s", e$message)
 message(msg)
-tcltk::tk_messageBox(
-type = "ok",
-message = msg,
-icon = "error")
+winDialog(
+	type = "ok",
+	message = msg)
 close(pb)
 })
 

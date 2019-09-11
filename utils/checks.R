@@ -28,6 +28,5 @@ chrome <- reg_paths$chrome
 ie <- reg_paths$ie
 ff <- reg_paths$ff
 sqlitePath <- reg_paths$sqlitePath
-dirOutput <- "mzXMLFiles"
 converter <- reg_paths$converter
 thermo <- reg_paths$thermo
