@@ -4,14 +4,26 @@ shinyServer(function(input, output, session) {
 #to close the connection
 session$onSessionEnded(function() {
 	tryCatch({
-		dbSendQuery(db, 'pragma wal_checkpoint(truncate);')
+		# dbExecute(db, 'vacuum;')
+		dbExecute(db, 'pragma wal_checkpoint(truncate);')
 	}, error = function(e){
-		dbSendQuery(db, 'pragma wal_checkpoint(passive);')
+		dbExecute(db, 'pragma wal_checkpoint(passive);')
 	})
 	dbDisconnect(db)
+	rm(list = ls())
+	gc()
 	stopApp()
 	# comment line above because it's still in developement
 	# q('no')
+})
+
+observeEvent(input$tabs, {
+	gc()
+	print('                                                            ')
+	print('############################################################')
+	paste0('TAB ######################### ', input$tabs, ' ############################') %>% 
+		str_trunc(60) %>% print
+	print('############################################################')
 })
 
 values <- reactiveValues()
@@ -34,7 +46,7 @@ samples <- reactive({
 	# select all except data column which contains blobs
 	samples <- dbGetQuery(db, 'select sample, rawPath, instrumentModel, 
 		instrumentManufacturer, softwareName, softwareVersion, ionSource, 
-		analyzer, detectorType, method, resolution, agcTarget, maximumIT, 
+		analyzer, detectorType, resolution, agcTarget, maximumIT, 
 		numberOfScanRange, scanRange, polarity from sample;')
 	actualize$samples <- FALSE
 	samples

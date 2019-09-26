@@ -46,6 +46,7 @@ fetch,SQLiteResult-method	fetch-SQLiteResult-method
 format.SQLiteConnection	SQLiteConnection-class
 Id	reexports
 initExtension	initExtension
+initRegExp	initRegExp
 isIdCurrent	isIdCurrent
 isSQLKeyword,SQLiteConnection,character-method	make.db.names-SQLiteConnection-character-method
 make.db.names,SQLiteConnection,character-method	make.db.names-SQLiteConnection-character-method

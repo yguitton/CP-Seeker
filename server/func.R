@@ -14,11 +14,11 @@ dbGetQuery <- function(db, query){
 	suppressWarnings(RSQLite::dbGetQuery(db, query))
 }
 
-dbSendQuery <- function(db, query, ...){
+dbExecute <- function(db, query, ...){
 	msg <- "database is locked"
 	while(msg == "database is locked"){
 		msg <- tryCatch({
-			suppressWarnings(RSQLite::dbSendQuery(db, query, ...))
+			suppressWarnings(RSQLite::dbExecute(db, query, ...))
 			"success"
 		}, error = function(e){
 			e$message
@@ -26,6 +26,7 @@ dbSendQuery <- function(db, query, ...){
 	}
 	if(msg != "success") stop(msg)
 }
+
 
 # read from a file with SQL statements
 sqlFromFile <- function(file){
@@ -44,20 +45,20 @@ dbSendQueries <- function(con,sql, ...){
 }
 
 
-toastr_error <- function(text){
-	shinytoastr::toastr_error(text, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
+toastr_error <- function(title="", msg=""){
+	shinytoastr::toastr_error(msg, title, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
 }
 
-toastr_success <- function(text){
-	shinytoastr::toastr_success(text, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
+toastr_success <- function(title="", msg=""){
+	shinytoastr::toastr_success(msg, title, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
 }
 
-toastr_warning <- function(text){
-	shinytoastr::toastr_warning(text, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
+toastr_warning <- function(title="", msg=""){
+	shinytoastr::toastr_warning(msg, title, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
 }
 
-sendSweetAlert <- function(text='', type='error'){
-	shinyWidgets::sendSweetAlert(session, title=text, type=type)
+sendSweetAlert <- function(title = "Unexpected error", text = "something weird occur"){
+	shinyWidgets::sendSweetAlert(session, title = title, text = text, type='error')
 }
 
 # check if the inputs respect the conditions
@@ -88,50 +89,6 @@ custom_stop <- function(subclass, message, call=sys.call(-1), ...){
 	stop(c)
 }
 
-# catch errors and print last traces where the errors occured
-withErrorTracing <- function(expr, silent=FALSE, default=NULL){
-	res <- tryCatch(
-		expr, 
-		invalid = function(i){
-			i
-		}, minor_error = function(e){
-			toastr_error(e$message)
-			e
-		}, error = function(e, silent){
-			print('################## ERROR ###########################')
-			print(e)
-			# storing the call stack
-			calls <- sys.calls()
-			calls <- calls[1:length(calls)-1]
-			# keeping the calls only
-			trace <- limitedLabels(c(calls, attr(e, 'calls')))
-			# printing the 2nd and 3rd traces that contain the line where the error occured
-			print(paste0('Error occuring: ', rev(trace)[2:3]))
-			# muffle any redundant output of the same message
-			optionalRestart <- function(r){
-				res <- findRestart(r)
-				if(!is.null(res)) invokeRestart(res)
-			}
-			
-			optionalRestart('muffleMessage')
-			optionalRestart('muffleWarning')
-			
-			print('####################################################')
-			e
-		}
-	)
-	if(!is.null(res)){
-		if("error" %in% class(res)){
-			print(res)
-			if(!("invalid" %in% class(res) | "minor_error" %in% class(res)) & "error" %in% class(res)){
-				if(!silent) sendSweetAlert(session, title=res$message, type='error') else toastr_error(res$message)
-			}	
-			return(default)
-		}
-		else return(res)
-	}
-}
-
 # function provided by ProtGenerics
 fileIsCentroided <- function(msFile){
 	sapply(1:length(msFile@scanindex), function(i) 
@@ -156,7 +113,7 @@ deleteProjects <- function(projects=NULL){
 	query <- sprintf("delete from project where project in (%s);",
 		paste(projects, collapse=', ', sep=''))
 	print(query)
-	dbSendQueries(db, query)
+	dbExecute(db, query)
 	actualize$projects <- TRUE
 }
 
@@ -167,7 +124,7 @@ deleteProject_sample <- function(project_samples = NULL){
 	query <- sprintf('delete from project_sample where project_sample in (%s);',
 		paste(project_samples, collapse=', '))
 	print(query)
-	dbSendQuery(db, query)
+	dbExecute(db, query)
 	actualize$project_samples <- TRUE
 }
 
@@ -180,21 +137,21 @@ deleteDatas <- function(project_samples = NULL){
 		where project_sample in (%s);', paste(project_samples, collapse=', '))
 	print(query)
 	params <- dbGetQuery(db, query)$param
-	if(length(params) == 0){
-		print('no data to delete')
-		return()
-	} else {
-		query1 <- sprintf('delete from param where param in (%s);', 
+	if(length(params) == 0) print('no data to delete')
+	else {
+		query <- sprintf('delete from param where param in (%s);', 
 			paste(params, collapse=', '))
-		query2 <- sprintf('delete from feature where cluster in (
+		print(query)
+		dbExecute(db, query)
+		query <- sprintf('delete from feature where cluster in (
 			select cluster from cluster where project_sample in (%s));', 
 			paste(project_samples, collapse=', '))
-		query3 <- sprintf('delete from cluster where project_sample in (%s);', 
+		print(query)
+		dbExecute(db, query)
+		query <- sprintf('delete from cluster where project_sample in (%s);', 
 			paste(project_samples, collapse=', '))
-		print(query1)
-		print(query2)
-		print(query3)
-		dbSendQueries(db, c(query1, query2, query3))
+		print(query)
+		dbExecute(db, query)
 	}
 }
 
@@ -210,56 +167,163 @@ deleteSamples <- function(samples=NULL){
 	query <- sprintf("delete from sample where sample in (%s);",
 		paste('\"', samples, '\"', collapse=', ', sep=''))
 	print(query)
-	dbSendQuery(db, query)
+	dbExecute(db, query)
 	actualize$samples <- TRUE
 }
 
 # compute the score 
+# tolMz need to be in Da
 calculateScore <- function(cluster, theoric, tolMz, tolI){
-	if(nrow(cluster) == 0 | nrow(theoric) == 0 | !is.numeric(tolMz) | !is.numeric(tolI)) return(0)
-	cluster <- cluster[which(cluster$abundance > 0), ]
-	theoric <- theoric[which(theoric$abundance > 0), ]
-	cluster <- cluster[order(cluster$abundance, decreasing=TRUE), ]
-	# apply some weights for each feature (observed or theoretic)
-	theoric <- cbind(theoric, weight=sapply(theoric$abundance, function(x) x/sum(theoric$abundance)))
-	cluster <- cbind(cluster, weight=sapply(cluster$abundance, function(x) x/sum(cluster$abundance)))
-	theoric <- theoric[order(theoric$abundance, decreasing=TRUE), ]
-	score <- round(100*(1 - calculateScore2(cluster, theoric, tolMz, tolI)), digits=2)
-	if(score < 0) return(0)
-	return(score)
+	if(nrow(cluster) == 0 | nrow(theoric) == 0 | 
+		!is.numeric(tolMz) | !is.numeric(tolI)) return(0)
+	else if(tolMz < 0 | tolI < 0) return(0)
+	cluster <- cluster %>% arrange(desc(abundance)) %>% 
+		mutate(weight = abundance / sum(abundance), id = 1:n())
+	theoric <- theoric %>% arrange(desc(abundance)) %>% 
+		mutate(weight = abundance / sum(abundance), id = 1:n())
+	round(50 * (2 - calculateScore2(cluster, theoric, tolMz, tolI)), digits=2)
 }
 calculateScore2 <- function(cluster, theoric, tolMz, tolI){
-	if(nrow(theoric) == 0 | nrow(cluster) == 0) return(sum(theoric$weight) + sum(cluster$weight))
+	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(
+		sum(theoric$weight) + sum(cluster$weight))
 	res <- calculateScore3(cluster, theoric[1, ], tolMz, tolI)
 	cluster <- res$cluster
-	score <- res$score + calculateScore2(cluster, theoric[-1, ], tolMz, tolI) # cumulative sum
+	res$score + calculateScore2(cluster, theoric[-1, ], tolMz, tolI) # cumulative sum
 }
 calculateScore3 <- function(cluster, theoricFeature, tolMz, tolI){
-	# first search peaks in the range tolMz of the theoric feature
-	rangeMz <- c(theoricFeature$mz - tolMz, theoricFeature$mz + tolMz)
-	observedFeatures <- cluster[which(cluster$mz >= rangeMz[1] & cluster$mz <= rangeMz[2]), ]
-	if(nrow(observedFeatures) == 0) return(list(score=1 * theoricFeature$weight, cluster=cluster))
-	# then apply a score according to their relative intensity
-	deviation <- sapply(observedFeatures$abundance, function(x) abs((theoricFeature$abundance - x)/tolI))
+	# first search the matched observed feature
+	observedFeature <- cluster %>% filter(between(mz, 
+		theoricFeature$mz - tolMz, theoricFeature$mz + tolMz)) %>% 
+		mutate(deviation = ((theoricFeature$abundance - abundance) %>% abs) / tolI) %>% 
+		filter(deviation < 1) %>% top_n(1, abundance)
 	# return the minimal score (0: perfect match, 1: wrong match)
-	if(min(deviation) >= 1) return(list(score=1 * theoricFeature$weight, cluster=cluster)) 
-	observedFeature <- observedFeatures[which(deviation == min(deviation)), ]
 	# remove the matched feature for avoid an other assignation with a feature
-	if(nrow(observedFeatures) > 0) observedFeature <- observedFeature[1, ]
-	return(list(score=min(deviation) * theoricFeature$weight, 
-		cluster=cluster[which(row.names(cluster) != row.names(observedFeature)), ]))
+	if(nrow(observedFeature) == 0) list(
+		score = theoricFeature$weight, 
+		cluster = cluster
+	) else list(
+		score = observedFeature$deviation * (theoricFeature$weight + 
+			observedFeature$weight),
+		cluster = cluster %>% filter(id != observedFeature$id)
+	)
 }
 
-
-arrangeEic <- function(eic, msFile){
-	eic <- eic %>% as.data.frame
-	colnames(eic) <- c('x', 'y')
-	eic
+# compute the deviation (return in mDa)
+calculateDeviation <- function(cluster, theoric){
+	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(0)
+	cluster <- cluster %>% arrange(desc(abundance))
+	theoric <- theoric %>% arrange(desc(abundance))
+	
+	round(calculateDeviation2(cluster, theoric) * 10**3, digits=2)
+}
+calculateDeviation2 <- function(cluster, theoric){
+	if(nrow(theoric) == 0 | nrow(cluster) == 0) return(0)
+	res <- calculateDeviation3(cluster[1, ], theoric)
+	theoric <- res$theoric
+	res$score + calculateDeviation2(cluster[-1, ], theoric) # cumulative sum
+}
+calculateDeviation3 <- function(feature, theoric){
+	theoricFeatures <- theoric %>% mutate(deviation = feature$mz - mz)
+	theoricFeatureID <- which.min(abs(theoricFeatures$deviation))
+	# remove the matched feature for avoid an other assignation with a feature
+	list(
+		score = theoricFeatures[theoricFeatureID, 'deviation'], 
+		theoric = theoric[-theoricFeatureID, ]
+	)
 }
 
+rawEIC <- function(msFile, mzrange = c(), rtrange = c(), scanrange = c()){
+	xcms::rawEIC(msFile, mzrange = mzrange, rtrange = rtrange, 
+		scanrange = scanrange) %>% data.frame %>% cbind(
+			scan = 1:n())
+}
 
-arrangeEic2 <- function(eic, msFile){
+arrangeEics <- function(eic, msFile){
 	eic <- eic %>% as.data.frame
+	eic$scan <- msFile@scantime[eic$scan] / 60
 	colnames(eic) <- c('x', 'y')
-	eic %>% mutate(x = msFile@scantime[x] / 60)
+	eic %>% dplyr::mutate(x = round(x,2)) %>% group_by(x) %>% 
+		dplyr::summarise(y = median(y))
+}
+
+getIonMz <- function(formulas, adduct, charges){
+	data <- getIonFormula(formulas, adduct, charges) %>% 
+		mutate(adduct = adduct$adduct)
+	# cannot pass all formulas because if there is one charge at 0 -> bug
+	data$mz <- sapply(1:nrow(data), function(i) 
+		isopattern(isotopes, data[i, 'ion_formula'], charge = data[i, 'charge'], 
+			verbose=FALSE)[[1]] %>% data.frame %>% 
+			top_n(1, abundance) %>% pull(m.z))
+	data
+}
+
+getIonFormula <- function(formulas, adduct, charges = NULL){
+	if(is.null(charges)) charges <- rep(0, length(formulas))
+	else if(length(charges) != length(formulas)) return(data.frame(
+		row = c(), formula = c(), ion_formula = c()))
+	check_chemform(isotopes, formulas) %>% mutate(
+			row = 1:n(), formula = new_formula) %>% 
+		cbind(charge = charges + adduct$charge) %>% 
+		filter(!warning) %>% mutate(
+			ion_formula = multiform(formula, adduct$multi) %>% 
+				mergeform(adduct$formula_add) %>%
+				mergeform("H0") %>% 
+				subform(adduct$formula_ded)) %>% 
+		filter(!grepl('not', ion_formula)) %>% 
+		select(row, formula, ion_formula, charge)
+}
+
+getNeutralFormula <- function(ion_formulas, adduct){
+	check_chemform(isotopes, ion_formulas) %>% dplyr::mutate(
+			row = 1:n(), ion_formula = new_formula) %>% 
+		filter(!warning) %>% mutate(
+			formula = multiform(new_formula, 1/adduct$multi) %>% 
+				mergeform(adduct$formula_ded) %>% 
+				subform(adduct$formula_add)) %>% 
+		filter(!grepl('not', formula)) %>% 
+		select(row, formula, ion_formula)
+}
+
+plotEmptyChromato <- function(title = "TIC"){
+	plot_ly(type='scatter', mode='markers') %>% 
+		layout(title=sprintf('<b>%s</b>', title), 
+			title=list(font = list(family='"Open Sans",verdana,arial,sans-serif', size=18)), 
+			xaxis=list(title='Time', titlefont=list(family='"Open Sans",verdana,arial,sans-serif', size=18)), 
+			yaxis=list(exponentformat='e', title=''), selectdirection="h", annotations=list(list(
+				xref='paper', yref='paper', x=-0.05, y=1, xanchor='left', 
+				yanchor='bottom', text='Intensity', showarrow=FALSE, 
+				font=list(family='"Open Sans",verdana,arial,sans-serif', size=18)))) %>% 
+		config(scrollZoom=TRUE, displaylogo=FALSE, 
+			modeBarButtons=list(list(
+				list(
+					name='toImage', 
+					title='Download plot as a png',
+					icon=htmlwidgets::JS('Plotly.Icons.camera'),
+					click=htmlwidgets::JS(sprintf("function(gd){Plotly.downloadImage(gd, {format:'png', width:1920, height:1080, filename:'%s'})}", title)))), 
+				list('zoom2d', 'select2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
+}
+
+plotEmptyMS <- function(){
+	plot_ly(type='scatter', mode='markers') %>% 
+		layout(title='<b>Mass Spectrum</b>', 
+			title=list(font = list(family='"Open Sans",verdana,arial,sans-serif', size=18)), 
+			xaxis=list(title='m/z', titlefont=list(family='"Open Sans",verdana,arial,sans-serif', size=18)), 
+			yaxis=list(exponentformat='e', title=''), annotations=list(list(
+				xref='paper', yref='paper', x=-0.05, y=1, xanchor='left', 
+				yanchor='bottom', text='Intensity', showarrow=FALSE, 
+				font=list(family='"Open Sans",verdana,arial,sans-serif', size=18)))) %>% 
+		config(scrollZoom=TRUE, displaylogo=FALSE, 
+			modeBarButtons=list(list(
+				list(
+					name='toImage', 
+					title='Download plot as a png',
+					icon=htmlwidgets::JS('Plotly.Icons.camera'),
+					click=htmlwidgets::JS(sprintf("function(gd){Plotly.downloadImage(gd, {format:'png', width:1920, height:1080, filename:'MS'})}"))),
+				list(
+					name='resetView', 
+					title='Reset legend', 
+					icon=htmlwidgets::JS("Plotly.Icons.undo"),
+					click=htmlwidgets::JS(sprintf("function(gd){ Plotly.restyle(gd, 'visible', true);}")))
+				), 
+				list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 }

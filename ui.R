@@ -6,7 +6,7 @@ sidebar <- dashboardSidebar(
 	sidebarMenu(id='tabs', 
 		menuItem('Projects & Files', icon=icon('cog'), tabName='projectFiles'),
 		menuItem('Target chloropara', icon=icon('tasks'), tabName='target'),
-		menuItem('Details', icon=icon('table'), tabName='details'),
+		menuItem('Table', icon=icon('table'), tabName='table'),
 		menuItem('Tetrahedras', icon=icon('bar-chart-o'), tabName='tetras'),
 		uiOutput('uiProject'),
 		tags$div(style="padding-left: 30%; padding-top:10%;", 

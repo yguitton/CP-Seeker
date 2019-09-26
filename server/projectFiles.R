@@ -1,10 +1,13 @@
 output$uiProject <- renderUI({
 	choices <- if(nrow(projects()) == 0) c() else projects()
-	pickerInput('project', 'project', choices=setNames(choices$project, choices$name))
+	pickerInput('project', 'project', choices=setNames(
+		choices$project, choices$name))
 })
 
 observeEvent(input$projectCreate, {
-	print('------------------ CREATE PROJECT ---------------')
+	print('############################################################')
+	print('######################### CREATE PROJECT ###################')
+	print('############################################################')
 	tryCatch({
 	print(list(name=input$projectName, comment=input$projectComment, users=input$projectUsers))
 	
@@ -22,19 +25,23 @@ observeEvent(input$projectCreate, {
 	
 	actualize$projects <- TRUE
 	toastr_success(paste('Project', projectName, 'created!'))
-	}, invalid = function(i){
-		print(i)
-	}, error = function(e){
+	}, invalid = function(i) print(i)
+	, error = function(e){
+		print('ERR projectCreate')
 		print(e)
 		sendSweetAlert(paste(e$message))
 	})
-	print('------------------ END CREATE PROJECT ---------------')
+	print('############################################################')
+	print('######################### END CREATE PROJECT ###############')
+	print('############################################################')
 })
 
 output$uiFileDBProject <- renderUI({
-	choices <- if(nrow(projects()) == 0) c() else projects()
+	choices <- if(nrow(projects()) == 0) data.frame(project = c(), name = c()) 
+		else projects()
 	div(style='text-align:center;', 
-		pickerInput('fileDBProject', 'In project', choices=setNames(choices$project, choices$name), multiple=FALSE))
+		pickerInput('fileDBProject', 'In project', choices=setNames(
+			choices$project, choices$name), multiple=FALSE))
 })
 
 output$uiFilesDB <- renderUI({
@@ -53,7 +60,9 @@ output$uiFilesDB <- renderUI({
 actualize$fileDBAdd <- c()
 # add a sample in project where the sample is already provide in the database
 observeEvent(input$fileDBAdd, {
-	print('---------------------- FILE ADD FROM DB -------------------------------')
+	print('############################################################')
+	print('######################### FILE ADD FROM DB #################')
+	print('############################################################')
 	print(list(project = input$fileDBProject, files = input$filesDB))
 	
 	tryCatch({
@@ -71,8 +80,7 @@ observeEvent(input$fileDBAdd, {
 	
 	print(list(fileAlreadyAdd=fileAlreadyAdd, toAdd=toAdd, toDelete=toDelete))
 	if(length(toDelete) > 0){
-		deleteProject_sample(project_samples() %>% filter(sample %in% toDelete & 
-			project == input$fileDBProject) %>% pull(project_sample))
+		sapply(toDelete, function(x) deleteProject_sample(x))
 		toastr_success(sprintf("Delete %s in project", paste(toDelete, collapse=', ')))
 	} else print('no file to remove')
 		
@@ -85,11 +93,14 @@ observeEvent(input$fileDBAdd, {
 			)
 		))
 	}
-	else print('---------------------- END FILE ADD FROM DB -------------------------------')
+	else {
+		print('############################################################')
+		print('######################### END FILE ADD FROM DB #############')
+		print('############################################################')
+	}
 	actualize$project_samples <- TRUE
-	}, invalid = function(i){
-		print(i)
-	}, error = function(e){
+	}, invalid = function(i) print(i)
+	, error = function(e){
 		print(e)
 		sendSweetAlert(paste(e$message))
 	})
@@ -106,7 +117,9 @@ output$sampleIDDBTable <- DT::renderDataTable({
 	if(length(files) == 0) stop('no files to import')
 	data.frame(file=files, label= files)
 	}, error = function(e){
+		print('ERR sampleIDDBTable')
 		print(paste(e))
+		toastr_error("Cannot display table with files", paste(e$message))
 		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'label'))))
 	})
 }, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE), 	
@@ -150,12 +163,15 @@ observeEvent(input$sampleIDsDBValidBttn, {
 	removeModal()
 	actualize$project_samples <- TRUE
 	toastr_success(sprintf("Add %s in project", paste(files, collapse=', ')))
-	print('-------------- END ADD FILE FROM DB -----------------')
+	
+	print('############################################################')
+	print('######################### END FILE ADD FROM DB #############')
+	print('############################################################')
 })
 
    
 shinyFileChoose(input, 'filesImport', roots=getVolumes(), 
-	filetypes=c('mzML', 'mzXML', 'cdf', 'CDF', 'RAW', 'd', 'YEP', 'BAF', 'FID', 'WIFF', 'mzXML', 'mzML', 'MGF'), 
+	filetypes=c('mzML', 'mzXML', 'cdf', 'CDF', 'RAW', 'd', 'YEP', 'BAF', 'FID', 'WIFF', 'MGF'), 
 	defaultRoot=names(getVolumes()()[1]))
  
 observeEvent(parseFilePaths(getVolumes()(), input$filesImport), {
@@ -186,10 +202,12 @@ output$sampleIDTable <- DT::renderDataTable({
 	files <- parseFilePaths(getVolumes()(), input$filesImport)
 	print(list(files=files, polarity = input$filePolarity))
 	data.frame(file=files$name, 
-		label = paste(input$filePolarity, 
+		label = paste(input$filePolarity %>% str_trunc(3, ellipsis=""),
 			file_path_sans_ext(files$name)) %>% str_trunc(30, ellipsis=""))	
 	}, error = function(e){
+		print('ERR sampleIDTable')
 		print(paste(e))
+		toastr_error("Cannot display table with files", paste(e$message))
 		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'label'))))
 	})
 }, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE), 	
@@ -228,12 +246,16 @@ observeEvent(input$fileCancel, {
 })
 
 observeEvent(input$sampleIDsValidBttn, {
-	print('-------------------- IMPORT FILES -----------------------')
+	print('############################################################')
+	print('######################### IMPORT FILES #####################')
+	print('############################################################')
+	
 	files <- parseFilePaths(getVolumes()(), input$filesImport)
 	sampleIDs <- input$sampleIDsValues[seq(2, length(
 		input$sampleIDsValues), 2)] %>% str_replace_all("\"", "'")
 	print(list(project = input$fileProject, paths = files$datapath, sampleIDs = sampleIDs, 
 		polarity = input$filePolarity))
+		
 	tryCatch({
 		if(is.null(input$fileProject)) custom_stop('invalid', 'you must select a project')
 		else if(input$fileProject == '') custom_stop('invalid', 'you must select a project')
@@ -250,8 +272,9 @@ observeEvent(input$sampleIDsValidBttn, {
 			
 			# check if file already exists in database
 			sampleName <- paste(input$filePolarity, file_path_sans_ext(files$name[i]))
-			if(project_samples() %>% filter(project == input$fileProject & sample == sampleName) %>% 
-				nrow > 0) success[i] <- 'file already in project'
+			if(project_samples() %>% filter(
+				project == input$fileProject & sample == sampleName) %>% 
+					nrow > 0) success[i] <- 'file already in project'
 			else if(sampleName %in% samples()$sample) success[i] <- recordProjectSample(
 				input$fileProject, sampleName, sampleIDs[i])
 			else success[i] <- conversion(input$fileProject, files$datapath[i], 
@@ -273,10 +296,12 @@ observeEvent(input$sampleIDsValidBttn, {
 	}, error = function(e){
 		closeSweetAlert(session)
 		print(e)
-		sendSweetAlert(paste(e$message))
+		sendSweetAlert('Cannot import files', paste(e$message))
 	})
-	gc()
-	print('-------------------- END IMPORT FILES -----------------------')
+	
+	print('############################################################')
+	print('######################### END IMPORT FILES #################')
+	print('############################################################')
 })
 
 output$importationSuccessTable <- DT::renderDataTable({
@@ -293,22 +318,18 @@ output$importationSuccessTable <- DT::renderDataTable({
 options=list(dom='frtip', bFilter=FALSE, ordering=FALSE))
 
 conversion <- function(project, rawPath, sample, sampleID, polarity){
-	outDir <- tempdir()
-	outFile <- file.path(outDir, rawPath %>% basename %>% 
-		file_path_sans_ext %>% paste0('.mzXML'))
+	fileName <- rawPath %>% basename %>% file_path_sans_ext
+	path <- tempdir()
 	
 	# if it is a WIFF file it needs its corresponding WIFF.SCAN
 	if(grepl('WIFF$', rawPath, ignore.case=TRUE)) if(!file.exists(paste0(
 		rawPath, '.scan'))) return('missing corresponding wiff.scan file in same directory')
 	
 	# if it is CDF file cannot centroid it
-	if(grepl('CDF$', rawPath, ignore.case=TRUE)){
-		file.copy(rawPath, file.path(dirOutput, polarity, rawPath %>% basename))
-		return(importation(rawPath, rawPath, project, 
-			sample, sampleID, polarity))
-	}
+	if(grepl('CDF$', rawPath, ignore.case=TRUE)) return(importation(
+		rawPath, rawPath, project, sample, sampleID, if(polarity == 'negative') 0 else 1))
 	
-	print(paste('conversion of', basename(rawPath)))
+	print(paste('conversion of', fileName))
 	# if it is a Water repertory, don't use the vendor algorithm
 	algorithm <- if((grepl('raw$', rawPath, ignore.case=TRUE) & 
 		file.info(rawPath)$isdir) | 
@@ -317,17 +338,16 @@ conversion <- function(project, rawPath, sample, sampleID, polarity){
 	
 	# call msConvert
 	query <- sprintf("\"\"%s\" \"%s\" -o \"%s\" --outfile \"%s\" --mzXML --32 --zlib --filter \"peakPicking %s msLevel=1\" --filter \"polarity %s\"\"", 
-		converter, rawPath, outDir, rawPath %>% basename %>% file_path_sans_ext, 
-			algorithm, polarity) 
+		converter, rawPath, path, fileName, algorithm, polarity)
+	print(query)
 	shell(query)
+	path <- file.path(path, paste(fileName, '.mzXML', sep=''))
 	
-	if(!file.exists(outFile)){
+	if(!file.exists(path)){
 		print('conversion failed')
 		if(grepl('mzXML$', rawPath, ignore.case=TRUE) | 
-			grepl('mzML$', rawPath, ignore.case=TRUE)){
-				return(importation(rawPath, rawPath, project, sample, 
-					sampleID, polarity))
-		}
+			grepl('mzML$', rawPath, ignore.case=TRUE)) return(importation(
+				rawPath, rawPath, project, sample, sampleID, if(polarity == 'negative') 0 else 1))
 		else return('missing windows update, cannot convert')
 	}
 	
@@ -341,45 +361,61 @@ conversion <- function(project, rawPath, sample, sampleID, polarity){
 			if(file.exists(tmpFile)) tmpFile else NULL
 		} else NULL
 		
-	importation(outFile, rawPath, project, sample, sampleID, 
-		polarity, thermoFile)
+	importation(path, rawPath, project, sample, sampleID, 
+		if(polarity == 'negative') 0 else 1, thermoFile)
 }
+
 
 importation <- function(path, rawPath, project, sample, sampleID, polarity, thermoFile=NULL){
 	print(paste('importation of', path))
 	
 	# check if it can be read
 	msFile <- tryCatch({
-		xcmsRaw(path, mslevel=1, profstep=0)
+		readMSData(path, msLevel=1, mode='onDisk')
 	}, error = function(e){
 		print(e)
 		list()
 	})
+	gc()
 	if(length(msFile) == 0) return('no scans detected or file unreadable')
 	
+	# comment because it will consume too much RAM
 	# check if it is centroided
-	centroided <- fileIsCentroided(msFile)
-	if(all(!centroided)) return('file is not centroided, it will slower the application')
+	# centroided <- tryCatch({
+		# which(isCentroided(msFile))
+	# }, error = function(e){
+		# print(e)
+		# list()
+	# })
+	# gc()
+	# if(length(centroided) == 0) return('file is not centroided, it will slower the application')
 	
 	# chek if polarity is the good one
 	filePolarity <- if(grepl('cdf$', path, ignore.case=TRUE)) polarity
-		else unique(msFile@polarity)
-	if(length(filePolarity) == 2) cutMsFile(msFile, path, polarity)
-	else if(all(is.na(filePolarity))) return(recordFile(project, msFile, rawPath, 
-		sample, sampleID, polarity, thermoFile))
-	else if(filePolarity != polarity) return('not the same polarity in file than selected')
-
-	recordFile(project, msFile, rawPath, sample, sampleID, polarity, thermoFile)
+		else unique(polarity(msFile))
+	if(is.na(filePolarity)) filePolarity <- polarity
+	if(length(filePolarity) == 2) importation(
+		cutMsFile(msFile, polarity), rawPath, project, sample, 
+			sampleID, polarity, thermoFile)
+	else if(polarity == 1 & filePolarity < 1) 'no positive scans detected'
+	else if(polarity == 0 & filePolarity > 0) 'no negative scans detected'
+	else recordFile(project, msFile, path, rawPath, sample, sampleID, polarity, thermoFile)
 }
 
-cutMsFile <- function(msFile, path, polarity){
-	print('cut, msFile')
-	xcmsRaw[which(msFile@polarity == polarity)]
+cutMsFile <- function(msFile, polarity){
+	print(paste('cut', msFile))
+	spectras <- if(polarity == 1) which(polarity(msFile) >= polarity)
+		else which(polarity(msFile) <= polarity)
+	path <- file.path(tempfile(), fileNames(msFile) %>% basename)
+	writeMSData(msFile[spectras], path, copy=TRUE)
+	rm(msFile)
+	gc()
+	path
 }
 
-recordFile <- function(project, xRaw, rawPath, sample, sampleID, polarity, thermoFile=NULL){
+recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarity, thermoFile=NULL){
 	print(paste('record', sample))
-	msFile <- readMSData(xRaw@filepath, msLevel=1, mode='onDisk')
+	
 	infos <- msFile@experimentData
 	instrumentModel <- if(length(infos@instrumentModel) == 0) '' else infos@instrumentModel
 	manufacturer <- if(length(infos@instrumentManufacturer) == 0) '' else infos@instrumentManufacturer
@@ -388,6 +424,9 @@ recordFile <- function(project, xRaw, rawPath, sample, sampleID, polarity, therm
 	ionSource <- if(length(infos@ionSource) == 0) '' else infos@ionSource
 	analyzer <- if(length(infos@analyser) == 0) '' else infos@analyser
 	detectorType <- if(length(infos@detectorType) == 0) '' else infos@detectorType
+	rm(msFile)
+	gc()
+	
 	if(!is.null(thermoFile)){
 		txt <- readLines(thermoFile)
 		resolution <- if(any(grepl('^Resolution', txt))) txt[which(
@@ -410,45 +449,74 @@ recordFile <- function(project, xRaw, rawPath, sample, sampleID, polarity, therm
 				grepl('^Scan range', txt))] %>% 
 				str_extract('[[:digit:]]+\\sto\\s[[:digit:]]+\\sm/z')
 			else ''
-		query <- sprintf('insert into sample (sample, data, rawPath, polarity, instrumentModel,
+		query <- sprintf('insert into sample (sample, path, rawPath, polarity, instrumentModel,
 			instrumentManufacturer, softwareName, softwareVersion, ionSource,
 			analyzer, detectorType, resolution, agcTarget, maximumIT, 
-			numberOfScanRange, scanRange) values ("%s", :a, "%s", "%s", "%s", "%s", 
+			numberOfScanRange, scanRange) values ("%s", "%s", "%s", "%s", "%s", "%s", 
 			"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");', 
-			sample, rawPath, if(polarity == 0) "negative" else "positive", 
+			sample, path, rawPath, if(polarity == 0) "negative" else "positive", 
 			instrumentModel, manufacturer, softwareName,
 			softwareVersion, ionSource, analyzer, detectorType, resolution, 
 			agcTarget, maximumIT, numberOfScanRange, scanRange)
 		query <- str_replace_all(query, "\"", "'")
 		print(query)
 		if(length(query) == 1){
-			dbSendQuery(db, query, param=data.frame(
-				a = I(list(serialize(xRaw, NULL))), 
-				stringsAsFactors=FALSE))
+			dbExecute(db, query)
+			bl <- xcmsRaw(path, mslevel=1, profstep=0)
+			gc()
+			bl <- bl %>% serialize(NULL) %>% compress_fst(compression=100) %>% blob
+			print(bl)
+			if(length(bl[[1]]) >= 2*10**9){
+				print('file too big for database')
+				print('recording into mzXML repertory')
+				new_path <- file.path('mzXMLFiles', 
+					if(polarity == 0) "negative" else "positive", 
+					basename(path))
+				file.copy(path, new_path)
+				dbExecute(db, sprintf('update sample set path = \"%s\" where 
+					sample == \"%s\";', new_path, sample))
+			} else dbExecute(db, sprintf('update sample set raw = :a where 
+				sample == \"%s\";', sample), params = list(a = bl))
+			rm(bl)
+			gc()
 			return(recordProjectSample(sample, project, sampleID))
 		}
 	}
-	query <- sprintf('insert into sample (sample, data, rawPath, polarity, instrumentModel,
+	query <- sprintf('insert into sample (sample, path, rawPath, polarity, instrumentModel,
 		instrumentManufacturer, softwareName, softwareVersion, ionSource,
-		analyzer, detectorType) values ("%s", :a, "%s", "%s", "%s", "%s", 
-		"%s", "%s", "%s", "%s", "%s");', sample, rawPath, if(polarity == 0) "negative" else "positive",
+		analyzer, detectorType) values ("%s", "%s", "%s", "%s", "%s", "%s", 
+		"%s", "%s", "%s", "%s", "%s");', sample, path, rawPath, if(polarity == 0) "negative" else "positive",
 		instrumentModel, manufacturer, softwareName,	softwareVersion, ionSource, analyzer, detectorType)
 	query <- str_replace_all(query, "\"", "'")
 	print(query)
 	if(length(query) == 1){
-		dbSendQuery(db, query, param=data.frame(
-				a = I(list(serialize(xRaw, NULL))), 
-				stringsAsFactors=FALSE))
+		dbExecute(db, query)
+		bl <- xcmsRaw(path, mslevel=1, profstep=0)
+		gc()
+		bl <- bl %>% serialize(NULL) %>% compress_fst(compression = 100) %>% blob
+		print(bl)
+		if(length(bl[[1]]) >= 2 * 10**9){
+			print('file too big for database')
+			print('recording into mzXML repertory')
+				new_path <- file.path('mzXMLFiles', 
+					if(polarity == 0) "negative" else "positive", 
+					basename(path))
+				file.copy(path, new_path)
+				dbExecute(db, sprintf('update sample set path = \"%s\" where 
+					sample == \"%s\";', new_path, sample))
+		} else dbExecute(db, sprintf('update sample set raw = :a where 
+			sample == \"%s\";', sample), params = list(a = bl))
+		rm(bl)
+		gc()
 		return(recordProjectSample(sample, project, sampleID))
 	} else paste('cannot insert in database')
 }
 
 recordProjectSample <- function(sample, project, sampleID){
 	print('record project sample')
-	query <- sprintf("insert into project_sample (project, sample, sampleID) values (\"%s\", \"%s\", \"%s\" );", 
+	query <- sprintf("insert into project_sample (project, sample, sampleID) values (%s, \"%s\", \"%s\" );", 
 		project, sample, sampleID)
 	print(query)
-	dbSendQuery(db, query)
-	gc()
+	dbExecute(db, query)
 	'success'
 }
