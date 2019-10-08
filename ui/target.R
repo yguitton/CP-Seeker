@@ -10,7 +10,7 @@ tabItem(tabName='target',
 			),
 			column(width=6, 
 				pickerInput('targetMachine', 'machine', choices=
-					setNames(1:length(resolution_list), names(resolution_list)), option=list(`live-search`=TRUE))
+					names(resolution_list), option=list(`live-search`=TRUE))
 			),
 			column(width=12, 
 				sliderInput('targetRT', 'Range rT', min=0, max=20, value=c(2, 14), step=1)
@@ -18,8 +18,9 @@ tabItem(tabName='target',
 			column(width=12, 
 				sliderInput('targetTolPpm', 'tol ppm', value=5, min=0, max=50, step=1)
 			),
+			
 			column(width=12, 
-				sliderInput('targetPeakwidth', 'min peakwidth(sec)', value=c(30, 270), 
+				sliderInput('targetPeakwidth', 'peakwidth(sec)', value=c(25, 270), 
 					min=0, max=300, step=1)
 			)
 		),

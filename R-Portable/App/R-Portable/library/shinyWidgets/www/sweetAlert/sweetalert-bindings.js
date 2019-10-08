@@ -11,7 +11,8 @@ Shiny.addCustomMessageHandler('sweetalert-sw', function(data) {
       content: elsw,
       icon: data.icon,
       buttons: data.buttons,
-      closeOnClickOutside: data.closeOnClickOutside
+      closeOnClickOutside: false,
+	  closeOnEsc: false
     })
     .then(function(value){
       var els = $("#" + data.sw_id);
@@ -48,7 +49,8 @@ Shiny.addCustomMessageHandler('sweetalert-sw-confirm', function(data) {
       icon: data.icon,
       buttons: data.buttons,
       dangerMode: data.dangerMode,
-      closeOnClickOutside: data.closeOnClickOutside
+      closeOnClickOutside: false,
+	  closeOnEsc: false
     })
     .then(function(value){
       if (value) {

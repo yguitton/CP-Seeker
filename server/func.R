@@ -44,7 +44,6 @@ dbSendQueries <- function(con,sql, ...){
     lapply(sql, dummyfunction, con)
 }
 
-
 toastr_error <- function(title="", msg=""){
 	shinytoastr::toastr_error(msg, title, closeButton=TRUE, newestOnTop=TRUE, position='top-center', preventDuplicates=TRUE)
 }
@@ -131,28 +130,15 @@ deleteProject_sample <- function(project_samples = NULL){
 deleteDatas <- function(project_samples = NULL){
 	print('delete datas')
 	if(is.null(project_samples)) return()
-	
-	# get params IDs
-	query <- sprintf('select param from param 
-		where project_sample in (%s);', paste(project_samples, collapse=', '))
+	query <- sprintf('delete from feature where cluster in (
+		select cluster from cluster where project_sample in (%s));', 
+		paste(project_samples, collapse=', '))
 	print(query)
-	params <- dbGetQuery(db, query)$param
-	if(length(params) == 0) print('no data to delete')
-	else {
-		query <- sprintf('delete from param where param in (%s);', 
-			paste(params, collapse=', '))
-		print(query)
-		dbExecute(db, query)
-		query <- sprintf('delete from feature where cluster in (
-			select cluster from cluster where project_sample in (%s));', 
-			paste(project_samples, collapse=', '))
-		print(query)
-		dbExecute(db, query)
-		query <- sprintf('delete from cluster where project_sample in (%s);', 
-			paste(project_samples, collapse=', '))
-		print(query)
-		dbExecute(db, query)
-	}
+	dbExecute(db, query)
+	query <- sprintf('delete from cluster where project_sample in (%s);', 
+		paste(project_samples, collapse=', '))
+	print(query)
+	dbExecute(db, query)
 }
 
 deleteSamples <- function(samples=NULL){
@@ -173,38 +159,38 @@ deleteSamples <- function(samples=NULL){
 
 # compute the score 
 # tolMz need to be in Da
-calculateScore <- function(cluster, theoric, tolMz, tolI){
-	if(nrow(cluster) == 0 | nrow(theoric) == 0 | 
-		!is.numeric(tolMz) | !is.numeric(tolI)) return(0)
-	else if(tolMz < 0 | tolI < 0) return(0)
-	cluster <- cluster %>% arrange(desc(abundance)) %>% 
+calculateScore <- function(cluster, theoric, ppm, tolI){
+	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(0)
+	cluster <- cluster %>% mutate(abundance = into / max(into) * 100) %>% 
+		arrange(desc(abundance)) %>% 
 		mutate(weight = abundance / sum(abundance), id = 1:n())
 	theoric <- theoric %>% arrange(desc(abundance)) %>% 
-		mutate(weight = abundance / sum(abundance), id = 1:n())
-	round(50 * (2 - calculateScore2(cluster, theoric, tolMz, tolI)), digits=2)
+			mutate(weight = abundance / sum(abundance), id = 1:n())
+	50 * (2 - calculateScore2(cluster, theoric, ppm, tolI))
 }
-calculateScore2 <- function(cluster, theoric, tolMz, tolI){
+calculateScore2 <- function(cluster, theoric, ppm, tolI){
 	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(
 		sum(theoric$weight) + sum(cluster$weight))
-	res <- calculateScore3(cluster, theoric[1, ], tolMz, tolI)
-	cluster <- res$cluster
-	res$score + calculateScore2(cluster, theoric[-1, ], tolMz, tolI) # cumulative sum
+	res <- calculateScore3(cluster[1, ], theoric, ppm, tolI)
+	theoric <- res$theoric
+	res$score + calculateScore2(cluster[-1, ], theoric, ppm, tolI) # cumulative sum
 }
-calculateScore3 <- function(cluster, theoricFeature, tolMz, tolI){
+calculateScore3 <- function(feature, theoric, ppm, tolI){
 	# first search the matched observed feature
-	observedFeature <- cluster %>% filter(between(mz, 
-		theoricFeature$mz - tolMz, theoricFeature$mz + tolMz)) %>% 
-		mutate(deviation = ((theoricFeature$abundance - abundance) %>% abs) / tolI) %>% 
+	tolMz <- feature$mz * ppm * 10**-6
+	theoricFeature <- theoric %>% filter(between(mz, feature$mz - tolMz, 
+		feature$mz + tolMz)) %>% 
+		mutate(deviation = ((feature$abundance - abundance) %>% abs) / tolI) %>% 
 		filter(deviation < 1) %>% top_n(1, abundance)
 	# return the minimal score (0: perfect match, 1: wrong match)
 	# remove the matched feature for avoid an other assignation with a feature
-	if(nrow(observedFeature) == 0) list(
-		score = theoricFeature$weight, 
-		cluster = cluster
+	if(nrow(theoricFeature) == 0) list(
+		score = feature$weight, 
+		theoric = theoric
 	) else list(
-		score = observedFeature$deviation * (theoricFeature$weight + 
-			observedFeature$weight),
-		cluster = cluster %>% filter(id != observedFeature$id)
+		score = theoricFeature$deviation * (theoricFeature$weight + 
+			feature$weight),
+		theoric = theoric %>% filter(id != theoricFeature$id)
 	)
 }
 
@@ -232,20 +218,6 @@ calculateDeviation3 <- function(feature, theoric){
 	)
 }
 
-rawEIC <- function(msFile, mzrange = c(), rtrange = c(), scanrange = c()){
-	xcms::rawEIC(msFile, mzrange = mzrange, rtrange = rtrange, 
-		scanrange = scanrange) %>% data.frame %>% cbind(
-			scan = 1:n())
-}
-
-arrangeEics <- function(eic, msFile){
-	eic <- eic %>% as.data.frame
-	eic$scan <- msFile@scantime[eic$scan] / 60
-	colnames(eic) <- c('x', 'y')
-	eic %>% dplyr::mutate(x = round(x,2)) %>% group_by(x) %>% 
-		dplyr::summarise(y = median(y))
-}
-
 getIonMz <- function(formulas, adduct, charges){
 	data <- getIonFormula(formulas, adduct, charges) %>% 
 		mutate(adduct = adduct$adduct)
@@ -262,16 +234,18 @@ getIonFormula <- function(formulas, adduct, charges = NULL){
 	else if(length(charges) != length(formulas)) return(data.frame(
 		row = c(), formula = c(), ion_formula = c()))
 	check_chemform(isotopes, formulas) %>% mutate(
-			row = 1:n(), formula = new_formula) %>% 
-		cbind(charge = charges + adduct$charge) %>% 
+			row = 1:n(), 
+			formula = new_formula, 
+			charge = charges + as.numeric(adduct$charge)) %>% 
 		filter(!warning) %>% mutate(
-			ion_formula = multiform(formula, adduct$multi) %>% 
-				mergeform(adduct$formula_add) %>%
+			ion_formula = multiform(formula, as.numeric(adduct$multi)) %>% 
+				mergeform(adduct$formula_add) %>% 
 				mergeform("H0") %>% 
 				subform(adduct$formula_ded)) %>% 
 		filter(!grepl('not', ion_formula)) %>% 
 		select(row, formula, ion_formula, charge)
 }
+
 
 getNeutralFormula <- function(ion_formulas, adduct){
 	check_chemform(isotopes, ion_formulas) %>% dplyr::mutate(
@@ -282,6 +256,89 @@ getNeutralFormula <- function(ion_formulas, adduct){
 				subform(adduct$formula_add)) %>% 
 		filter(!grepl('not', formula)) %>% 
 		select(row, formula, ion_formula)
+}
+
+# return the theoretic pattern of formulas
+# it need a vector with formulas, a charge and a resolution (can be the instrument or an integer)
+# the data for instrument is give by the package enviPat
+theoricClustersFunction <- function(formulas, charges, resolution){
+	if(any(!is.numeric(charges)) | is.null(resolution)){
+		print('charge or resolution is null')
+		return(list(data.frame()))
+	}
+	else if(!resolution %in% names(resolution_list) & (
+			!is.numeric(resolution) | resolution == "0")){
+		print(paste('resolution incorrect:', resolution))
+		return(list(data.frame()))
+	}
+
+	res <- check_chemform(isotopes, formulas)
+
+	data <- list()
+	if(resolution %in% names(resolution_list)){
+		resmass <- resolution_list[[which(names(resolution_list) == resolution)]]
+		massLimit <- range(resmass[, 'm/z'])
+		
+		# check if any mass is upper or below
+		test <- res[, 'monoisotopic_mass'] < massLimit[1] | 
+			res[, 'monoisotopic_mass'] > massLimit[2]
+		data[which(test)] <- data.frame()
+		data[which(!test)] <- isowrap(isotopes, checked=res[which(!test), ], 
+				resmass=resmass, threshold=1, charge=charges[which(!test)]) %>% 
+			map(data.frame) %>% map(setNames, c('mz', 'abundance'))
+		data
+	} else isowrap(isotopes, checked=res, resmass=FALSE, resolution=as.numeric(resolution),
+			threshold=1, charge=charges) %>% map(data.frame %>% 
+				rename(mz = `m.z`))
+}
+
+# function from the package enviPat
+isowrap <- function (isotopes, checked, resmass, resolution = FALSE, nknots = 6, 
+	spar = 0.2, threshold = 0.1, charge = 1, emass = 0.00054858, 
+	algo = 2, ppm = FALSE, dmz = "get", frac = 1/4, env = "Gaussian", 
+	detect = "centroid", plotit = FALSE, verbose = FALSE){
+	if (any(checked[, 1])){
+		stop("WARNING: checked with incorrect chemical detected!")
+	}
+	if (length(resmass) > 1){
+		resolution <- getR(checked, resmass = resmass, nknots = nknots, 
+			spar = spar, plotit = plotit)
+	}
+	
+	pattern <- isopattern(isotopes, checked[, 2], threshold = threshold, 
+		charge = charge, emass = emass, plotit = plotit, algo = algo, verbose = verbose)
+	profiles <- envelope(pattern, ppm = ppm, dmz = dmz, frac = frac, 
+		env = env, resolution = resolution, plotit = plotit, verbose = verbose)
+	centro <- vdetect(profiles, detect = detect, plotit = plotit, verbose = verbose)
+	return(centro)
+}
+
+loadRawFile <- function(db, pj){
+	msFile <- tryCatch(dbGetQuery(db, sprintf('select raw from sample where sample == (
+		select sample from project_sample where project_sample == %s);', 
+		pj))$raw %>% unlist %>% decompress_fst %>% unserialize, 
+		error = function(e) NULL)
+	gc()
+	if(is.null(msFile)){
+		# try to found it in mzXMLFiles repertory
+		paths <- dbGetQuery(db, sprintf('select path, rawPath from sample 
+			where sample == (select sample from project_sample 
+				where project_sample == %s);', pj)) %>% 
+			c %>% keep(file.exists)
+		if(length(paths) == 0) stop('file is not found in database')
+		else {
+			msFile <- tryCatch(xcmsRaw(paths[1], mslevel=1, profstep=0), 
+				error = function(e) NULL)
+			gc()
+			if(is.null(msFile) & length(paths) == 2){
+				msFile <- tryCatch(xcmsRaw(paths[2], mslevel=1, profstep=0), 
+					error = function(e) NULL)
+				gc()
+				if(is.null(msFile)) stop('file is not found in database')
+			} else if(is.null(msFile)) stop('file is not found in database')
+		}
+	}
+	msFile
 }
 
 plotEmptyChromato <- function(title = "TIC"){
@@ -302,6 +359,97 @@ plotEmptyChromato <- function(title = "TIC"){
 					click=htmlwidgets::JS(sprintf("function(gd){Plotly.downloadImage(gd, {format:'png', width:1920, height:1080, filename:'%s'})}", title)))), 
 				list('zoom2d', 'select2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 }
+
+plotChromato <- function(db, pj, title = "TIC", msFile = NULL){
+	chromato <- plotEmptyChromato(title)
+	
+	if(is.null(msFile)) msFile <- loadRawFile(db, pj)
+	
+	points <- if(all(msFile@tic == 0)) data.frame(x = msFile@scantime/60, 
+			y = rawEIC(msFile, mzrange = range(msFile@env$mz)))
+		else data.frame(x=msFile@scantime/60, y=msFile@tic)
+	 points %>% 
+		dplyr::mutate(x = round(x,2)) %>% group_by(x) %>% 
+		dplyr::summarise(y = median(y))
+	rm(msFile)
+	gc()
+	
+	#add the raw data
+	add_trace(chromato, mode = "lines+markers", data = points, 
+			x = ~x, y = ~y, line=list(color='red'), name=title, hoverinfo='text', 
+			text = ~paste('Intensity: ', formatC(y, format="e"), '<br />Retention Time: ', 
+				round(x, digits=2)), marker=list(opacity=1, size=1*10**-9))
+}
+
+plotEIC <- function(db, C, Cl, clusterIDs, adductName, machine, ppm = 0, xr = NULL){
+	eic <- plotEmptyChromato(title = "EIC")
+	
+	if(is.null(xr)) return(eic)
+
+	H <- 2*C+2-Cl
+	formula <- paste('C', C, 'Cl', Cl, 'H', H, sep='')
+	adduct <- adducts() %>% filter(adduct == adductName)
+	ion_formula <- getIonFormula(formula, adduct, 0)$ion_formula
+	theoric <- theoricClustersFunction(ion_formula, adduct$charge, 
+		machine)[[1]] %>% arrange(desc(abundance)) %>% 
+			mutate(tolMDa = mz * ppm * 10**-6,
+				mzmin = mz - tolMDa,
+				mzmax = mz + tolMDa, 
+				theoricIso = ceiling(mz),
+				theoricIso = theoricIso - theoricIso[1],
+				theoricIso = case_when(
+					theoricIso < 0 ~ paste0("A", theoricIso),
+					theoricIso > 0 ~ paste0("A+", theoricIso),
+					TRUE ~ "A")) %>% 
+			distinct(theoricIso, .keep_all = TRUE)
+	
+	# get all theoretical m/z
+	info <- dbGetQuery(db, sprintf('select * from cluster where cluster in (%s);', 
+		paste(clusterIDs, collapse=', ')))
+	
+	features <- dbGetQuery(db, sprintf('select * from feature where cluster in (%s)', 
+			paste(clusterIDs, collapse=', '))) %>% 
+		mutate(rtmin = rtmin / 60, rtmax = rtmax / 60)
+	
+	data <- lapply(1:nrow(theoric), function(i) 
+		rawEIC(xr, mzrange = as.double(theoric[i, c('mzmin', 'mzmax')])) %>% 
+			as.data.frame %>% mutate(rt = xr@scantime / 60))
+	rm(xr)
+	gc()
+	
+	for(i in 1:length(data)){
+		integratedScans <- do.call(c, lapply(which(features$iso == theoric[i, 'theoricIso']), 
+			function(j) features[j, 'lmin']:features[j, 'lmax'])) %>% sort
+		integrated <- data[[i]]
+		nonIntegrated <- data[[i]]
+		if(length(integratedScans) > 0){
+			integrated[-integratedScans, 'intensity'] <- NA
+			nonIntegrated[integratedScans, 'intensity'] <- NA
+			
+			eic <- eic %>% add_lines(data = integrated, x = ~rt, 
+				y = ~intensity, legendgroup=toString(theoric[i, 'theoricIso']), 
+				line = list(color=colors[i+1]),
+				showlegend=FALSE, hoverinfo = "text", name = theoric[i, 'theoricIso'], 
+				text = paste0("iso: ", theoric[i, 'theoricIso'], 
+					"<br />mz: ", round(theoric[i, 'mz'], 5) , 
+					"<br />rt: ", round(integrated$rt, 2), 
+					"<br />intensity: ", prettyNum(round(integrated$intensity), 
+						big.mark = " ")))
+		} else integrated[, 'intensity'] <- NA
+		
+		eic <- eic %>% add_lines(data = nonIntegrated, x = ~rt, 
+				y = ~intensity, legendgroup=toString(theoric[i, 'theoricIso']), 
+				line = list(color='rgb(0,0, 0)', width=1, dash = 'dash'), 
+				showlegend=TRUE, hoverinfo = "text", name = theoric[i, 'theoricIso'], 
+				text = paste0("iso: ", theoric[i, 'theoricIso'], 
+					"<br />mz: ", round(theoric[i, 'mz'], 5) , 
+					"<br />rt: ", round(nonIntegrated$rt, 2), 
+					"<br />intensity: ", prettyNum(round(nonIntegrated$intensity), 
+						big.mark = " ")))
+	}
+	eic
+}
+
 
 plotEmptyMS <- function(){
 	plot_ly(type='scatter', mode='markers') %>% 
@@ -327,3 +475,38 @@ plotEmptyMS <- function(){
 				), 
 				list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
 }
+
+plotMS <- function(db, C, Cl, clusterIDs, adductName, machine){
+	massSpectrum <- plotEmptyMS()
+	
+	H <- 2*C+2-Cl
+	formula <- paste('C', C, 'Cl', Cl, 'H', H, sep='')
+	adduct <- adducts() %>% filter(adduct == adductName)
+	ion_formula <- getIonFormula(formula, adduct, 0)$ion_formula
+	theoric <- theoricClustersFunction(ion_formula, adduct$charge, 
+		machine)[[1]] %>% arrange(desc(abundance)) %>% 
+			mutate(mzR = ceiling(mz)) %>% distinct(mzR, .keep_all = TRUE) %>% 
+			select(-mzR)
+	
+	info <- dbGetQuery(db, sprintf('select * from cluster where cluster in (%s);', 
+		paste(clusterIDs, collapse=', ')))
+	
+	features <- dbGetQuery(db, sprintf('select * from feature where cluster in (%s)', 
+		paste(clusterIDs, collapse=', ')))
+	
+	minMz <- min(c(features$mz, theoric$mz))
+	maxMz <- max(c(features$mz, theoric$mz))
+	
+	for(clusterID in clusterIDs) massSpectrum <- massSpectrum %>% add_segments(
+		data = features %>% filter(cluster == clusterID), x = ~mz, xend = ~mz, 
+		y = 0, yend = ~abundance, name = paste('Cluster', clusterID), hoverinfo = "text", 
+		text = ~paste0('Cluster :', clusterID, '<br />mz: ', round(mz, 5), 
+			'<br />into : ', prettyNum(round(into), big.mark=' '), 
+			'<br />rt :', round(rt / 60, 2)))
+	massSpectrum <- massSpectrum %>% add_segments(data = theoric, 
+		x = ~mz, xend = ~mz, y = 0, yend = ~-abundance, name = 'theoretic', hoverinfo = 'text', 
+		text = ~paste0('Theoretic', '<br />mz: ', round(mz, 5), 
+			'<br />abundance: ', round(abundance), '%'))
+	massSpectrum %>% layout(xaxis = list(range = c(minMz - 1, maxMz + 1)))
+}
+

@@ -276,7 +276,7 @@ observeEvent(input$sampleIDsValidBttn, {
 				project == input$fileProject & sample == sampleName) %>% 
 					nrow > 0) success[i] <- 'file already in project'
 			else if(sampleName %in% samples()$sample) success[i] <- recordProjectSample(
-				input$fileProject, sampleName, sampleIDs[i])
+				sampleName, input$fileProject, sampleIDs[i])
 			else success[i] <- conversion(input$fileProject, files$datapath[i], 
 				sampleName, sampleIDs[i], input$filePolarity)
 			print('---')

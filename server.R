@@ -29,17 +29,16 @@ observeEvent(input$tabs, {
 values <- reactiveValues()
 actualize <- reactiveValues()
 
-minC <- 8
-maxC <- 36
-minCl <- 2
-maxCl <- 30
+colors <- c(brewer.pal(9, "Set1"), brewer.pal(8, 'Set2'))
 
 # create the adducts [M-Cl]- & [M-H-Cl]-
-adducts <- adducts %>% rbind(data.frame(
-	Name = c("M-Cl", "M-H-Cl"), calc = c("M-34.9683", "M-35.97613"),
-	Charge = c(-1, -1), Mult = c(1, 1), Mass = c(-34.9683, -35.97613),
-	Ion_mode = c('negative', 'negative'), Formula_add = c("FALSE", "FALSE"),
-	Formula_ded = c('Cl1', 'Cl1H1'), Multi = c(1, 1)))
+adducts <- reactive({
+	actualize$adducts
+	# select all except data column which contains blobs
+	adducts <- dbGetQuery(db, 'select * from adduct;')
+	actualize$adducts <- FALSE
+	adducts
+})
 	
 samples <- reactive({
 	actualize$samples
@@ -66,50 +65,74 @@ project_samples <- reactive({
 	project_samples
 })
 
-params <- reactive({
-	actualize$params
-	params <- dbGetQuery(db, 'select * from param;')
-	actualize$params <- FALSE
-	params
-})
-
 output$downloadProject <- downloadHandler(
 	filename = function(){
-		if(!is.null(input$project)) paste(input$project, '.xlsx', sep='')
+		if(!is.null(input$project)) paste(projects() %>% 
+			filter(project == input$project) %>% pull(name), '.xlsx', sep='')
 		else '*.xlsx'
 	}, content = function(con){
-	print('-------------- DOWNLOAD PROJECT -----------')
+	print('############################################################')
+	print('######################### DOWNLOAD PROJECT #################')
+	print('############################################################')
 	print(list(project = input$project))
 	wb <- createWorkbook()
+	headerStyle <- createStyle(fgFill = "#4F81BD", halign = "CENTER", textDecoration = "Bold", border = "Bottom", fontColour = "white", wrapText=TRUE)
+	cellStyle <- createStyle(halign="center", valign="center", wrapText=TRUE)
 	tryCatch({
 		if(!is.null(input$project)){
-			datas <- dbGetQuery(db, sprintf('select sample, adduct, rangeRT_1, 
-				rangeRT_2, formula, C, Cl, round(auc) as auc, round(score, 2) as score, 
-				round(rt, 2) as rt, round(rtmin, 2) as rtmin, round(rtmax, 2) as rtmax, 
-				ppm, peakwidth, machine, threshold from observed inner join project_sample on 
-				project_sample.project_sample = observed.project_sample where
-				project == "%s";', input$project))
-			sample_adducts <- paste(datas$sample, datas$adduct)
-			datas$machine <- names(resolution_list)[datas$machine]
-			datas <- split(datas[, -c(1:4)] %>% 
-				cbind(range_rT_param = paste(datas$rangeRT_1, '-', datas$rangeRT_2)) %>% 
-				cbind(range_rT = paste(datas$rtmin, '-', datas$rtmax)) %>% 
-				mutate(range_rT_param = replace(range_rT_param, range_rT_param == "NA - NA", NA)) %>%
-				mutate(isotope = rep(c(1, 2), times=n()/2)),
-				sample_adducts)
-			sample_adducts <- sample_adducts %>% unique
+			data <- dbGetQuery(db, sprintf('select formula, C, Cl, adduct, sampleID, score from cluster 
+				left join project_sample on project_sample.project_sample = cluster.project_sample 
+				where project == %s;', input$project))
+			# construct the final dataframe (formula, C, Cl, adduct, sample1, sample2, ...)
+			tmp <- unique(data[, c('formula', 'C', 'Cl', 'adduct')])
+			res <- tmp %>% cbind(do.call(cbind, 
+				lapply(unique(data$sampleID), function(sampleid) 
+					sapply(1:nrow(tmp), function(i) data %>% 
+						filter(formula == tmp[i, 'formula'] & 
+							adduct == tmp[i, 'adduct'] & 
+							sampleID == sampleid) %>% 
+						pull(score) %>% round))))
+			colnames(res)[5:ncol(res)] <- unique(data$sampleID)
+			addWorksheet(wb, "Resume")
+			writeDataTable(wb, 1, res, headerStyle=headerStyle)
+			addStyle(wb, sheet=1, cellStyle, rows=1:(nrow(res)+1), 
+				cols=1:ncol(res), gridExpand=TRUE)
+			setColWidths(wb, sheet=1, cols=1:ncol(res), widths=20)
 			
-			for(i in 1:length(datas)){
-				addWorksheet(wb, sample_adducts[i])
-				writeDataTable(wb, i, datas[[i]][, c('formula', 'isotope', 'C', 'Cl', 'auc', 'score',	
-					'rt', 'range_rT', 'ppm', 'peakwidth', 'machine', 'range_rT_param')])
+			for(i in which(project_samples()$project == input$project)){
+				addWorksheet(wb, project_samples()[i, 'sampleID'])
+				data <- dbGetQuery(db, sprintf('select mz, rt, \"into\", maxo, abundance, 
+					iso, sn, feature.cluster as cluster, formula, C, Cl, 
+					score, rtMean, deviation, adduct, ppm, peakwidth1, peakwidth2, machine from feature 
+					left join cluster on feature.cluster = cluster.cluster 
+					left join project_sample on project_sample.project_sample = cluster.project_sample 
+					where cluster.project_sample == %s;', project_samples()[i, 'project_sample'])) %>% 
+					mutate(peakwidth = paste(peakwidth1, '-', peakwidth2), 
+						`m/z` = round(mz, 5), rT = round(rt / 60, 2), area = round(into), 
+						`max Int` = round(maxo), `relative abundance` = round(abundance), 
+						`pattern score` = round(score), `rT mean` = round(rtMean / 60, 2), 
+						`deviation (mDa)` = round(deviation, 1), isotopologue = iso, `s/n` = round(sn)) %>% 
+					select(`m/z`, rT, area, `max Int`, `relative abundance`, 
+						isotopologue, `s/n`, cluster, formula, C, Cl, 	
+						`pattern score`, `rT mean`, `deviation (mDa)`, adduct, 
+						ppm, peakwidth, machine)
+				writeDataTable(wb, project_samples()[i, 'sampleID'], data, headerStyle=headerStyle)
+				addStyle(wb, sheet=project_samples()[i, 'sampleID'], 
+					cellStyle, rows=1:(nrow(data)+1), cols=1:ncol(data), gridExpand=TRUE)
+				setColWidths(wb, sheet=project_samples()[i, 'sampleID'], 
+					cols=1:(ncol(data) - 1), widths=20)
+				setColWidths(wb, sheet=project_samples()[i, 'sampleID'], 
+					cols=ncol(data), widths=36)
 			}
 		}
 		saveWorkbook(wb, con, overwrite=TRUE)
 	}, error = function(e){
-		print(e$message)
+		print(e)
 		sendSweetAlert(e$message)
 	})
+	print('############################################################')
+	print('######################### END DOWNLOAD PROJECT #############')
+	print('############################################################')
 	con
 })
 

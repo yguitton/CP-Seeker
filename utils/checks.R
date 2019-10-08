@@ -24,6 +24,11 @@ for(i in 1:length(reg_paths)){
 appname <- config$appname
 pkgs <- config$pkgs$pkgs
 user_browser <- config$user_browser
+minC <- config$minC
+maxC <- config$maxC
+minCl <- config$minCl
+maxCl <- config$maxCl
+minPts <- config$minPts
 chrome <- reg_paths$chrome
 ie <- reg_paths$ie
 ff <- reg_paths$ff
