@@ -12,7 +12,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #the function if the user create a new project
-observeEvent(input$projectAdd, {
+observeEvent(input$projectCreate, {
 	print('############################################################')
 	print('######################### CREATE PROJECT ###################')
 	print('############################################################')
