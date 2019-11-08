@@ -1,5 +1,7 @@
 options(show.error.messages = TRUE)
+specialChars <- "[\\:*?\"<>|]"
 shinyServer(function(input, output, session) {
+colors <- c(brewer.pal(9, "Set1"), brewer.pal(8, 'Set2'))
 
 #to close the connection
 session$onSessionEnded(function() {
@@ -26,128 +28,89 @@ observeEvent(input$tabs, {
 	print('############################################################')
 })
 
-values <- reactiveValues()
-actualize <- reactiveValues()
+source(file.path("server", "initialize.R"), local=TRUE)$value
 
-colors <- c(brewer.pal(9, "Set1"), brewer.pal(8, 'Set2'))
+source(file.path("server", "reactiveValues.R"), local=TRUE)$value
 
-# create the adducts [M-Cl]- & [M-H-Cl]-
-adducts <- reactive({
-	actualize$adducts
-	# select all except data column which contains blobs
-	adducts <- dbGetQuery(db, 'select * from adduct;')
-	actualize$adducts <- FALSE
-	adducts
+output$uiProject <- renderUI({
+	choices <- if(nrow(projects()) == 0) c() else projects()
+	pickerInput('project', label = NULL, inline = TRUE, choices=setNames(
+		choices$project, choices$name))
 })
+
+output$download <- downloadHandler(
+	filename = function() paste(projects() %>% 
+		filter(project == input$project) %>% pull(name), 
+		'.xlsx', sep=''),
+	content = function(xlsxFile){
+		print('############################################################')
+		print('######################### DOWNLOAD #########################')
+		print('############################################################')
+		wb <- createWorkbook()
+		
+		progressSweetAlert(session, 'pb', title='Generation of xlsx file',
+			value = 0, display_pct=TRUE)
 	
-samples <- reactive({
-	actualize$samples
-	# select all except data column which contains blobs
-	samples <- dbGetQuery(db, 'select sample, rawPath, instrumentModel, 
-		instrumentManufacturer, softwareName, softwareVersion, ionSource, 
-		analyzer, detectorType, resolution, agcTarget, maximumIT, 
-		numberOfScanRange, scanRange, polarity from sample;')
-	actualize$samples <- FALSE
-	samples
-})
-
-projects <- reactive({
-	actualize$projects
-	projects <- dbGetQuery(db, 'select * from project;')
-	actualize$projects <- FALSE
-	projects
-})
-
-project_samples <- reactive({
-	actualize$project_samples
-	project_samples <- dbGetQuery(db, 'select * from project_sample;')
-	actualize$project_samples <- FALSE
-	project_samples
-})
-
-output$downloadProject <- downloadHandler(
-	filename = function(){
-		if(!is.null(input$project)) paste(projects() %>% 
-			filter(project == input$project) %>% pull(name), '.xlsx', sep='')
-		else '*.xlsx'
-	}, content = function(con){
-	print('############################################################')
-	print('######################### DOWNLOAD PROJECT #################')
-	print('############################################################')
-	print(list(project = input$project))
-	wb <- createWorkbook()
-	headerStyle <- createStyle(fgFill = "#4F81BD", halign = "CENTER", textDecoration = "Bold", border = "Bottom", fontColour = "white", wrapText=TRUE)
-	cellStyle <- createStyle(halign="center", valign="center", wrapText=TRUE)
-	tryCatch({
-		if(!is.null(input$project)){
-			data <- dbGetQuery(db, sprintf('select formula, C, Cl, adduct, sampleID, score from cluster 
-				left join project_sample on project_sample.project_sample = cluster.project_sample 
-				where project == %s;', input$project))
-			# construct the final dataframe (formula, C, Cl, adduct, sample1, sample2, ...)
-			tmp <- unique(data[, c('formula', 'C', 'Cl', 'adduct')])
-			res <- tmp %>% cbind(do.call(cbind, 
-				lapply(unique(data$sampleID), function(sampleid) 
-					sapply(1:nrow(tmp), function(i) data %>% 
-						filter(formula == tmp[i, 'formula'] & 
-							adduct == tmp[i, 'adduct'] & 
-							sampleID == sampleid) %>% 
-						pull(score) %>% round))))
-			colnames(res)[5:ncol(res)] <- unique(data$sampleID)
-			addWorksheet(wb, "Resume")
-			writeDataTable(wb, 1, res, headerStyle=headerStyle)
-			addStyle(wb, sheet=1, cellStyle, rows=1:(nrow(res)+1), 
-				cols=1:ncol(res), gridExpand=TRUE)
-			setColWidths(wb, sheet=1, cols=1:ncol(res), widths=20)
+		tryCatch({
+			headerStyle <- createStyle(fgFill = "#4F81BD", halign = "CENTER", textDecoration = "Bold", border = "Bottom", fontColour = "white", wrapText=TRUE)
+			cellStyle <- createStyle(halign="center", valign="center", wrapText=TRUE)
 			
-			for(i in which(project_samples()$project == input$project)){
-				addWorksheet(wb, project_samples()[i, 'sampleID'])
-				data <- dbGetQuery(db, sprintf('select mz, rt, \"into\", maxo, abundance, 
-					iso, sn, feature.cluster as cluster, formula, C, Cl, 
-					score, rtMean, deviation, adduct, ppm, peakwidth1, peakwidth2, machine from feature 
-					left join cluster on feature.cluster = cluster.cluster 
-					left join project_sample on project_sample.project_sample = cluster.project_sample 
-					where cluster.project_sample == %s;', project_samples()[i, 'project_sample'])) %>% 
-					mutate(peakwidth = paste(peakwidth1, '-', peakwidth2), 
-						`m/z` = round(mz, 5), rT = round(rt / 60, 2), area = round(into), 
-						`max Int` = round(maxo), `relative abundance` = round(abundance), 
-						`pattern score` = round(score), `rT mean` = round(rtMean / 60, 2), 
-						`deviation (mDa)` = round(deviation, 1), isotopologue = iso, `s/n` = round(sn)) %>% 
-					select(`m/z`, rT, area, `max Int`, `relative abundance`, 
-						isotopologue, `s/n`, cluster, formula, C, Cl, 	
-						`pattern score`, `rT mean`, `deviation (mDa)`, adduct, 
-						ppm, peakwidth, machine)
-				writeDataTable(wb, project_samples()[i, 'sampleID'], data, headerStyle=headerStyle)
-				addStyle(wb, sheet=project_samples()[i, 'sampleID'], 
-					cellStyle, rows=1:(nrow(data)+1), cols=1:ncol(data), gridExpand=TRUE)
-				setColWidths(wb, sheet=project_samples()[i, 'sampleID'], 
-					cols=1:(ncol(data) - 1), widths=20)
-				setColWidths(wb, sheet=project_samples()[i, 'sampleID'], 
-					cols=ncol(data), widths=36)
+			sheets <- project_samples_adducts() %>% left_join(project_samples(), 
+				by = 'project_sample') %>% select(sampleID, adduct, project_sample_adduct)
+			for(i in 1:nrow(sheets)){
+				sheetName <- paste(sheets[i, 'sampleID'], sheets[i, 'adduct'])
+				updateProgressBar(session, id='pb', title=paste('Generate xlsx data of', sheetName),
+					value=(i-1) * 100 / nrow(sheets))
+				addWorksheet(wb, sheetName = sheetName, gridLines=TRUE)
+				
+				data <- dbGetQuery(db, sprintf('select cluster.cluster as cluster, formula, ion_formula, C, Cl, 
+					score, rtMean, deviation, mz, rt, \"into\", maxo, sn as \"s/n\", iso as isotopologue, 
+					ppm, peakwidth1, peakwidth2 
+					from cluster left join feature on cluster.cluster = feature.cluster where 
+					project_sample_adduct == %s;', sheets[i, 'project_sample_adduct'])) %>% 
+					mutate(peakwidth = paste(peakwidth1, peakwidth2, sep='-'), 
+						rtMean = round(rtMean / 60, 2), mz = round(mz, 5), 
+						rt = round(rt / 60, 2), into = round(into), 
+						maxo = round(maxo), `s/n` = round(`s/n`)) %>% 
+					select(-c(peakwidth1, peakwidth2))
+									
+					writeDataTable(wb = wb, sheet = sheetName, x = data, headerStyle=headerStyle)
+					addStyle(wb, sheet = sheetName, cellStyle, rows=1:(nrow(data)+1), 
+						cols=1:ncol(data), stack=TRUE, gridExpand=TRUE)
+					setColWidths(wb, sheet = sheetName, cols=1:ncol(data), widths=10)
+					setColWidths(wb, sheet = sheetName, cols=c(2, 3), widths=15)
 			}
-		}
-		saveWorkbook(wb, con, overwrite=TRUE)
-	}, error = function(e){
-		print(e)
-		sendSweetAlert(e$message)
-	})
-	print('############################################################')
-	print('######################### END DOWNLOAD PROJECT #############')
-	print('############################################################')
-	con
-})
+		}, error = function(e){
+			print(e)
+			toastr_error('Cannot make excel file', paste(e$message))
+		})
+		updateProgressBar(session, id='pb', title='Save xlsx file', value=100)
+		saveWorkbook(wb, xlsxFile, overwrite=TRUE)
+		closeSweetAlert(session)
+		print('############################################################')
+		print('######################### END DOWNLOAD #####################')
+		print('############################################################')
+		return(xlsxFile)
+	}
+)
 
-source('server/func.R', local=TRUE)$value
 
-source('server/loadProfile.R', local=TRUE)$value
+source(file.path("server", "project.R"), local=TRUE)$value
 
-source('server/profils.R', local=TRUE)$value
+source(file.path("server", "file.R"), local=TRUE)$value
 
-source('server/tetrahedrization.R', local=TRUE)$value
+source(file.path('server', 'func.R'), local=TRUE)$value
 
-source('server/projectFiles.R', local=TRUE)$value
+source(file.path('server', 'plots.R'), local=TRUE)$value
+
+source(file.path('server', 'chemFunc.R'), local=TRUE)$value
 
 source('server/target.R', local=TRUE)$value
 
 source('server/details.R', local=TRUE)$value
+
+# source('server/tetras.R', local = TRUE)$value
+
+
 
 })

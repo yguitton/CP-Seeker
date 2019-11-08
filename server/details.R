@@ -1,47 +1,82 @@
+param$details <- list(
+	xr = NULL, 
+	clusters = data.frame(), 
+	theoric = list(
+		pattern = data.frame(), 
+		formula = "", 
+		ion_formula = "",
+		charge = 0,
+		machine = "Elite_R240000@400", 
+		ppm = 5
+	)
+)
+
 output$uiDetailsSample <- renderUI({
 	choices <- tryCatch({
-		if(is.null(input$project)) custom_stop('invalid', 'project picker is not yet initialized')
-		else if(input$project == '') custom_stop('invalid', 'no project')
-		else dbGetQuery(db, sprintf('select sampleID, project_sample 
-			from project_sample where project == %s and project_sample in (
-				select distinct(project_sample) from cluster);', input$project))
-	}, invalid = function(i){
-		print(paste(i))
-		data.frame(sampleID = c(), project_sample = c())
-	}, error = function(e){
+		if(length(input$project) == 0) custom_stop('invalid', 'project picker is not yet initialized')
+		else project_samples_adducts() %>% left_join(project_samples()) %>% 
+			filter(project == input$project) %>% select(sampleID, project_sample)
+	}, invalid = function(i) data.frame(sampleID = c(), project_sample = c())
+	, error = function(e){
+		print('ERR detailsSample')
 		print(paste(e))
-		sendSweetAlert(paste(e$message))
 		data.frame(sampleID = c(), project_sample = c())
 	})
-	pickerInput('detailsSample', 'sample', choices=setNames(choices$project_sample, choices$sampleID), 
-		multiple=FALSE, options=list(`live-search`=TRUE))
+	pickerInput('detailsSample', 'sample', choices=setNames(choices$project_sample, 
+		choices$sampleID), multiple=FALSE, options=list(`live-search`=TRUE))
+})
+
+observeEvent(input$detailsSample, {
+	param$details <- list(
+		xr = loadMSFile(db, input$detailsSample), 
+		clusters = data.frame(), 
+		theoric = list(
+			pattern = data.frame(), 
+			formula = "", 
+			ion_formula = "",
+			charge = 0,
+			machine = "Elite_R240000@400", 
+			ppm = 5
+		)
+	)
 })
 
 output$uiDetailsAdduct <- renderUI({
 	choices <- tryCatch({
-		if(is.null(input$detailsSample)) custom_stop('invalid', 'detailsSample picker is not yet initialized')
-		else if(input$detailsSample == '') custom_stop('invalid', 'no details sample selected')
-		else dbGetQuery(db, sprintf('select adduct from cluster where project_sample == %s;',  
-			input$detailsSample))$adduct %>% unique
-	}, invalid = function(i){
-		print(paste(i))
-		c()
-	}, error = function(e){
+		if(length(input$detailsSample) == 0) custom_stop('invalid', 'detailsSample picker is not yet initialized')
+		else project_samples_adducts() %>% filter(project_sample == input$detailsSample) %>% 
+			select(adduct, project_sample_adduct)
+	}, invalid = function(i) data.frame(adduct = c(), project_sample_adduct = c())
+	, error = function(e){
 		print(paste(e))
-		sendSweetAlert(paste(e$message))
-		c()
+		data.frame(adduct = c(), project_sample_adduct = c())
 	})
-	pickerInput('detailsAdduct', 'adduct', choices=choices, multiple=FALSE)
+	pickerInput('detailsAdduct', 'adduct', choices = setNames(
+		choices$project_sample_adduct, choices$adduct), multiple=FALSE)
+})
+
+observeEvent(input$detailsAdduct, {
+	param$details <- list(
+		xr = param$details$xr,
+		clusters = data.frame(), 
+		theoric = list(
+			pattern = data.frame(), 
+			formula = "", 
+			ion_formula = "",
+			charge = 0,
+			machine = "Elite_R240000@400", 
+			ppm = 5
+		)
+	)
 })
 
 output$detailsTable <- DT::renderDataTable({
-	actualize$project_samples
+	actualize$project_samples_adducts
 	data <- tryCatch({
-		if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct picker not initialized')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct for the file??')
+		if(length(input$detailsAdduct) == 0) custom_stop('invalid', 'adduct picker not initialized')
 		
-		query <- sprintf('select * from cluster where project_sample == %s 
-			and adduct == \"%s\";', input$detailsSample, input$detailsAdduct)
+		query <- sprintf('select * from cluster where project_sample_adduct == %s;', 
+			input$detailsAdduct)
 		print(query)
 		data <- dbGetQuery(db, query)
 		data <- if(input$detailsSwitch) data %>% dplyr::group_by(formula) %>% 
@@ -53,12 +88,10 @@ output$detailsTable <- DT::renderDataTable({
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
 		res
-	}, invalid = function(i){
-		print(i)
-		matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
-	}, error = function(e){
+	}, invalid = function(i) matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
+	, error = function(e){
 		print(e$message)
-		sendSweetAlert(e$message)
+		sendSweetAlert("Cannot display table of chloroparaffins", e$message)
 		matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 	})
 	colnames(data) <- paste0('Cl', minCl:maxCl)
@@ -85,7 +118,6 @@ output$detailsTable <- DT::renderDataTable({
 			}
 		}
 	")), callback = htmlwidgets::JS("
-		Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
 		function getFormula(table, obj){
 			var id = obj.index();
 			var C = Number(table.cell(id.row, 0).data().replace('C', ''));
@@ -98,16 +130,16 @@ output$detailsTable <- DT::renderDataTable({
 		table.on('click', 'tbody td', function(){
 			if($(this).hasClass('selected')){
 				$(table.cells('.selected').nodes()).toggleClass('selected');
-				Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
+				Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0, ignore: Math.random()});
 			} else {
 				$(table.cells('.selected').nodes()).toggleClass('selected');
 				$(this).toggleClass('selected');
 				var formula = getFormula(table, table.cell(this));
 				if(formula.C == NaN || formula.Cl == NaN){
-					Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0});
+					Shiny.onInputChange('detailsTable_selected', {C: 0, Cl: 0, ignore: Math.random()});
 				} else {
 					Shiny.onInputChange('detailsTable_selected', 
-						{C: formula.C, Cl: formula.Cl});
+						{C: formula.C, Cl: formula.Cl, ignore: Math.random()});
 				}
 			}
 		});
@@ -126,111 +158,161 @@ output$detailsTable <- DT::renderDataTable({
 			table.cell('.selected').data(null);
 			$(table.cell('.selected').node()).css('background-color', 'rgba(0,0,0,0)');
 			$(table.cell('.selected').node()).css('border', '');
-			$(table.cell('.selected').node()).toggleClass('selected');
-			Shiny.onInputChange('detailsTable_selected', {C:0, Cl:0});
 		})
 	"))
 	
-values$table_xr <- NULL
-observeEvent(input$detailsSample, {
-	values$table_xr <- tryCatch(loadRawFile(db, input$detailsSample), 
-		error = function(e){
-		print("file not found")
-		toastr_error(sprintf('File "%s" is not found in database', 
-			project_samples() %>% filter(project_sample == input$detailsSample) %>% 
-				pull(sampleID)), paste(e$message))
-		NULL
-	})
-})
-
-values$table_clusterID <- list(C = 0, Cl = 0, ids = c())
 observeEvent(input$detailsTable_selected, {
 	tryCatch({
-		if(is.null(input$detailsSample)) custom_stop('invalid', 'no sample selected')
-		else if(input$detailsSample == '') custom_stop('invalid', 'no sample selected')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'no adduct selected')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct selected')
-		else if(is.null(input$detailsTable_selected)) custom_stop('invalid', 'no cell selected')
+		if(length(input$detailsTable_selected) == 0) custom_stop('invalid', 
+			'no cell selected')
+		else if(input$detailsTable_selected$C == 0) custom_stop('invalid', 
+			'no chloroparaffin selected')
 		
-		values$table_clusterID$C <- input$detailsTable_selected$C
-		values$table_clusterID$Cl <- input$detailsTable_selected$Cl
+		C <- input$detailsTable_selected$C
+		Cl <- input$detailsTable_selected$Cl
+		pja <- input$detailsAdduct
+		param$details$clusters <- dbGetQuery(db, sprintf('select * from feature where cluster in (
+			select cluster from cluster where project_sample_adduct == %s and 
+				C == %s and Cl == %s);', pja, C, Cl))
 		
-		values$table_clusterID$ids <- if(any(input$detailsTable_selected == 0)) c()
-		else dbGetQuery(db, sprintf('select cluster from cluster 
-			where project_sample == %s and 
-			adduct == \"%s\" and C == %s and Cl == %s;', input$detailsSample, 
-				input$detailsAdduct, input$detailsTable_selected$C, 
-				input$detailsTable_selected$Cl))$cluster
-	}, invalid = function(i) values$table_clusterID <- list(C = 0, Cl = 0, ids = c())
-	, error = function(e){
-		print('ERR detailsTable_selected')
-		print(input$detailsTable_selected)
+		info <- dbGetQuery(db, sprintf('select * from cluster where 
+			project_sample_adduct == %s and C == %s and Cl == %s;', 
+			pja, C, Cl))
+		if(nrow(info) > 0){
+			param$details$theoric <- list(
+				pattern = data.frame(),
+				formula = info$formula, 
+				ion_formula = info$ion_formula, 
+				charge = info$charge, 
+				machine = info$machine,
+				ppm = info$ppm
+			)
+			updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=info$ppm)
+			updatePickerInput(session, 'detailsMachine', 'machine', choices=
+					names(resolution_list), selected = info$machine)
+		} else {
+			formula <- paste0("C", C, "Cl", Cl, "H", 2 * C + 2 - Cl)
+			test <- check_chemform(isotopes, formula)
+			if(test$warning) custom_stop('minor_error', 'incorrect chloroparaffin formula')
+			adductName <- project_samples_adducts() %>% filter(
+				project_sample_adduct == input$detailsAdduct) %>% pull(adduct)
+			adduct <- adducts() %>% filter(adduct == adductName)
+			ion_formula = getIonFormula(formula, adduct)
+			if(nrow(ion_formula) > 0){
+				param$details$theoric$formula <- ion_formula$formula
+				param$details$theoric$ion_formula <- ion_formula$ion_formula
+				param$details$theoric$charge <- ion_formula$charge
+			} else custom_stop('minor_error', 'incorrect chloroparaffin formula with this adduct')
+		}
+	}, invalid = function(i) param$details <- list(
+		xr = param$details$xr, 
+		clusters = data.frame(), 
+		theoric = list(
+			pattern = data.frame(), 
+			formula = "", 
+			ion_formula = "", 
+			charge = 0, 
+			machine = "Elite_R240000@400", 
+			ppm = 5
+		))
+	, minor_error = function(e){
 		print(e)
-		toastr_error("Cannot retrieve the chloroparaffin in database ?!", 
+		toastr_error(paste(e$message))
+	}, error = function(e){
+		print(e)
+		sendSweetAlert("Cannot retrieve information about chloroparaffin selected", 
 			paste(e$message))
-		values$table_clusterID <- list(C = 0, Cl = 0, ids = c())
+		param$details <- list(
+			xr = param$details$xr, 
+			clusters = data.frame(), 
+			theoric = list(
+				pattern = data.frame(), 
+				formula = "", 
+				ion_formula = "", 
+				charge = 0, 
+				machine = "Elite_R240000@400", 
+				ppm = 5
+			))
 	})
 })
 
-observeEvent(values$table_clusterID, {
+observeEvent(input$detailsMachine, param$details$theoric$machine <- input$detailsMachine)
+observeEvent(input$detailsTolPpm, {
 	tryCatch({
-		if(is.null(values$table_clusterID)) custom_stop('invalid', 'not initialized ?????')
-		else if(length(values$table_clusterID$ids) == 0) custom_stop('invalid', 'no cluster retrieve by cell selected')
+		inputs <- 'detailsTolPpm'
+		titles <- 'ppm'
+		conditions <- is.na(input$detailsTolPpm)
+		messages <- 'ppm need to be a numeric'
+		if(!inputsTest(inputs,  conditions, titles, messages)) custom_stop('invalid', 'ppm is not numeric')
+		conditions <- input$detailsTolPpm < 0
+		messages <- 'ppm need to be positive'
+		if(!inputsTest(inputs, conditions, titles, messages)) custom_stop('invalid', 'ppm is negative')
 		
-		vals <- dbGetQuery(db, sprintf('select ppm, machine from cluster where cluster in (%s);', 
-			paste(values$table_clusterID$ids, collapse=', ')))
-			
-		updateNumericInput(session, 'detailsTolPpm', 'tol ppm', value=vals$ppm)
-		updatePickerInput(session, 'detailsMachine', 'machine', choices=
-					names(resolution_list), selected = vals$machine)
-	}, invalid = function(i) NULL
+		param$details$theoric$ppm <- input$detailsTolPpm
+	}, invalid = function(i) param$details$theoric$ppm <- 0
 	, error = function(e){
-		print('ERR values$table_clusterID')
 		print(e)
-		toastr_error()
+		sendSweetAlert('value of ppm is understandable', paste(e$message))
+		param$details$theoric$ppm <- 0
+	})
+})
+
+observeEvent(param$details$theoric, {
+	tryCatch({
+		ion_formula <- param$details$theoric$ion_formula
+		charge <- param$details$theoric$charge
+		machine <- param$details$theoric$machine
+		ppm <- param$details$theoric$ppm
+		
+		if(ion_formula == "" | charge == 0 | machine == "" | ppm == 0) custom_stop('invalid', 
+			'invalid args')
+		browser()
+		param$details$theoric$pattern <- theoricClustersFunction(ion_formula, charge, machine)[[1]] %>% 
+			arrange(desc(abundance)) %>% mutate(
+				tolMDa =  mz * ppm * 10**-6, 
+				mzmin = mz - tolMDa, 
+				mzmax = mz + tolMDa,
+				theoricIso = round(mz - mz[1]),
+				theoricIso = case_when(
+					theoricIso < 0 ~ paste0("A", theoricIso),
+					theoricIso > 0 ~ paste0("A+", theoricIso),
+					TRUE ~ "A")) %>% distinct(theoricIso, .keep_all = TRUE)
+	}, invalid = function(i) param$details$theoric$pattern <- data.frame()
+	, error = function(e){
+		print(e)
+		sendSweetAlert("Something weird happen", paste(e$message))
+		param$details$theoric$pattern <- data.frame()
 	})
 })
 
 output$detailsMS <- renderPlotly({
 	tryCatch({
-		if(is.null(values$table_clusterID)) custom_stop('invalid', 'no cell selected')
-		else if(values$table_clusterID$C == 0) custom_stop('invalid', 'no cell selected')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct picker not initialized')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct for the file??')
-		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine picker not initialized')
-		else if(input$detailsMachine == "") custom_stop('invalid', 'no machine')
+		if(nrow(param$details$theoric$pattern) == 0) custom_stop('invalid', 
+			'theoric pattern not initialized yet')
 		
-		plotMS(db, values$table_clusterID$C, values$table_clusterID$Cl, 
-			values$table_clusterID$ids, isolate(input$detailsAdduct), input$detailsMachine)
+		plotMS(param$details$clusters, param$details$theoric$pattern)
 	}, invalid = function(i) plotEmptyMS()
 	, error = function(e){
 		print('ERR detailsMS')
 		print(e)
-		toastr_error("Cannot draw chloroparaffin mass spectrum")
+		toastr_error("Cannot draw chloroparaffin mass spectrum", paste(e$message))
 		plotEmptyMS()
 	})
-		
 })
 
 output$detailsEIC <- renderPlotly({
 	tryCatch({
-		if(is.null(values$table_clusterID)) custom_stop('invalid', 'no cell selected')
-		else if(values$table_clusterID$C == 0) custom_stop('invalid', 'no cell selected')
-		else if(!is.numeric(input$detailsTolPpm)) custom_stop('invalid', 'ppm is not numeric')
-		else if(is.null(isolate(input$detailsAdduct))) custom_stop('invalid', 'adduct picker not initialized')
-		else if(isolate(input$detailsAdduct) == "") custom_stop('invalid', 'no adduct for the file??')
-		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine picker not initialized')
-		else if(input$detailsMachine == "") custom_stop('invalid', 'no machine')
+		if(nrow(param$details$theoric$pattern) == 0) custom_stop('invalid', 
+			'theoric pattern not initialized yet')
 		
-		plotEIC(db, values$table_clusterID$C, values$table_clusterID$Cl, 
-			values$table_clusterID$ids, isolate(input$detailsAdduct), input$detailsMachine,  
-			ppm = input$detailsTolPpm, xr = isolate(values$table_xr))
-	}, invalid = function(i) plotEmptyChromato(title="EIC")
+		plotClusterEIC(param$details$clusters, param$details$theoric$pattern, 
+			param$details$xr)
+	}, invalid = function(i) plotEmptyChromato()
 	, error = function(e){
 		print('ERR detailsEIC')
 		print(e)
-		toastr_error("Cannot draw chloroparaffin eic")
-		plotEmptyChromato(title="EIC")
+		toastr_error("Cannot draw chloroparaffin EIC", paste(e$message))
+		plotEmptyChromato()
 	}) %>% onRender("function(el, x){
 		el.on('plotly_selected', function(eventData){
 			Shiny.onInputChange('detailsEIC_selected', eventData.range.x);
@@ -238,18 +320,18 @@ output$detailsEIC <- renderPlotly({
 	}")
 })
 
+
 observeEvent(input$detailsErase, {
 	print('############################################################')
 	print('######################### DETAILS ERASE ####################')
 	print('############################################################')
-	print(list(projet_sample=input$detailsSample,
-		table_rows=input$detailsTable_selected))
+	print(list(table_rows=input$detailsTable_selected))
 	tryCatch({
-		if(is.null(values$table_clusterID)) custom_stop('invalid', 'not initialized ?????')
-		else if(length(values$table_clusterID$ids) == 0) custom_stop('invalid', 'no cluster retrieve by cell selected')
+		if(nrow(param$details$clusters) == 0) custom_stop('invalid', 'no clusters')
 		
-		removeTarget(values$table_clusterID$ids)
+		removeTarget(param$details$clusters$cluster %>% unique)
 		
+		param$details$clusters <- data.frame()
 		session$sendCustomMessage("detailsTableErase", NA)
 		toastr_success('record erased')
 	}, invalid = function(i){
@@ -282,23 +364,24 @@ observeEvent(input$detailsEIC_selected, {
 	print(list(projet_sample=input$detailsSample,
 		table_rows=input$detailsTable_selected))
 	tryCatch({
-		if(is.null(values$table_xr)) custom_stop('invalid', 'cannot load file')
-		if(is.null(values$table_clusterID)) custom_stop('invalid', 'not initialized ?????')
-		else if(values$table_clusterID$C == 0) custom_stop('invalid', 'no cell selected')
-		else if(!is.numeric(input$detailsTolPpm)) custom_stop('invalid', 'ppm is not numeric')
-		else if(is.null(input$detailsAdduct)) custom_stop('invalid', 'adduct picker not initialized')
-		else if(input$detailsAdduct == "") custom_stop('invalid', 'no adduct for the file??')
-		else if(is.null(input$detailsMachine)) custom_stop('invalid', 'machine picker not initialized')
-		else if(input$detailsMachine == "") custom_stop('invalid', 'no machine')
+		if(is.null(param$details$xr)) custom_stop('invalid', 'cannot load file')
+		else if(nrow(param$details$theoric$pattern) == 0) custom_stop('invalid', 
+			'cannot compute theoretical pattern of chlorparaffin')
+		else if(is.null(input$detailsEIC_selected)) custom_stop('invalid', 'no rt range selected')
+		else if(length(input$detailsEIC_selected) != 2) custom_stop('invalid', 'no rt range selected')
 		
-		data <- forceTargetChloroPara(values$table_xr, input$detailsEIC_selected * 60, 
-			values$table_clusterID$C, values$table_clusterID$Cl, 
-			input$detailsSample, input$detailsTolPpm, adducts() %>% filter(
-				adduct == input$detailsAdduct), input$detailsMachine, minPts)
+		data <- forceTargetChloroPara(param$details$xr, input$detailsEIC_selected * 60, 
+			param$details$theoric$pattern, param$details$theoric$formula, 
+			param$details$theoric$ion_formula,param$details$theoric$charge, 
+			project_samples_adducts() %>% 
+				filter(project_sample_adduct == input$detailsAdduct) %>% 
+				pull(adduct), 
+			input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
+			param$details$theoric$ppm, param$details$theoric$machine)
 		
 		if(class(data) != "list") custom_stop('invalid', toString(data))
-		if(length(values$table_clusterID$ids) > 0) removeTarget(values$table_clusterID$ids)
-		recordOneTarget(data$features, data$clusters)		
+		if(nrow(param$details$clusters) > 0) removeTarget(unique(param$details$clusters$cluster))
+		recordOneTarget(data$features, data$clusters, input$detailsAdduct)		
 		
 		session$sendCustomMessage("updateDetailsTable", 
 			if(input$detailsSwitch) round(min(data$clusters$score)) 
@@ -316,17 +399,20 @@ observeEvent(input$detailsEIC_selected, {
 	print('############################################################')
 })
 
-recordOneTarget <- function(features, clusters){
-	query <- sprintf('insert into cluster (formula, C, Cl, score, rtMean, deviation, 
-			ppm, peakwidth1, peakwidth2, adduct, machine, project_sample) values %s;', 
-		paste(sprintf("(\"%s\", %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", \"%s\", %s)", 
-			clusters$formula, clusters$C, clusters$Cl, clusters$score, 
+recordOneTarget <- function(features, clusters, pja){
+	query <- sprintf('insert into cluster (formula, ion_formula, charge, 
+			C, Cl, score, rtMean, deviation, 
+			ppm, peakwidth1, peakwidth2, machine, project_sample_adduct) values %s;', 
+		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
+			clusters$formula, clusters$ion_formula, clusters$charge, clusters$C, clusters$Cl, clusters$score, 
 			clusters$rtMean, clusters$deviation, clusters$ppm, clusters$peakwidth1, 
-			clusters$peakwidth2, clusters$adduct, clusters$machine, clusters$project_sample), collapse=', '))
+			clusters$peakwidth2, clusters$machine, pja), 
+				collapse=', '))
+	print(query)
 	dbExecute(db, query)
 	
 	clusterIDs <- dbGetQuery(db, sprintf('select cluster from cluster where 
-		project_sample == %s and formula == "%s";', unique(clusters$project_sample), 
+		project_sample_adduct == %s and formula == "%s";', pja, 
 		unique(clusters$formula)))$cluster
 	features <- do.call(rbind, lapply(1:length(features), function(i) 
 		features[[i]] %>% mutate(cluster = clusterIDs[i])))
@@ -339,12 +425,14 @@ recordOneTarget <- function(features, clusters){
 				features$scale, features$scpos, features$scmin, features$scmax, features$lmin, 
 				features$lmax, features$sn, features$iso, features$cluster, 
 				features$abundance), collapse=', '))
+	print(query)
 	dbExecute(db, query)
 }
 
 
-forceIntegrate <- function(xr, mzRange, scRange, minPts){
-	eic <- rawEIC(xr, mzrange = mzRange) %>% data.frame
+forceIntegrate <- function(xr, mzRange, scRange){
+	eic <- rawEIC(xr, mzrange = mzRange) %>% data.frame %>% 
+		cbind(rt = xr@scantime)
 	omz <- rawMat(xr, mzrange = mzRange) %>% data.frame %>% 
 		mutate(scan = sapply(time, function(x) which(xr@scantime == x)))
 	if(all(eic$intensity == 0)) return("flat eic")
@@ -353,8 +441,10 @@ forceIntegrate <- function(xr, mzRange, scRange, minPts){
 			endrule="constant", algorithm="Turlach")
 	noise <- eic %>% pull(intensity) %>% sd
 	
-	lm <- narrow_rt_boundaries(scRange, sum(scRange) / 2, 
-		eic$intensity - baseline, minPts)
+	# lm <- narrow_rt_boundaries_extend(scRange, sum(scRange) / 2, 
+		# eic$intensity - baseline)
+	lm <- narrow_rt_boundaries_reduce(scRange, sum(scRange) / 2, 
+		eic$intensity - baseline)
 	if(length(lm) < 2) return("not enough consecutive points")
 
 	mz.value <- omz %>% filter(scan >= lm[1] & scan <= lm[2] & 
@@ -373,44 +463,22 @@ forceIntegrate <- function(xr, mzRange, scRange, minPts){
 	
 	data.frame(
 		mz = mz, mzmin = mzrange[1], mzmax = mzrange[2], 
-		rt = xr@scantime[sum(lm) / 2], 
-		rtmin = xr@scantime[lm[1]],
-		rtmax = xr@scantime[lm[2]],
+		rt = eic[sum(lm) / 2, 'rt'], 
+		rtmin = eic[lm[1], 'rt'],
+		rtmax = eic[lm[2], 'rt'],
 		into = 	trapz(eic[lm[1]:lm[2], 'intensity']),
 		maxo = maxo, scale = 0, scpos = 0, 
 		scmin = 0, scmax = 0, lmin = lm[1],
 		lmax = lm[2], sn = sn)
 }
 
-forceTargetChloroPara <- function(xr, rtRange, C, Cl, pj, ppm, adduct, app, minPts){
-	H <- 2*C+2-Cl
-	if(H < 0) return("impossible to compute formula (number of H negative)")
-	formula <- paste('C', C, 'Cl', Cl, 'H', H, sep='')
-	ionFormula <- getIonFormula(formula, adduct, 0)
-	if(nrow(ionFormula) == 0) return("impossible to compute ion formula with this adduct")
-	charge <- ionFormula$charge
-	ionFormula <- ionFormula$ion_formula
-
-	theoric <- theoricClustersFunction(ionFormula, 
-		charge, app)[[1]] %>% arrange(desc(abundance)) %>% 
-			dplyr::mutate(theoricIso = ceiling(mz), 
-				theoricIso = theoricIso - theoricIso[1], 
-				theoricIso = case_when(
-					theoricIso < 0 ~ paste0('A', theoricIso), 
-					theoricIso > 0 ~ paste0('A+', theoricIso), TRUE ~ 'A')) %>% 
-		distinct(theoricIso, .keep_all=TRUE)
-	mzRanges <- data.frame(mz = theoric$mz) %>% 
-		mutate(tolMDa = mz * ppm * 10**-6, 
-			mzmin = mz - tolMDa,
-			mzmax = mz + tolMDa) %>% 
-		select(mzmin, mzmax) %>% as.matrix
-		
+forceTargetChloroPara <- function(xr, rtRange, theoric, formula, ion_formula, 
+		charge, adduct, C, Cl, ppm, machine){
 	scRange <- c(which.min(abs(xr@scantime - rtRange[1])),
 		which.min(abs(xr@scantime - rtRange[2])))
-
 	peaks <- data.frame()
-	for(i in 1:nrow(mzRanges)){
-		tmp <- forceIntegrate(xr, mzRanges[i, ], scRange, minPts)
+	for(i in 1:nrow(theoric)){
+		tmp <- forceIntegrate(xr, as.double(theoric[i, c('mzmin', 'mzmax')]), scRange)
 		if(class(tmp) == "data.frame") peaks <- peaks %>% rbind(tmp %>% 
 			mutate(iso = theoric[i, 'theoricIso']))
 		else break
@@ -439,15 +507,15 @@ forceTargetChloroPara <- function(xr, rtRange, C, Cl, pj, ppm, adduct, app, minP
 			keep(function(x) "A" %in% x$iso & "A+2" %in% x$iso) %>% 
 			map(function(x) x %>% mutate(abundance = into / max(into) * 100))
 		if(length(clusters) == 0) return("cannot get A & A+2 in same cluster")
-		
 		list(features = clusters, clusters = 
 			do.call(rbind, lapply(clusters, function(cluster) 
 				data.frame(
 					score = calculateScore(cluster, theoric, ppm, 100),
 					rtMean = sum(cluster$rt * (cluster$into / sum(cluster$into))),
-					deviation = calculateDeviation(cluster, theoric)))) %>% 
-				mutate(formula = formula, C = C, Cl = Cl, adduct = adduct$adduct,
+					deviation = calculateDeviation(cluster, theoric, ppm)))) %>% 
+				mutate(formula = formula, ion_formula = ion_formula, charge = charge,
+					C = C, Cl = Cl, adduct = adduct,
 					ppm = ppm, peakwidth1 = 0, peakwidth2 = 0, 
-					machine = app, project_sample = pj))
+					machine = machine))
 	} else "cannot get A & A+2"
 }

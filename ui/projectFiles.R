@@ -5,14 +5,21 @@ tabItem(tabName='projectFiles',
 		div(style="text-align:center;", actionBttn('projectCreate', 'create project'))
 	),
 	box(id='filesBox', width=7, title='Add file(s)',
-		box(width=12, title='from the database',
-			column(width=3, uiOutput('uiFileDBProject')),
-			column(width=6, uiOutput('uiFilesDB')),
-			column(width=3, style="padding-top:2.6%;", actionBttn('fileDBAdd', 'Valid'))
+		box(width=6, title='from the database',
+			fluidRow(
+				column(width = 12, 
+					uiOutput('uiFilesDB')
+				)
+			),
+			fluidRow(
+				column(width = 12, style = "text-align: center", 
+					actionBttn('fileDBAdd', 'Valid')
+				)
+			)
 		),
 		
-		box(width=12, title='Import file(s)',
-			tags$div(class="form-group shiny-input-container", 
+		box(width=6, title='from hard drive',
+			tags$div(class="form-group shiny-input-container", style = "text-align:center",  
 				tags$div(class="input-group", 
 					tags$label(class="input-group-btn", 
 						tags$span(id="rawFilesSpan", class="btn btn-default btn-file action-button", "Browse...",
@@ -23,8 +30,5 @@ tabItem(tabName='projectFiles',
 				)
 			)
 		)
-	)#,
-	# box(title='Standards', width=6,
-		# dataTableOutput('standardTable')
-	# )
+	)
 )

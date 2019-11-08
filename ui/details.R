@@ -1,12 +1,33 @@
 tabItem(tabName='table',
 	box(width=12, 
-		column(width=2, uiOutput('uiDetailsSample')),
-		column(width=1, uiOutput('uiDetailsAdduct')),
-		column(width=1, numericInput('detailsTolPpm', 'tol ppm', 5, min=0, step=1)),
-		column(width=2, pickerInput('detailsMachine', 'machine', choices=
-					names(resolution_list), option=list(`live-search`=TRUE))),
-		column(width=1, style="padding-top: 1.6%;", actionBttn('detailsErase', 'Erase')),
-		column(width=1, style="padding-top: 2%;", switchInput('detailsSwitch', onLabel='Scores', offLabel='tR', value=TRUE))
+		tags$table(class = "table3", 
+			tags$tr(
+				tags$td(style = "width: 10%;", 
+					uiOutput('uiDetailsSample')
+				),
+				tags$td(style = "width: 5%;",
+					uiOutput('uiDetailsAdduct')
+				),
+				tags$td(style = "width: 5%;", 
+					numericInput('detailsTolPpm', 'tol ppm', 5, min=0, step=1)
+				),
+				tags$td(style = "width: 10%;", 
+					pickerInput('detailsMachine', 'machine', choices=
+						names(resolution_list), option=list(`live-search`=TRUE))
+				),
+				tags$td(style = "width: 5%;", 
+					tags$div(class = "form-group shiny-input-container", 
+						actionBttn('detailsErase', 'Erase')
+					)
+				),
+				tags$td(style = "width: 5%;", 
+					tags$div(class = "form-group shiny-input-container", 
+						switchInput('detailsSwitch', onLabel='Scores', offLabel='tR', 
+							value=TRUE)
+					)
+				)
+			)
+		)			
 	),
 	
 	box(width=12, 

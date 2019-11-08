@@ -20,6 +20,13 @@ CREATE TABLE IF NOT EXISTS `sample` (
 	`path`	VARCHAR ( 45 ),
 	PRIMARY KEY(`sample`)
 );
+DROP TABLE IF EXISTS `project_sample_adduct`;
+CREATE TABLE IF NOT EXISTS `project_sample_adduct` (
+	`project_sample_adduct`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`project_sample`	INTEGER NOT NULL,
+	`adduct`	varchar ( 45 ) NOT NULL,
+	`machine`	varchar ( 45 ) NOT NULL
+);
 DROP TABLE IF EXISTS `project_sample`;
 CREATE TABLE IF NOT EXISTS `project_sample` (
 	`project_sample`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +39,26 @@ CREATE TABLE IF NOT EXISTS `project` (
 	`project`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	`name`	TEXT,
 	`comment`	TEXT
+);
+DROP TABLE IF EXISTS `profile`;
+CREATE TABLE IF NOT EXISTS `profile` (
+	`profile`	varchar ( 45 ) NOT NULL,
+	`vTarget`	INTEGER NOT NULL,
+	`zCut`	float NOT NULL,
+	`project_sample_adduct`	INTEGER,
+	`xlsxFile`	TEXT,
+	PRIMARY KEY(`profile`)
+);
+DROP TABLE IF EXISTS `point`;
+CREATE TABLE IF NOT EXISTS `point` (
+	`point`	INTEGER NOT NULL,
+	`x`	float NOT NULL,
+	`y`	float NOT NULL,
+	`z`	float NOT NULL,
+	`zone`	INTEGER,
+	`triangle`	INTEGER,
+	`profile`	varchar ( 45 ) NOT NULL,
+	PRIMARY KEY(`point`)
 );
 DROP TABLE IF EXISTS `feature`;
 CREATE TABLE IF NOT EXISTS `feature` (
@@ -62,14 +89,15 @@ CREATE TABLE IF NOT EXISTS `cluster` (
 	`C`	INTEGER NOT NULL,
 	`Cl`	INTEGER NOT NULL,
 	`score`	REAL NOT NULL,
-	`project_sample`	INTEGER NOT NULL,
+	`project_sample_adduct`	INTEGER NOT NULL,
 	`rtMean`	REAL NOT NULL,
 	`deviation`	REAL NOT NULL,
-	`adduct`	TEXT NOT NULL,
 	`ppm`	REAL NOT NULL,
 	`peakwidth1`	REAL NOT NULL,
-	`peakwidth2`	REAL NOT NULL,
-	`machine`	INTEGER
+	`peakwidth2`	NUMERIC NOT NULL,
+	`machine`	INTEGER,
+	`ion_formula`	TEXT,
+	`charge`	INTEGER
 );
 DROP TABLE IF EXISTS `adduct`;
 CREATE TABLE IF NOT EXISTS `adduct` (

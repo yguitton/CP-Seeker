@@ -27,12 +27,11 @@ setWinProgressBar(pb, 1.00, label = "Starting app")
 
 close(pb)
 
-# load enviPat data
 data(isotopes)
 data(adducts)
 data(resolution_list)
-db <- dbConnect(SQLite(), sqlitePath)
+
 options(stringsAsFactors=FALSE)
+options(shiny.reactlog = TRUE)
 shiny::runApp("./", launch.browser = launch_browser)
-dbDisconnect(db)
 

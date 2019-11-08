@@ -13,38 +13,44 @@
 */ 
 
 
-.shinyDisplayElements{
-	text-align: center;
-	vertical-align: bottom;
-	position: relative;
-}
-
-#inputs-table{
-	table-layout: fixed;
+.table2{
 	width: 100%;
-}
-
-#inputs-table2{
 	table-layout: fixed;
-	width: 100%;
 }
-
-#inputs-table td { 
+.table2 td{
 	width: 50%;
-	padding:5px;
-	text-align:center; 
+	padding: 2%;
 	vertical-align: bottom;
 }
 
-#inputs-table2 td { 
-	padding:5px;
-	text-align:center; 
+.table3{
+	width: 100%;
+	table-layout: fixed;
+}
+.table3 td{
 	vertical-align: bottom;
+	padding: 0%;
 }
 
-	
+.table4{
+	table-layout: fixed;
+}
+.table4 td{
+	padding: 0%;
+}
+
+.material-switch span{
+	font-weight: bold;
+	display: block;
+}
+
 #shiny-notification-panel{
 	width: 50%;
+}
+
+#titleApp{
+	width: 200px;
+	float: left;
 }
 
 .shiny-progress-notification .progress{

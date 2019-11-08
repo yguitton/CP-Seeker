@@ -29,6 +29,7 @@ maxC <- config$maxC
 minCl <- config$minCl
 maxCl <- config$maxCl
 minPts <- config$minPts
+precision <- config$precision
 chrome <- reg_paths$chrome
 ie <- reg_paths$ie
 ff <- reg_paths$ff

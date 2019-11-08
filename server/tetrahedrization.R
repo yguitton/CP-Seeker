@@ -1,6 +1,6 @@
 distMatrix <- function(data, nbRow, nbCol){
 	data2 <- matrix(0, nrow=nbRow, ncol=nbCol)
-	for(row in 1:nrow(data)) data2[data[row,1], data[row, 2]] <- data[row, 3]
+	for(row in 1:nrow(data)) data2[data[row, 'x'], data[row, 2]] <- data[row, 3]
 	data2
 }
 

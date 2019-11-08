@@ -130,6 +130,22 @@
     feedbackHandler(message, $inputDisplayed, $label, $formGroup);
   }
   
+	function feedbackPicker(message) {
+		var $input = findInput(message.inputId).parent();
+		var $label = $input.siblings("label");
+		var $formGroup = $input.parent();
+
+		feedbackHandler(message, $input.children().siblings('button'), $label, $formGroup);
+	}
+
+	function feedbackSlider(message) {
+		var $input = findInput(message.inputId).siblings("span");
+		var $label = $input.siblings("label");
+		var $formGroup = $input.parent();
+
+		feedbackHandler(message, $input, $label, $formGroup);
+	}
+  
   function feedbackSelect(message) {
     var $input = findInput(message.inputId);
     
@@ -164,7 +180,8 @@
     "shiny.numberInput",
     "shiny.passwordInput",
     "shiny.textareaInput",
-    "shiny.textInput"
+    "shiny.textInput",
+	"shiny.pickerInput"
   ];
   
   function findInputBinding(id) {
@@ -216,6 +233,12 @@
         case "shiny.selectInput":
           feedbackSelect(message);
           break;
+		case "shiny.pickerInput":
+			feedbackPicker(message);
+			break;
+        case "shiny.sliderInput":
+			feedbackSlider(message);
+			break;
         default:
           feedbackDefault(message);
       }

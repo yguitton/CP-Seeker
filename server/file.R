@@ -1,59 +1,29 @@
-output$uiProject <- renderUI({
-	choices <- if(nrow(projects()) == 0) c() else projects()
-	pickerInput('project', 'project', choices=setNames(
-		choices$project, choices$name))
-})
+#  This file is part of the HaloSeeker software for analyzing LC-MS data
+#  
+#  Copyright (C) 2018  Sébastien HUTINET, Ronan CARIOU, Alexis LÉON, Julie HUREL, Yann GUITTON, Céline TIXIER, Catherine MUNSCHY, Jean-Philippe ANTIGNAC, Gaud DERVILLY-PINEL, Bruno LE BIZEC
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 
-observeEvent(input$projectCreate, {
-	print('############################################################')
-	print('######################### CREATE PROJECT ###################')
-	print('############################################################')
-	tryCatch({
-	print(list(name=input$projectName, comment=input$projectComment, users=input$projectUsers))
-	
-	args <- c('projectName', 'projectComment')
-	conditions <- c(!is.character(input$projectName) | input$projectName == '', !is.character(input$projectComment))
-	messages <- c('Invalid project name', 'Invalid project comment')
-	if(!inputsTest(args, conditions, messages)) custom_stop('invalid', 'Invalid args')
-	
-	projectName <- str_replace_all(input$projectName, "\"", "'")
-	comment <- str_replace_all(input$projectComment, "\"", "'")
-	
-	query <- sprintf("insert into project (name, comment) values(\"%s\", \"%s\");", projectName, comment)
-	print(query)
-	dbSendQuery(db, query)
-	
-	actualize$projects <- TRUE
-	toastr_success(paste('Project', projectName, 'created!'))
-	}, invalid = function(i) print(i)
-	, error = function(e){
-		print('ERR projectCreate')
-		print(e)
-		sendSweetAlert(paste(e$message))
-	})
-	print('############################################################')
-	print('######################### END CREATE PROJECT ###############')
-	print('############################################################')
-})
-
-output$uiFileDBProject <- renderUI({
-	choices <- if(nrow(projects()) == 0) data.frame(project = c(), name = c()) 
-		else projects()
-	div(style='text-align:center;', 
-		pickerInput('fileDBProject', 'In project', choices=setNames(
-			choices$project, choices$name), multiple=FALSE))
-})
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 output$uiFilesDB <- renderUI({
 	selected <- tryCatch({
-		if(is.null(input$fileDBProject)) c()
-		else if(input$fileDBProject == '') c()
-		else project_samples() %>% filter(project == input$fileDBProject) %>% pull(sample)
-	}, error = function(e){
+		if(length(input$project) == 0) custom_stop('invalid', 'input$project not initialized')
+		project_samples() %>% filter(project == input$project) %>% pull(sample)
+	}, invalid = function(i) c()
+	, error = function(e){
+		print('ERR uiFilesDB')
 		print(e)
+		toastr_error("Cannot display list of samples", paste(e$message))
 		c()
 	})
-	pickerInput('filesDB', 'Add sample(s)', choices=samples()$sample, selected=selected, multiple=TRUE, 
+	pickerInput('filesDB', label = NULL, choices=samples()$sample, 
+		selected=selected, multiple=TRUE, inline = FALSE, 
 		options=list(`live-search` = TRUE, `actions-box` = TRUE))
 })
 
@@ -63,106 +33,92 @@ observeEvent(input$fileDBAdd, {
 	print('############################################################')
 	print('######################### FILE ADD FROM DB #################')
 	print('############################################################')
-	print(list(project = input$fileDBProject, files = input$filesDB))
 	
+	print(list(project = input$project, files = input$filesDB))
 	tryCatch({
-	args <- c("fileDBProject")
-	conditions <- c(is.null(input$fileDBProject))
-	messages <- c('No project selected', 'no files (de)selected')
-	if(!inputsTest(args, conditions, messages)) custom_stop('invalid', 'Invalid args')
-	conditions <- c(input$fileDBProject == "")
-	if(!inputsTest(args, conditions, messages)) custom_stop('invalid', 'Invalid args')
+	args <- c("project")
+	titles <- c('project selector')
+	conditions <- c(length(input$project) == 0)
+	messages <- c('No project selected')
+	if(!inputsTest(args, conditions, titles, messages)) custom_stop('invalid', 'Invalid args')
 	
 	actualize$fileDBAdd <- c()
-	fileAlreadyAdd <- project_samples() %>% filter(project == input$fileDBProject) %>% pull(sample) 
+	fileAlreadyAdd <- project_samples() %>% 
+		filter(project == input$project) %>% pull(sample) 
 	toAdd <- input$filesDB[!input$filesDB %in% fileAlreadyAdd]
 	toDelete <- fileAlreadyAdd[!fileAlreadyAdd %in% input$filesDB]
 	
 	print(list(fileAlreadyAdd=fileAlreadyAdd, toAdd=toAdd, toDelete=toDelete))
-	if(length(toDelete) > 0){
-		sapply(toDelete, function(x) deleteProject_sample(x))
-		toastr_success(sprintf("Delete %s in project", paste(toDelete, collapse=', ')))
-	} else print('no file to remove')
-		
+	deleteProjectSamples(project_samples() %>% 
+		filter(sample %in% toDelete & project == input$project) %>% 
+		pull(project_sample))
+	if(length(toDelete) > 0) toastr_success(
+		sprintf("Delete %s in project", paste(toDelete, collapse=', ')))
+			
 	if(length(toAdd) > 0){
 		actualize$fileDBAdd <- toAdd
-		showModal(modalDialog(title='', DT::dataTableOutput('sampleIDDBTable'), 
+		showModal(modalDialog(title='', 
+			DT::dataTableOutput('sampleIDDBTable') %>% withSpinner(), 
 			footer=div(
 				actionBttn('fileDBCancel', 'Cancel', style='stretch', color='warning'),
 				actionBttn('fileDBAdd2', 'Valid', style='stretch', color='primary')
 			)
 		))
-	}
-	else {
+	} else {
 		print('############################################################')
 		print('######################### END FILE ADD FROM DB #############')
 		print('############################################################')
 	}
 	actualize$project_samples <- TRUE
-	}, invalid = function(i) print(i)
+	}, invalid = function(i) NULL
 	, error = function(e){
 		print(e)
-		sendSweetAlert(paste(e$message))
+		sendSweetAlert("Cannot add sample to project", paste(e$message))
 	})
 })
 
 observeEvent(input$fileDBCancel, {
+	print('############################################################')
+	print('######################### END FILE ADD FROM DB #############')
+	print('############################################################')
 	removeModal()
 })
 
 output$sampleIDDBTable <- DT::renderDataTable({
 	tryCatch({
 	files <- actualize$fileDBAdd
-	print(list(files=files))
 	if(length(files) == 0) stop('no files to import')
-	data.frame(file=files, label= files)
+	data.frame(file=files, label = paste('<input type=\"text\" value=\"', files, 
+		'\" maxlength=30 width=\"100%\" required>', sep=''))
 	}, error = function(e){
 		print('ERR sampleIDDBTable')
+		print(list(files = actualize$fileDBAdd))
 		print(paste(e))
-		toastr_error("Cannot display table with files", paste(e$message))
+		toastr_error("Cannot display table with all samples to import", paste(e$message))
 		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'label'))))
 	})
-}, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE), 	
-callback=htmlwidgets::JS("
-		table.on('dblclick', 'tbody td', function(){
-		var colIndex = table.cell(this).index().column;
-		if(colIndex == 1){
-			var $input = $('<input type=\"text\">');
-			var $this = $(this), value = table.cell(this).data(), html = $this.html();
-			$input.val(value);
-			$this.empty().append($input);
-			$input.css('width', '100%').focus().on('change', function(){
-				var valueNew = $input.val().replace('\"', ' ');
-				if(valueNew != ''){
-					if(valueNew.split('').length < 31){
-						table.cell($this).data(valueNew);
-					} else {
-						table.cell($this).data(value);
-						toastr.error('sampleID cannot contain more than 30 characters')
-					}
-				}
-				$input.remove();
-			})
-		}
-	});
-	$('#fileDBAdd2').on('click', function(){
-		Shiny.onInputChange('sampleIDsDBValues', table.data().toArray());
-		Shiny.onInputChange('sampleIDsDBValidBttn', Math.random());
-	});
-"))
+}, escape = FALSE, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE))
 
 observeEvent(input$sampleIDsDBValidBttn, {
-	files <- input$sampleIDsDBValues[seq(1, length(
-		input$sampleIDsDBValues), 2)]
-	sampleIDs <- input$sampleIDsDBValues[seq(2, length(
-		input$sampleIDsDBValues), 2)] %>% str_replace_all("\"", "'")
-	print(list(project = input$fileDBProject, files = files, sampleIDs = sampleIDs, 
+	tryCatch({
+	files <- actualize$fileDBAdd
+	sampleIDs <- input$sampleIDsDBValues
+	print(list(project = input$project, files = files, sampleIDs = sampleIDs, 
 		polarity = input$filePolarity))
+	if(any(str_detect(sampleIDs, specialChars))) custom_stop('invalid', 
+		'Cannot contain any special character ([\\:*?\"<>|])')
 	sapply(1:length(files), function(i) 
-		recordProjectSample(files[i], input$fileDBProject, sampleIDs[i]))
+		recordProjectSample(files[i], input$project, sampleIDs[i]))
 	removeModal()
+	
 	actualize$project_samples <- TRUE
 	toastr_success(sprintf("Add %s in project", paste(files, collapse=', ')))
+	
+	}, invalid = function(i) toastr_error(paste(i$message))
+	, error = function(e){
+		print(e)
+		sendSweetAlert("Cannot import samples in project", paste(e$message))
+	})
 	
 	print('############################################################')
 	print('######################### END FILE ADD FROM DB #############')
@@ -175,22 +131,32 @@ shinyFileChoose(input, 'filesImport', roots=getVolumes(),
 	defaultRoot=names(getVolumes()()[1]))
  
 observeEvent(parseFilePaths(getVolumes()(), input$filesImport), {
-	if(nrow(parseFilePaths(getVolumes()(), input$filesImport)) == 0) return()
-	showModal(modalDialog(title='',
-		column(width=3, pickerInput('fileProject', 'Add in project', 
-			choices=if(nrow(projects()) == 0) c() else setNames(
-				projects()$project, projects()$name))),
-		column(style="padding-top: 2%;", width=8, offset=1, prettyRadioButtons("filePolarity", label = ("Choose polarity of file(s):"), 
-			choices = list("negative" = "negative", "positive" = "positive"), 
-			selected = "negative", icon=icon('check'), bigger=TRUE, status='primary', animation="jelly",
-			inline=TRUE, fill=TRUE)),
-		# tags$h4('Rename the file with the name of your choice'),
-		DT::dataTableOutput('sampleIDTable'),
-		footer=div(
-			actionBttn('fileCancel', 'Cancel', style='stretch', color='warning'),
-			actionBttn('fileAdd', 'Valid', style='stretch', color='primary')
-		)
-	))
+	tryCatch({
+		files <- parseFilePaths(getVolumes()(), input$filesImport)
+		if(nrow(files) == 0) custom_stop('invalid', 'no files selected')
+		else if(files$name %>% str_replace_all('\\\\', '/') %>% 
+			str_detect(specialChars) %>% any) custom_stop('minor_error', 
+				'Filepaths cannot contain any special characters ([\\:*?\"<>|])')
+		showModal(modalDialog(title='',
+			column(style="padding-top: 2%;", width=8, offset=1, 
+				prettyRadioButtons("filePolarity", label = ("Choose polarity of file(s):"), 
+					choices = list("negative" = "negative", "positive" = "positive"), 
+					selected = "negative", icon=icon('check'), bigger=TRUE, 
+					status='primary', animation="jelly", inline=TRUE, fill=TRUE)
+			),
+			DT::dataTableOutput('sampleIDTable'),
+			footer=div(
+				actionBttn('fileCancel', 'Cancel', style='stretch', color='warning'),
+				actionBttn('fileAdd', 'Valid', style='stretch', color='primary')
+			)
+		))
+	}, invalid = function(i) NULL, 
+	minor_error = function(e) toastr_error(paste(e$message)), 
+	error = function(e){
+		print('ERR parseFilePaths(getVolumes()(), input$filesImport)')
+		print(e)
+		sendSweetAlert("Cannot import files to database", paste(e$message))
+	})
 })
 
 observeEvent(input$fileCancel, {
@@ -200,47 +166,20 @@ observeEvent(input$fileCancel, {
 output$sampleIDTable <- DT::renderDataTable({
 	tryCatch({
 	files <- parseFilePaths(getVolumes()(), input$filesImport)
-	print(list(files=files, polarity = input$filePolarity))
 	data.frame(file=files$name, 
-		label = paste(input$filePolarity %>% str_trunc(3, ellipsis=""),
-			file_path_sans_ext(files$name)) %>% str_trunc(30, ellipsis=""))	
+		label = paste('<input type=\"text\" value=\"', 
+			paste(input$filePolarity %>% str_trunc(3, ellipsis=""),
+				file_path_sans_ext(files$name)) %>% str_trunc(30, ellipsis=""), 
+			'\" maxlength=30 width=\"100%\" required>', sep=''))
 	}, error = function(e){
 		print('ERR sampleIDTable')
 		print(paste(e))
-		toastr_error("Cannot display table with files", paste(e$message))
+		toastr_error("Cannot display table with all files to import", paste(e$message))
 		data.frame(matrix(, ncol=2, dimnames=list(c(), c('file', 'label'))))
 	})
-}, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE), 	
-callback=htmlwidgets::JS("
-	table.on('dblclick', 'tbody td', function(){
-		var colIndex = table.cell(this).index().column;
-		if(colIndex == 1){
-			var $input = $('<input type=\"text\">');
-			var $this = $(this), value = table.cell(this).data(), html = $this.html();
-			$input.val(value);
-			$this.empty().append($input);
-			$input.css('width', '100%').focus().on('change', function(){
-				var valueNew = $input.val().replace('\"', ' ');
-				if(valueNew != ''){
-					if(valueNew.split('').length < 31){
-						table.cell($this).data(valueNew);
-					} else {
-						table.cell($this).data(value);
-						toastr.error('sampleID cannot contain more than 30 characters')
-					}
-				}
-				$input.remove();
-			})
-		}
-	});
-	$('#fileAdd').on('click', function(){
-		Shiny.onInputChange('sampleIDsValues', table.data().toArray());
-		Shiny.onInputChange('sampleIDsValidBttn', Math.random());
-	});
-"))
+}, escape = FALSE, selection='none', rownames=FALSE, options=list(dom='frtip', bFilter=FALSE, ordering=FALSE, paging=FALSE))
 
 actualize$importationSuccess <- data.frame(file=c(), success=c())
-
 observeEvent(input$fileCancel, {
 	removeModal()
 })
@@ -251,14 +190,14 @@ observeEvent(input$sampleIDsValidBttn, {
 	print('############################################################')
 	
 	files <- parseFilePaths(getVolumes()(), input$filesImport)
-	sampleIDs <- input$sampleIDsValues[seq(2, length(
-		input$sampleIDsValues), 2)] %>% str_replace_all("\"", "'")
-	print(list(project = input$fileProject, paths = files$datapath, sampleIDs = sampleIDs, 
+	sampleIDs <- input$sampleIDsValues
+	print(list(project = input$project, paths = files$datapath, sampleIDs = sampleIDs, 
 		polarity = input$filePolarity))
-		
+	
 	tryCatch({
-		if(is.null(input$fileProject)) custom_stop('invalid', 'you must select a project')
-		else if(input$fileProject == '') custom_stop('invalid', 'you must select a project')
+		if(length(input$project) == 0) custom_stop('invalid', 'you must select a project')
+		else if(any(str_detect(sampleIDs, specialChars))) custom_stop('invalid', 'label 
+			cannot contain any special character ([\\:*?\"<>|])')
 		
 		actualize$importationSuccess <- data.frame(file=c(), success=c())
 		success <- c()
@@ -273,11 +212,11 @@ observeEvent(input$sampleIDsValidBttn, {
 			# check if file already exists in database
 			sampleName <- paste(input$filePolarity, file_path_sans_ext(files$name[i]))
 			if(project_samples() %>% filter(
-				project == input$fileProject & sample == sampleName) %>% 
+				project == input$project & sample == sampleName) %>% 
 					nrow > 0) success[i] <- 'file already in project'
 			else if(sampleName %in% samples()$sample) success[i] <- recordProjectSample(
-				sampleName, input$fileProject, sampleIDs[i])
-			else success[i] <- conversion(input$fileProject, files$datapath[i], 
+				sampleName, input$project, sampleIDs[i])
+			else success[i] <- conversion(input$project, files$datapath[i], 
 				sampleName, sampleIDs[i], input$filePolarity)
 			print('---')
 		}
@@ -288,7 +227,8 @@ observeEvent(input$sampleIDsValidBttn, {
 		print(success)
 		closeSweetAlert(session)
 		showModal(modalDialog(title = 'Result of importation', easyClose=TRUE,
-			DT::dataTableOutput('importationSuccessTable'), footer=modalButton('Close')
+			DT::dataTableOutput('importationSuccessTable') %>% withSpinner(), 
+			footer=modalButton('Close')
 		))
 	}, invalid = function(i){
 		print(i)
@@ -296,7 +236,7 @@ observeEvent(input$sampleIDsValidBttn, {
 	}, error = function(e){
 		closeSweetAlert(session)
 		print(e)
-		sendSweetAlert('Cannot import files', paste(e$message))
+		sendSweetAlert("Cannot import files to database", paste(e$message))
 	})
 	
 	print('############################################################')
@@ -365,7 +305,6 @@ conversion <- function(project, rawPath, sample, sampleID, polarity){
 		if(polarity == 'negative') 0 else 1, thermoFile)
 }
 
-
 importation <- function(path, rawPath, project, sample, sampleID, polarity, thermoFile=NULL){
 	print(paste('importation of', path))
 	
@@ -417,13 +356,13 @@ recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarit
 	print(paste('record', sample))
 	
 	infos <- msFile@experimentData
-	instrumentModel <- if(length(infos@instrumentModel) == 0) '' else infos@instrumentModel
-	manufacturer <- if(length(infos@instrumentManufacturer) == 0) '' else infos@instrumentManufacturer
-	softwareName <- if(length(infos@softwareName) == 0) '' else infos@softwareName
-	softwareVersion <- if(length(infos@softwareVersion) == 0) '' else infos@softwareVersion
-	ionSource <- if(length(infos@ionSource) == 0) '' else infos@ionSource
-	analyzer <- if(length(infos@analyser) == 0) '' else infos@analyser
-	detectorType <- if(length(infos@detectorType) == 0) '' else infos@detectorType
+	instrumentModel <- if(length(infos@instrumentModel) == 0) '' else infos@instrumentModel %>% str_replace_all("\\:*?\"<>|", " ")
+	manufacturer <- if(length(infos@instrumentManufacturer) == 0) '' else infos@instrumentManufacturer %>% str_replace_all("\\:*?\"<>|", " ")
+	softwareName <- if(length(infos@softwareName) == 0) '' else infos@softwareName %>% str_replace_all("\\:*?\"<>|", " ")
+	softwareVersion <- if(length(infos@softwareVersion) == 0) '' else infos@softwareVersion %>% str_replace_all("\\:*?\"<>|", " ")
+	ionSource <- if(length(infos@ionSource) == 0) '' else infos@ionSource %>% str_replace_all("\\:*?\"<>|", " ")
+	analyzer <- if(length(infos@analyser) == 0) '' else infos@analyser %>% str_replace_all("\\:*?\"<>|", " ")
+	detectorType <- if(length(infos@detectorType) == 0) '' else infos@detectorType %>% str_replace_all("\\:*?\"<>|", " ")
 	rm(msFile)
 	gc()
 	
@@ -431,23 +370,23 @@ recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarit
 		txt <- readLines(thermoFile)
 		resolution <- if(any(grepl('^Resolution', txt))) txt[which(
 				grepl('^Resolution', txt))] %>% 
-				str_extract('[[:digit:]]+[[[:punct:]]{1}[[:alpha:]]{1}][[:digit:]]*')
+				str_extract('[[:digit:]]+[[[:punct:]]{1}[[:alpha:]]{1}][[:digit:]]*') %>% str_replace_all("\\:*?\"<>|", " ")
 			else ''
 		agcTarget <- if(any(grepl('^AGC target', txt))) txt[which(
 				grepl('^AGC target', txt))] %>% 
-				str_extract('[[:digit:]]+[[[:punct:]]{1}[[:alpha:]]{1}][[:digit:]]')
+				str_extract('[[:digit:]]+[[[:punct:]]{1}[[:alpha:]]{1}][[:digit:]]') %>% str_replace_all("\\:*?\"<>|", " ")
 			else ''
 		maximumIT <- if(any(grepl('^Maximum IT', txt))) txt[which(
 				grepl('^Maximum IT', txt))] %>% 
-				str_extract('[[:digit:]]+\\s[[:alpha:]]+')
+				str_extract('[[:digit:]]+\\s[[:alpha:]]+') %>% str_replace_all("\\:*?\"<>|", " ")
 			else ''
 		numberOfScanRange <- if(any(grepl('^Number of scan ranges', txt))) txt[which(
 				grepl('^Number of scan ranges', txt))] %>% 
-				str_extract('[[:digit:]]+')
+				str_extract('[[:digit:]]+') %>% str_replace_all("\\:*?\"<>|", " ")
 			else ''
 		scanRange <- if(any(grepl('^Scan range', txt))) txt[which(
 				grepl('^Scan range', txt))] %>% 
-				str_extract('[[:digit:]]+\\sto\\s[[:digit:]]+\\sm/z')
+				str_extract('[[:digit:]]+\\sto\\s[[:digit:]]+\\sm/z') %>% str_replace_all("\\:*?\"<>|", " ")
 			else ''
 		query <- sprintf('insert into sample (sample, path, rawPath, polarity, instrumentModel,
 			instrumentManufacturer, softwareName, softwareVersion, ionSource,
@@ -458,15 +397,14 @@ recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarit
 			instrumentModel, manufacturer, softwareName,
 			softwareVersion, ionSource, analyzer, detectorType, resolution, 
 			agcTarget, maximumIT, numberOfScanRange, scanRange)
-		query <- str_replace_all(query, "\"", "'")
 		print(query)
 		if(length(query) == 1){
 			dbExecute(db, query)
 			bl <- xcmsRaw(path, mslevel=1, profstep=0)
 			gc()
-			bl <- bl %>% serialize(NULL) %>% compress_fst(compression=100) %>% blob
+			bl <- bl %>% serialize(NULL) %>% compress_fst(compression = 100) %>% blob
 			print(bl)
-			if(length(bl[[1]]) >= 2*10**9){
+			if(length(bl[[1]]) >= 2 * 10**9){
 				print('file too big for database')
 				print('recording into mzXML repertory')
 				new_path <- file.path('mzXMLFiles', 
@@ -491,32 +429,24 @@ recordFile <- function(project, msFile, path, rawPath, sample, sampleID, polarit
 	print(query)
 	if(length(query) == 1){
 		dbExecute(db, query)
-		bl <- xcmsRaw(path, mslevel=1, profstep=0)
-		gc()
-		bl <- bl %>% serialize(NULL) %>% compress_fst(compression = 100) %>% blob
-		print(bl)
-		if(length(bl[[1]]) >= 2 * 10**9){
-			print('file too big for database')
-			print('recording into mzXML repertory')
+			bl <- xcmsRaw(path, mslevel=1, profstep=0)
+			gc()
+			bl <- bl %>% serialize(NULL) %>% compress_fst(compression = 100) %>% blob
+			print(bl)
+			if(length(bl[[1]]) >= 2 * 10**9){
+				print('file too big for database')
+				print('recording into mzXML repertory')
 				new_path <- file.path('mzXMLFiles', 
 					if(polarity == 0) "negative" else "positive", 
 					basename(path))
 				file.copy(path, new_path)
 				dbExecute(db, sprintf('update sample set path = \"%s\" where 
 					sample == \"%s\";', new_path, sample))
-		} else dbExecute(db, sprintf('update sample set raw = :a where 
-			sample == \"%s\";', sample), params = list(a = bl))
-		rm(bl)
-		gc()
-		return(recordProjectSample(sample, project, sampleID))
+			} else dbExecute(db, sprintf('update sample set raw = :a where 
+				sample == \"%s\";', sample), params = list(a = bl))
+			rm(bl)
+			gc()
+			return(recordProjectSample(sample, project, sampleID))
 	} else paste('cannot insert in database')
 }
 
-recordProjectSample <- function(sample, project, sampleID){
-	print('record project sample')
-	query <- sprintf("insert into project_sample (project, sample, sampleID) values (%s, \"%s\", \"%s\" );", 
-		project, sample, sampleID)
-	print(query)
-	dbExecute(db, query)
-	'success'
-}
