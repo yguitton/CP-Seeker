@@ -266,7 +266,6 @@ observeEvent(param$details$theoric, {
 		
 		if(ion_formula == "" | charge == 0 | machine == "" | ppm == 0) custom_stop('invalid', 
 			'invalid args')
-		browser()
 		param$details$theoric$pattern <- theoricClustersFunction(ion_formula, charge, machine)[[1]] %>% 
 			arrange(desc(abundance)) %>% mutate(
 				tolMDa =  mz * ppm * 10**-6, 

@@ -4,8 +4,8 @@ tabItem(tabName='target',
 			uiOutput('uiTargetSamples'),
 			column(width=6, 
 				pickerInput('targetAdducts', 'adduct', choices=
-					setNames(c('M+Cl', 'M-H', 'M+Hac-H', 'M-Cl', 'M-H-Cl'), 
-						c('[M+Cl]-', '[M-H]-', '[M+Hac-H]-', '[M-Cl]-', '[M-H-Cl]-')),
+					setNames(c('M+Cl', 'M-H', 'M+Hac-H', 'M-Cl', 'M-H-Cl', 'M+Cl-H2'), 
+						c('[M+Cl]-', '[M-H]-', '[M+Hac-H]-', '[M-Cl]-', '[M-H-Cl]-', '[M+Cl-H2]-')),
 					multiple=TRUE)
 			),
 			column(width=6, 
