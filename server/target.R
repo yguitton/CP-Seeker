@@ -255,7 +255,8 @@ integrate <- function(eic, omz, scalerange, baseline, sdnoise){
 			intensity = mz.int))
 		sn <- trapz(eic[lm[1]:lm[2], 'intensity'] - baseline[lm[1]:lm[2]]) / 
 			trapz(rep(sdnoise, diff(lm) + 1))
-		if(sn < 1) next
+		if(is.na(sn)) next
+		else if(sn < 1) next
 		peaks <- peaks %>% rbind(data.frame(
 			mz = mz, mzmin = mzrange[1], mzmax = mzrange[2], 
 			rt = eic[best.scale.pos, 'rt'], 
