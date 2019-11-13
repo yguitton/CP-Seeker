@@ -101,6 +101,7 @@ observeEvent(input$target, {
 		res <- list()
 		resInfo <- data.frame()
 		for(pj in input$targetSamples){
+			print(paste('--------------', pj, '------------'))
 			updateProgressBar(session, id='pb', title=sprintf("Targeting in %s", project_samples() %>% 
 						filter(project_sample == pj) %>% pull(sampleID)),
 						value=pbVal * 100 / pbValMax)
@@ -116,10 +117,12 @@ observeEvent(input$target, {
 			scalerange <- round((input$targetPeakwidth / mean(diff(xr@scantime))) / 2)
 			scRange <- round(input$targetRT * 60 / mean(diff(xr@scantime)))
 			for(row in 1:nrow(theorics)){
+				print(row)
 				theoric <- theorics[row, ]
 				theoricPattern <- theoricPatterns[[row]]
 				
 				peaks <- data.frame()
+				# if(row == 86) browser()
 				for(row2 in 1:nrow(theoricPattern)){
 					tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
 						as.double(theoricPattern[row2, c('mzmin', 'mzmax')]), scRange))
@@ -286,35 +289,41 @@ descendMin <- function(int, center, minPts = 1){
 	if(is.na(right)) right <- center
 	c(left, right)
 }
-narrow_rt_boundaries_extend <- function(lm, center, int, minPts = 1){
+narrow_rt_boundaries_extend <- function(lm, center, int, minPts = 2){
 	lefts <- lm[1]:1
 	lefts <- lefts[which(int[lm[1]:1] > 0)]
-	lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) < -1)))
-	left <- lefts[[which(lengths(lefts) > 1)[1]]][1] - 1
+	left <- if(length(lefts) > 0){
+		lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) < -minPts)))[[1]]
+		left <- lefts[length(lefts)] - 1
+		if(left == 0) 1 else left
+	} else lm[1]
 
 	rights <- lm[2]:length(int)
 	rights <- rights[which(int[lm[2]:length(int)] > 0)]
-	rights <- split(rights, cumsum(c(TRUE, diff(rights) > 1)))
-	right <- rights[[which(lengths(rights) > 1)[1]]][1] + 1
-	
-	if(length(left) == 0) left <- lm[1]
-	if(length(right) == 0) right <- lm[2]
+	right <- if(length(rights) > 0){
+		rights <- split(rights, cumsum(c(TRUE, diff(rights) > minPts)))[[1]]
+		right <- rights[length(rights)] + 1
+		if(right > length(int)) length(int) else right
+	} else lm[2]
 	c(left, right)
 }
 
-narrow_rt_boundaries_reduce <- function(lm, center, int, minPts = 1){
+narrow_rt_boundaries_reduce <- function(lm, center, int, minPts = 2){
 	lefts <- lm[1]:center
-	lefts <- lefts[which(int[lm[1]:center] > 0)] - 1
-	lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) > 1)))
-	left <- lefts[[which(lengths(lefts) > 1)[1]]][1] - 1
+	lefts <- lefts[which(int[lm[1]:center] > 0)]
+	left <- if(length(lefts) > 0){
+		lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts)))
+		lefts <- lefts[which(length(lefts) > 1)]
+		if(length(lefts) == 0) center else lefts[[1]][1]
+	} else center
 
 	rights <- lm[2]:center
 	rights <- rights[which(int[lm[2]:center] > 0)]
-	rights <- split(rights, cumsum(c(TRUE, diff(rights) < -1)))
-	right <- rights[[which(lengths(rights) > 1)[1]]][1] + 1
-	
-	if(length(left) == 0) left <- lm[1]
-	if(length(right) == 0) right <- lm[2]
+	right <- if(length(rights) > 0){
+		rights <- split(rights, cumsum(c(TRUE, diff(rights) < -minPts)))
+		rights[which(length(rights) > 1)]
+		if(length(rights) == 0) center else rights[[1]][1]
+	} else center
 	c(left, right)
 }
 
