@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Core API function for single-spectrum non-chromatography MS...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_findPeaks_MSW {xcms}"><tr><td>do_findPeaks_MSW {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Core API function for single-spectrum non-chromatography MS data
+peak detection</h2>
+
+<h3>Description</h3>
+
+<p>This function performs peak detection in mass spectrometry
+direct injection spectrum using a wavelet based algorithm.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_findPeaks_MSW(mz, int, snthresh = 3, verboseColumns = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>Numeric vector with the individual m/z values from all scans/
+spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>int</code></td>
+<td>
+<p>Numeric vector with the individual intensity values from all
+scans/spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio cutoff.</p>
+</td></tr>
+<tr valign="top"><td><code>verboseColumns</code></td>
+<td>
+<p><code>logical(1)</code> whether additional peak meta data
+columns should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters to be passed to the
+<code><a href="../../MassSpecWavelet/html/peakDetectionCWT.html">peakDetectionCWT</a></code> function.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This is a wrapper around the peak picker in Bioconductor's
+<code>MassSpecWavelet</code> package calling
+<code><a href="../../MassSpecWavelet/html/peakDetectionCWT.html">peakDetectionCWT</a></code> and
+<code><a href="../../MassSpecWavelet/html/tuneInPeakInfo.html">tuneInPeakInfo</a></code> functions. See the
+<em>xcmsDirect</em> vignette for more information.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix, each row representing an identified peak, with columns:
+</p>
+
+<dl>
+<dt>mz</dt><dd><p>m/z value of the peak at the centroid position.</p>
+</dd>
+<dt>mzmin</dt><dd><p>Minimum m/z of the peak.</p>
+</dd>
+<dt>mzmax</dt><dd><p>Maximum m/z of the peak.</p>
+</dd>
+<dt>rt</dt><dd><p>Always <code>-1</code>.</p>
+</dd>
+<dt>rtmin</dt><dd><p>Always <code>-1</code>.</p>
+</dd>
+<dt>rtmax</dt><dd><p>Always <code>-1</code>.</p>
+</dd>
+<dt>into</dt><dd><p>Integrated (original) intensity of the peak.</p>
+</dd>
+<dt>maxo</dt><dd><p>Maximum intensity of the peak.</p>
+</dd>
+<dt>intf</dt><dd><p>Always <code>NA</code>.</p>
+</dd>
+<dt>maxf</dt><dd><p>Maximum MSW-filter response of the peak.</p>
+</dd>
+<dt>sn</dt><dd><p>Signal to noise ratio.</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Joachim Kutzera, Steffen Neumann, Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="findPeaks-MSW.html">MSW</a></code> for the standard user interface
+method. <code><a href="../../MassSpecWavelet/html/peakDetectionCWT.html">peakDetectionCWT</a></code> from the
+<code>MassSpecWavelet</code> package.
+</p>
+<p>Other core peak detection functions: <code><a href="do_findChromPeaks_centWaveWithPredIsoROIs.html">do_findChromPeaks_centWaveWithPredIsoROIs</a></code>,
+<code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code>,
+<code><a href="do_findChromPeaks_massifquant.html">do_findChromPeaks_massifquant</a></code>,
+<code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot log intensity image of a xcmsRaw object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for levelplot-methods {xcms}"><tr><td>levelplot-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot log intensity image of a xcmsRaw object</h2>
+
+<h3>Description</h3>
+
+<p>Create an image of the raw (profile) data m/z against retention
+time, with the intensity color coded.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>xcmsRaw object.</p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+<p>Whether the intensity should be log transformed.</p>
+</td></tr>
+<tr valign="top"><td><code>col.regions</code></td>
+<td>
+<p>The color ramp that should be used for encoding of
+the intensity.</p>
+</td></tr>
+<tr valign="top"><td><code>rt</code></td>
+<td>
+<p>wheter the original (<code>rt="raw"</code>) or the corrected
+(<code>rt="corrected"</code>) retention times should be used.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments for <code>profRange</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>x = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>
+    levelplot(x, log=TRUE, col.regions=colorRampPalette(brewer.pal(9,
+    "YlOrRd"))(256), ...)
+  </code>
+</p>
+</dd>
+<dt>x = &quot;xcmsSet&quot;</dt><dd>
+<p><code>
+    levelplot(x, log=TRUE, col.regions=colorRampPalette(brewer.pal(9,
+    "YlOrRd"))(256), rt="raw", ...)
+  </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer, <a href="mailto:johannes.rainer@eurac.edu">johannes.rainer@eurac.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>, <code><a href="xcmsSet-class.html">xcmsSet-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

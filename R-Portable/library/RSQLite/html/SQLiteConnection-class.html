@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class SQLiteConnection (and methods)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for SQLiteConnection-class {RSQLite}"><tr><td>SQLiteConnection-class {RSQLite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class SQLiteConnection (and methods)</h2>
+
+<h3>Description</h3>
+
+<p>SQLiteConnection objects are created by passing <code><a href="SQLite.html">SQLite()</a></code> as first
+argument to <code><a href="../../DBI/html/dbConnect.html">DBI::dbConnect()</a></code>.
+They are a superclass of the <a href="../../DBI/html/DBIConnection-class.html">DBIConnection</a> class.
+The &quot;Usage&quot; section lists the class methods overridden by <span class="pkg">RSQLite</span>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'SQLiteConnection'
+format(x, ...)
+
+## S4 method for signature 'SQLiteConnection'
+show(object)
+
+## S4 method for signature 'SQLiteConnection'
+dbIsValid(dbObj, ...)
+
+## S4 method for signature 'SQLiteConnection,character'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'SQLiteConnection,SQL'
+dbQuoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'SQLiteConnection,SQL'
+dbUnquoteIdentifier(conn, x, ...)
+
+## S4 method for signature 'SQLiteConnection'
+dbGetException(conn, ...)
+
+## S4 method for signature 'SQLiteConnection,character'
+dbSendQuery(conn, statement,
+  params = NULL, ...)
+
+## S4 method for signature 'SQLiteConnection'
+sqlData(con, value,
+  row.names = pkgconfig::get_config("RSQLite::row.names.query", FALSE),
+  ...)
+
+## S4 method for signature 'SQLiteConnection,character'
+dbRemoveTable(conn, name, ...,
+  temporary = FALSE, fail_if_missing = TRUE)
+
+## S4 method for signature 'SQLiteConnection,character'
+dbExistsTable(conn, name, ...)
+
+## S4 method for signature 'SQLiteConnection'
+dbListTables(conn, ...)
+
+## S4 method for signature 'SQLiteConnection,character'
+dbListFields(conn, name, ...)
+
+## S4 method for signature 'SQLiteConnection'
+dbDataType(dbObj, obj, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>temporary</code></td>
+<td>
+<p>If <code>TRUE</code>, only temporary tables are considered.</p>
+</td></tr>
+<tr valign="top"><td><code>fail_if_missing</code></td>
+<td>
+<p>If <code>FALSE</code>, <code>dbRemoveTable()</code> succeeds if the
+table doesn't exist.</p>
+</td></tr>
+</table>
+
+
+<h3>See Also</h3>
+
+<p>The corresponding generic functions
+<code><a href="../../DBI/html/dbSendQuery.html">DBI::dbSendQuery()</a></code>, <code><a href="../../DBI/html/dbGetQuery.html">DBI::dbGetQuery()</a></code>,
+<code><a href="../../DBI/html/dbSendStatement.html">DBI::dbSendStatement()</a></code>, <code><a href="../../DBI/html/dbExecute.html">DBI::dbExecute()</a></code>,
+<code><a href="../../DBI/html/dbExistsTable.html">DBI::dbExistsTable()</a></code>, <code><a href="../../DBI/html/dbListTables.html">DBI::dbListTables()</a></code>, <code><a href="../../DBI/html/dbListFields.html">DBI::dbListFields()</a></code>,
+<code><a href="../../DBI/html/dbRemoveTable.html">DBI::dbRemoveTable()</a></code>, and <code><a href="../../DBI/html/sqlData.html">DBI::sqlData()</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>RSQLite</em> version 2.1.2.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

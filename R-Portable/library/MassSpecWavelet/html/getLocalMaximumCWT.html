@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Identify the local maximum of each column in 2-D CWT...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getLocalMaximumCWT {MassSpecWavelet}"><tr><td>getLocalMaximumCWT {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Identify the local maximum of each column in 2-D CWT coefficients matrix</h2>
+
+<h3>Description</h3>
+
+<p>Identify the local maximum of each column in 2-D CWT coefficients matrix by using a slide window.
+The size of slide window linearly changes from the coarse scale (bigger window size) to detail scale.
+The scale of CWT increases with the column index.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getLocalMaximumCWT(wCoefs, minWinSize= 5, amp.Th = 0)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>wCoefs</code></td>
+<td>
+<p>2-D CWT coefficients, each column corresponding to CWT coefficient at one scale. The column name is the scale.</p>
+</td></tr>
+<tr valign="top"><td><code>minWinSize</code></td>
+<td>
+<p>The minimum slide window size used.</p>
+</td></tr>
+<tr valign="top"><td><code>amp.Th</code></td>
+<td>
+<p> The minimum peak amplitude. </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>return a matrix with same dimension as CWT coefficient matrix, wCoefs. The local maxima are marked as 1, others are 0.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p> Pan Du </p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="localMaximum.html">localMaximum</a></code> </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	data(exampleMS)
+	scales &lt;- seq(1, 64, 3)
+	wCoefs &lt;- cwt(exampleMS[5000:11000], scales=scales, wavelet='mexh')
+	
+	localMax &lt;- getLocalMaximumCWT(wCoefs)
+	plotLocalMax(localMax)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

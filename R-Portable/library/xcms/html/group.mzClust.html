@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Group Peaks via High Resolution Alignment</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for group.mzClust {xcms}"><tr><td>group.mzClust {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Group Peaks via High Resolution Alignment</h2>
+
+<h3>Description</h3>
+
+<p>Runs high resolution alignment on single spectra samples stored in a
+given xcmsSet.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a xcmsSet with peaks </p>
+</td></tr>
+<tr valign="top"><td><code>mzppm</code></td>
+<td>
+<p>the relative error used for clustering/grouping in ppm (parts per million)</p>
+</td></tr>
+<tr valign="top"><td><code>mzabs</code></td>
+<td>
+<p>the absolute error used for clustering/grouping</p>
+</td></tr>
+<tr valign="top"><td><code>minsamp</code></td>
+<td>
+<p>set the minimum number of samples in one bin</p>
+</td></tr>
+<tr valign="top"><td><code>minfrac</code></td>
+<td>
+<p>set the minimum fraction of each class in one bin</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Returns a xcmsSet with slots groups and groupindex set.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsSet&quot;</dt><dd>
+<p><code>
+     group(object, method="mzClust", mzppm = 20, mzabs = 0, minsamp = 1, minfrac=0)
+  </code>
+</p>
+</dd>
+</dl>
+
+
+<h3>References</h3>
+
+<p>Saira A. Kazmi, Samiran Ghosh, Dong-Guk Shin,
+Dennis W. Hill and David F. Grant<br />
+<em>Alignment of high resolution mass spectra: development of a heuristic
+approach for metabolomics</em>.<br />
+Metabolomics, Vol. 2, No. 2, 75-83 (2006)
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSet-class.html">xcmsSet-class</a></code>,
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(msdata)
+mzdatapath &lt;- system.file("fticr", package = "msdata")
+mzdatafiles &lt;- list.files(mzdatapath, recursive = TRUE, full.names = TRUE)
+
+xs &lt;- xcmsSet(method="MSW", files=mzdatafiles, scales=c(1,7),
+              SNR.method='data.mean' , winSize.noise=500,
+              peakThr=80000,  amp.Th=0.005)
+
+xsg &lt;- group(xs, method="mzClust")
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

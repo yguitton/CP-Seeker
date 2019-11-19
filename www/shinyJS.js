@@ -1,4 +1,5 @@
  var dimension = [0, 0];
+ var df;
 $(document).on("shiny:connected", function(e) {
 	$("body").addClass("sidebar-mini");
 	Shiny.onInputChange("dimension", [window.innerWidth, window.innerHeight]);
@@ -64,4 +65,12 @@ $(document).on('click', '#fileAdd', function(){
 		Shiny.onInputChange('sampleIDsValues', vals);
 		Shiny.onInputChange('sampleIDsValidBttn', Math.random());
 	}
+})
+
+$(document).on('change', '#detailsSwitch2 input', function(){
+	console.log($('#detailsSwitch2 input').toArray().filter(x => x.checked)[0].value);
+})
+
+Shiny.addCustomMessageHandler("dfUpdate", function(message){
+	df = message;	
 })

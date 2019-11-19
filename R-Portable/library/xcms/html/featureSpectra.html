@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extract (MS2) spectra associated with features</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for featureSpectra {xcms}"><tr><td>featureSpectra {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extract (MS2) spectra associated with features</h2>
+
+<h3>Description</h3>
+
+<p>Return (MS2) spectra for all chromatographic peaks associated with the
+features in <code>x</code> (defined by <code><a href="XCMSnExp-class.html">featureDefinitions()</a></code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+featureSpectra(x, msLevel = 2, expandRt = 0, expandMz = 0, ppm = 0,
+  skipFilled = FALSE, return.type = c("Spectra", "list"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><a href="XCMSnExp-class.html">XCMSnExp</a> object with feature defitions available.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer(1)</code> defining whether MS1 or MS2 spectra should be
+returned. Currently only <code>msLevel = 2</code> is supported.</p>
+</td></tr>
+<tr valign="top"><td><code>expandRt</code></td>
+<td>
+<p><code>numeric(1)</code> to expand the retention time range of each
+peak by a constant value on each side.</p>
+</td></tr>
+<tr valign="top"><td><code>expandMz</code></td>
+<td>
+<p><code>numeric(1)</code> to expand the m/z range of each peak by a
+constant value on each side.</p>
+</td></tr>
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> to expand the m/z range of each peak (on each side)
+by a value dependent on the peak's m/z.</p>
+</td></tr>
+<tr valign="top"><td><code>skipFilled</code></td>
+<td>
+<p><code>logical(1)</code> whether no spectra for filled-in peaks should
+be reported.</p>
+</td></tr>
+<tr valign="top"><td><code>return.type</code></td>
+<td>
+<p><code>character(1)</code> defining whether the result should be a
+<a href="../../MSnbase/html/Spectra.html">Spectra</a> object or a simple <code>list</code>. See below for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments to be passed along to <code><a href="chromPeakSpectra.html">chromPeakSpectra()</a></code>,
+such as <code>method</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The function identifies all MS2 spectra with their precursor m/z within the
+m/z range of a chromatographic peak (i.e. <code>&gt;=</code> mzmin and <code>&lt;=</code> mzmax) of a
+feature and their retention time within the rt range of the same peak
+(<code>&gt;=</code> rtmin and <code>&lt;=</code> rtmax).
+</p>
+<p>The optional parameter <code>method</code> allows to ensure that for each
+chromatographic peak in one sample only one MS2 spectrum is returned.
+See <code><a href="chromPeakSpectra.html">chromPeakSpectra()</a></code> or the <em>LC-MS/MS analysis</em> vignette for more
+details.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Which object is returned depends on the value of <code>return.type</code>:
+</p>
+
+<ul>
+<li><p> For <code>return.type = "Spectra"</code> (the default): a <a href="../../MSnbase/html/Spectra.html">Spectra</a> object with data
+only for features for which a <a href="../../MSnbase/html/Spectrum2-class.html">Spectrum2</a> was found. The
+ID of the feature and of the chromatographic peak to which the
+spectrum is associated are provided with the <code>"feature_id"</code> and
+<code>"peak_id"</code> metadata columns.
+</p>
+</li>
+<li><p> For <code>return.type = "list"</code>: a <code>list, same length than there are features in </code>x<code>, each element being a </code>list<code>of [Spectrum2-class] objects with the MS2 spectra that potentially represent ions measured by each chromatographic peak associated with the feature, or</code>NULL'
+if none are present.
+</p>
+</li></ul>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

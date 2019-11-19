@@ -23,12 +23,3 @@ ensure <- function(pkg, pkg_name, pb) {
              "numeric_version('", required_version, "')"))))
   }
 }
-
-testBrowser <- function(user_browser, path){
-	if(!file.exists(path)) return(list(msg = sprintf('%s not founded', user_browser),
-		browser = path))
-	else{
-		path <- file_path_as_absolute(path)
-		return(list(msg = sprintf('load %s at %s', user_browser, path), browser = path))
-	}
-}

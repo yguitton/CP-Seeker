@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class xcmsEIC, a class for multi-sample extracted ion...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsEIC-class {xcms}"><tr><td>xcmsEIC-class {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class xcmsEIC, a class for multi-sample extracted ion chromatograms</h2>
+
+<h3>Description</h3>
+
+<p>This class is used to store and plot parallel extracted ion
+chromatograms from multiple sample files. It integrates with the
+<code>xcmsSet</code> class to display peak area integrated during peak
+identification or fill-in.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created with the <code><a href="getEIC-methods.html">getEIC</a></code> method of
+the <code>xcmsSet</code> class. Objects can also be created by calls
+of the form <code>new("xcmsEIC", ...)</code>.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>eic</code>:</dt><dd>
+<p>list containing named entries for every sample. for each entry, a
+list of two column EIC matricies with retention time and intensity
+</p>
+</dd>
+<dt><code>mzrange</code>:</dt><dd>
+<p>two column matrix containing starting and ending m/z for each EIC
+</p>
+</dd>
+<dt><code>rtrange</code>:</dt><dd>
+<p>two column matrix containing starting and ending time for
+each EIC
+</p>
+</dd>
+<dt><code>rt</code>:</dt><dd>
+<p>either <code>"raw"</code> or <code>"corrected"</code> to specify retention
+times contained in the object
+</p>
+</dd>
+<dt><code>groupnames</code>:</dt><dd>
+<p>group names from <code>xcmsSet</code> object used to generate EICs
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><a href="groupnames-methods.html">groupnames</a></dt><dd>
+<p><code>signature(object = "xcmsEIC")</code>: get <code>groupnames</code> slot
+</p>
+</dd>
+<dt>mzrange</dt><dd>
+<p><code>signature(object = "xcmsEIC")</code>: get <code>mzrange</code> slot
+</p>
+</dd>
+<dt><a href="plot.xcmsEIC.html">plot</a></dt><dd>
+<p><code>signature(x = "xcmsEIC")</code>: plot the extracted ion
+chromatograms
+</p>
+</dd>
+<dt>rtrange</dt><dd>
+<p><code>signature(object = "xcmsEIC")</code>: get <code>rtrange</code> slot
+</p>
+</dd>
+<dt><a href="sampnames-methods.html">sampnames</a></dt><dd>
+<p><code>signature(object = "xcmsEIC")</code>: get sample names
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Note</h3>
+
+<p>No notes yet.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="getEIC-methods.html">getEIC</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

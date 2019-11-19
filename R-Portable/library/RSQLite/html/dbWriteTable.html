@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Write a local data frame or file to the database</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for dbWriteTable,SQLiteConnection,character,data.frame-method {RSQLite}"><tr><td>dbWriteTable,SQLiteConnection,character,data.frame-method {RSQLite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Write a local data frame or file to the database</h2>
+
+<h3>Description</h3>
+
+<p>Functions for writing data frames or delimiter-separated files
+to database tables.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'SQLiteConnection,character,data.frame'
+dbWriteTable(conn, name,
+  value, ...,
+  row.names = pkgconfig::get_config("RSQLite::row.names.table", FALSE),
+  overwrite = FALSE, append = FALSE, field.types = NULL,
+  temporary = FALSE)
+
+## S4 method for signature 'SQLiteConnection,character,character'
+dbWriteTable(conn, name,
+  value, ..., field.types = NULL, overwrite = FALSE, append = FALSE,
+  header = TRUE, colClasses = NA, row.names = FALSE, nrows = 50,
+  sep = ",", eol = "\n", skip = 0, temporary = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>conn</code></td>
+<td>
+<p>a <code><a href="SQLiteConnection-class.html">SQLiteConnection</a></code> object, produced by
+<code><a href="../../DBI/html/dbConnect.html">DBI::dbConnect()</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>a character string specifying a table name. SQLite table names
+are <em>not</em> case sensitive, e.g., table names <code>ABC</code> and <code>abc</code>
+are considered equal.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>a data.frame (or coercible to data.frame) object or a
+file name (character).  In the first case, the data.frame is
+written to a temporary file and then imported to SQLite; when <code>value</code>
+is a character, it is interpreted as a file name and its contents imported
+to SQLite.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Needed for compatibility with generic. Otherwise ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>row.names</code></td>
+<td>
+<p>A logical specifying whether the <code>row.names</code> should be
+output to the output DBMS table; if <code>TRUE</code>, an extra field whose name
+will be whatever the R identifier <code>"row.names"</code> maps to the DBMS (see
+<code><a href="../../DBI/html/make.db.names.html">DBI::make.db.names()</a></code>). If <code>NA</code> will add rows names if
+they are characters, otherwise will ignore.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>a logical specifying whether to overwrite an existing table
+or not. Its default is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>append</code></td>
+<td>
+<p>a logical specifying whether to append to an existing table
+in the DBMS.  Its default is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>field.types</code></td>
+<td>
+<p>character vector of named  SQL field types where
+the names are the names of new table's columns. If missing, types inferred
+with <code><a href="../../DBI/html/dbDataType.html">DBI::dbDataType()</a></code>).</p>
+</td></tr>
+<tr valign="top"><td><code>temporary</code></td>
+<td>
+<p>a logical specifying whether the new table should be
+temporary. Its default is <code>FALSE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>is a logical indicating whether the first data line (but see
+<code>skip</code>) has a header or not.  If missing, it value is determined
+following <code><a href="../../utils/html/read.table.html">read.table()</a></code> convention, namely, it is set to TRUE if
+and only if the first row has one fewer field that the number of columns.</p>
+</td></tr>
+<tr valign="top"><td><code>colClasses</code></td>
+<td>
+<p>Character vector of R type names, used to override
+defaults when imputing classes from on-disk file.</p>
+</td></tr>
+<tr valign="top"><td><code>nrows</code></td>
+<td>
+<p>Number of rows to read to determine types.</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>The field separator, defaults to <code>','</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>eol</code></td>
+<td>
+<p>The end-of-line delimiter, defaults to <code>'\n'</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>skip</code></td>
+<td>
+<p>number of lines to skip before reading the data. Defaults to 0.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In a primary key column qualified with
+<a href="https://www.sqlite.org/autoinc.html"><code>AUTOINCREMENT</code></a>, missing
+values will be assigned the next largest positive integer,
+while nonmissing elements/cells retain their value.  If the
+autoincrement column exists in the data frame
+passed to the <code>value</code> argument,
+the <code>NA</code> elements are overwritten.
+Similarly, if the key column is not present in the data frame, all
+elements are automatically assigned a value.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The corresponding generic function <code><a href="../../DBI/html/dbWriteTable.html">DBI::dbWriteTable()</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+con &lt;- dbConnect(SQLite())
+dbWriteTable(con, "mtcars", mtcars)
+dbReadTable(con, "mtcars")
+
+# A zero row data frame just creates a table definition.
+dbWriteTable(con, "mtcars2", mtcars[0, ])
+dbReadTable(con, "mtcars2")
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>RSQLite</em> version 2.1.2.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

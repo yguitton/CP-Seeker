@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Access the raw data from an 'mzR' object.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for peaks {mzR}"><tr><td>peaks {mzR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Access the raw data from an <code>mzR</code> object.
+</h2>
+
+<h3>Description</h3>
+
+<p>Access the MS raw data. The <code>peaks</code>, <code>spectra</code> (can be used
+interchangeably) and <code>peaksCount</code> functions return the (m/z,
+intensity) pairs and the number peaks in the
+spectrum/spectra. <code>peaks</code> and <code>spectra</code> return a single
+matrix if <code>scans</code> is a <code>numeric</code> of length 1 and a list of
+matrices if several scans are asked for or no <code>scans</code> argument is
+provided (i.e all spectra in the oject are retured). <code>peaksCount</code>
+will return a numeric of length <code>n</code>.
+</p>
+<p>The <code><a href="peaks.html">header</a></code> function returns a list containing
+<code>seqNum</code>, <code>acquisitionNum</code>, <code>msLevel</code>,
+<code>peaksCount</code>, <code>totIonCurrent</code>, <code>retentionTime</code> (in
+seconds), <code>basePeakMZ</code>, <code>basePeakIntensity</code>,
+<code>collisionEnergy</code>, <code>ionisationEnergy</code>, <code>lowM</code>,
+<code>highMZ</code>, <code>precursorScanNum</code>, <code>precursorMZ</code>,
+<code>precursorCharge</code>, <code>precursorIntensity</code>,
+<code>mergedScan</code>, <code>mergedResultScanNum</code>,
+<code>mergedResultStartScanNum</code>, <code>mergedResultEndScanNum</code>,
+<code>filterString</code>, <code>spectrumId</code>, <code>centroided</code>
+(<code>logical</code> whether the data of the spectrum is in centroid mode
+or profile mode; only for pwiz backend), <code>injectionTime</code> (ion
+injection time, in milliseconds), <code>ionMobilityDriftTime</code> (in
+milliseconds), <code>isolationWindowTargetMZ</code>,
+<code>isolationWindowLowerOffset</code>,
+<code>isolationWindowUpperOffset</code>, <code>scanWindowLowerLimit</code> and
+<code>scanWindowUpperLimit</code>. If multiple scans are queried, a
+<code>data.frame</code> is returned with the scans reported along the
+rows. For missing or not defined spectrum variables <code>NA</code> is reported.
+</p>
+<p>The <code>get3Dmap</code> function performs a simple resampling between
+<code>lowMz</code> and <code>highMz</code> with <code>reMz</code> resolution. A matrix
+of dimensions <code>length(scans)</code> times
+<code>seq(lowMz,highMz,resMz)</code> is returned.
+</p>
+<p>The <code>chromatogram</code> (<code>chromatograms</code>) accessors return
+chromatograms for the MS file handle. If a single index is provided,
+as <code>data.frame</code> containing the retention time (1st columns) and
+intensities (2nd column) is returned. The name of the former is always
+<code>time</code>, while the latter will depend on the run parameters.
+</p>
+<p>If more than 1 or no chromatogram indices are provided, then a list of
+chromatograms is returned; either those passed as argument or all of
+them. By default, the first (and possibly only) chromatogram is the
+total ion count, which can also be accessed with the <code>tic</code>
+method.
+</p>
+<p>The <code>nChrom</code> function returns the number of chromatograms,
+including the total ion chromatogram.
+</p>
+<p>The <code>chromatogramHeader</code> returns (similar to the <code>header</code>
+function for spectra) a <code>data.frame</code> with metadata information
+for the individual chromatograms. The <code>data.frame</code> has the
+columns: <code>"chromatogramId"</code> (the ID of the chromatogram as
+specified in the file), <code>"chromatogramIndex"</code> (the index of the
+chromatogram within the file), <code>"polarity"</code> (the polarity for the
+chromatogram, 0 for negative, +1 for positive and -1 for not set),
+<code>"precursorIsolationWindowTargetMZ"</code> (the isolation window m/z of
+the precursor), <code>"precursorIsolationWindowLowerOffset"</code>,
+<code>"precursorIsolationWindowUpperOffset"</code> (lower and upper offset
+for the isolation window m/z), <code>"precursorCollisionEnergy"</code>
+(collision energy),
+<code>"productIsolationWindowTargetMZ"</code>,
+<code>"productIsolationWindowLowerOffset"</code> and
+<code>"productIsolationWindowUpperOffset"</code> (definition of the m/z
+isolation window for the product).
+</p>
+<p>Note that access to chromatograms is only supported in the <code>pwiz</code>
+backend.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+
+ header(object, scans, ...)
+
+ peaksCount(object, scans, ...)
+
+ ## S4 method for signature 'mzRpwiz'
+peaks(object, scans)
+ ## S4 method for signature 'mzRramp'
+peaks(object, scans)
+ ## S4 method for signature 'mzRnetCDF'
+peaks(object, scans)
+
+ ## S4 method for signature 'mzRpwiz'
+spectra(object, scans)   ## same as peaks
+ ## S4 method for signature 'mzRramp'
+spectra(object, scans)
+ ## S4 method for signature 'mzRnetCDF'
+spectra(object, scans)
+
+ get3Dmap(object, scans, lowMz, highMz, resMz, ...)
+
+ ## S4 method for signature 'mzRpwiz'
+chromatogram(object, chrom)
+
+ ## S4 method for signature 'mzRpwiz'
+chromatograms(object, chrom)  ## same as chromatogram
+
+ ## S4 method for signature 'mzRpwiz'
+chromatogramHeader(object, chrom)
+
+ tic(object, ...)
+
+ nChrom(object)
+
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An instantiated <code>mzR</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>scans</code></td>
+<td>
+<p>A <code>numeric</code> specifying which scans to
+return. Optional for the <code>header</code>, <code>peaks</code>, <code>spectra</code>
+and <code>peaksCount</code> methods. If ommited, the requested data for
+all peaks is returned. </p>
+</td></tr>
+<tr valign="top"><td><code>lowMz, highMz</code></td>
+<td>
+<p><code>Numeric</code>s defining the m/z range to be
+returned.</p>
+</td></tr>
+<tr valign="top"><td><code>resMz</code></td>
+<td>
+<p>a <code>numeric</code> defining the m/z resolution.</p>
+</td></tr>
+<tr valign="top"><td><code>chrom</code></td>
+<td>
+
+<p>For <code>chromatogram</code>, <code>chromatograms</code> and
+<code>chromatogramHeader</code>: <code>numeric</code> specifying the index
+of the chromatograms to be extracted from the file. If omitted, data
+for all chromatograms is returned. 
+</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments. A <code>scan</code> parameter can be passed to
+<code>peaks</code>.</p>
+</td></tr>  </table>
+
+
+<h3>Details</h3>
+
+<p>The column <code>acquisitionNum</code> in the <code>data.frame</code> returned by
+the <code>header</code> method contains the index during the scan in which
+the signal from the spectrum was measured. The <code>pwiz</code> backend
+extracts this number from the spectrum's ID provided in the mzML
+file. In contrast, column <code>seqNum</code> contains the index of each
+spectrum within the file and is thus consecutively numbered. Spectra
+from files with multiple MS levels are linked to each other <em>via</em>
+their <code>acquisitionNum</code>: column <code>precursorScanNum</code> of an e.g. MS
+level 2 spectrum contains the <code>acquisitionNum</code> of the related MS
+level 1 spectrum.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Spectrum identifiers are only specified in <em>mzML</em> files, thus,
+for all other file types the column <code>"spectrumId"</code> of the result
+<code>data.frame</code> returned by <code>header</code> contains <code>"scan="</code>
+followed by the acquisition number of the spectrum. Also, only the
+<code>pwiz</code> backend supports extraction of the spectras' IDs from
+<em>mzML</em> files. Thus, only <em>mzML</em> files read with
+<code>backend = "pwiz"</code> provide the spectrum IDs defined in the file. 
+The content of the spectrum identifier depends on the vendor and the 
+instrument acquisition settings and is reported here as a character, 
+in its raw form, without further parsing.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Steffen Neumann and Laurent Gatto
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="metadata.html">instrumentInfo</a></code> for metadata access and the
+<code>"<a href="mzR-class.html">mzR</a>"</code> class.
+</p>
+<p><code><a href="writeMSData.html">writeMSData</a></code> and <code><a href="copyWriteMSData.html">copyWriteMSData</a></code> for
+functions to write MS data in <em>mzML</em> or <code>mzXML</code> format.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ library(msdata)
+ filepath &lt;- system.file("microtofq", package = "msdata")
+ file &lt;- list.files(filepath, pattern="MM14.mzML",
+                     full.names=TRUE, recursive = TRUE)
+ mz &lt;- openMSfile(file)
+ runInfo(mz)
+ colnames(header(mz))
+ close(mz)
+
+ ## A shotgun LCMSMS experiment
+ f &lt;- proteomics(full.names = TRUE,
+                 pattern = "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.mzML.gz")
+ x &lt;- openMSfile(f, backend = "pwiz")
+ x
+ nChrom(x)
+ head(tic(x))
+ head(chromatogram(x, 1L)) ## same as tic(x)
+ str(chromatogram(x)) ## as a list
+
+ p &lt;- peaks(x) ## extract all peak information
+ head(peaks(x, scan=4)) ## extract just peaks from the 4th scan
+
+ ## An MRM experiment
+ f &lt;- proteomics(full.names = TRUE, pattern = "MRM")
+ x &lt;- openMSfile(f, backend = "pwiz")
+ x
+ nChrom(x)
+ head(tic(x))
+ head(chromatogram(x, 1L)) ## same as tic(x)
+ str(chromatogram(x, 10:12))  
+
+ ## get the header information for the chromatograms
+ ch &lt;- chromatogramHeader(x)
+ head(ch)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>mzR</em> version 2.20.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

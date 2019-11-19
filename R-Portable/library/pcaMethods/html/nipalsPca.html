@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: NIPALS PCA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nipalsPca {pcaMethods}"><tr><td>nipalsPca {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>NIPALS PCA</h2>
+
+<h3>Description</h3>
+
+<p>PCA by non-linear iterative partial least squares
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nipalsPca(Matrix, nPcs = 2, varLimit = 1, maxSteps = 5000,
+  threshold = 1e-06, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>Matrix</code></td>
+<td>
+<p>Pre-processed (centered, scaled) numerical matrix
+samples in rows and variables as columns.</p>
+</td></tr>
+<tr valign="top"><td><code>nPcs</code></td>
+<td>
+<p>Number of components that should be extracted.</p>
+</td></tr>
+<tr valign="top"><td><code>varLimit</code></td>
+<td>
+<p>Optionally the ratio of variance that should be
+explained. <code>nPcs</code> is ignored if varLimit &lt; 1</p>
+</td></tr>
+<tr valign="top"><td><code>maxSteps</code></td>
+<td>
+<p>Defines how many iterations can be done before
+algorithm should abort (happens almost exclusively when there were
+some wrong in the input data).</p>
+</td></tr>
+<tr valign="top"><td><code>threshold</code></td>
+<td>
+<p>The limit condition for judging if the algorithm
+has converged or not, specifically if a new iteration is done if
+<i>(T_{old} - T)^T(T_{old} - T) &gt; \code{limit}</i>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Only used for passing through arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Can be used for computing PCA on a numeric matrix using either the
+NIPALS algorithm which is an iterative approach for estimating the
+principal components extracting them one at a time. NIPALS can
+handle a small amount of missing values. It is not recommended to
+use this function directely but rather to use the pca() wrapper
+function.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>pcaRes</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>References</h3>
+
+<p>Wold, H. (1966) Estimation of principal components and
+related models by iterative least squares. In Multivariate
+Analysis (Ed., P.R. Krishnaiah), Academic Press, NY, 391-420.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>prcomp</code>, <code>princomp</code>, <code>pca</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(metaboliteData)
+mat &lt;- prep(t(metaboliteData))
+pc &lt;- nipalsPca(mat, nPcs=2)
+## better use pca()
+pc &lt;- pca(t(metaboliteData), method="nipals", nPcs=2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

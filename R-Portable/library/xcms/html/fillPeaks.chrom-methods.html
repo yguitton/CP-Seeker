@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Integrate areas of missing peaks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fillPeaks.chrom-methods {xcms}"><tr><td>fillPeaks.chrom-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Integrate areas of missing peaks</h2>
+
+<h3>Description</h3>
+
+<p>For each sample, identify peak groups where that sample is not
+represented. For each of those peak groups, integrate the signal
+in the region of that peak group and create a new peak.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsSet</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>nSlaves</code></td>
+<td>
+<p>(DEPRECATED): number of slaves/cores to be used for
+parallel peak filling.
+MPI is used if installed, otherwise the snow package is employed for
+multicore support. If none of the two packages is available it uses
+the parallel package for parallel processing on multiple CPUs of the
+current machine. Users are advised to use the <code>BPPARAM</code>
+parameter instead.</p>
+</td></tr>
+<tr valign="top"><td><code>expand.mz</code></td>
+<td>
+<p>Expansion factor for the m/z range used for integration.</p>
+</td></tr>
+<tr valign="top"><td><code>expand.rt</code></td>
+<td>
+<p>Expansion factor for the rentention time range used
+for integration.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>allows to define a specific parallel processing setup
+for the current task (see <code><a href="../../BiocParallel/html/register.html">bpparam</a></code> from the
+<code>BiocParallel</code> package help more information). The default uses
+the globally defined parallel setup.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>After peak grouping, there will always be peak groups that do not
+include peaks from every sample. This method produces intensity
+values for those missing samples by integrating raw data in peak
+group region. In a given group, the start and ending retention
+time points for integration are defined by the median start and
+end points of the other detected peaks. The start and end m/z
+values are similarly determined. Intensities
+can be still be zero, which is a rather unusual intensity for a peak.
+This is the case if e.g. the raw data was threshholded, and the
+integration area contains no actual raw intensities, or if one sample
+is miscalibrated, such thet the raw data points are (just) outside
+the integration area.
+</p>
+<p>Importantly, if retention time correction data is available, the
+alignment information is used to more precisely integrate the
+propper region of the raw data. If the corrected retention time
+is beyond the end of the raw data, the value will be not-a-number (NaN).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>xcmsSet</code> objects with filled in peak groups (into and maxo).
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsSet&quot;</dt><dd>
+<p><code>fillPeaks.chrom(object, nSlaves=0,expand.mz=1,expand.rt=1,
+    BPPARAM = bpparam())</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSet-class.html">xcmsSet-class</a></code>,
+<code><a href="getPeaks-methods.html">getPeaks</a></code>
+<code><a href="fillPeaks-methods.html">fillPeaks</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -17,13 +17,16 @@ tabItem(tabName='table',
 				),
 				tags$td(style = "width: 5%;", 
 					tags$div(class = "form-group shiny-input-container", 
-						actionBttn('detailsErase', 'Erase')
+						actionBttn('detailsErase', 'Erase', color='danger')
 					)
 				),
-				tags$td(style = "width: 5%;", 
+				tags$td(style = "width: 10%;", 
 					tags$div(class = "form-group shiny-input-container", 
-						switchInput('detailsSwitch', onLabel='Scores', offLabel='tR', 
-							value=TRUE)
+						radioGroupButtons('detailsSwitch', '', 
+							choices = c('score', 'rT', 'CCI', 'deviation'), 
+							checkIcon = list(
+								yes = tags$i(class = "fa fa-check square", style = "color: steelblue"))) 
+								
 					)
 				)
 			)

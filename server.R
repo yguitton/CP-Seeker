@@ -94,12 +94,13 @@ output$download <- downloadHandler(
 	}
 )
 
+source(file.path('server', 'func.R'), local=TRUE)$value
 
 source(file.path("server", "project.R"), local=TRUE)$value
 
 source(file.path("server", "file.R"), local=TRUE)$value
 
-source(file.path('server', 'func.R'), local=TRUE)$value
+source(file.path('server', 'delete.R'), local = TRUE)$value
 
 source(file.path('server', 'plots.R'), local=TRUE)$value
 

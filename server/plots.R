@@ -41,9 +41,9 @@ plotChromato <- function(db, pj, title = "TIC", msFile = NULL){
 
 plotClusterEIC <- function(clusters, theoric, msFile = NULL){
 	eic <- plotEmptyChromato("EIC")
-	
+
 	if(is.null(msFile)) return(eic)
-	clusters <- clusters %>% mutate(rtmin = rtmin / 60, rtmax = rtmax / 60)
+	if(nrow(clusters) > 0) clusters <- clusters %>% mutate(rtmin = rtmin / 60, rtmax = rtmax / 60)
 	
 	data <- lapply(1:nrow(theoric), function(i) 
 		rawEIC(msFile, mzrange = as.double(theoric[i, c('mzmin', 'mzmax')])) %>% 
@@ -52,8 +52,9 @@ plotClusterEIC <- function(clusters, theoric, msFile = NULL){
 	gc()
 	
 	for(i in 1:length(data)){
-		integratedScans <- do.call(c, lapply(which(clusters$iso == theoric[i, 'theoricIso']), 
-			function(j) clusters[j, 'lmin']:clusters[j, 'lmax'])) %>% unique %>% sort
+		integratedScans <- if(nrow(clusters) == 0) c()
+			else do.call(c, lapply(which(clusters$iso == theoric[i, 'theoricIso']), 
+				function(j) clusters[j, 'lmin']:clusters[j, 'lmax'])) %>% unique %>% sort
 		nonIntegrated <- data[[i]]
 		if(length(integratedScans) > 0){
 			integrated <- data[[i]]

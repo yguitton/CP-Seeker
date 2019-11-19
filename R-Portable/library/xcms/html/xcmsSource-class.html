@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Virtual class for raw data sources</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsSource-class {xcms}"><tr><td>xcmsSource-class {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Virtual class for raw data sources</h2>
+
+<h3>Description</h3>
+
+<p>This virtual class provides an implementation-independent way to load
+mass spectrometer data from various sources for use in an
+<code><a href="xcmsRaw-class.html">xcmsRaw</a></code> object. Subclasses can be defined to
+enable data to be loaded from user-specified sources. The virtual
+class <code><a href="xcmsFileSource-class.html">xcmsFileSource</a></code> is included out of the box
+which contains a file name as a character string.
+</p>
+<p>When implementing child classes of <code>xcmsSource</code>, a corresponding
+<code><a href="loadRaw-methods.html">loadRaw-methods</a></code> method must be provided which accepts
+the <code>xcmsSource</code> child class and returns a list in the format
+described in <code><a href="loadRaw-methods.html">loadRaw-methods</a></code>.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>A virtual Class: No objects may be created from it.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Daniel Hackney, <a href="mailto:dan@haxney.org">dan@haxney.org</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSource-methods.html">xcmsSource-methods</a></code> for creating <code>xcmsSource</code>
+objects in various ways.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -78,15 +78,18 @@ output$detailsTable <- DT::renderDataTable({
 		query <- sprintf('select * from cluster where project_sample_adduct == %s;', 
 			input$detailsAdduct)
 		print(query)
-		data <- dbGetQuery(db, query)
-		data <- if(input$detailsSwitch) data %>% dplyr::group_by(formula) %>% 
-				dplyr::summarise(C=C[1], Cl=Cl[1], score=mean(score) %>% round, rois=dplyr::n()) %>% 
+		data <- dbGetQuery(db, query) %>% dplyr::group_by(formula) %>% 
+				dplyr::summarise(C=C[1], Cl=Cl[1], 
+					rois=dplyr::n(),
+					score = round(mean(score)), 
+					rt = round(rtMean[1] / 60, 1),
+					CCI = round(mean(CCI)),
+					deviation = round(mean(deviation), 1)) %>% 
 				data.frame
-			else data %>% dplyr::group_by(formula) %>% arrange(desc(score)) %>% 
-				dplyr::summarise(C=C[1], Cl=Cl[1], rt=round(rtMean[1] / 60), rois=dplyr::n()) %>% 
-				data.frame
+	
 		res <- matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
-		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:5], collapse=" ")
+		for(row in 1:nrow(data)) res[data[row, 'C']-minC+1, data[row, 'Cl']-minCl+1] <- paste(data[row, 4:8], collapse="/")
+		session$sendCustomMessage("dfUpdate", toJSON(res))
 		res
 	}, invalid = function(i) matrix(NA, nrow=maxC-minC+1, ncol=maxCl-minCl+1)
 	, error = function(e){
@@ -102,20 +105,26 @@ output$detailsTable <- DT::renderDataTable({
 	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
 		function(settings, json){
 			var table = settings.oInstance.api();
-			var switchVal = document.getElementById('detailsSwitch').checked;
-			maxCols = table.row(0).data().length - 1;
-			maxRows = table.column(0).data().length - 1;
+			var switchVal = $('#detailsSwitch input').toArray().filter(x => x.checked)[0].value;
+			
+			var maxCols = table.row(0).data().length - 1;
+			var maxRows = table.column(0).data().length - 1;
 			for(var i = 0; i <= maxRows; i++){
 				for(var j = 1; j <= maxCols; j++){
-					var value = table.cell(i, j).data();
-					if(value != null){
-						value = value.split(' ');
-						table.cell(i, j).data(Number(value[0]));
-						if(switchVal && value[0] < 70) $(table.cell(i, j).node()).css('background-color', 'rgb(255,36,0)');
-						if(Number(value[1]) > 1) $(table.cell(i, j).node()).css('border', '5px solid orange');
+					var values = table.cell(i, j).data();
+					if(values != null && values != undefined){
+						values = values.split('/');
+						var value = switchVal == 'score' ? values[1]
+							: switchVal == 'rT' ? values[2]
+							: switchVal == 'CCI' ? values[3]
+							: values[4];
+						table.cell(i, j).data(Number(value));
+						if(values[1] < 70) $(table.cell(i, j).node()).css('background-color', 'rgb(255,36,0)');
+						if(Number(values[0]) > 1) $(table.cell(i, j).node()).css('border', '5px solid orange');
 					}
 				}
 			}
+			table.columns.adjust();
 		}
 	")), callback = htmlwidgets::JS("
 		function getFormula(table, obj){
@@ -127,6 +136,27 @@ output$detailsTable <- DT::renderDataTable({
 				Cl : Cl
 			}
 		}
+		$(document).on('change', '#detailsSwitch input', function(){
+			var switchVal = $('#detailsSwitch input').toArray().filter(x => x.checked)[0].value;
+			var maxCols = df[0].length - 1;
+			var maxRows = df.length - 1;
+			for(var i = 0; i <= maxRows; i++){
+				for(var j = 0; j <= maxCols; j++){
+					var values = df[i][j];
+					if(values != null && values != undefined){
+						values = values.split('/');
+						var value = switchVal == 'score' ? values[1]
+							: switchVal == 'rT' ? values[2]
+							: switchVal == 'CCI' ? values[3]
+							: values[4];
+						table.cell(i, j+1).data(Number(value));
+						if(values[1] < 70) $(table.cell(i, j+1).node()).css('background-color', 'rgb(255,36,0)');
+						if(Number(values[0]) > 1) $(table.cell(i, j+1).node()).css('border', '5px solid orange');
+					}
+				}
+			}
+			table.columns.adjust();
+		});
 		table.on('click', 'tbody td', function(){
 			if($(this).hasClass('selected')){
 				$(table.cells('.selected').nodes()).toggleClass('selected');
@@ -143,21 +173,32 @@ output$detailsTable <- DT::renderDataTable({
 				}
 			}
 		});
-		Shiny.addCustomMessageHandler('updateDetailsTable', function(value){
+		Shiny.addCustomMessageHandler('updateDetailsTable', function(message){
+			var switchVal = $('#detailsSwitch input').toArray().filter(x => x.checked)[0].value;
 			Shiny.onInputChange('detailsTable_selected', {C:0, Cl:0});
-			table.cell('.selected').data(value);
-			if(value < 50 ) var backColor = 'rgb(255,36,0)'
+			values = message.split('/');
+			if(values[1] < 50 ) var backColor = 'rgb(255,36,0)'
 			else var backColor = 'rgba(0,0,0,0)'
 			$(table.cell('.selected').node()).css('background-color', backColor);
 			$(table.cell('.selected').node()).css('border', '');
+			var value = switchVal == 'score' ? values[1]
+				: switchVal == 'rT' ? values[2]
+				: switchVal == 'CCI' ? values[3]
+				: values[4];
+			table.cell('.selected').data(value);
 			var formula = getFormula(table, table.cell('.selected'));
 			Shiny.onInputChange('detailsTable_selected', 
 						{C: formula.C, Cl: formula.Cl});
+			var cellInfo = table.cell('.selected').index();
+			df[cellInfo.row][cellInfo.column - 1] = message;
 		})
 		Shiny.addCustomMessageHandler('detailsTableErase', function(message){
 			table.cell('.selected').data(null);
 			$(table.cell('.selected').node()).css('background-color', 'rgba(0,0,0,0)');
 			$(table.cell('.selected').node()).css('border', '');
+			var cellInfo = table.cell('.selected').index();
+			df[cellInfo.row][cellInfo.column - 1] = null;
+			
 		})
 	"))
 	
@@ -383,8 +424,10 @@ observeEvent(input$detailsEIC_selected, {
 		recordOneTarget(data$features, data$clusters, input$detailsAdduct)		
 		
 		session$sendCustomMessage("updateDetailsTable", 
-			if(input$detailsSwitch) round(min(data$clusters$score)) 
-			else round(mean(data$clusters$rtMean)))
+			paste("1", round(mean(data$clusters$score)), 
+				round(mean(data$clusters$rtMean) / 60, 1), 
+				round(mean(data$clusters$cci)), 
+				round(mean(data$clusters$deviation), 1), sep='/'))
 		toastr_success('success')
 	}, invalid = function(i){
 		print(i$message)
@@ -400,11 +443,11 @@ observeEvent(input$detailsEIC_selected, {
 
 recordOneTarget <- function(features, clusters, pja){
 	query <- sprintf('insert into cluster (formula, ion_formula, charge, 
-			C, Cl, score, rtMean, deviation, 
+			C, Cl, score, rtMean, deviation, CCI, 
 			ppm, peakwidth1, peakwidth2, machine, project_sample_adduct) values %s;', 
-		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
+		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
 			clusters$formula, clusters$ion_formula, clusters$charge, clusters$C, clusters$Cl, clusters$score, 
-			clusters$rtMean, clusters$deviation, clusters$ppm, clusters$peakwidth1, 
+			clusters$rtMean, clusters$deviation, clusters$cci, clusters$ppm, clusters$peakwidth1, 
 			clusters$peakwidth2, clusters$machine, pja), 
 				collapse=', '))
 	print(query)
@@ -510,6 +553,7 @@ forceTargetChloroPara <- function(xr, rtRange, theoric, formula, ion_formula,
 			do.call(rbind, lapply(clusters, function(cluster) 
 				data.frame(
 					score = calculateScore(cluster, theoric, ppm, 100),
+					cci = calculateCCI(cluster, theoric, ppm),
 					rtMean = sum(cluster$rt * (cluster$into / sum(cluster$into))),
 					deviation = calculateDeviation(cluster, theoric, ppm)))) %>% 
 				mutate(formula = formula, ion_formula = ion_formula, charge = charge,

@@ -30,5 +30,22 @@ tabItem(tabName='projectFiles',
 				)
 			)
 		)
+	),
+	
+	box(width = 12, title = 'Delete records',
+		tabsetPanel(
+			tabPanel('Project(s)', 
+				tags$div(style = "float: right;", 
+					actionBttn('deleteProjects', 'Delete', style = 'unite', color = 'danger')
+				),
+				DT::dataTableOutput('deleteProjectsTable')
+			),
+			tabPanel('Sample(s)', 
+				tags$div(style = "float: right;", 
+					actionBttn('deleteSamples', 'Delete', style = 'unite', color = 'danger')
+				),
+				DT::dataTableOutput('deleteSamplesTable')
+			)
+		)
 	)
 )

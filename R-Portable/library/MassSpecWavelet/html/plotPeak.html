@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot the identified peaks over the spectrum</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotPeak {MassSpecWavelet}"><tr><td>plotPeak {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot the identified peaks over the spectrum</h2>
+
+<h3>Description</h3>
+
+<p>Plot the identified peaks over the spectrum. The identified peaks are returned by <code><a href="peakDetectionCWT.html">peakDetectionCWT</a></code> or <code><a href="identifyMajorPeaks.html">identifyMajorPeaks</a></code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plotPeak(ms, peakIndex = NULL, mz = 1:length(ms), range = c(min(mz), max(mz)), method = c("p", "l"), main = NULL, log = "", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ms</code></td>
+<td>
+<p> the MS spectrum </p>
+</td></tr>
+<tr valign="top"><td><code>peakIndex</code></td>
+<td>
+<p> m/z indexes of the identified peaks </p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p> m/z value correspond to m/z index </p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p> the plot range of m/z value</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p> plot method of the identified peaks. method 'p' plot circles on the peaks; method 'l' add vertical lines over the peaks.  </p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p> parameter of <code><a href="../../graphics/html/plot.html">plot</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+<p> parameter of <code><a href="../../graphics/html/plot.html">plot</a></code> </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> other parameters of <code><a href="../../graphics/html/points.html">points</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Pan Du</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="peakDetectionCWT.html">peakDetectionCWT</a></code>, <code><a href="identifyMajorPeaks.html">identifyMajorPeaks</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	data(exampleMS)
+	SNR.Th &lt;- 3
+	peakInfo &lt;- peakDetectionCWT(exampleMS, SNR.Th=SNR.Th)
+	majorPeakInfo = peakInfo$majorPeakInfo
+	peakIndex &lt;- majorPeakInfo$peakIndex
+	plotPeak(exampleMS, peakIndex, main=paste('Identified peaks with SNR &gt;', SNR.Th)) 
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

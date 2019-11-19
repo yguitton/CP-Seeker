@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Tune in the peak information: peak position and peak scale</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for tuneInPeakInfo {MassSpecWavelet}"><tr><td>tuneInPeakInfo {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Tune in the peak information: peak position and peak scale </h2>
+
+<h3>Description</h3>
+
+<p>Based on the identified peak position, more precise estimation of the peak information, i.e., peak position and peak scale, can be got by this function. The basic idea is to cut the segment of spectrum near the identified peaks, and then do similar procedures as <code><a href="peakDetectionCWT.html">peakDetectionCWT</a></code>, but with more detailed scales around the estimated peak scale.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+tuneInPeakInfo(ms, majorPeakInfo = NULL, peakIndex = NULL, peakScale = NULL, maxScale = 128, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ms</code></td>
+<td>
+<p> the mass spectrometry spectrum </p>
+</td></tr>
+<tr valign="top"><td><code>majorPeakInfo</code></td>
+<td>
+<p> return of <code><a href="identifyMajorPeaks.html">identifyMajorPeaks</a></code> </p>
+</td></tr>
+<tr valign="top"><td><code>peakIndex</code></td>
+<td>
+<p> the m/z index of the identified peaks</p>
+</td></tr>
+<tr valign="top"><td><code>peakScale</code></td>
+<td>
+<p> the scales of the identified peaks </p>
+</td></tr>
+<tr valign="top"><td><code>maxScale</code></td>
+<td>
+<p> the maximum scale allowed for the peak </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> other parameters of used by <code><a href="getLocalMaximumCWT.html">getLocalMaximumCWT</a></code>, <code><a href="getRidge.html">getRidge</a></code>, <code><a href="identifyMajorPeaks.html">identifyMajorPeaks</a></code> </p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The majorPeakInfo or peakIndex and peakScale must be provided.
+</p>
+
+
+<h3>Value</h3>
+
+<table summary="R valueblock">
+<tr valign="top"><td><code>peakCenterIndex</code></td>
+<td>
+<p>the updated peak center m/z index</p>
+</td></tr>
+<tr valign="top"><td><code>peakScale</code></td>
+<td>
+<p>the updated peak scale</p>
+</td></tr>
+<tr valign="top"><td><code>peakValue</code></td>
+<td>
+<p>the corresponding peak value</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p> Pan Du </p>
+
+
+<h3>References</h3>
+
+ 
+<p>Du, P., Kibbe, W.A. and Lin, S.M. (2006) Improved peak detection in mass spectrum by incorporating continuous wavelet transform-based pattern matching, Bioinformatics, 22, 2059-2065.
+</p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="peakDetectionCWT.html">peakDetectionCWT</a></code> </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+	data(exampleMS)
+	SNR.Th &lt;- 3
+	peakInfo &lt;- peakDetectionCWT(exampleMS, SNR.Th=SNR.Th)
+	majorPeakInfo &lt;- peakInfo$majorPeakInfo
+	betterPeakInfo &lt;- tuneInPeakInfo(exampleMS, majorPeakInfo)
+	plot(500:length(exampleMS), exampleMS[500:length(exampleMS)], type='l', log='x')
+	abline(v=betterPeakInfo$peakCenterIndex, col='red')
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

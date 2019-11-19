@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class AffyBatch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for AffyBatch-class {affy}"><tr><td>AffyBatch-class {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class AffyBatch</h2>
+
+<h3>Description</h3>
+
+<p>This is a class representation for Affymetrix GeneChip probe
+level data. The main component are the intensities from multiple arrays
+of the same <code>CDF</code> type. It extends
+<code><a href="../../Biobase/html/class.eSet.html">eSet</a></code>.</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created using the function <code><a href="read.affybatch.html">read.affybatch</a></code>
+or the wrapper <code><a href="read.affybatch.html">ReadAffy</a></code>.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>cdfName</code>:</dt><dd><p>Object of class <code>character</code> representing
+the name of <code>CDF</code> file associated with the arrays in the
+<code>AffyBatch</code>.</p>
+</dd>
+<dt><code>nrow</code>:</dt><dd><p>Object of class <code>integer</code> representing the
+physical number of rows in the arrays.</p>
+</dd>
+<dt><code>ncol</code>:</dt><dd><p>Object of class <code>integer</code> representing the
+physical number of columns in the arrays.</p>
+</dd>
+<dt><code>assayData</code>:</dt><dd><p>Object of class <code>AssayData</code>
+containing the raw data, which will be at minimum a matrix of
+intensity values. This slot can also hold a matrix of standard
+errors if the 'sd' argument is set to <code>TRUE</code> in the call to
+<code>ReadAffy</code>.</p>
+</dd> 
+<dt><code>phenoData</code>:</dt><dd><p>Object of class <code>AnnotatedDataFrame</code>
+containing phenotypic data for the samples.</p>
+</dd>
+<dt><code>annotation</code></dt><dd><p>A character string identifying the
+annotation that may be used for the <code>ExpressionSet</code>
+instance.</p>
+</dd>
+<dt><code>protocolData</code>:</dt><dd><p>Object of class <code>AnnotatedDataFrame</code>
+containing protocol data for the samples.</p>
+</dd>
+<dt><code>featureData</code></dt><dd><p>Object of class <code>AnnotatedDataFrame</code>
+containing feature-level (e.g., probeset-level) information.</p>
+</dd>
+<dt><code>experimentData</code>:</dt><dd><p>Object of class &quot;MIAME&quot; containing
+experiment-level information.</p>
+</dd> 
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class <code>Versions</code>
+describing the R and Biobase version number used to create the
+instance. Intended for developer use.</p>
+</dd> 
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"eSet"</code>, directly.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>cdfName</dt><dd><p><code>signature(object = "AffyBatch")</code>: obtains the
+cdfName slot.</p>
+</dd>
+<dt>pm&lt;-</dt><dd><p><code>signature(object = "AffyBatch")</code>: replaces the
+perfect match intensities.</p>
+</dd>
+<dt>pm</dt><dd><p><code>signature(object = "AffyBatch")</code>: extracts the pm
+intensities.</p>
+</dd>
+<dt>mm&lt;-</dt><dd><p><code>signature(object = "AffyBatch")</code>: replaces the
+mismatch intensities.</p>
+</dd>
+<dt>mm</dt><dd><p><code>signature(object = "AffyBatch")</code>: extracts the mm
+intensities.</p>
+</dd>
+<dt>probes</dt><dd><p><code>signature(object = "AffyBatch", which)</code>: extract
+the perfect match or mismatch probe intensities. Uses which can be
+&quot;pm&quot; and &quot;mm&quot;.</p>
+</dd>
+<dt>exprs</dt><dd><p><code>signature(object = "AffyBatch")</code>: extracts the
+expression matrix.</p>
+</dd>
+<dt>exprs&lt;-</dt><dd><p><code>signature(object = "AffyBatch", value = "matrix")</code>:
+replaces the expression matrix.</p>
+</dd>
+<dt>se.exprs</dt><dd><p><code>signature(object = "AffyBatch")</code>: extracts the
+matrix of standard errors of expression values, if available.</p>
+</dd>
+<dt>se.exprs&lt;-</dt><dd><p><code>signature(object = "AffyBatch", value = "matrix")</code>:
+replaces the matrix of standard errors of expression values.</p>
+</dd>
+<dt>[&lt;-</dt><dd><p><code>signature(x = "AffyBatch")</code>: replaces subsets.</p>
+</dd>
+<dt>[</dt><dd><p><code>signature(x = "AffyBatch")</code>: subsets by array.</p>
+</dd>
+<dt>boxplot</dt><dd><p><code>signature(x = "AffyBatch")</code>:  creates a
+<code><a href="../../graphics/html/boxplot.html">boxplot</a></code>s of log base 2 intensities (pm, mm or both).
+Defaults to both.</p>
+</dd>
+<dt>hist</dt><dd><p><code>signature(x = "AffyBatch")</code>:  creates a plot showing
+all the histograms of the pm,mm or both data. See
+<code><a href="plot.density.html">plotDensity</a></code>.</p>
+</dd>
+<dt>computeExprSet</dt><dd><p><code>signature(x = "AffyBatch",
+      summary.method = "character")</code>: For each probe set computes an
+expression value using <code>summary.method</code>. </p>
+</dd>
+<dt>featureNames</dt><dd><p><code>signature(object = "AffyBatch")</code>: return the
+probe set names also referred to as the Affymetrix IDs. Notice that
+one can not assign <code>featureNames</code>. You must do this by changing
+the cdfenvs.</p>
+</dd>
+<dt>geneNames</dt><dd><p><code>signature(object="AffyBatch'")</code>: deprecated,
+use <code>featureNames</code>.</p>
+</dd>
+<dt>getCdfInfo</dt><dd><p><code>signature(object = "AffyBatch")</code>: retrieve
+the environment that defines the location of probes by probe set.</p>
+</dd>
+<dt>image</dt><dd><p><code>signature(x = "AffyBatch")</code>: creates an image for
+each sample.</p>
+</dd>
+<dt>indexProbes</dt><dd>
+<p><code>signature(object = "AffyBatch", which = "character")</code>:
+returns a  list with locations of the probes in each probe set. The
+affyID corresponding to the probe set to retrieve can be specified in
+an optional parameter <code>genenames</code>. By default, all the affyIDs
+are retrieved. The names of the elements in the list returned are the
+affyIDs. <code>which</code> can be &quot;pm&quot;, &quot;mm&quot;, or &quot;both&quot;. If &quot;both&quot; then
+perfect match locations are given followed by mismatch locations.
+</p>
+<p><code>signature(object = "AffyBatch", which = "missing")</code> (i.e.,
+calling <code>indexProbes</code> without a &quot;which&quot; argument) is the
+same as setting &quot;which&quot; to &quot;pm&quot;.</p>
+</dd>
+<dt>intensity&lt;-</dt><dd><p><code>signature(object = "AffyBatch")</code>: a
+replacement method for the <code>exprs</code> slot, i.e. the intensities.</p>
+</dd>
+<dt>intensity</dt><dd><p><code>signature(object = "AffyBatch")</code>: extract the
+<code>exprs</code> slot, i.e. the intensities.</p>
+</dd>
+<dt>length</dt><dd><p><code>signature(x = "AffyBatch")</code>: returns the number
+of samples.</p>
+</dd>
+<dt>pmindex</dt><dd><p><code>signature(object = "AffyBatch")</code>: return the
+location of perfect matches in the intensity matrix.</p>
+</dd>
+<dt>mmindex</dt><dd><p><code>signature(object = "AffyBatch")</code>: return the
+location of the mismatch intensities.</p>
+</dd>
+<dt>dim</dt><dd><p><code>signature(x = "AffyBatch")</code>: Row and column dimensions.</p>
+</dd>
+<dt>ncol</dt><dd><p><code>signature(x = "AffyBatch")</code>: An accessor function
+for <code>ncol</code>.</p>
+</dd>
+<dt>nrow</dt><dd><p><code>signature(x = "AffyBatch")</code>: an accessor function
+for <code>nrow</code>.</p>
+</dd>
+<dt>normalize</dt><dd><p><code>signature(object = "AffyBatch")</code>: a method to
+<code><a href="../../BBmisc/html/normalize.html">normalize</a></code>. The method accepts an argument
+<code>method</code>. The default methods is specified in package options
+(see the main vignette).</p>
+</dd>
+<dt>normalize.methods</dt><dd><p><code>signature(object = "AffyBatch")</code>:
+returns the normalization methods defined for this class. See
+<code><a href="../../BBmisc/html/normalize.html">normalize</a></code>.</p>
+</dd>
+<dt>probeNames</dt><dd><p><code>signature(object = "AffyBatch")</code>: returns
+the probe set associated with each row of the intensity matrix. </p>
+</dd>
+<dt>probeset</dt><dd><p><code>signature(object = "AffyBatch",genenames=NULL,
+	  locations=NULL)</code>: Extracts <code><a href="ProbeSet-class.html">ProbeSet</a></code>
+objects related to the probe sets given in genenames. If an alternative
+set of locations defining pms and mms a list with those locations should
+be passed via the <code>locations</code> argument.</p>
+</dd>
+<dt>bg.correct</dt><dd><p><code>signature(object = "AffyBatch",
+	  method="character")</code> applies background correction methods defined by
+method.</p>
+</dd>
+<dt>updateObject</dt><dd><p><code>signature(object = "AffyBatch", ...,
+	  verbose=FALSE)</code>: update, if necessary, an object of class
+AffyBatch to its current class definition. <code>verbose=TRUE</code>
+provides details about the conversion process.</p>
+</dd>
+</dl>
+
+
+
+<h3>Note</h3>
+
+<p>This class is better described in the vignette.</p>
+
+
+<h3>See Also</h3>
+
+<p>related methods <code><a href="merge.AffyBatch.html">merge.AffyBatch</a></code>,
+<code><a href="pairs.AffyBatch.html">pairs.AffyBatch</a></code>, and
+<code><a href="../../Biobase/html/class.eSet.html">eSet</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  ## load example
+  data(Dilution)
+
+  ## nice print
+  print(Dilution)
+
+  pm(Dilution)[1:5,]
+  mm(Dilution)[1:5,]
+
+  ## get indexes for the PM probes for the affyID "1900_at" 
+  mypmindex &lt;- pmindex(Dilution,"1900_at")
+  ## same operation using the primitive
+  mypmindex &lt;- indexProbes(Dilution, which="pm", genenames="1900_at")[[1]]
+  ## get the probe intensities from the index
+  intensity(Dilution)[mypmindex, ]
+
+  description(Dilution) ##we can also use the methods of eSet
+  sampleNames(Dilution)
+  abstract(Dilution)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bin 'MSnExp' or 'Spectrum' instances</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bin-methods {MSnbase}"><tr><td>bin-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Bin 'MSnExp' or 'Spectrum' instances </h2>
+
+<h3>Description</h3>
+
+<p>This method aggregates individual spectra (<code>Spectrum</code> instances)
+or whole experiments (<code>MSnExp</code> instances) into discrete bins. All
+intensity values which belong to the same bin are summed together.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "MSnExp", binSize = "numeric", verbose =
+	"logical")</code></dt><dd><p> Bins all spectra in an <code>MSnExp</code>
+object. Use <code>binSize</code> to control the size of a bin
+(in Dalton, default is <code>1</code>).
+Displays a control bar if verbose set to <code>TRUE</code>
+(default). Returns a binned <code>MSnExp</code> instance.
+</p>
+</dd>
+<dt><code>signature(object = "Spectrum", binSize = "numeric",
+        breaks = "numeric", msLevel. = "numeric")</code></dt><dd><p> Bin the
+<code>Spectrum</code> object.  Use <code>binSize</code> to control the size
+of a bin (in Dalton, default is <code>1</code>).  Similar to
+<code><a href="../../graphics/html/hist.html">hist</a></code> you could use <code>breaks</code> to
+specify the breakpoints between m/z bins. <code>msLevel.</code>
+defines the level of the spectrum, and if <code>msLevel(object)
+        != msLevel.</code>, cleaning is ignored. Only relevant when called
+from <code>OnDiskMSnExp</code> and is only relevant for developers.
+</p>
+<p>Returns a binned <code>Spectrum</code> instance.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Sebastian Gibb &lt;mail@sebastiangibb.de&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="clean-methods.html">clean</a></code>, <code><a href="pickPeaks-method.html">pickPeaks</a></code>, <code><a href="smooth-methods.html">smooth</a></code>,
+<code><a href="removePeaks-methods.html">removePeaks</a></code> and <code><a href="trimMz-methods.html">trimMz</a></code>
+for other spectra processing methods.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+s &lt;- new("Spectrum2", mz=1:10, intensity=1:10)
+intensity(s)
+intensity(bin(s, binSize=2))
+
+data(itraqdata)
+sum(peaksCount(itraqdata))
+itraqdata2 &lt;- bin(itraqdata, binSize=2)
+sum(peaksCount(itraqdata2))
+processingData(itraqdata2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

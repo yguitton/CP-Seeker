@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Core API function for massifquant peak detection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for do_findChromPeaks_massifquant {xcms}"><tr><td>do_findChromPeaks_massifquant {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Core API function for massifquant peak detection</h2>
+
+<h3>Description</h3>
+
+<p>Massifquant is a Kalman filter (KF)-based chromatographic peak
+detection for XC-MS data in centroid mode. The identified peaks
+can be further refined with the <em>centWave</em> method (see
+<code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code> for details on centWave)
+by specifying <code>withWave = TRUE</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+do_findChromPeaks_massifquant(mz, int, scantime, valsPerSpect, ppm = 10,
+  peakwidth = c(20, 50), snthresh = 10, prefilter = c(3, 100),
+  mzCenterFun = "wMean", integrate = 1, mzdiff = -0.001,
+  fitgauss = FALSE, noise = 0, verboseColumns = FALSE,
+  criticalValue = 1.125, consecMissedLimit = 2, unions = 1,
+  checkBack = 0, withWave = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>mz</code></td>
+<td>
+<p>Numeric vector with the individual m/z values from all scans/
+spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>int</code></td>
+<td>
+<p>Numeric vector with the individual intensity values from all
+scans/spectra of one file/sample.</p>
+</td></tr>
+<tr valign="top"><td><code>scantime</code></td>
+<td>
+<p>Numeric vector of length equal to the number of
+spectra/scans of the data representing the retention time of each scan.</p>
+</td></tr>
+<tr valign="top"><td><code>valsPerSpect</code></td>
+<td>
+<p>Numeric vector with the number of values for each
+spectrum.</p>
+</td></tr>
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal tolerated m/z deviation in
+consecutive scans in parts per million (ppm) for the initial ROI
+definition.</p>
+</td></tr>
+<tr valign="top"><td><code>peakwidth</code></td>
+<td>
+<p><code>numeric(2)</code> with the expected approximate
+peak width in chromatographic space. Given as a range (min, max)
+in seconds.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio cutoff.</p>
+</td></tr>
+<tr valign="top"><td><code>prefilter</code></td>
+<td>
+<p><code>numeric(2)</code>: <code>c(k, I)</code> specifying the prefilter
+step for the first analysis step (ROI detection). Mass traces are only
+retained if they contain at least <code>k</code> peaks with intensity
+<code>&gt;= I</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mzCenterFun</code></td>
+<td>
+<p>Name of the function to calculate the m/z center of the
+chromatographic peak. Allowed are: <code>"wMean"</code>: intensity weighted
+mean of the peak's m/z values, <code>"mean"</code>: mean of the peak's m/z
+values, <code>"apex"</code>: use the m/z value at the peak apex,
+<code>"wMeanApex3"</code>: intensity weighted mean of the m/z value at the
+peak apex and the m/z values left and right of it and <code>"meanApex3"</code>:
+mean of the m/z value of the peak apex and the m/z values left and right
+of it.</p>
+</td></tr>
+<tr valign="top"><td><code>integrate</code></td>
+<td>
+<p>Integration method. For <code>integrate = 1</code> peak limits
+are found through descent on the mexican hat filtered data, for
+<code>integrate = 2</code> the descent is done on the real data. The latter
+method is more accurate but prone to noise, while the former is more
+robust, but less exact.</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> representing the minimum difference in m/z
+dimension required for peaks with overlapping retention times; can be
+negative to allow overlap. During peak post-processing, peaks
+defined to be overlapping are reduced to the one peak with the largest
+signal.</p>
+</td></tr>
+<tr valign="top"><td><code>fitgauss</code></td>
+<td>
+<p><code>logical(1)</code> whether or not a Gaussian should be fitted
+to each peak. This affects mostly the retention time position of the
+peak.</p>
+</td></tr>
+<tr valign="top"><td><code>noise</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to set a minimum intensity required
+for centroids to be considered in the first analysis step (centroids with
+intensity <code>&lt; noise</code> are omitted from ROI detection).</p>
+</td></tr>
+<tr valign="top"><td><code>verboseColumns</code></td>
+<td>
+<p><code>logical(1)</code> whether additional peak meta data
+columns should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>criticalValue</code></td>
+<td>
+<p><code>numeric(1)</code>. Suggested values:
+(<code>0.1-3.0</code>). This setting helps determine the the Kalman Filter
+prediciton margin of error. A real centroid belonging to a bonafide
+peak must fall within the KF prediction margin of error. Much like
+in the construction of a confidence interval, <code>criticalVal</code> loosely
+translates to be a multiplier of the standard error of the prediction
+reported by the Kalman Filter. If the peak in the XC-MS sample have
+a small mass deviance in ppm error, a smaller critical value might be
+better and vice versa.</p>
+</td></tr>
+<tr valign="top"><td><code>consecMissedLimit</code></td>
+<td>
+<p><code>integer(1)</code> Suggested values: (<code>1,2,3</code>).
+While a peak is in the proces of being detected by a Kalman Filter, the
+Kalman Filter may not find a predicted centroid in every scan. After 1
+or more consecutive failed predictions, this setting informs Massifquant
+when to stop a Kalman Filter from following a candidate peak.</p>
+</td></tr>
+<tr valign="top"><td><code>unions</code></td>
+<td>
+<p><code>integer(1)</code> set to <code>1</code> if apply t-test union on
+segmentation; set to <code>0</code> if no t-test to be applied on
+chromatographically continous peaks sharing same m/z range.
+Explanation: With very few data points, sometimes a Kalman Filter stops
+tracking a peak prematurely. Another Kalman Filter is instantiated
+and begins following the rest of the signal. Because tracking is done
+backwards to forwards, this algorithmic defect leaves a real peak
+divided into two segments or more. With this option turned on, the
+program identifies segmented peaks and combines them (merges them)
+into one with a two sample t-test. The potential danger of this option
+is that some truly distinct peaks may be merged.</p>
+</td></tr>
+<tr valign="top"><td><code>checkBack</code></td>
+<td>
+<p><code>integer(1)</code> set to <code>1</code> if turned on; set to
+<code>0</code> if turned off. The convergence of a Kalman Filter to a peak's
+precise m/z mapping is very fast, but sometimes it incorporates erroneous
+centroids as part of a peak (especially early on). The <code>scanBack</code>
+option is an attempt to remove the occasional outlier that lies beyond
+the converged bounds of the Kalman Filter. The option does not directly
+affect identification of a peak because it is a postprocessing measure;
+it has not shown to be a extremely useful thus far and the default is set
+to being turned off.</p>
+</td></tr>
+<tr valign="top"><td><code>withWave</code></td>
+<td>
+<p><code>logical(1)</code> if <code>TRUE</code>, the peaks identified first
+with Massifquant are subsequently filtered with the second step of the
+centWave algorithm, which includes wavelet estimation.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This algorithm's performance has been tested rigorously
+on high resolution LC/OrbiTrap, TOF-MS data in centroid mode.
+Simultaneous kalman filters identify peaks and calculate their
+area under the curve. The default parameters are set to operate on
+a complex LC-MS Orbitrap sample. Users will find it useful to do some
+simple exploratory data analysis to find out where to set a minimum
+intensity, and identify how many scans an average peak spans. The
+<code>consecMissedLimit</code> parameter has yielded good performance on
+Orbitrap data when set to (<code>2</code>) and on TOF data it was found best
+to be at (<code>1</code>). This may change as the algorithm has yet to be
+tested on many samples. The <code>criticalValue</code> parameter is perhaps
+most dificult to dial in appropriately and visual inspection of peak
+identification is the best suggested tool for quick optimization.
+The <code>ppm</code> and <code>checkBack</code> parameters have shown less influence
+than the other parameters and exist to give users flexibility and
+better accuracy.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix, each row representing an identified chromatographic peak,
+with columns:
+</p>
+
+<dl>
+<dt>mz</dt><dd><p>Intensity weighted mean of m/z values of the peaks across
+scans.</p>
+</dd>
+<dt>mzmin</dt><dd><p>Minumum m/z of the peak.</p>
+</dd>
+<dt>mzmax</dt><dd><p>Maximum m/z of the peak.</p>
+</dd>
+<dt>rtmin</dt><dd><p>Minimum retention time of the peak.</p>
+</dd>
+<dt>rtmax</dt><dd><p>Maximum retention time of the peak.</p>
+</dd>
+<dt>rt</dt><dd><p>Retention time of the peak's midpoint.</p>
+</dd>
+<dt>into</dt><dd><p>Integrated (original) intensity of the peak.</p>
+</dd>
+<dt>maxo</dt><dd><p>Maximum intensity of the peak.</p>
+</dd>
+</dl>
+
+<p>If <code>withWave</code> is set to <code>TRUE</code>, the result is the same as
+returned by the <code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code> method.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Christopher Conley
+</p>
+
+
+<h3>References</h3>
+
+<p>Conley CJ, Smith R, Torgrip RJ, Taylor RM, Tautenhahn R and Prince JT
+&quot;Massifquant: open-source Kalman filter-based XC-MS isotope trace feature
+detection&quot; <em>Bioinformatics</em> 2014, 30(18):2636-43.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="findChromPeaks-massifquant.html">massifquant</a></code> for the standard user interface method.
+</p>
+<p>Other core peak detection functions: <code><a href="do_findChromPeaks_centWaveWithPredIsoROIs.html">do_findChromPeaks_centWaveWithPredIsoROIs</a></code>,
+<code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code>,
+<code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code>,
+<code><a href="do_findPeaks_MSW.html">do_findPeaks_MSW</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(faahKO)
+library(xcms)
+cdfpath &lt;- system.file("cdf", package = "faahKO")
+cdffiles &lt;- list.files(cdfpath, recursive = TRUE, full.names = TRUE)
+
+## Read the first file
+xraw &lt;- xcmsRaw(cdffiles[1])
+## Extract the required data
+mzVals &lt;- xraw@env$mz
+intVals &lt;- xraw@env$intensity
+## Define the values per spectrum:
+valsPerSpect &lt;- diff(c(xraw@scanindex, length(mzVals)))
+
+## Perform the peak detection using massifquant
+res &lt;- do_findChromPeaks_massifquant(mz = mzVals, int = intVals,
+scantime = xraw@scantime, valsPerSpect = valsPerSpect)
+head(res)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

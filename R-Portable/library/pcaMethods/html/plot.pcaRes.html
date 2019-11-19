@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot diagnostics (screeplot)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot.pcaRes {pcaMethods}"><tr><td>plot.pcaRes {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot diagnostics (screeplot)</h2>
+
+<h3>Description</h3>
+
+<p>Plot the computed diagnostics of PCA model to get an idea of their
+importance. Note though that the standard screeplot shows the
+standard deviations for the PCs this method shows the R2 values
+which empirically shows the importance of the P's and is thus
+applicable for any PCA method rather than just SVD based PCA.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'pcaRes'
+plot(x, y = NULL, main = deparse(substitute(object)),
+  col = gray(c(0.9, 0.5)), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>pcaRes</code> The pcaRes object.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>not used</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>title of the plot</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>Colors of the bars</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments to barplot</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If cross-validation was done for the PCA the plot will also show
+the CV based statistics.  A common rule-of-thumb for determining
+the optimal number of PCs is the PC where the CV diagnostic is at
+its maximum but not very far from <i>R^2</i>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>None, used for side effect.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../stats/html/screeplot.html">screeplot</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(metaboliteData)
+pc &lt;- pca(t(metaboliteData), nPcs=5, cv="q2", scale="uv")
+plot(pc)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

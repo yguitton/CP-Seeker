@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute a summary expression value from the probes...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for generateExprVal {affy}"><tr><td>generateExprVal {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute a summary expression value from the probes intensities</h2>
+
+<h3>Description</h3>
+
+<p>Compute a summary expression value from the probes intensities
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+express.summary.stat(x, pmcorrect, summary, ...)
+express.summary.stat.methods() # vector of names of methods
+upDate.express.summary.stat.methods(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a (<code>ProbeSet</code></p>
+</td></tr>
+<tr valign="top"><td><code>pmcorrect</code></td>
+<td>
+<p>the method used to correct the PM values before
+summarizing to an expression value.</p>
+</td></tr>
+<tr valign="top"><td><code>summary</code></td>
+<td>
+<p>the method used to generate the expression value.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other parameters the method might need... (see the
+corresponding methods below...)</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Returns a vector of expression values.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+
+  p &lt;- probeset(Dilution, "1001_at")[[1]]
+
+  par(mfcol=c(5,2))
+  mymethods &lt;- express.summary.stat.methods()
+  nmet &lt;- length(mymethods)
+  nc &lt;- ncol(pm(p))
+
+  layout(matrix(c(1:nc, rep(nc+1, nc)), nc, 2), width = c(1, 1))
+
+  barplot(p)
+
+  results &lt;- matrix(0, nc, nmet)
+  rownames(results) &lt;- paste("sample", 1:nc)
+  colnames(results) &lt;- mymethods
+
+  for (i in 1:nmet) {
+    ev &lt;- express.summary.stat(p, summary=mymethods[i], pmcorrect="pmonly")
+    if (mymethods[[i]] != "medianpolish")
+      results[, i] &lt;- 2^(ev$exprs)
+    else
+      results[, i] &lt;- ev$exprs
+  }
+
+  dotchart(results, labels=paste("sample", 1:nc))
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

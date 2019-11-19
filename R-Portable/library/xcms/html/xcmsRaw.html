@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Constructor for xcmsRaw objects which reads NetCDF/mzXML...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsRaw {xcms}"><tr><td>xcmsRaw {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Constructor for xcmsRaw objects which reads NetCDF/mzXML files</h2>
+
+<h3>Description</h3>
+
+<p>This function handles the task of reading a NetCDF/mzXML file containing
+LC/MS or GC/MS data into a new <code>xcmsRaw</code> object. It also
+transforms the data into profile (maxrix) mode for efficient
+plotting and data exploration.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+xcmsRaw(filename, profstep = 1, profmethod = "bin", profparam =
+list(), includeMSn=FALSE, mslevel=NULL, scanrange=NULL)
+
+deepCopy(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filename</code></td>
+<td>
+<p>path name of the NetCDF or mzXML file to read</p>
+</td></tr>
+<tr valign="top"><td><code>profstep</code></td>
+<td>
+<p>step size (in m/z) to use for profile generation</p>
+</td></tr>
+<tr valign="top"><td><code>profmethod</code></td>
+<td>
+<p>method to use for profile generation. See
+<code><a href="profMat-xcmsSet.html">profile-matrix</a></code> for details and supported values.</p>
+</td></tr>
+<tr valign="top"><td><code>profparam</code></td>
+<td>
+<p>extra parameters to use for profile generation</p>
+</td></tr>
+<tr valign="top"><td><code>includeMSn</code></td>
+<td>
+<p>only for XML file formats: also read MS$^n$
+(Tandem-MS of Ion-/Orbi- Trap spectra)</p>
+</td></tr>
+<tr valign="top"><td><code>mslevel</code></td>
+<td>
+<p>move data from mslevel into normal MS1 slots, e.g. for
+peak picking and visualisation</p>
+</td></tr>
+<tr valign="top"><td><code>scanrange</code></td>
+<td>
+<p>scan range to read</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An xcmsRaw object</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>See <code><a href="profMat-xcmsSet.html">profile-matrix</a></code> for details on profile matrix
+generation methods and settings.
+</p>
+<p>The scanrange to import can be restricted, otherwise all MS1 data
+is read. If <code>profstep</code> is set to 0, no profile matrix is generated.
+Unless <code>includeMSn = TRUE</code> only first level MS data is read, not MS/MS,
+etc.
+</p>
+<p>deepCopy(xraw) will create a copy of the xcmsRaw object with its own
+copy of mz and intensity data in <code>xraw@env</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>xcmsRaw</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>References</h3>
+
+<p>NetCDF file format:
+<a href="https://www.unidata.ucar.edu/software/netcdf/">https://www.unidata.ucar.edu/software/netcdf/</a>
+<a href="http://www.astm.org/Standards/E2077.htm">http://www.astm.org/Standards/E2077.htm</a>
+<a href="http://www.astm.org/Standards/E2078.htm">http://www.astm.org/Standards/E2078.htm</a>
+</p>
+<p>mzXML file format:
+<a href="http://sashimi.sourceforge.net/software_glossolalia.html">http://sashimi.sourceforge.net/software_glossolalia.html</a>
+</p>
+<p>PSI-MS working group who developed mzData and mzML file formats:
+<a href="http://www.psidev.info/index.php?q=node/80">http://www.psidev.info/index.php?q=node/80</a>
+</p>
+<p>Parser used for XML file formats:
+<a href="http://tools.proteomecenter.org/wiki/index.php?title=Software:RAMP">http://tools.proteomecenter.org/wiki/index.php?title=Software:RAMP</a>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>,
+<code><a href="profStep-methods.html">profStep</a></code>,
+<code><a href="profMethod-methods.html">profMethod</a></code>
+<code><a href="xcmsFragments.html">xcmsFragments</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+    library(xcms)
+    library(faahKO)
+    cdfpath &lt;- system.file("cdf", package = "faahKO")
+    cdffiles &lt;- list.files(cdfpath, recursive = TRUE, full.names = TRUE)
+    xr&lt;-xcmsRaw(cdffiles[1])
+    xr
+    ##This gives some information about the file
+    names(attributes(xr))
+    ## Lets have a look at the structure of the object
+
+    str(xr)
+    ##same but with a preview of each slot in the object
+    ##SO... lets have a look at how this works
+    head(xr@scanindex)
+    ##[1]    0  429  860 1291 1718 2140
+    xr@env$mz[425:430]
+    ##[1] 596.3 597.0 597.3 598.1 599.3 200.1
+    ##We can see that the 429 index is the last mz of scan 1 therefore...
+
+    mz.scan1&lt;-xr@env$mz[(1+xr@scanindex[1]):xr@scanindex[2]]
+    intensity.scan1&lt;-xr@env$intensity[(1+xr@scanindex[1]):xr@scanindex[2]]
+    plot(mz.scan1, intensity.scan1, type="h",
+         main=paste("Scan 1 of file", basename(cdffiles[1]), sep=""))
+    ##the easier way :p
+    scan1&lt;-getScan(xr, 1)
+    head(scan1)
+    plotScan(xr, 1)
+	
+## End(Not run)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Return the First to Last Part of a Data Object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for head {limma}"><tr><td>head {limma}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Return the First to Last Part of a Data Object</h2>
+
+<h3>Description</h3>
+
+<p>Retrieve the first or last parts of an RGList, MAList, EListRaw, EList, MArrayLM or TestResults object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'EList'
+head(x, n = 6L, ...)
+## S3 method for class 'EList'
+tail(x, n = 6L, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>an object of class <code>RGList</code>, <code>MAList</code>, <code>EListRaw</code>, <code>EList</code>, <code>MArrayLM</code> or <code>TestResults</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+
+<p>a single integer.
+If positive or zero, number rows of resulting object.
+If negative, all but the <code>n</code> last/first rows of <code>x</code>.
+</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other arguments are not currently used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>head</code> (<code>tail</code>) returns the first (last) <code>n</code> rows when <code>n &gt;= 0</code> or all but the last (first) <code>n</code> rows when <code>n &lt; 0</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object like <code>x</code> but generally with fewer rows.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Gordon Smyth</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../utils/html/head.html">head</a></code> in the utils package.
+</p>
+<p><a href="02classes.html">02.Classes</a> gives an overview of data classes used in LIMMA.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+E &lt;- matrix(rnorm(40),20,2)
+rownames(E) &lt;- paste0("Gene",1:20)
+colnames(E) &lt;- c("A","B")
+y &lt;- new("EList",list(E=E))
+head(y)
+tail(y)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>limma</em> version 3.42.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

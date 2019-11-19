@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot total ion count</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotTIC-methods {xcms}"><tr><td>plotTIC-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot total ion count</h2>
+
+<h3>Description</h3>
+
+<p>Plot chromatogram of total ion count. Optionally allow identification
+of target peaks and viewing/identification of individual spectra.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>ident</code></td>
+<td>
+
+<p>logical, use mouse to identify and label chromatographic peaks
+</p>
+</td></tr>
+<tr valign="top"><td><code>msident</code></td>
+<td>
+
+<p>logical, use mouse to identify and label spectral peaks
+</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>ident == TRUE</code>, an integer vector with the indecies of
+the points that were identified. Otherwise a two-column matrix
+with the plotted points.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>plotTIC(object, ident = FALSE, msident = FALSE)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

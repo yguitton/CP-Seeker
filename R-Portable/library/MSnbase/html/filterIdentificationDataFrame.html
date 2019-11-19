@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Filter out unreliable PSMs.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for filterIdentificationDataFrame {MSnbase}"><tr><td>filterIdentificationDataFrame {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Filter out unreliable PSMs.</h2>
+
+<h3>Description</h3>
+
+<p>A function to filter out PSMs matching to the decoy database, of
+rank greater than one and matching non-proteotypic peptides.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+filterIdentificationDataFrame(x, decoy = "isDecoy", rank = "rank",
+  accession = "DatabaseAccess", spectrumID = "spectrumID",
+  verbose = isMSnbaseVerbose())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A <code>data.frame</code> containing PSMs.</p>
+</td></tr>
+<tr valign="top"><td><code>decoy</code></td>
+<td>
+<p>The column name defining whether entries match the
+decoy database. Default is <code>"isDecoy"</code>. The column should be a
+<code>logical</code> and only PSMs holding a <code>FALSE</code> are
+retained. Ignored is set to <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rank</code></td>
+<td>
+<p>The column name holding the rank of the PSM. Default
+is <code>"rank"</code>. This column should be a <code>numeric</code> and only PSMs
+having rank equal to 1 are retained. Ignored is set to <code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>accession</code></td>
+<td>
+<p>The column name holding the protein (groups)
+accession. Default is <code>"DatabaseAccess"</code>. Ignored is set to
+<code>NULL</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>spectrumID</code></td>
+<td>
+<p>The name of the spectrum identifier
+column. Default is <code>spectrumID</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>A <code>logical</code> verbosity flag. Default is to take
+<code>isMSnbaseVerbose()</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The PSMs should be stored in a <code>data.frame</code> such as those produced
+by <code><a href="readMzIdData.html">readMzIdData()</a></code>. Note that this function should be called
+before calling the <a href="reduce-data.frame-method.html">reduce</a> method on a
+PSM <code>data.frame</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A new <code>data.frame</code> with filtered out peptides and with the
+same columns as the input <code>x</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

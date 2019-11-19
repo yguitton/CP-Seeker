@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Aggregate values in y for bins defined on x</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for binYonX {xcms}"><tr><td>binYonX {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Aggregate values in y for bins defined on x</h2>
+
+<h3>Description</h3>
+
+<p>This functions takes two same-sized numeric vectors <code>x</code>
+and <code>y</code>, bins/cuts <code>x</code> into bins (either a pre-defined number
+of equal-sized bins or bins of a pre-defined size) and aggregates values
+in <code>y</code> corresponding to <code>x</code> values falling within each bin. By
+default (i.e. <code>method = "max"</code>) the maximal <code>y</code> value for the
+corresponding <code>x</code> values is identified. <code>x</code> is expected to be
+incrementally sorted and, if not, it will be internally sorted (in which
+case also <code>y</code> will be ordered according to the order of <code>x</code>).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+binYonX(x, y, breaks, nBins, binSize, binFromX, binToX, fromIdx = 1L,
+  toIdx = length(x), method = "max", baseValue,
+  sortedX = !is.unsorted(x), shiftByHalfBinSize = FALSE,
+  returnIndex = FALSE, returnX = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Numeric vector to be used for binning.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>Numeric vector (same length than <code>x</code>) from which the maximum
+values for each bin should be defined. If not provided, <code>x</code> will
+be used.</p>
+</td></tr>
+<tr valign="top"><td><code>breaks</code></td>
+<td>
+<p>Numeric vector defining the breaks for the bins, i.e. the
+lower and upper values for each bin. See examples below.</p>
+</td></tr>
+<tr valign="top"><td><code>nBins</code></td>
+<td>
+<p>integer(1) defining the number of desired bins.</p>
+</td></tr>
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p>numeric(1) defining the desired bin size.</p>
+</td></tr>
+<tr valign="top"><td><code>binFromX</code></td>
+<td>
+<p>Optional numeric(1) allowing to manually specify
+the range of x-values to be used for binning.
+This will affect only the calculation of the breaks for the bins
+(i.e. if <code>nBins</code> or <code>binSize</code> is provided).
+If not provided the minimal value in the sub-set
+<code>fromIdx</code>-<code>toIdx</code> in input vector <code>x</code> will be used.</p>
+</td></tr>
+<tr valign="top"><td><code>binToX</code></td>
+<td>
+<p>Same as <code>binFromX</code>, but defining the maximum x-value to be
+used for binning.</p>
+</td></tr>
+<tr valign="top"><td><code>fromIdx</code></td>
+<td>
+<p>Integer vector defining the start position of one or multiple
+sub-sets of input vector <code>x</code> that should be used for binning.</p>
+</td></tr>
+<tr valign="top"><td><code>toIdx</code></td>
+<td>
+<p>Same as <code>toIdx</code>, but defining the maximum index (or indices)
+in x to be used for binning.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>A character string specifying the method that should be used to
+aggregate values in <code>y</code>. Allowed are <code>"max"</code>, <code>"min"</code>,
+<code>"sum"</code> and <code>"mean"</code> to identify the maximal or minimal value
+or to sum all values within a bin or calculate their mean value.</p>
+</td></tr>
+<tr valign="top"><td><code>baseValue</code></td>
+<td>
+<p>The base value for empty bins (i.e. bins into which either
+no values in <code>x</code> did fall, or to which only <code>NA</code> values in
+<code>y</code> were assigned). By default (i.e. if not specified), <code>NA</code>
+is assigned to such bins.</p>
+</td></tr>
+<tr valign="top"><td><code>sortedX</code></td>
+<td>
+<p>Whether <code>x</code> is sorted.</p>
+</td></tr>
+<tr valign="top"><td><code>shiftByHalfBinSize</code></td>
+<td>
+<p>Logical specifying whether the bins should be
+shifted by half the bin size to the left. Thus, the first bin will have
+its center at <code>fromX</code> and its lower and upper boundary are
+<code>fromX - binSize/2</code> and <code>fromX + binSize/2</code>. This argument is
+ignored if <code>breaks</code> are provided.</p>
+</td></tr>
+<tr valign="top"><td><code>returnIndex</code></td>
+<td>
+<p>Logical indicating whether the index of the max (if
+<code>method = "max"</code>) or min (if <code>method = "min"</code>) value within
+each bin in input vector <code>x</code> should also be reported. For methods
+other than <code>"max"</code> or <code>"min"</code> this argument is ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>returnX</code></td>
+<td>
+<p><code>logical</code> allowing to avoid returning <code>$x</code>, i.e. the
+mid-points of the bins. <code>returnX = FALSE</code> might be useful in cases
+where <code>breaks</code> are pre-defined as it considerably reduces the memory
+demand.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The breaks defining the boundary of each bin can be either passed
+directly to the function with the argument <code>breaks</code>, or are
+calculated on the data based on arguments <code>nBins</code> or <code>binSize</code>
+along with <code>fromIdx</code>, <code>toIdx</code> and optionally <code>binFromX</code>
+and <code>binToX</code>.
+Arguments <code>fromIdx</code> and <code>toIdx</code> allow to specify subset(s) of
+the input vector <code>x</code> on which bins should be calculated. The
+default the full <code>x</code> vector is considered. Also, if not specified
+otherwise with arguments <code>binFromX</code> and <code>binToX </code>, the range
+of the bins within each of the sub-sets will be from <code>x[fromIdx]</code>
+to <code>x[toIdx]</code>. Arguments <code>binFromX</code> and <code>binToX</code> allow to
+overwrite this by manually defining the a range on which the breaks
+should be calculated. See examples below for more details.
+</p>
+<p>Calculation of breaks: for <code>nBins</code> the breaks correspond to
+<code>seq(min(x[fromIdx])), max(x[fromIdx], length.out = (nBins + 1))</code>.
+For <code>binSize</code> the breaks correspond to
+<code>seq(min(x[fromIdx]), max(x[toIdx]), by = binSize)</code> with the
+exception that the last break value is forced to be equal to
+<code>max(x[toIdx])</code>. This ensures that all values from the specified
+range are covered by the breaks defining the bins. The last bin could
+however in some instances be slightly larger than <code>binSize</code>. See
+<code><a href="breaks_on_binSize.html">breaks_on_binSize</a></code> and <code><a href="breaks_on_nBins.html">breaks_on_nBins</a></code> for
+more details.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Returns a list of length 2, the first element (named <code>"x"</code>)
+contains the bin mid-points, the second element (named <code>"y"</code>) the
+aggregated values from input vector <code>y</code> within each bin. For
+<code>returnIndex = TRUE</code> the list contains an additional element
+<code>"index"</code> with the index of the max or min (depending on whether
+<code>method = "max"</code> or <code>method = "min"</code>) value within each bin in
+input vector <code>x</code>.
+</p>
+
+
+<h3>Note</h3>
+
+<p>The function ensures that all values within the range used to define
+the breaks are considered in the binning (and assigned to a bin). This
+means that for all bins except the last one values in <code>x</code> have to be
+<code>&gt;= xlower</code> and <code>&lt; xupper</code> (with <code>xlower</code>
+and <code>xupper</code> being the lower and upper boundary, respectively). For
+the last bin the condition is <code>x &gt;= xlower &amp; x &lt;= xupper</code>.
+Note also that if <code>shiftByHalfBinSize</code> is <code>TRUE</code> the range of
+values that is used for binning is expanded by <code>binSize</code> (i.e. the
+lower boundary will be <code>fromX - binSize/2</code>, the upper
+<code>toX + binSize/2</code>). Setting this argument to <code>TRUE</code> resembles
+the binning that is/was used in <code>profBin</code> function from
+<code>xcms</code> &lt; 1.51.
+</p>
+<p><code>NA</code> handling: by default the function ignores <code>NA</code> values in
+<code>y</code> (thus inherently assumes <code>na.rm = TRUE</code>). No <code>NA</code>
+values are allowed in <code>x</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+########
+## Simple example illustrating the breaks and the binning.
+##
+## Define breaks for 5 bins:
+brks &lt;- seq(2, 12, length.out = 6)
+## The first bin is then [2,4), the second [4,6) and so on.
+brks
+## Get the max value falling within each bin.
+binYonX(x = 1:16, y = 1:16, breaks = brks)
+## Thus, the largest value in x = 1:16 falling into the bin [2,4) (i.e. being
+## &gt;= 2 and &lt; 4) is 3, the largest one falling into [4,6) is 5 and so on.
+## Note however the function ensures that the minimal and maximal x-value
+## (in this example 1 and 12) fall within a bin, i.e. 12 is considered for
+## the last bin.
+
+#######
+## Performing the binning ons sub-set of x
+##
+X &lt;- 1:16
+## Bin X from element 4 to 10 into 5 bins.
+X[4:10]
+binYonX(X, X, nBins = 5L, fromIdx = 4, toIdx = 10)
+## This defines breaks for 5 bins on the values from 4 to 10 and bins
+## the values into these 5 bins. Alternatively, we could manually specify
+## the range for the binning, i.e. the minimal and maximal value for the
+## breaks:
+binYonX(X, X, nBins = 5L, fromIdx = 4, toIdx = 10, binFromX = 1, binToX = 16)
+## In this case the breaks for 5 bins were defined from a value 1 to 16 and
+## the values 4 to 10 were binned based on these breaks.
+
+#######
+## Bin values within a sub-set of x, second example
+##
+## This example illustrates how the fromIdx and toIdx parameters can be used.
+## x defines 3 times the sequence form 1 to 10, while y is the sequence from
+## 1 to 30. In this very simple example x is supposed to represent M/Z values
+## from 3 consecutive scans and y the intensities measured for each M/Z in
+## each scan. We want to get the maximum intensities for M/Z value bins only
+## for the second scan, and thus we use fromIdx = 11 and toIdx = 20. The breaks
+## for the bins are defined with the nBins, binFromX and binToX.
+X &lt;- rep(1:10, 3)
+Y &lt;- 1:30
+## Bin the M/Z values in the second scan into 5 bins and get the maximum
+## intensity for each bin. Note that we have to specify sortedX = TRUE as
+## the x and y vectors would be sorted otherwise.
+binYonX(X, Y, nBins = 5L, sortedX = TRUE, fromIdx = 11, toIdx = 20)
+
+#######
+## Bin in overlapping sub-sets of X
+##
+## In this example we define overlapping sub-sets of X and perform the binning
+## within these.
+X &lt;- 1:30
+## Define the start and end indices of the sub-sets.
+fIdx &lt;- c(2, 8, 21)
+tIdx &lt;- c(10, 25, 30)
+binYonX(X, nBins = 5L, fromIdx = fIdx, toIdx = tIdx)
+## The same, but pre-defining also the desired range of the bins.
+binYonX(X, nBins = 5L, fromIdx = fIdx, toIdx = tIdx, binFromX = 4, binToX = 28)
+## The same bins are thus used for each sub-set.
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

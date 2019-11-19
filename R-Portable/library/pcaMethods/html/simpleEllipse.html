@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Hotelling's T^2 Ellipse</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for simpleEllipse {pcaMethods}"><tr><td>simpleEllipse {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Hotelling's T^2 Ellipse</h2>
+
+<h3>Description</h3>
+
+<p>Get a confidence ellipse for uncorrelated bivariate data
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+simpleEllipse(x, y, alfa = 0.95, len = 200)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>first variable</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>second variable</p>
+</td></tr>
+<tr valign="top"><td><code>alfa</code></td>
+<td>
+<p>confidence level of the circle</p>
+</td></tr>
+<tr valign="top"><td><code>len</code></td>
+<td>
+<p>Number of points in the circle</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>As described in 'Introduction to multi and megavariate data analysis
+using PCA and
+PLS' by Eriksson et al. This produces very similar ellipse as
+compared to the ellipse function the ellipse package except that
+this function assumes that and y are uncorrelated (which they of
+are if they are scores or loadings from a PCA).
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix with X and Y coordinates for the circle
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Henning Redestig
+</p>
+
+
+<h3>See Also</h3>
+
+<p>ellipse
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

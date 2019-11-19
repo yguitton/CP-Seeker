@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Data independent acquisition (DIA): peak detection in...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findChromPeaksIsolationWindow {xcms}"><tr><td>findChromPeaksIsolationWindow {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Data independent acquisition (DIA): peak detection in isolation windows</h2>
+
+<h3>Description</h3>
+
+<p>The <code>findChromPeaksIsolationWindow</code> function allows to perform a
+chromatographic peak detection in MS level &gt; 1 spectra of certain isolation
+windows (e.g. SWATH pockets). The function performs a peak detection,
+separately for all spectra belonging to the same isolation window and adds
+them to the <code><a href="XCMSnExp-class.html">chromPeaks()</a></code> matrix of the result object, information about
+the isolation window they were detected in is added to <code><a href="XCMSnExp-class.html">chromPeakData()</a></code>.
+Note that peak detection with this method does not remove previously
+identified chromatographic peaks (e.g. on MS1 level using the
+<code><a href="chromatographic-peak-detection.html">findChromPeaks()</a></code> function but adds newly identified peaks to the existing
+<code><a href="XCMSnExp-class.html">chromPeaks()</a></code> matrix.
+</p>
+<p>Isolation windows can be defined with the <code>isolationWindow</code> parameter, that
+by default uses the definition of <code><a href="isolationWindowTargetMz-OnDiskMSnExp-method.html">isolationWindowTargetMz()</a></code>, i.e.
+chromatographic peak detection is performed for all spectra with the same
+isolation window target m/z (seprarately for each file). The parameter
+<code>param</code> allows to define and configure the peak detection algorithm (see
+<code><a href="chromatographic-peak-detection.html">findChromPeaks()</a></code> for more information).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+findChromPeaksIsolationWindow(object, param, msLevel = 2L,
+  isolationWindow = isolationWindowTargetMz(object), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><code>OnDiskMSnExp</code> or <code>XCMSnExp</code> object with the DIA data.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>Peak detection parameter object, such as a
+<a href="findChromPeaks-centWave.html">CentWaveParam</a> object defining and configuring the chromographic
+peak detection algorithm.
+See also <code><a href="chromatographic-peak-detection.html">findChromPeaks()</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer(1)</code> specifying the MS level in which the peak
+detection should be performed. By default <code>msLevel = 2L</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>isolationWindow</code></td>
+<td>
+<p><code>factor</code> or similar defining the isolation windows in
+which the peak detection should be performed with length equal to the
+number of spectra in <code>object</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>currently not used.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>XCMSnExp</code> object with the chromatographic peaks identified in spectra of
+each isolation window from each file added to the <code>chromPeaks</code> matrix.
+Isolation window definition for each identified peak are stored as additional
+columns in <code><a href="XCMSnExp-class.html">chromPeakData()</a></code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer, Michael Witting
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="reconstructChromPeakSpectra.html">reconstructChromPeakSpectra()</a></code> for the function to reconstruct
+MS2 spectra for each MS1 chromatographic peak.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

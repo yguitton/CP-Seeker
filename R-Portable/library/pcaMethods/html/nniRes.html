@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class for representing a nearest neighbour imputation result</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nniRes {pcaMethods}"><tr><td>nniRes {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class for representing a nearest neighbour imputation result</h2>
+
+<h3>Description</h3>
+
+<p>This is a class representation of nearest neighbour imputation
+(nni) result
+</p>
+
+
+<h3>Details</h3>
+
+<p><b>Creating Objects</b><br />
+<code>new("nniRes", completeObs=[the estimated complete
+observations], k=[cluster size], nObs=[amount of observations],
+nVar=[amount of variables], centered=[was the data centered befor
+running LLSimpute], center=[original means], method=[method used
+to perform clustering], missing=[amount of NAs])</code>
+</p>
+<p><b>Slots</b><br />
+</p>
+
+<dl>
+<dt>completeObs</dt><dd><p>&quot;matrix&quot;, the estimated complete observations</p>
+</dd>
+<dt>nObs</dt><dd><p>&quot;numeric&quot;, amount of observations</p>
+</dd>
+<dt>nVar</dt><dd><p>&quot;numeric&quot;, amount of variables</p>
+</dd>
+<dt>correlation</dt><dd><p>&quot;character&quot;, the correlation method used
+(pearson, kendall or spearman)</p>
+</dd>
+<dt>centered</dt><dd><p>&quot;logical&quot;, data was centered or not</p>
+</dd>
+<dt>center</dt><dd><p>&quot;numeric&quot;, the original variable centers</p>
+</dd>
+<dt>k</dt><dd><p>&quot;numeric&quot;, cluster size</p>
+</dd>
+<dt>method</dt><dd><p>&quot;character&quot;, the method used to perform the clustering</p>
+</dd>
+<dt>missing</dt><dd><p>&quot;numeric&quot;, the total amount of missing values in
+original data</p>
+</dd>
+</dl>
+
+<p><b>Methods</b><br />
+</p>
+ <dl>
+<dt>print</dt><dd><p>Print function</p>
+</dd> </dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Single-spectrum non-chromatography MS data peak detection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findPeaks-MSW {xcms}"><tr><td>findPeaks-MSW {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Single-spectrum non-chromatography MS data peak detection</h2>
+
+<h3>Description</h3>
+
+<p>Perform peak detection in mass spectrometry
+direct injection spectrum using a wavelet based algorithm.
+</p>
+<p>The <code>MSWParam</code> class allows to specify all
+settings for a peak detection using the MSW method. Instances should be
+created with the <code>MSWParam</code> constructor.
+</p>
+<p>The <code>findChromPeaks,OnDiskMSnExp,MSWParam</code>
+method performs peak detection in single-spectrum non-chromatography MS
+data using functionality from the <code>MassSpecWavelet</code> package on all
+samples from an <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object.
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> objects encapsule all experiment
+specific data and load the spectra data (mz and intensity values) on the
+fly from the original files applying also all eventual data
+manipulations.
+</p>
+<p><code>snthresh</code>,<code>snthresh&lt;-</code>: getter and setter for the
+<code>snthresh</code> slot of the object.
+</p>
+<p><code>verboseColumns</code>,<code>verboseColumns&lt;-</code>: getter and setter
+for the <code>verboseColumns</code> slot of the object.
+</p>
+<p><code>scales</code>,<code>scales&lt;-</code>: getter and setter for the
+<code>scales</code> slot of the object.
+</p>
+<p><code>nearbyPeak</code>,<code>nearbyPeak&lt;-</code>: getter and setter for the
+<code>nearbyPeak</code> slot of the object.
+</p>
+<p><code>peakScaleRange</code>,<code>peakScaleRange&lt;-</code>: getter and setter
+for the <code>peakScaleRange</code> slot of the object.
+</p>
+<p><code>ampTh</code>,<code>ampTh&lt;-</code>: getter and setter for the
+<code>ampTh</code> slot of the object.
+</p>
+<p><code>minNoiseLevel</code>,<code>minNoiseLevel&lt;-</code>: getter and setter
+for the <code>minNoiseLevel</code> slot of the object.
+</p>
+<p><code>ridgeLength</code>,<code>ridgeLength&lt;-</code>: getter and setter for
+the <code>ridgeLength</code> slot of the object.
+</p>
+<p><code>peakThr</code>,<code>peakThr&lt;-</code>: getter and setter for the
+<code>peakThr</code> slot of the object.
+</p>
+<p><code>tuneIn</code>,<code>tuneIn&lt;-</code>: getter and setter for the
+<code>tuneIn</code> slot of the object.
+</p>
+<p><code>addParams</code>,<code>addParams&lt;-</code>: getter and setter for the
+<code>addParams</code> slot of the object. This slot stores optional additional
+parameters to be passed to the
+<code><a href="../../MassSpecWavelet/html/identifyMajorPeaks.html">identifyMajorPeaks</a></code> and
+<code><a href="../../MassSpecWavelet/html/sav.gol.html">sav.gol</a></code> functions from the
+<code>MassSpecWavelet</code> package.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+MSWParam(snthresh = 3, verboseColumns = FALSE, scales = c(1, seq(2,
+  30, 2), seq(32, 64, 4)), nearbyPeak = TRUE, peakScaleRange = 5,
+  ampTh = 0.01, minNoiseLevel = ampTh/snthresh, ridgeLength = 24,
+  peakThr = NULL, tuneIn = FALSE, ...)
+
+## S4 method for signature 'OnDiskMSnExp,MSWParam'
+findChromPeaks(object, param,
+  BPPARAM = bpparam(), return.type = "XCMSnExp", msLevel = 1L)
+
+## S4 method for signature 'MSWParam'
+show(object)
+
+## S4 method for signature 'MSWParam'
+snthresh(object)
+
+## S4 replacement method for signature 'MSWParam'
+snthresh(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+verboseColumns(object)
+
+## S4 replacement method for signature 'MSWParam'
+verboseColumns(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+scales(object)
+
+## S4 replacement method for signature 'MSWParam'
+scales(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+nearbyPeak(object)
+
+## S4 replacement method for signature 'MSWParam'
+nearbyPeak(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+peakScaleRange(object)
+
+## S4 replacement method for signature 'MSWParam'
+peakScaleRange(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+ampTh(object)
+
+## S4 replacement method for signature 'MSWParam'
+ampTh(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+minNoiseLevel(object)
+
+## S4 replacement method for signature 'MSWParam'
+minNoiseLevel(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+ridgeLength(object)
+
+## S4 replacement method for signature 'MSWParam'
+ridgeLength(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+peakThr(object)
+
+## S4 replacement method for signature 'MSWParam'
+peakThr(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+tuneIn(object)
+
+## S4 replacement method for signature 'MSWParam'
+tuneIn(object) &lt;- value
+
+## S4 method for signature 'MSWParam'
+addParams(object)
+
+## S4 replacement method for signature 'MSWParam'
+addParams(object) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio cutoff.</p>
+</td></tr>
+<tr valign="top"><td><code>verboseColumns</code></td>
+<td>
+<p><code>logical(1)</code> whether additional peak meta data
+columns should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>scales</code></td>
+<td>
+<p>Numeric defining the scales of the continuous wavelet
+transform (CWT).</p>
+</td></tr>
+<tr valign="top"><td><code>nearbyPeak</code></td>
+<td>
+<p>logical(1) whether to include nearby peaks of
+major peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>peakScaleRange</code></td>
+<td>
+<p>numeric(1) defining the scale range of the
+peak (larger than 5 by default).</p>
+</td></tr>
+<tr valign="top"><td><code>ampTh</code></td>
+<td>
+<p>numeric(1) defining the minimum required relative
+amplitude of the peak (ratio of the maximum of CWT coefficients).</p>
+</td></tr>
+<tr valign="top"><td><code>minNoiseLevel</code></td>
+<td>
+<p>numeric(1) defining the minimum noise level
+used in computing the SNR.</p>
+</td></tr>
+<tr valign="top"><td><code>ridgeLength</code></td>
+<td>
+<p>numeric(1) defining the minimum highest scale
+of the peak in 2-D CWT coefficient matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>peakThr</code></td>
+<td>
+<p>numeric(1) with the minimum absolute intensity
+(above baseline) of peaks to be picked. If provided, the smoothing
+function <code><a href="../../MassSpecWavelet/html/sav.gol.html">sav.gol</a></code> function (in the <code>MassSpecWavelet</code>)
+package is called to estimate the local intensity.</p>
+</td></tr>
+<tr valign="top"><td><code>tuneIn</code></td>
+<td>
+<p>logical(1) whther to tune in the parameter
+estimation of the detected peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional parameters to be passed to the
+<code><a href="../../MassSpecWavelet/html/identifyMajorPeaks.html">identifyMajorPeaks</a></code> and
+<code><a href="../../MassSpecWavelet/html/sav.gol.html">sav.gol</a></code> functions from the
+<code>MassSpecWavelet</code> package.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>For <code>findChromPeaks</code>: an
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object containing the MS- and all
+other experiment-relevant data.
+</p>
+<p>For all other methods: a parameter object.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>An <code>MSWParam</code> object containing all settings for
+the algorithm.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A parameter class specifying if and how parallel processing
+should be performed. It defaults to <code><a href="../../BiocParallel/html/register.html">bpparam</a></code>.
+See documentation of the <code>BiocParallel</code> for more details. If
+parallel processing is enabled, peak detection is performed in parallel
+on several of the input samples.</p>
+</td></tr>
+<tr valign="top"><td><code>return.type</code></td>
+<td>
+<p>Character specifying what type of object the method should
+return. Can be either <code>"XCMSnExp"</code> (default), <code>"list"</code> or
+<code>"xcmsSet"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer(1)</code> defining the MS level on which the peak
+detection should be performed. Defaults to <code>msLevel = 1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for the slot.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This is a wrapper for the peak picker in Bioconductor's
+<code>MassSpecWavelet</code> package calling
+<code><a href="../../MassSpecWavelet/html/peakDetectionCWT.html">peakDetectionCWT</a></code> and
+<code><a href="../../MassSpecWavelet/html/tuneInPeakInfo.html">tuneInPeakInfo</a></code> functions. See the
+<em>xcmsDirect</em> vignette for more information.
+</p>
+<p>Parallel processing (one process per sample) is supported and can
+be configured either by the <code>BPPARAM</code> parameter or by globally
+defining the parallel processing mode using the
+<code><a href="../../BiocParallel/html/register.html">register</a></code> method from the <code>BiocParallel</code>
+package.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The <code>MSWParam</code> function returns a <code>MSWParam</code>
+class instance with all of the settings specified for peak detection by
+the <em>MSW</em> method.
+</p>
+<p>For <code>findChromPeaks</code>: if <code>return.type = "XCMSnExp"</code> an
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object with the results of the peak detection.
+If <code>return.type = "list"</code> a list of length equal to the number of
+samples with matrices specifying the identified peaks.
+If <code>return.type = "xcmsSet"</code> an <code><a href="xcmsSet-class.html">xcmsSet</a></code> object
+with the results of the detection.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.__classVersion__,snthresh,verboseColumns,scales,nearbyPeak,peakScaleRange,ampTh,minNoiseLevel,ridgeLength,peakThr,tuneIn,addParams</code></dt><dd><p>See corresponding parameter above. <code>.__classVersion__</code> stores the version from the class. Slots values
+should exclusively be accessed <em>via</em> the corresponding getter and
+setter methods listed above.</p>
+</dd>
+</dl>
+
+
+<h3>Note</h3>
+
+<p>These methods and classes are part of the updated and modernized
+<code>xcms</code> user interface which will eventually replace the
+<code><a href="findPeaks-methods.html">findPeaks</a></code> methods. It supports peak detection on
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+objects (defined in the <code>MSnbase</code> package). All of the settings
+to the algorithm can be passed with a <code>MSWParam</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Joachim Kutzera, Steffen Neumann, Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="do_findPeaks_MSW.html">do_findPeaks_MSW</a></code> core API function
+and <code><a href="findPeaks.MSW-xcmsRaw-method.html">findPeaks.MSW</a></code> for the old user interface.
+</p>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for the object containing the results of
+the peak detection.
+</p>
+<p>Other peak detection methods: <code><a href="chromatographic-peak-detection.html">chromatographic-peak-detection</a></code>,
+<code><a href="findChromPeaks-centWaveWithPredIsoROIs.html">findChromPeaks-centWaveWithPredIsoROIs</a></code>,
+<code><a href="findChromPeaks-centWave.html">findChromPeaks-centWave</a></code>,
+<code><a href="findChromPeaks-massifquant.html">findChromPeaks-massifquant</a></code>,
+<code><a href="findChromPeaks-matchedFilter.html">findChromPeaks-matchedFilter</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a MSWParam object
+mp &lt;- MSWParam()
+## Change snthresh parameter
+snthresh(mp) &lt;- 15
+mp
+
+## Loading a small subset of direct injection, single spectrum files
+library(msdata)
+fticrf &lt;- list.files(system.file("fticr", package = "msdata"),
+                    recursive = TRUE, full.names = TRUE)
+fticr &lt;- readMSData(fticrf[1:2], msLevel. = 1, mode = "onDisk")
+
+## Perform the MSW peak detection on these:
+p &lt;- MSWParam(scales = c(1, 7), peakThr = 80000, ampTh = 0.005,
+             SNR.method = "data.mean", winSize.noise = 500)
+fticr &lt;- findChromPeaks(fticr, param = p)
+
+head(chromPeaks(fticr))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get peak intensities for specified regions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getPeaks-methods {xcms}"><tr><td>getPeaks-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get peak intensities for specified regions</h2>
+
+<h3>Description</h3>
+
+<p>Integrate extracted ion chromatograms in pre-defined defined
+regions. Return output similar to <code><a href="findPeaks-methods.html">findPeaks</a></code>.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsSet</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>peakrange</code></td>
+<td>
+
+<p>matrix or data frame with 4 columns: <code>mzmin</code>, <code>mzmax</code>,
+<code>rtmin</code>, <code>rtmax</code> (they must be in that order or named)
+</p>
+</td></tr>
+<tr valign="top"><td><code>step</code></td>
+<td>
+<p>step size to use for profile generation</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A matrix with columns:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>i</code></td>
+<td>
+
+<p>rank of peak identified in merged EIC (&lt;= <code>max</code>), always <code>NA</code>
+</p>
+</td></tr>
+<tr valign="top"><td><code>mz</code></td>
+<td>
+
+<p>weighted (by intensity) mean of peak m/z across scans
+</p>
+</td></tr>
+<tr valign="top"><td><code>mzmin</code></td>
+<td>
+
+<p>m/z of minimum step
+</p>
+</td></tr>
+<tr valign="top"><td><code>mzmax</code></td>
+<td>
+
+<p>m/z of maximum step
+</p>
+</td></tr>
+<tr valign="top"><td><code>ret</code></td>
+<td>
+
+<p>retention time of peak midpoint
+</p>
+</td></tr>
+<tr valign="top"><td><code>retmin</code></td>
+<td>
+
+<p>leading edge of peak retention time
+</p>
+</td></tr>
+<tr valign="top"><td><code>retmax</code></td>
+<td>
+
+<p>trailing edge of peak retention time
+</p>
+</td></tr>
+<tr valign="top"><td><code>into</code></td>
+<td>
+
+<p>integrated area of original (raw) peak
+</p>
+</td></tr>
+<tr valign="top"><td><code>intf</code></td>
+<td>
+
+<p>integrated area of filtered peak, always <code>NA</code>
+</p>
+</td></tr>
+<tr valign="top"><td><code>maxo</code></td>
+<td>
+
+<p>maximum intensity of original (raw) peak
+</p>
+</td></tr>
+<tr valign="top"><td><code>maxf</code></td>
+<td>
+
+<p>maximum intensity of filtered peak, always <code>NA</code>
+</p>
+</td></tr>
+</table>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>getPeaks(object, peakrange, step = 0.1)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

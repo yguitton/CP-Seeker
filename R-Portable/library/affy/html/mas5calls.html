@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: MAS 5.0 Absolute Detection</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mas5calls {affy}"><tr><td>mas5calls {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>MAS 5.0 Absolute Detection</h2>
+
+<h3>Description</h3>
+
+<p>Performs the Wilcoxon signed rank-based gene expression presence/absence 
+detection algorithm first implemented in the Affymetrix Microarray Suite
+version 5.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+mas5calls(object,...)
+
+mas5calls.AffyBatch(object, ids = NULL, verbose = TRUE, tau = 0.015,
+                    alpha1 = 0.04, alpha2 = 0.06,
+                    ignore.saturated=TRUE) 
+
+mas5calls.ProbeSet(object, tau = 0.015, alpha1 = 0.04, alpha2 = 0.06,
+                   ignore.saturated=TRUE) 
+
+mas5.detection(mat, tau = 0.015, alpha1 = 0.04, alpha2 = 0.06,
+               exact.pvals = FALSE, cont.correct = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>an object of class <code>AffyBatch</code> or <code>ProbeSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>probeset IDs for which you want to compute calls.</p>
+</td></tr>
+<tr valign="top"><td><code>mat</code></td>
+<td>
+<p>an n-by-2 matrix of paired values (pairs in rows), PMs first col.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>logical. It <code>TRUE</code>, status of processing is reported.</p>
+</td></tr>
+<tr valign="top"><td><code>tau</code></td>
+<td>
+<p>a small positive constant.</p>
+</td></tr>
+<tr valign="top"><td><code>alpha1</code></td>
+<td>
+<p>a significance threshold in (0, alpha2).</p>
+</td></tr>
+<tr valign="top"><td><code>alpha2</code></td>
+<td>
+<p>a significance threshold in (alpha1, 0.5).</p>
+</td></tr>
+<tr valign="top"><td><code>exact.pvals</code></td>
+<td>
+<p>logical controlling whether exact p-values are computed
+(irrelevant if n&lt;50 and there are no ties).  Otherwise the normal
+approximation is used.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore.saturated</code></td>
+<td>
+<p>if TRUE, do the saturation correction described in
+the paper, with a saturation level of 46000.</p>
+</td></tr>
+<tr valign="top"><td><code>cont.correct</code></td>
+<td>
+<p>logical controlling whether continuity correction is
+used in the p-value normal approximation.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>any of the above arguments that applies.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function performs the hypothesis test:
+</p>
+<p>H0: median(Ri) = tau, corresponding to absence of transcript
+H1: median(Ri) &gt; tau, corresponding to presence of transcript
+</p>
+<p>where Ri = (PMi - MMi) / (PMi + MMi) for each i a probe-pair in the 
+probe-set represented by data.
+</p>
+<p>Currently exact.pvals=TRUE is not supported, and cont.correct=TRUE works but
+does not give great results (so both should be left as FALSE).  The defaults
+for tau, alpha1 and alpha2 correspond to those in MAS5.0.
+</p>
+<p>The p-value that is returned estimates the usual quantity:
+</p>
+<p>Pr(observing a more &quot;present looking&quot; probe-set than data | data is absent)
+</p>
+<p>So that small p-values imply presence while large ones imply absence of 
+transcript.  The detection call is computed by thresholding the p-value as 
+in:
+</p>
+<p>call &quot;P&quot; if p-value &lt; alpha1
+call &quot;M&quot; if alpha1 &lt;= p-value &lt; alpha2
+call &quot;A&quot; if alpha2 &lt;= p-value
+</p>
+<p>This implementation has been validated against the original MAS5.0
+implementation with the following results (for exact.pvals and cont.correct
+set to F):
+</p>
+<p>Average Relative Change from MAS5.0 p-values:38%
+Proportion of calls different to MAS5.0 calls:1.0%
+</p>
+<p>where &quot;average/proportion&quot; means over all probe-sets and arrays, where 
+the data came from 11 bacterial control probe-sets spiked-in over a range
+of concentrations (from 0 to 150 pico-mols) over 26 arrays.  These are
+the spike-in data from the GeneLogic Concentration Series Spikein Dataset.
+</p>
+<p>Clearly the p-values computed here differ from those computed by MAS5.0 &ndash;
+this will be improved in subsequent releases of the affy package.   However
+the p-value discrepancies are small enough to result in the call being very
+closely aligned with those of MAS5.0 (99 percent
+were identical on the validation
+set) &ndash; so this implementation will still be of use.
+</p>
+<p>The function <code>mas5.detect</code> is no longer the engine function for the
+others. C code is no available that computes the Wilcox test faster. The
+function is kept so that people can look at the R code (instead of C).
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>mas5.detect</code> returns a list containing the following components:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>pval</code></td>
+<td>
+<p>	a real p-value in [0,1] equal to the probability of
+observing probe-level intensities that are more present looking than
+data assuming the data represents an absent transcript; that is a
+transcript is more likely to be present for p-values closer 0.</p>
+</td></tr> 
+<tr valign="top"><td><code>call</code></td>
+<td>
+<p>either &quot;P&quot;, &quot;M&quot; or &quot;A&quot; representing a call of present,
+marginal or absent; computed by simply thresholding pval using
+alpha1 and alpha2.</p>
+</td></tr>
+</table>
+<p>The <code>mas5calls</code> method for <code>AffyBatch</code> returns an
+<code>ExpressionSet</code> with calls accessible with <code>exprs(obj)</code>
+and p-values available with <code>assayData(obj)[["se.exprs"]]</code>. The
+code <code>mas5calls</code> for <code>ProbeSet</code> returns a list with vectors
+of calls and p-values.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Crispin Miller, Benjamin I. P. Rubinstein, Rafael A. Irizarry</p>
+
+
+<h3>References</h3>
+
+<p>Liu, W. M. and Mei, R. and Di, X. and Ryder, T. B. and Hubbell, E. and Dee,
+S. and Webster, T. A. and Harrington, C. A. and Ho, M. H. and Baid, J. and
+Smeekens, S. P. (2002) Analysis of high density expression microarrays with
+signed-rank call algorithms, Bioinformatics, 18(12), pp. 1593&ndash;1599.
+</p>
+<p>Liu, W. and Mei, R. and Bartell, D. M. and Di, X. and Webster, T. A. and
+Ryder, T. (2001) Rank-based algorithms for analysis of microarrays,
+Proceedings of SPIE, Microarrays: Optical Technologies and Informatics, 4266.
+</p>
+<p>Affymetrix (2002) Statistical Algorithms Description Document, Affymetrix
+Inc., Santa Clara, CA,
+whitepaper.
+<a href="http://www.affymetrix.com/support/technical/whitepapers/sadd_whitepaper.pdf">http://www.affymetrix.com/support/technical/whitepapers/sadd_whitepaper.pdf</a>,
+<a href="http://www.affymetrix.com/support/technical/whitepapers/sadd_whitepaper.pdf">http://www.affymetrix.com/support/technical/whitepapers/sadd_whitepaper.pdf</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+  PACalls &lt;- mas5calls(Dilution)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

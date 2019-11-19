@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Removes non-identified features</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removeNoId-methods {MSnbase}"><tr><td>removeNoId-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Removes non-identified features </h2>
+
+<h3>Description</h3>
+
+<p> The method removes non-identifed features in <code>MSnExp</code>
+and <code>MSnSet</code> instances using relevant information from the
+<code>feaureData</code> slot of a user-provide filtering vector of logicals.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "MSnExp", fcol = "pepseq", keep =
+	NULL)</code></dt><dd><p> Removes the feature from <code>object</code> that have a
+feature <code>fcol</code> (default is <code>"pepseq"</code>) equal to
+<code>NA</code>. Alternatively, one can also manually define
+<code>keep</code>, a vector of logical, defining the feature to be
+retained.
+</p>
+</dd>
+<dt><code>signature(object = "MSnSet", fcol = "pepseq", keep =
+	NULL)</code></dt><dd><p> As above of <code>MSnSet</code> instances. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="MSnExp-class.html">MSnExp</a></code> and <code><a href="MSnSet-class.html">MSnSet</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+  quantFile &lt;- dir(system.file(package = "MSnbase", dir = "extdata"),
+                     full.name = TRUE, pattern = "mzXML$")
+  identFile &lt;- dir(system.file(package = "MSnbase", dir = "extdata"),
+                     full.name = TRUE, pattern = "dummyiTRAQ.mzid")
+  msexp &lt;- readMSData(quantFile)
+  msexp &lt;- addIdentificationData(msexp, identFile)
+  fData(msexp)$sequence
+  length(msexp)
+
+  ## using default fcol
+  msexp2 &lt;- removeNoId(msexp)
+  length(msexp2)
+  fData(msexp2)$sequence
+
+  ## using keep
+  print(fvarLabels(msexp))
+  (k &lt;- fData(msexp)$'MS.GF.EValue' &gt; 75)
+  k[is.na(k)] &lt;- FALSE
+  k
+  msexp3 &lt;- removeNoId(msexp, keep = k)
+  length(msexp3)
+  fData(msexp3)$sequence
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

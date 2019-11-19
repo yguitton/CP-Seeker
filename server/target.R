@@ -122,16 +122,20 @@ observeEvent(input$target, {
 				theoricPattern <- theoricPatterns[[row]]
 				
 				peaks <- data.frame()
-				# if(row == 86) browser()
+				if(row == 18) browser()
 				for(row2 in 1:nrow(theoricPattern)){
-					tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
+					if(row2 == 1) tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
+						as.double(theoricPattern[row2, c('mzmin', 'mzmax')]), scRange, TRUE))
+					else tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
 						as.double(theoricPattern[row2, c('mzmin', 'mzmax')]), scRange))
 					if(nrow(tmp) > 0) peaks <- peaks %>% rbind(tmp %>% 
 						mutate(iso = theoricPattern[row2, 'theoricIso']))
 					else break
 				}
+				print(peaks)
+				browser()
 				
-				if("A" %in% peaks$iso & "A+2" %in% peaks$iso){
+				if(nrow(peaks) > 1){
 					# clusterize along rtmin & rtmax
 					clusters <- data.frame(
 						rtmin = peaks[1, 'rtmin'], 
@@ -160,6 +164,7 @@ observeEvent(input$target, {
 						do.call(rbind, lapply(clusters, function(cluster) 
 							data.frame(
 								score = calculateScore(cluster, theoricPattern, input$targetTolPpm, 100),
+								cci = calculateCCI(cluster, theoricPattern, input$targetTolPpm),
 								rtMean = sum(cluster$rt * (cluster$into / sum(cluster$into))),
 								deviation = calculateDeviation(cluster, theoricPattern, input$targetTolPpm)))) %>% 
 							cbind(theoric[, c('formula', 'ion_formula', 'charge', 'C', 'Cl', 'adduct')]) %>% 
@@ -378,17 +383,22 @@ targetChloroPara <- function(xr, scalerange, mzRange, scRange, printPlot = FALSE
 	baseline <- runmed(eic$intensity, scalerange[2]*3, 
 			endrule="constant", algorithm="Turlach")
 	noise <- eic %>% pull(intensity) %>% sd
+	if(length(which(eic$intensity - baseline >= noise)) <= scalerange[1]) return(data.frame())
+	
+	if(printPlot) print(plot_ly(type="scatter", mode = "lines", data = eic, 
+		x = ~scan, y = ~intensity) %>% add_lines(y = baseline) %>% 
+		add_lines(y = noise))
 			
 	rois <- which(eic$intensity - baseline > noise)
 	if(length(rois) == 0) return(data.frame())
-	rois <- split(rois, cumsum(c(TRUE, diff(rois) > 1))) %>% 
+	rois <- split(rois, cumsum(c(TRUE, diff(rois) > 3))) %>% 
 		map(function(x) eic[x, ]) %>% 
 		keep(function(x) x %>% filter(between(scan, scRange[1], scRange[2]) & 
 			intensity - baseline[scan] >= noise) %>% 
-				nrow >= ceiling(scalerange[1] / 2)) %>% 
+				nrow >= ceiling(scalerange[1])) %>% 
 		map(function(x) c(
-			max(1, min(x$scan) - scalerange[2] * 1.5),
-			min(nrow(eic), max(x$scan) + scalerange[2] * 1.5))) %>% 
+			max(1, min(x$scan) - ((max(x$scan) - min(x$scan)) / 2)),
+			min(nrow(eic), max(x$scan) + ((max(x$scan) - min(x$scan)) / 2)))) %>% 
 		overlapROI
 	if(length(rois) == 0) return(data.frame())
 	do.call(rbind, 
@@ -439,12 +449,12 @@ recordTarget <- function(features, clusters){
 		by = c('project_sample', 'adduct'))
 	
 	query <- sprintf('insert into cluster (formula, ion_formula, charge, C, Cl, score, 
-			rtMean, deviation, 
+			rtMean, deviation, CCI, 
 			ppm, peakwidth1, peakwidth2, machine, project_sample_adduct) values %s;', 
-		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
+		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
 			clusters$formula, clusters$ion_formula, clusters$charge, clusters$C, clusters$Cl, 
 			clusters$score, 
-			clusters$rtMean, clusters$deviation, clusters$ppm, clusters$peakwidth1, 
+			clusters$rtMean, clusters$deviation, clusters$cci, clusters$ppm, clusters$peakwidth1, 
 			clusters$peakwidth2, clusters$machine, clusters$project_sample_adduct), 
 				collapse=', '))
 	print(query)

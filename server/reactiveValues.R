@@ -80,7 +80,7 @@ deleteProjects <- function(projects = NULL){
 		project in (%s);', paste(projects, collapse=', '))
 	print(query)
 	project_samples <- dbGetQuery(db, query)$project_sample
-	deleteProject_samples(project_samples)
+	deleteProjectSamples(project_samples)
 	query <- sprintf('delete from project where project in (%s);', 
 		paste(projects, collapse=', '))
 	print(query)

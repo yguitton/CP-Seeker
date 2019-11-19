@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Read CEL files into an ExpressionSet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for justRMA {affy}"><tr><td>justRMA {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Read CEL files into an ExpressionSet</h2>
+
+<h3>Description</h3>
+
+<p>Read CEL files and compute an expression measure without using an AffyBatch.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+just.rma(..., filenames = character(0),
+               phenoData = new("AnnotatedDataFrame"),
+               description = NULL,
+               notes = "",
+               compress = getOption("BioC")$affy$compress.cel,
+               rm.mask = FALSE, rm.outliers = FALSE, rm.extra = FALSE,
+               verbose=FALSE, background=TRUE, normalize=TRUE,
+               bgversion=2, destructive=FALSE, cdfname = NULL)
+
+justRMA(..., filenames=character(0),
+              widget=getOption("BioC")$affy$use.widgets,
+              compress=getOption("BioC")$affy$compress.cel,
+              celfile.path=getwd(),
+              sampleNames=NULL,
+              phenoData=NULL,
+              description=NULL,
+              notes="",
+              rm.mask=FALSE, rm.outliers=FALSE, rm.extra=FALSE,
+              hdf5=FALSE, hdf5FilePath=NULL,verbose=FALSE,
+              normalize=TRUE, background=TRUE, 
+              bgversion=2, destructive=FALSE, cdfname = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>file names separated by comma.</p>
+</td></tr>
+<tr valign="top"><td><code>filenames</code></td>
+<td>
+<p>file names in a character vector.</p>
+</td></tr>
+<tr valign="top"><td><code>phenoData</code></td>
+<td>
+<p>an
+<code><a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a></code>
+object.</p>
+</td></tr> 
+<tr valign="top"><td><code>description</code></td>
+<td>
+<p>a <code><a href="../../Biobase/html/class.MIAME.html">MIAME</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>notes</code></td>
+<td>
+<p>notes.</p>
+</td></tr>
+<tr valign="top"><td><code>compress</code></td>
+<td>
+<p>are the CEL files compressed?</p>
+</td></tr>
+<tr valign="top"><td><code>rm.mask</code></td>
+<td>
+<p>should the spots marked as 'MASKS' set to <code>NA</code>?</p>
+</td></tr>
+<tr valign="top"><td><code>rm.outliers</code></td>
+<td>
+<p>should the spots marked as 'OUTLIERS' set to <code>NA</code>?</p>
+</td></tr>
+<tr valign="top"><td><code>rm.extra</code></td>
+<td>
+<p>if <code>TRUE</code>, then overrides what is in
+<code>rm.mask</code> and <code>rm.oultiers</code>.</p>
+</td></tr> 
+<tr valign="top"><td><code>hdf5</code></td>
+<td>
+<p>use of hdf5 ? (not available yet)</p>
+</td></tr>
+<tr valign="top"><td><code>hdf5FilePath</code></td>
+<td>
+<p>a filename to use with hdf5 (not available yet).</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>verbosity flag.</p>
+</td></tr>
+<tr valign="top"><td><code>widget</code></td>
+<td>
+<p>a logical specifying if widgets should be used.</p>
+</td></tr>
+<tr valign="top"><td><code>celfile.path</code></td>
+<td>
+<p>a character denoting the path <code>ReadAffy</code> should look
+for cel files.</p>
+</td></tr>
+<tr valign="top"><td><code>sampleNames</code></td>
+<td>
+<p>a character vector of sample names to be used in the
+<code>AffyBatch</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>normalize</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, then normalize data using
+quantile normalization.</p>
+</td></tr>
+<tr valign="top"><td><code>background</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, then background correct
+using RMA background correction.</p>
+</td></tr>
+<tr valign="top"><td><code>bgversion</code></td>
+<td>
+<p>integer value indicating which RMA background to use
+1: use background similar to pure R rma background given in affy
+version 1.0 - 1.0.2
+</p>
+<p>2: use background similar to pure R rma background given in affy
+version 1.1 and above</p>
+</td></tr> 
+<tr valign="top"><td><code>destructive</code></td>
+<td>
+<p>logical value. If <code>TRUE</code>, then works on the PM matrix
+in place as much as possible, good for large datasets.</p>
+</td></tr>
+<tr valign="top"><td><code>cdfname</code></td>
+<td>
+<p>Used to specify the name of an alternative cdf package. If set
+to <code>NULL</code>, then the usual cdf package based on Affymetrix' mappings
+will be used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>justRMA</code> is a wrapper for <code>just.rma</code> that permits the user to read
+in phenoData, MIAME information, and CEL files using widgets. One can also
+define files where to read phenoData and MIAME information.
+</p>
+<p>If the function is called with no arguments <code>justRMA()</code>, then all the CEL
+files in the working directory are read, converted to an expression measure
+using RMA and put into an
+<code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>. 
+However, the arguments give the user great flexibility.
+</p>
+<p><code>phenoData</code> is read using <code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code>.
+If a character is given, it tries to read the file with that name to obtain the
+<code>AnnotatedDataFrame</code> object as described in <code><a href="../../Biobase/html/read.AnnotatedDataFrame.html">read.AnnotatedDataFrame</a></code>.
+If left <code>NULL</code> and <code>widget=FALSE</code> (<code>widget=TRUE</code> is not currently
+supported), then a default object is created.
+It will be an object of class <code><a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a></code>
+with its pData being a data.frame with column x indexing the CEL files.
+</p>
+<p><code>description</code> is read using <code><a href="../../Biobase/html/read.MIAME.html">read.MIAME</a></code>. If a
+character is given, it tries to read the file with that name to obtain a
+<code>MIAME</code> instance. If left <code>NULL</code> but <code>widget=TRUE</code>, then
+widgets are used. If left <code>NULL</code> and <code>widget=FALSE</code>, then an
+empty instance of <code>MIAME</code> is created.
+</p>
+<p>The arguments <code>rm.masks</code>, <code>rm.outliers</code>, <code>rm.extra</code> are
+passed along to the function <code>read.celfile</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>An <code>ExpressionSet</code> object, containing expression values identical to
+what one would get from running <code>rma</code> on an <code>AffyBatch</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>In the beginning: James MacDonald &lt;jmacdon@med.umich.edu&gt;
+Supporting routines, maintenance and just.rma: Ben Bolstad &lt;bmb@bmbolstad.com&gt;</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="rma.html">rma</a></code>, <code><a href="read.affybatch.html">read.affybatch</a></code></p>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

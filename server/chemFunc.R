@@ -90,21 +90,57 @@ calculateScore3 <- function(cluster, theoricFeature, ppm, tolI){
 	)
 }
 
+# compute the CCI
+calculateCCI <- function(cluster, theoric, ppm){
+	if(nrow(cluster) == 0 | nrow(theoric) == 0 | 
+		!is.numeric(ppm)) return(0)
+	else if(ppm < 0) return(0)
+	cluster <- cluster %>% arrange(desc(abundance)) %>% 
+		mutate(id = 1:n())
+	theoric <- theoric %>% arrange(desc(abundance)) %>% 
+		mutate(weight = abundance / sum(abundance), id = 1:n())
+	calculateCCI2(cluster, theoric, ppm)
+}
+calculateCCI2 <- function(cluster, theoric, ppm){
+	if(nrow(cluster) == 0) return(sum(theoric$abundance * theoric$weight))
+	else if(nrow(theoric) == 0) return(0)
+	res <- calculateCCI3(cluster, theoric[1, ], ppm)
+	cluster <- res$cluster
+	res$score + calculateCCI2(cluster, theoric[-1, ], ppm) # cumulative sum
+}
+calculateCCI3 <- function(cluster, theoricFeature, ppm){
+	tolMz <- theoricFeature$mz * ppm * 10**-6
+	# first search the matched observed feature
+	observedFeature <- cluster %>% filter(between(mz, 
+		theoricFeature$mz - tolMz, theoricFeature$mz + tolMz)) %>% 
+		mutate(deviation = abs(theoricFeature$abundance - abundance)) %>% 
+		arrange(deviation) %>% slice(1)
+	if(nrow(observedFeature) == 0) list(
+		score = theoricFeature$abundance * theoricFeature$weight, 
+		cluster = cluster
+	) else list(
+		score = theoricFeature$weight * observedFeature$deviation,
+		cluster = cluster %>% filter(id != observedFeature$id)
+	)
+}
+
 # compute the deviation (return in mDa)
 calculateDeviation <- function(cluster, theoric, ppm){
 	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(0)
 	cluster <- cluster %>% arrange(desc(abundance)) %>% 
 		mutate(id = 1:n())
 	theoric <- theoric %>% arrange(desc(abundance))
-	
-	round(calculateDeviation2(cluster, theoric, ppm) * 10**3, digits=2)
+	deviations <- calculateDeviation2(cluster, theoric, ppm)
+	round(sum(deviations) / length(deviations) * 10**3, digits=2)
 }
 calculateDeviation2 <- function(cluster, theoric, ppm){
-	if(nrow(cluster) == 0 | nrow(theoric) == 0) return(
-		sum(theoric$weight) + sum(cluster$weight))
+	if(nrow(cluster) == 0 | nrow(theoric) == 0) return()
 	res <- calculateDeviation3(cluster, theoric[1, ], ppm)
-	cluster <- res$cluster
-	res$score + calculateDeviation2(cluster, theoric[-1, ], ppm) # cumulative sum
+	if(length(res) == 0) calculateDeviation2(cluster, theoric[-1, ], ppm)
+	else {
+		cluster <- res$cluster
+		c(res$score, calculateDeviation2(cluster, theoric[-1, ], ppm))
+	}
 }
 calculateDeviation3 <- function(cluster, theoricFeature, ppm){
 	tolMz <- theoricFeature$mz * ppm * 10**-6
@@ -115,10 +151,7 @@ calculateDeviation3 <- function(cluster, theoricFeature, ppm){
 			absDeviation = abs(deviation)) %>% 
 		top_n(1, absDeviation) %>% slice(1)
 	# remove the matched feature for avoid an other assignation with a feature
-	if(nrow(observedFeature) == 0) list(
-		score = 0, 
-		cluster = cluster
-	) else list(
+	if(nrow(observedFeature) == 0) return() else list(
 		score = observedFeature$deviation,
 		cluster = cluster %>% filter(id != observedFeature$id)
 	)

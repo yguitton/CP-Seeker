@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class SQLiteResult (and methods)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for SQLiteResult-class {RSQLite}"><tr><td>SQLiteResult-class {RSQLite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class SQLiteResult (and methods)</h2>
+
+<h3>Description</h3>
+
+<p>SQLiteDriver objects are created by <code><a href="../../DBI/html/dbSendQuery.html">dbSendQuery()</a></code> or <code><a href="../../DBI/html/dbSendStatement.html">dbSendStatement()</a></code>,
+and encapsulate the result of an SQL statement (either <code>SELECT</code> or not).
+They are a superclass of the <a href="../../DBI/html/DBIResult-class.html">DBIResult</a> class.
+The &quot;Usage&quot; section lists the class methods overridden by <span class="pkg">RSQLite</span>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'SQLiteResult'
+dbIsValid(dbObj, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbBind(res, params, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbFetch(res, n = -1, ...,
+  row.names = pkgconfig::get_config("RSQLite::row.names.query", FALSE))
+
+## S4 method for signature 'SQLiteResult'
+dbClearResult(res, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbColumnInfo(res, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbGetRowsAffected(res, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbGetRowCount(res, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbHasCompleted(res, ...)
+
+## S4 method for signature 'SQLiteResult'
+dbGetStatement(res, ...)
+</pre>
+
+
+<h3>See Also</h3>
+
+<p>The corresponding generic functions
+<code><a href="../../DBI/html/dbFetch.html">DBI::dbFetch()</a></code>, <code><a href="../../DBI/html/dbClearResult.html">DBI::dbClearResult()</a></code>, and <code><a href="../../DBI/html/dbBind.html">DBI::dbBind()</a></code>,
+<code><a href="../../DBI/html/dbColumnInfo.html">DBI::dbColumnInfo()</a></code>, <code><a href="../../DBI/html/dbGetRowsAffected.html">DBI::dbGetRowsAffected()</a></code>, <code><a href="../../DBI/html/dbGetRowCount.html">DBI::dbGetRowCount()</a></code>,
+<code><a href="../../DBI/html/dbHasCompleted.html">DBI::dbHasCompleted()</a></code>, and <code><a href="../../DBI/html/dbGetStatement.html">DBI::dbGetStatement()</a></code>.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>RSQLite</em> version 2.1.2.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

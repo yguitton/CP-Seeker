@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Simulate data and assess vsn's parameter estimation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sagmbSimulateData {vsn}"><tr><td>sagmbSimulateData {vsn}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Simulate data and assess vsn's parameter estimation</h2>
+
+<h3>Description</h3>
+
+<p>Functions to validate and assess the performance of vsn
+through simulation of data.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sagmbSimulateData(n=8064, d=2, de=0, up=0.5, nrstrata=1,  miss=0, log2scale=FALSE)
+sagmbAssess(h1, sim)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>Numeric. Number of probes (rows).</p>
+</td></tr>
+<tr valign="top"><td><code>d</code></td>
+<td>
+<p>Numeric. Number of arrays (columns).</p>
+</td></tr>
+<tr valign="top"><td><code>de</code></td>
+<td>
+<p>Numeric. Fraction of differentially expressed genes.</p>
+</td></tr>
+<tr valign="top"><td><code>up</code></td>
+<td>
+<p>Numeric. Fraction of up-regulated genes among the
+differentially expressed genes.</p>
+</td></tr>
+<tr valign="top"><td><code>nrstrata</code></td>
+<td>
+<p>Numeric. Number of probe strata.</p>
+</td></tr>
+<tr valign="top"><td><code>miss</code></td>
+<td>
+<p>Numeric. Fraction of data points that is randomly sampled
+and set to <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>log2scale</code></td>
+<td>
+<p>Logical. If <code>TRUE</code>, glog on base 2 is used, if <code>FALSE</code>,
+(the default), then base e.</p>
+</td></tr>
+<tr valign="top"><td><code>h1</code></td>
+<td>
+<p>Matrix. Calibrated and transformed data, according, e.g., to
+vsn</p>
+</td></tr>
+<tr valign="top"><td><code>sim</code></td>
+<td>
+<p>List. The output of a previous call to
+<code>sagmbSimulateData</code>, see Value</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Please see the vignette.</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>sagmbSimulateData</code>, a list with four components:
+<code>hy</code>, an <code>n x d</code> matrix with the true (=simulated)
+calibrated, transformed data;
+<code>y</code>, an <code>n x d</code> matrix with the simulated
+uncalibrated raw data - this is intended to be fed into
+<code><a href="vsn2.html">vsn2</a></code>;
+<code>is.de</code>, a logical vector of length <code>n</code>, specifying
+which probes are simulated to be differentially expressed.
+<code>strata</code>, a factor of length <code>n</code>.
+</p>
+<p>For <code>sagmbSimulateData</code>, a number: the root mean squared
+difference between true and estimated transformed data.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfgang Huber</p>
+
+
+<h3>References</h3>
+
+<p>Wolfgang Huber, Anja von Heydebreck, Holger Sueltmann,
+Annemarie Poustka, and Martin Vingron (2003)
+&quot;Parameter estimation for the calibration and variance stabilization
+of microarray data&quot;,
+Statistical Applications in Genetics and Molecular Biology:
+Vol. 2: No. 1, Article 3.
+http://www.bepress.com/sagmb/vol2/iss1/art3</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+  sim &lt;- sagmbSimulateData(nrstrata = 4)
+  ny  &lt;- vsn2(sim$y, strata = sim$strata)
+  res &lt;- sagmbAssess(exprs(ny), sim)
+  res
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vsn</em> version 3.54.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

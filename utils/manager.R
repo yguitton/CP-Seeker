@@ -49,18 +49,23 @@ for (i in seq_along(pkgs)) {
 }
 
 db <- dbConnect(SQLite(), sqlitePath)
+
+# add CCI in cluster table
+tableCluster <- dbGetQuery(db, 'pragma table_info(cluster);')
+if(!('CCI' %in% tableCluster$name)) dbExecute(db, 'alter table cluster add column CCI float default 0;')
+
 dbExecute(db, 'pragma journal_mode=wal;')
 dbExecute(db, 'pragma auto_vacuum = incremental;')
 
 source(file.path(appwd, "utils/app.R"))
 },
 error = function(e) {
-msg <- sprintf("Startup failed with error(s):\n\n%s", e$message)
-message(msg)
-winDialog(
-	type = "ok",
-	message = msg)
-close(pb)
+	msg <- sprintf("Startup failed with error(s):\n\n%s", e$message)
+	message(msg)
+	tcltk::tk_messageBox(
+		type = "ok",
+		message = msg)
+	close(pb)
 })
 
 message("application terminated normally")

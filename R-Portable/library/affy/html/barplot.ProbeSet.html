@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: show a ProbeSet as barplots</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for barplot.ProbeSet {affy}"><tr><td>barplot.ProbeSet {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>show a ProbeSet as barplots</h2>
+
+<h3>Description</h3>
+
+<p>Displays the probe intensities in a ProbeSet as a barplots
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ProbeSet'
+barplot(height, xlab = "Probe pair", ylab = "Intensity",
+    main = NA, col.pm = "red", col.mm = "blue", beside = TRUE, names.arg = "pp",
+    ask = TRUE, scale, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>height</code></td>
+<td>
+<p>an object of class <code>ProbeSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>label for x axis.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>label for y axis.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p>main label for the figure.</p>
+</td></tr>
+<tr valign="top"><td><code>col.pm</code></td>
+<td>
+<p>color for the &lsquo;pm&rsquo; intensities.</p>
+</td></tr>
+<tr valign="top"><td><code>col.mm</code></td>
+<td>
+<p>color for the &lsquo;mm&rsquo; intensities.</p>
+</td></tr>
+<tr valign="top"><td><code>beside</code></td>
+<td>
+<p>bars beside each others or not.</p>
+</td></tr>
+<tr valign="top"><td><code>names.arg</code></td>
+<td>
+<p>names to be plotted below each bar or group of bars.</p>
+</td></tr>
+<tr valign="top"><td><code>ask</code></td>
+<td>
+<p>ask before ploting the next barplot.</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>put all the barplot to the same scale.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>extra parameters to be passed to <code><a href="../../graphics/html/barplot.html">barplot</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+  gn &lt;- geneNames(Dilution)
+  pps &lt;- probeset(Dilution, gn[1])[[1]]
+
+  barplot.ProbeSet(pps)
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

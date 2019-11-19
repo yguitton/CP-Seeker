@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Enable usage of old xcms code</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for useOriginalCode {xcms}"><tr><td>useOriginalCode {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Enable usage of old xcms code</h2>
+
+<h3>Description</h3>
+
+<p>This function allows to enable the usage of old, partially deprecated
+code from xcms by setting a corresponding global option. See details
+for functions affected.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+useOriginalCode(x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>logical(1)</code> to specify whether or not original
+old code should be used in corresponding functions. If not provided the
+function simply returns the value of the global option.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The functions/methods that are affected by this option are:
+</p>
+
+<ul>
+<li> <p><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a>: use the original
+code that iteratively creates a subset of the binned (profile)
+matrix. This is helpful for computers with limited memory or
+matchedFilter settings with a very small bin size.
+</p>
+</li>
+<li> <p><a href="getPeaks-methods.html">getPeaks</a>
+</p>
+</li></ul>
+
+
+
+<h3>Value</h3>
+
+<p><code>logical(1)</code> indicating whether old code is being used.
+</p>
+
+
+<h3>Note</h3>
+
+<p>For parallel processing using the SOCKS method (e.g. by <code><a href="../../BiocParallel/html/SnowParam-class.html">SnowParam()</a></code> on
+Windows computers) this option might not be passed to the individual R
+processes performing the calculations. In such cases it is suggested to
+specify the option manually and system-wide by adding the line
+<code>options(XCMSuseOriginalCode = TRUE)</code> in a file called <em>.Rprofile</em> in the
+folder in which new R processes are started (usually the user's
+home directory; to ensure that the option is correctly read add a new line
+to the file too). See also <a href="../../base/html/Startup.html">Startup</a> from the base R documentation on how to
+specify system-wide options for R.
+</p>
+<p>Usage of old code is strongly dicouraged. This function is thought
+to be used mainly in the transition phase from xcms to xcms version 3.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

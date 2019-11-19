@@ -1,0 +1,423 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Chromatographic peak detection using the centWave method</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findChromPeaks-centWave {xcms}"><tr><td>findChromPeaks-centWave {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Chromatographic peak detection using the centWave method</h2>
+
+<h3>Description</h3>
+
+<p>The centWave algorithm perform peak density and wavelet based
+chromatographic peak detection for high resolution LC/MS data in centroid
+mode [Tautenhahn 2008].
+</p>
+<p>The <code>CentWaveParam</code> class allows to specify all settings
+for a chromatographic peak detection using the centWave method. Instances
+should be created with the <code>CentWaveParam</code> constructor.
+</p>
+<p>The <code>detectChromPeaks,OnDiskMSnExp,CentWaveParam</code> method
+performs chromatographic peak detection using the <em>centWave</em>
+algorithm on all samples from an <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+object. <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> objects encapsule all
+experiment specific data and load the spectra data (mz and intensity
+values) on the fly from the original files applying also all eventual
+data manipulations.
+</p>
+<p><code>ppm</code>,<code>ppm&lt;-</code>: getter and setter for the <code>ppm</code>
+slot of the object.
+</p>
+<p><code>peakwidth</code>,<code>peakwidth&lt;-</code>: getter and setter for the
+<code>peakwidth</code> slot of the object.
+</p>
+<p><code>snthresh</code>,<code>snthresh&lt;-</code>: getter and setter for the
+<code>snthresh</code> slot of the object.
+</p>
+<p><code>prefilter</code>,<code>prefilter&lt;-</code>: getter and setter for the
+<code>prefilter</code> slot of the object.
+</p>
+<p><code>mzCenterFun</code>,<code>mzCenterFun&lt;-</code>: getter and setter for the
+<code>mzCenterFun</code> slot of the object.
+</p>
+<p><code>integrate</code>,<code>integrate&lt;-</code>: getter and setter for the
+<code>integrate</code> slot of the object.
+</p>
+<p><code>mzdiff</code>,<code>mzdiff&lt;-</code>: getter and setter for the
+<code>mzdiff</code> slot of the object.
+</p>
+<p><code>fitgauss</code>,<code>fitgauss&lt;-</code>: getter and setter for the
+<code>fitgauss</code> slot of the object.
+</p>
+<p><code>noise</code>,<code>noise&lt;-</code>: getter and setter for the
+<code>noise</code> slot of the object.
+</p>
+<p><code>verboseColumns</code>,<code>verboseColumns&lt;-</code>: getter and
+setter for the <code>verboseColumns</code> slot of the object.
+</p>
+<p><code>roiList</code>,<code>roiList&lt;-</code>: getter and setter for the
+<code>roiList</code> slot of the object.
+</p>
+<p><code>fistBaselineCheck</code>,<code>firstBaselineCheck&lt;-</code>: getter
+and setter for the <code>firstBaselineCheck</code> slot of the object.
+</p>
+<p><code>roiScales</code>,<code>roiScales&lt;-</code>: getter and setter for the
+<code>roiScales</code> slot of the object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+CentWaveParam(ppm = 25, peakwidth = c(20, 50), snthresh = 10,
+  prefilter = c(3, 100), mzCenterFun = "wMean", integrate = 1L,
+  mzdiff = -0.001, fitgauss = FALSE, noise = 0,
+  verboseColumns = FALSE, roiList = list(),
+  firstBaselineCheck = TRUE, roiScales = numeric())
+
+## S4 method for signature 'OnDiskMSnExp,CentWaveParam'
+findChromPeaks(object, param,
+  BPPARAM = bpparam(), return.type = "XCMSnExp", msLevel = 1L)
+
+## S4 method for signature 'CentWaveParam'
+show(object)
+
+## S4 method for signature 'CentWaveParam'
+ppm(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+ppm(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+peakwidth(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+peakwidth(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+snthresh(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+snthresh(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+prefilter(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+prefilter(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+mzCenterFun(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+mzCenterFun(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+integrate(f)
+
+## S4 replacement method for signature 'CentWaveParam'
+integrate(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+mzdiff(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+mzdiff(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+fitgauss(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+fitgauss(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+noise(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+noise(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+verboseColumns(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+verboseColumns(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+roiList(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+roiList(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+firstBaselineCheck(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+firstBaselineCheck(object) &lt;- value
+
+## S4 method for signature 'CentWaveParam'
+roiScales(object)
+
+## S4 replacement method for signature 'CentWaveParam'
+roiScales(object) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ppm</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal tolerated m/z deviation in
+consecutive scans in parts per million (ppm) for the initial ROI
+definition.</p>
+</td></tr>
+<tr valign="top"><td><code>peakwidth</code></td>
+<td>
+<p><code>numeric(2)</code> with the expected approximate
+peak width in chromatographic space. Given as a range (min, max)
+in seconds.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise ratio cutoff.</p>
+</td></tr>
+<tr valign="top"><td><code>prefilter</code></td>
+<td>
+<p><code>numeric(2)</code>: <code>c(k, I)</code> specifying the prefilter
+step for the first analysis step (ROI detection). Mass traces are only
+retained if they contain at least <code>k</code> peaks with intensity
+<code>&gt;= I</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>mzCenterFun</code></td>
+<td>
+<p>Name of the function to calculate the m/z center of the
+chromatographic peak. Allowed are: <code>"wMean"</code>: intensity weighted
+mean of the peak's m/z values, <code>"mean"</code>: mean of the peak's m/z
+values, <code>"apex"</code>: use the m/z value at the peak apex,
+<code>"wMeanApex3"</code>: intensity weighted mean of the m/z value at the
+peak apex and the m/z values left and right of it and <code>"meanApex3"</code>:
+mean of the m/z value of the peak apex and the m/z values left and right
+of it.</p>
+</td></tr>
+<tr valign="top"><td><code>integrate</code></td>
+<td>
+<p>Integration method. For <code>integrate = 1</code> peak limits
+are found through descent on the mexican hat filtered data, for
+<code>integrate = 2</code> the descent is done on the real data. The latter
+method is more accurate but prone to noise, while the former is more
+robust, but less exact.</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> representing the minimum difference in m/z
+dimension required for peaks with overlapping retention times; can be
+negative to allow overlap. During peak post-processing, peaks
+defined to be overlapping are reduced to the one peak with the largest
+signal.</p>
+</td></tr>
+<tr valign="top"><td><code>fitgauss</code></td>
+<td>
+<p><code>logical(1)</code> whether or not a Gaussian should be fitted
+to each peak. This affects mostly the retention time position of the
+peak.</p>
+</td></tr>
+<tr valign="top"><td><code>noise</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to set a minimum intensity required
+for centroids to be considered in the first analysis step (centroids with
+intensity <code>&lt; noise</code> are omitted from ROI detection).</p>
+</td></tr>
+<tr valign="top"><td><code>verboseColumns</code></td>
+<td>
+<p><code>logical(1)</code> whether additional peak meta data
+columns should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>roiList</code></td>
+<td>
+<p>An optional list of regions-of-interest (ROI) representing
+detected mass traces. If ROIs are submitted the first analysis step is
+omitted and chromatographic peak detection is performed on the submitted
+ROIs. Each ROI is expected to have the following elements specified:
+<code>scmin</code> (start scan index), <code>scmax</code> (end scan index),
+<code>mzmin</code> (minimum m/z), <code>mzmax</code> (maximum m/z), <code>length</code>
+(number of scans), <code>intensity</code> (summed intensity). Each ROI should
+be represented by a <code>list</code> of elements or a single row
+<code>data.frame</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>firstBaselineCheck</code></td>
+<td>
+<p><code>logical(1)</code>. If <code>TRUE</code> continuous
+data within regions of interest is checked to be above the first baseline.</p>
+</td></tr>
+<tr valign="top"><td><code>roiScales</code></td>
+<td>
+<p>Optional numeric vector with length equal to <code>roiList</code>
+defining the scale for each region of interest in <code>roiList</code> that
+should be used for the centWave-wavelets.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>For <code>findChromPeaks</code>: an
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>  object containing the MS- and all
+other experiment-relevant data.
+</p>
+<p>For all other methods: a parameter object.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>An <code>CentWaveParam</code> object containing all settings for the
+centWave algorithm.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A parameter class specifying if and how parallel processing
+should be performed. It defaults to <code><a href="../../BiocParallel/html/register.html">bpparam</a></code>.
+See documentation of the <code>BiocParallel</code> for more details. If
+parallel processing is enabled, peak detection is performed in parallel
+on several of the input samples.</p>
+</td></tr>
+<tr valign="top"><td><code>return.type</code></td>
+<td>
+<p>Character specifying what type of object the method should
+return. Can be either <code>"XCMSnExp"</code> (default), <code>"list"</code> or
+<code>"xcmsSet"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer(1)</code> defining the MS level on which the peak
+detection should be performed. Defaults to <code>msLevel = 1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for the slot.</p>
+</td></tr>
+<tr valign="top"><td><code>f</code></td>
+<td>
+<p>For <code>integrate</code>: a <code>CentWaveParam</code> object.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The centWave algorithm is most suitable for high resolution
+LC/{TOF,OrbiTrap,FTICR}-MS data in centroid mode. In the first phase
+the method identifies <em>regions of interest</em> (ROIs) representing
+mass traces that are characterized as regions with less than <code>ppm</code>
+m/z deviation in consecutive scans in the LC/MS map. In detail, starting
+with a single m/z, a ROI is extended if a m/z can be found in the next scan
+(spectrum) for which the difference to the mean m/z of the ROI is smaller
+than the user defined <code>ppm</code> of the m/z. The mean m/z of the ROI is then
+updated considering also the newly included m/z value.
+</p>
+<p>These ROIs are then, after some cleanup, analyzed using continuous wavelet
+transform (CWT) to locate chromatographic peaks on different scales.
+The first analysis step is skipped, if regions of interest are passed
+<em>via</em> the <code>param</code> parameter.
+</p>
+<p>Parallel processing (one process per sample) is supported and can
+be configured either by the <code>BPPARAM</code> parameter or by globally
+defining the parallel processing mode using the
+<code><a href="../../BiocParallel/html/register.html">register</a></code> method from the <code>BiocParallel</code>
+package.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The <code>CentWaveParam</code> function returns a <code>CentWaveParam</code>
+class instance with all of the settings specified for chromatographic
+peak detection by the centWave method.
+</p>
+<p>For <code>findChromPeaks</code>: if <code>return.type = "XCMSnExp"</code> an
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object with the results of the peak detection.
+If <code>return.type = "list"</code> a list of length equal to the number of
+samples with matrices specifying the identified peaks.
+If <code>return.type = "xcmsSet"</code> an <code><a href="xcmsSet-class.html">xcmsSet</a></code> object
+with the results of the peak detection.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.__classVersion__,ppm,peakwidth,snthresh,prefilter,mzCenterFun,integrate,mzdiff,fitgauss,noise,verboseColumns,roiList,firstBaselineCheck,roiScales</code></dt><dd><p>See corresponding parameter above. <code>.__classVersion__</code> stores
+the version from the class. Slots values should exclusively be accessed
+<em>via</em> the corresponding getter and setter methods listed above.</p>
+</dd>
+</dl>
+
+
+<h3>Note</h3>
+
+<p>These methods and classes are part of the updated and modernized
+<code>xcms</code> user interface which will eventually replace the
+<code><a href="findPeaks-methods.html">findPeaks</a></code> methods. It supports peak detection on
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> objects (defined in the <code>MSnbase</code>
+package). All of the settings to the centWave algorithm can be passed
+with a <code>CentWaveParam</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Ralf Tautenhahn, Johannes Rainer
+</p>
+
+
+<h3>References</h3>
+
+<p>Ralf Tautenhahn, Christoph B\&quot;ottcher, and Steffen Neumann &quot;Highly
+sensitive feature detection for high resolution LC/MS&quot; <em>BMC Bioinformatics</em>
+2008, 9:504
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="do_findChromPeaks_centWave.html">do_findChromPeaks_centWave</a></code> core API function and
+<code><a href="findPeaks.centWave-methods.html">findPeaks.centWave</a></code> for the old user interface.
+</p>
+<p><code><a href="peaksWithCentWave.html">peaksWithCentWave</a></code> for functions to perform centWave peak
+detection in purely chromatographic data.
+</p>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for the object containing the results of
+the peak detection.
+</p>
+<p>Other peak detection methods: <code><a href="chromatographic-peak-detection.html">chromatographic-peak-detection</a></code>,
+<code><a href="findChromPeaks-centWaveWithPredIsoROIs.html">findChromPeaks-centWaveWithPredIsoROIs</a></code>,
+<code><a href="findChromPeaks-massifquant.html">findChromPeaks-massifquant</a></code>,
+<code><a href="findChromPeaks-matchedFilter.html">findChromPeaks-matchedFilter</a></code>,
+<code><a href="findPeaks-MSW.html">findPeaks-MSW</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a CentWaveParam object. Note that the noise is set to 10000 to
+## speed up the execution of the example - in a real use case the default
+## value should be used, or it should be set to a reasonable value.
+cwp &lt;- CentWaveParam(ppm = 20, noise = 10000)
+## Change snthresh parameter
+snthresh(cwp) &lt;- 25
+cwp
+
+## Perform the peak detection using centWave on some of the files from the
+## faahKO package. Files are read using the readMSData from the MSnbase
+## package
+library(faahKO)
+library(xcms)
+fls &lt;- dir(system.file("cdf/KO", package = "faahKO"), recursive = TRUE,
+           full.names = TRUE)
+raw_data &lt;- readMSData(fls[1:2], mode = "onDisk")
+
+## Perform the peak detection using the settings defined above.
+res &lt;- findChromPeaks(raw_data, param = cwp)
+head(chromPeaks(res))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

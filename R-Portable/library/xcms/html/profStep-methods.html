@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get and set m/z step for generating profile data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for profStep-methods {xcms}"><tr><td>profStep-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get and set m/z step for generating profile data</h2>
+
+<h3>Description</h3>
+
+<p>These methods get and set the m/z step for generating profile
+(matrix) data from raw mass spectral data. Smaller steps yield
+more precision at the cost of greater memory usage.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>profStep(object)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>,
+<code><a href="profMethod-methods.html">profMethod</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	## Not run: 
+		library(faahKO)
+		cdfpath &lt;- system.file("cdf", package = "faahKO")
+		cdffiles &lt;- list.files(cdfpath, recursive = TRUE, full.names = TRUE)
+		xset &lt;- xcmsRaw(cdffiles[1])
+
+		xset
+		plotSurf(xset, mass=c(200,500))
+
+		profStep(xset)&lt;-0.1 ## decrease the bin size to get better resolution
+		plotSurf(xset, mass=c(200, 500))
+		##works nicer on high resolution data.
+	
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

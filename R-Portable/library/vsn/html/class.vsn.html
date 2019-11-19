@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class to contain result of a vsn fit</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for vsn {vsn}"><tr><td>vsn {vsn}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Class to contain result of a vsn fit
+</h2>
+
+<h3>Description</h3>
+
+<p>Class to contain result of a vsn fit
+</p>
+
+
+<h3>Creating Objects</h3>
+
+<p><code>new("vsn")</code>
+<code>vsn2(x)</code> with <code>x</code> being an
+<code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>. 
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>coefficients</code>:</dt><dd><p>A 3D array of size (number of strata) x (number of
+columns of the data matrix) x 2. It contains the fitted
+normalization parameters (see vignette).</p>
+</dd>
+<dt><code>strata</code>:</dt><dd><p>A factor of length 0 or n. If its length is
+n, then its levels correspond to different normalization strata
+(see vignette).</p>
+</dd>
+<dt><code>mu</code>:</dt><dd><p>A numeric vector of length n with the fitted
+parameters <i>\hat{&mu;}_k</i>, for <i>k=1,...,n</i>.</p>
+</dd>
+<dt><code>sigsq</code>:</dt><dd><p>A numeric scalar, <i>\hat{&sigma;}^2</i>.</p>
+</dd>
+<dt><code>hx</code>:</dt><dd><p>A numeric matrix with 0 or n rows. If the number of
+rows is n, then <code>hx</code> contains the transformed data matrix.</p>
+</dd>
+<dt><code>lbfgsb</code>:</dt><dd><p>An integer scalar containing the return code
+from the L-BFGS-B optimizer.</p>
+</dd>
+<dt><code>hoffset</code>:</dt><dd><p>Numeric scalar, the overall offset <i>c</i>- see
+manual page of <code><a href="vsn2.html">vsn2</a></code>.</p>
+</dd> 
+<dt><code>calib</code>:</dt><dd><p>Character of length 1, see manual page of
+<code><a href="vsn2.html">vsn2</a></code>.</p>
+</dd> 
+</dl>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>[</code></dt><dd><p>Subset</p>
+</dd>
+<dt><code>dim</code></dt><dd><p>Get dimensions of data matrix.</p>
+</dd>
+<dt><code>nrow</code></dt><dd><p>Get number of rows of data matrix.</p>
+</dd>
+<dt><code>ncol</code></dt><dd><p>Get number of columns of data matrix.</p>
+</dd>
+<dt><code>show</code></dt><dd><p>Print a summary of the object</p>
+</dd>
+<dt><code>exprs</code></dt><dd><p>Accessor to slot <code>hx</code>.</p>
+</dd>
+<dt><code>coef</code>, <code>coefficients</code></dt><dd><p>Accessors to slot
+<code>coefficients</code>.</p>
+</dd> 
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfgang Huber</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="vsn2.html">vsn2</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+  data("kidney")
+  v = vsn2(kidney)
+  show(v)
+  dim(v)
+  v[1:10, ]
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vsn</em> version 3.54.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

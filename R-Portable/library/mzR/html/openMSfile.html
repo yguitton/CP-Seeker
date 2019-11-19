@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Create and check mzR objects from netCDF, mzXML, mzData or...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for openMSfile {mzR}"><tr><td>openMSfile {mzR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Create and check mzR objects from netCDF, mzXML, mzData or mzML files.
+</h2>
+
+<h3>Description</h3>
+
+<p>The <code>openMSfile</code> constructor will create a new format-specifc
+<code>mzR</code> object, open 'filename' file and all header information is
+loaded as a Rcpp module and made accessible through the <code>ramp</code> or <code>pwiz</code>
+slot of the resulting object.
+</p>
+<p>The <code>openIDfile</code> constructor will create a new format-specifc
+<code>mzR</code> object, open 'filename' file and all information is
+loaded as a Rcpp module. The mzid format is supported throught
+<code>pwiz</code> backend. Only mzIdentML 1.1 is supported.
+</p>
+
+
+
+
+
+
+
+<h3>Usage</h3>
+
+<pre>
+ openMSfile(filename, backend = NULL, verbose = FALSE)
+
+ initializeRamp(object)
+
+ isInitialized(object)
+
+ fileName(object, ...)
+ 
+ openIDfile(filename, verbose = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>filename</code></td>
+<td>
+
+<p>Path name of the netCDF, mzData, mzXML or mzML file to
+read/write.
+</p>
+</td></tr>
+<tr valign="top"><td><code>backend</code></td>
+<td>
+
+<p>A <code>character(1)</code> specifiying which backend API to
+use. Currently 'Ramp', 'netCDF'  and 'pwiz' are supported. If
+<code>backend = NULL</code> (the default), the function tries to determine
+the backend to be used based on either the file extension of the
+file content.
+</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p> An instantiated mzR object. </p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p> Enable verbose output. </p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p> Additional arguments, currently ignored. </p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Steffen Neumann, Laurent Gatto, Qiang Kou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ library(msdata)
+ filepath &lt;- system.file("microtofq", package = "msdata")
+ file &lt;- list.files(filepath, pattern="MM14.mzML",
+                     full.names=TRUE, recursive = TRUE)
+ mz &lt;- openMSfile(file)
+ fileName(mz)
+ runInfo(mz)
+ close(mz)
+
+ ## Not run: 
+    ## to use another backend
+    mz &lt;- openMSfile(file, backend = "pwiz")
+    mz
+  
+## End(Not run)
+  
+  file &lt;- system.file("mzid", "Tandem.mzid.gz", package="msdata")
+  mzid &lt;- openIDfile(file)
+  softwareInfo(mzid)
+  enzymes(mzid)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>mzR</em> version 2.20.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

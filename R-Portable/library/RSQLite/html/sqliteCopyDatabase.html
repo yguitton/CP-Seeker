@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Copy a SQLite database</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sqliteCopyDatabase {RSQLite}"><tr><td>sqliteCopyDatabase {RSQLite}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Copy a SQLite database</h2>
+
+<h3>Description</h3>
+
+<p>Copies a database connection to a file or to another database
+connection.  It can be used to save an in-memory database (created using
+<code>dbname = ":memory:"</code> or
+<code>dbname = "file::memory:"</code>) to a file or to create an in-memory database
+a copy of another database.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sqliteCopyDatabase(from, to)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>from</code></td>
+<td>
+<p>A <code>SQLiteConnection</code> object. The main database in
+<code>from</code> will be copied to <code>to</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>to</code></td>
+<td>
+<p>A <code>SQLiteConnection</code> object pointing to an empty database.</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Seth Falcon
+</p>
+
+
+<h3>References</h3>
+
+<p><a href="http://www.sqlite.org/backup.html">http://www.sqlite.org/backup.html</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(DBI)
+# Copy the built in databaseDb() to an in-memory database
+con &lt;- dbConnect(RSQLite::SQLite(), ":memory:")
+dbListTables(con)
+
+db &lt;- RSQLite::datasetsDb()
+RSQLite::sqliteCopyDatabase(db, con)
+dbDisconnect(db)
+dbListTables(con)
+
+dbDisconnect(con)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>RSQLite</em> version 2.1.2.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Probabilistic PCA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ppca {pcaMethods}"><tr><td>ppca {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Probabilistic PCA</h2>
+
+<h3>Description</h3>
+
+<p>Implementation of probabilistic PCA (PPCA). PPCA allows to perform
+PCA on incomplete data and may be used for missing value
+estimation.  This script was implemented after the Matlab version
+provided by Jakob Verbeek ( see
+<a href="http://lear.inrialpes.fr/~verbeek/">http://lear.inrialpes.fr/~verbeek/</a>) and the draft <em>&ldquo;EM
+Algorithms for PCA and Sensible PCA&rdquo;</em> written by Sam Roweis.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+ppca(Matrix, nPcs = 2, seed = NA, threshold = 1e-05,
+  maxIterations = 1000, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>Matrix</code></td>
+<td>
+<p><code>matrix</code> &ndash; Data containing the variables in
+columns and observations in rows. The data may contain missing
+values, denoted as <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>nPcs</code></td>
+<td>
+<p><code>numeric</code> &ndash; Number of components to
+estimate. The preciseness of the missing value estimation depends
+on the number of components, which should resemble the internal
+structure of the data.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p><code>numeric</code> Set the seed for the random number
+generator. PPCA creates fills the initial loading matrix with
+random numbers chosen from a normal distribution. Thus results may
+vary slightly. Set the seed for exact reproduction of your
+results.</p>
+</td></tr>
+<tr valign="top"><td><code>threshold</code></td>
+<td>
+<p>Convergence threshold.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIterations</code></td>
+<td>
+<p>the maximum number of allowed iterations</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Reserved for future use. Currently no further
+parameters are used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Probabilistic PCA combines an EM approach for PCA with a
+probabilistic model. The EM approach is based on the assumption
+that the latent variables as well as the noise are normal
+distributed.
+</p>
+<p>In standard PCA data which is far from the training set but close
+to the principal subspace may have the same reconstruction error.
+PPCA defines a likelihood function such that the likelihood for
+data far from the training set is much lower, even if they are
+close to the principal subspace.  This allows to improve the
+estimation accuracy.
+</p>
+<p>A method called <code>kEstimate</code> is provided to estimate the
+optimal number of components via cross validation.  In general few
+components are sufficient for reasonable estimation accuracy. See
+also the package documentation for further discussion on what kind
+of data PCA-based missing value estimation is advisable.
+</p>
+<p><b>Complexity:</b><br /> Runtime is linear in the number of data,
+number of data dimensions and number of principal components.
+</p>
+<p><b>Convergence:</b>  The threshold indicating convergence was
+changed from 1e-3 in 1.2.x to 1e-5 in the current version  leading
+to more stable results.  For reproducability you can set the seed
+(parameter seed) of the random number generator. If used for
+missing value estimation, results may be checked by simply running
+the algorithm several times with changing seed, if the estimated
+values show little variance the algorithm converged well.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Standard PCA result object used by all PCA-based methods
+of this package. Contains scores, loadings, data mean and
+more. See <code><a href="pcaRes.html">pcaRes</a></code> for details.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Requires <code>MASS</code>. It is not recommended to use this
+function directely but rather to use the pca() wrapper function.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="bpca.html">bpca</a>, <a href="svdImpute.html">svdImpute</a>, <a href="../../stats/html/prcomp.html">prcomp</a>,
+<a href="nipalsPca.html">nipalsPca</a>, <a href="pca.html">pca</a>, <a href="pcaRes.html">pcaRes</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Load a sample metabolite dataset with 5\% missing values (metaboliteData)
+data(metaboliteData)
+## Perform probabilistic PCA using the 3 largest components
+result &lt;- pca(t(metaboliteData), method="ppca", nPcs=3, seed=123)
+## Get the estimated complete observations
+cObs &lt;- completeObs(result)
+## Plot the scores
+plotPcs(result, type = "scores")
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>
