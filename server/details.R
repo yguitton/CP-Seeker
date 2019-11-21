@@ -410,25 +410,50 @@ observeEvent(input$detailsEIC_selected, {
 		else if(is.null(input$detailsEIC_selected)) custom_stop('invalid', 'no rt range selected')
 		else if(length(input$detailsEIC_selected) != 2) custom_stop('invalid', 'no rt range selected')
 		
-		data <- forceTargetChloroPara(param$details$xr, input$detailsEIC_selected * 60, 
-			param$details$theoric$pattern, param$details$theoric$formula, 
-			param$details$theoric$ion_formula,param$details$theoric$charge, 
-			project_samples_adducts() %>% 
-				filter(project_sample_adduct == input$detailsAdduct) %>% 
-				pull(adduct), 
-			input$detailsTable_selected$C, input$detailsTable_selected$Cl, 
-			param$details$theoric$ppm, param$details$theoric$machine)
+		theoricPattern <- param$details$theoric$pattern 
+		rtRange <- input$detailsEIC_selected * 60
+		scRange <- c(which.min(abs(param$details$xr@scantime - rtRange[1])),
+			which.min(abs(param$details$xr@scantime - rtRange[2])))
+		peaks <- data.frame()
+		for(row in 1:nrow(theoricPattern)){
+			tmp <- forceTargetChloroPara(param$details$xr, 
+				as.double(theoricPattern[row, c('mzmin', 'mzmax')]), 
+				scRange, missingScans)
+			if(nrow(tmp) > 0) peaks <- peaks %>% rbind(
+				tmp %>% mutate(iso = theoricPattern[row, 'theoricIso']))
+			else break
+		}
 		
-		if(class(data) != "list") custom_stop('invalid', toString(data))
-		if(nrow(param$details$clusters) > 0) removeTarget(unique(param$details$clusters$cluster))
-		recordOneTarget(data$features, data$clusters, input$detailsAdduct)		
-		
-		session$sendCustomMessage("updateDetailsTable", 
-			paste("1", round(mean(data$clusters$score)), 
-				round(mean(data$clusters$rtMean) / 60, 1), 
-				round(mean(data$clusters$cci)), 
-				round(mean(data$clusters$deviation), 1), sep='/'))
-		toastr_success('success')
+		if(nrow(peaks) > 1){
+			peaks <- peaks %>% mutate(abundance = into / max(into) * 100)
+			info <- data.frame(
+					score = calculateScore(peaks, theoricPattern, param$details$theoric$ppm, 100),
+					cci = calculateCCI(peaks, theoricPattern, param$details$theoric$ppm),
+					rtMean = sum(peaks$rt * (peaks$into / sum(peaks$into))),
+					deviation = calculateDeviation(peaks, theoricPattern, param$details$theoric$ppm)) %>% 
+				mutate(formula = param$details$theoric$formula, 
+					ion_formula = param$details$theoric$ion_formula, 
+					charge = param$details$theoric$charge, 
+					C = input$detailsTable_selected$C, 
+					Cl = input$detailsTable_selected$Cl, 
+					adduct = project_samples_adducts() %>% 
+						filter(project_sample_adduct == input$detailsAdduct) %>% 
+						pull(adduct),
+					ppm = param$details$theoric$ppm, peakwidth1 = 0, 
+					peakwidth2 = 0, machine = param$details$theoric$machine, 
+					project_sample_adduct = input$detailsAdduct)
+			recordOneTarget(peaks, info)
+			toastr_success('success')
+			session$sendCustomMessage("updateDetailsTable", 
+				paste("1", round(info$score), 
+					round(info$rtMean / 60, 1), 
+					round(info$cci), 
+					round(info$deviation, 1), sep='/'))
+		} else {
+			toastr_error("Cannot integrate chloroparaffin selected")
+			removeTarget(unique(param$details$clusters$cluster))
+			session$sendCustomMessage("detailsTableErase", NA)
+		}	
 	}, invalid = function(i){
 		print(i$message)
 		toastr_error(i$message)
@@ -441,23 +466,20 @@ observeEvent(input$detailsEIC_selected, {
 	print('############################################################')
 })
 
-recordOneTarget <- function(features, clusters, pja){
+recordOneTarget <- function(features, cluster){
 	query <- sprintf('insert into cluster (formula, ion_formula, charge, 
 			C, Cl, score, rtMean, deviation, CCI, 
-			ppm, peakwidth1, peakwidth2, machine, project_sample_adduct) values %s;', 
-		paste(sprintf("(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s)", 
-			clusters$formula, clusters$ion_formula, clusters$charge, clusters$C, clusters$Cl, clusters$score, 
-			clusters$rtMean, clusters$deviation, clusters$cci, clusters$ppm, clusters$peakwidth1, 
-			clusters$peakwidth2, clusters$machine, pja), 
-				collapse=', '))
+			ppm, peakwidth1, peakwidth2, machine, project_sample_adduct) values 
+			(\"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \"%s\", %s);', 
+			cluster$formula, cluster$ion_formula, cluster$charge, cluster$C, cluster$Cl, cluster$score, 
+			cluster$rtMean, cluster$deviation, cluster$cci, cluster$ppm, cluster$peakwidth1, 
+			cluster$peakwidth2, cluster$machine, cluster$project_sample_adduct)
 	print(query)
 	dbExecute(db, query)
 	
-	clusterIDs <- dbGetQuery(db, sprintf('select cluster from cluster where 
-		project_sample_adduct == %s and formula == "%s";', pja, 
-		unique(clusters$formula)))$cluster
-	features <- do.call(rbind, lapply(1:length(features), function(i) 
-		features[[i]] %>% mutate(cluster = clusterIDs[i])))
+	features$cluster <- dbGetQuery(db, sprintf('select cluster from cluster where 
+		project_sample_adduct == %s and formula == "%s";', 
+		cluster$project_sample_adduct, cluster$formula))$cluster
 	query <- sprintf('insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
 		\"into\", maxo, scale, scpos, scmin, scmax, lmin, lmax, sn, iso, cluster, abundance) 
 		values %s;', paste(sprintf(
@@ -469,96 +491,4 @@ recordOneTarget <- function(features, clusters, pja){
 				features$abundance), collapse=', '))
 	print(query)
 	dbExecute(db, query)
-}
-
-
-forceIntegrate <- function(xr, mzRange, scRange){
-	eic <- rawEIC(xr, mzrange = mzRange) %>% data.frame %>% 
-		cbind(rt = xr@scantime)
-	omz <- rawMat(xr, mzrange = mzRange) %>% data.frame %>% 
-		mutate(scan = sapply(time, function(x) which(xr@scantime == x)))
-	if(all(eic$intensity == 0)) return("flat eic")
-	
-	baseline <- runmed(eic$intensity, scRange[2]*3, 
-			endrule="constant", algorithm="Turlach")
-	noise <- eic %>% pull(intensity) %>% sd
-	
-	# lm <- narrow_rt_boundaries_extend(scRange, sum(scRange) / 2, 
-		# eic$intensity - baseline)
-	lm <- narrow_rt_boundaries_reduce(scRange, sum(scRange) / 2, 
-		eic$intensity - baseline)
-	if(length(lm) < 2) return("not enough consecutive points")
-
-	mz.value <- omz %>% filter(scan >= lm[1] & scan <= lm[2] & 
-		intensity > 0) %>% pull(mz)
-	mz.int <- omz %>% filter(scan >= lm[1] & scan <= lm[2] & 
-		intensity > 0) %>% pull(intensity)
-	maxo <- max(mz.int)
-	maxo.pos <- which.max(mz.int)
-	if(length(mz.value) == 0) return("cannot get m/z values ???")
-	mzrange <- range(mz.value)
-	mz <- do.call(xcms:::mzCenter.wMean, list(mz = mz.value,
-		intensity = mz.int))
-	sn <- trapz(eic[lm[1]:lm[2], 'intensity'] - baseline[lm[1]:lm[2]]) / 
-		trapz(rep(noise, diff(lm) + 1))
-	if(sn < 1) return("signal under noise, too weak")
-	
-	data.frame(
-		mz = mz, mzmin = mzrange[1], mzmax = mzrange[2], 
-		rt = eic[sum(lm) / 2, 'rt'], 
-		rtmin = eic[lm[1], 'rt'],
-		rtmax = eic[lm[2], 'rt'],
-		into = 	trapz(eic[lm[1]:lm[2], 'intensity']),
-		maxo = maxo, scale = 0, scpos = 0, 
-		scmin = 0, scmax = 0, lmin = lm[1],
-		lmax = lm[2], sn = sn)
-}
-
-forceTargetChloroPara <- function(xr, rtRange, theoric, formula, ion_formula, 
-		charge, adduct, C, Cl, ppm, machine){
-	scRange <- c(which.min(abs(xr@scantime - rtRange[1])),
-		which.min(abs(xr@scantime - rtRange[2])))
-	peaks <- data.frame()
-	for(i in 1:nrow(theoric)){
-		tmp <- forceIntegrate(xr, as.double(theoric[i, c('mzmin', 'mzmax')]), scRange)
-		if(class(tmp) == "data.frame") peaks <- peaks %>% rbind(tmp %>% 
-			mutate(iso = theoric[i, 'theoricIso']))
-		else break
-	}
-	
-	if("A" %in% peaks$iso & "A+2" %in% peaks$iso){
-		# clusterize along rtmin & rtmax
-		clusters <- data.frame(
-			rtmin = peaks[1, 'rtmin'], 
-			rtmax = peaks[1, 'rtmax'])
-		peaks$cluster <- 0
-		peaks[1, 'cluster'] <- 1
-		for(i in 2:nrow(peaks)){
-			ids <- which(sapply(1:nrow(clusters), function(j) 
-				between(peaks[i, 'rt'], clusters[j, 'rtmin'], clusters[j, 'rtmax'])))
-			if(length(ids) == 0){ 
-				peaks[i, 'cluster'] <- max(peaks$cluster) + 1
-				clusters <- clusters %>% rbind(peaks[i, c('rtmin', 'rtmax')])
-			} else {
-				peaks[i, 'cluster'] <- ids[1]
-				clusters[ids[1], 'rtmin'] <- min(c(clusters[ids[1], 'rtmin'], peaks[i, 'rtmin']))
-				clusters[ids[1], 'rtmax'] <- max(c(clusters[ids[1], 'rtmax'], peaks[i, 'rtmax']))
-			}
-		}
-		clusters <- split(peaks, peaks$cluster) %>% 
-			keep(function(x) "A" %in% x$iso & "A+2" %in% x$iso) %>% 
-			map(function(x) x %>% mutate(abundance = into / max(into) * 100))
-		if(length(clusters) == 0) return("cannot get A & A+2 in same cluster")
-		list(features = clusters, clusters = 
-			do.call(rbind, lapply(clusters, function(cluster) 
-				data.frame(
-					score = calculateScore(cluster, theoric, ppm, 100),
-					cci = calculateCCI(cluster, theoric, ppm),
-					rtMean = sum(cluster$rt * (cluster$into / sum(cluster$into))),
-					deviation = calculateDeviation(cluster, theoric, ppm)))) %>% 
-				mutate(formula = formula, ion_formula = ion_formula, charge = charge,
-					C = C, Cl = Cl, adduct = adduct,
-					ppm = ppm, peakwidth1 = 0, peakwidth2 = 0, 
-					machine = machine))
-	} else "cannot get A & A+2"
 }

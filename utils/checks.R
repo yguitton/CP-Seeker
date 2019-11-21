@@ -25,6 +25,7 @@ minC <- config$minC
 maxC <- config$maxC
 minCl <- config$minCl
 maxCl <- config$maxCl
+missingScans <- config$missingScans
 minPts <- config$minPts
 precision <- config$precision
 sqlitePath <- reg_paths$sqlitePath

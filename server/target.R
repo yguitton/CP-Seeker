@@ -121,57 +121,37 @@ observeEvent(input$target, {
 				theoric <- theorics[row, ]
 				theoricPattern <- theoricPatterns[[row]]
 				
-				peaks <- data.frame()
-				if(row == 18) browser()
-				for(row2 in 1:nrow(theoricPattern)){
-					if(row2 == 1) tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
-						as.double(theoricPattern[row2, c('mzmin', 'mzmax')]), scRange, TRUE))
-					else tmp <- suppressWarnings(targetChloroPara(xr, scalerange, 
-						as.double(theoricPattern[row2, c('mzmin', 'mzmax')]), scRange))
-					if(nrow(tmp) > 0) peaks <- peaks %>% rbind(tmp %>% 
-						mutate(iso = theoricPattern[row2, 'theoricIso']))
-					else break
-				}
-				print(peaks)
-				browser()
-				
-				if(nrow(peaks) > 1){
-					# clusterize along rtmin & rtmax
-					clusters <- data.frame(
-						rtmin = peaks[1, 'rtmin'], 
-						rtmax = peaks[1, 'rtmax'])
-					peaks$cluster <- 0
-					peaks[1, 'cluster'] <- 1
-					for(i in 2:nrow(peaks)){
-						ids <- which(sapply(1:nrow(clusters), function(j) 
-							between(peaks[i, 'rt'], clusters[j, 'rtmin'], clusters[j, 'rtmax'])))
-						if(length(ids) == 0){ 
-							peaks[i, 'cluster'] <- max(peaks$cluster) + 1
-							clusters <- clusters %>% rbind(peaks[i, c('rtmin', 'rtmax')])
-						} else {
-							peaks[i, 'cluster'] <- ids[1]
-							clusters[ids[1], 'rtmin'] <- min(c(clusters[ids[1], 'rtmin'], peaks[i, 'rtmin']))
-							clusters[ids[1], 'rtmax'] <- max(c(clusters[ids[1], 'rtmax'], peaks[i, 'rtmax']))
+				peaksA <- suppressWarnings(targetChloroPara(xr, scalerange, 
+					as.double(theoricPattern[1, c('mzmin', 'mzmax')]), scRange, 
+						FALSE, missingScans))
+				if(nrow(peaksA) > 0){
+					peaksA$iso <- 'A'
+					for(row2 in 1:nrow(peaksA)){
+						peaks <- peaksA[row2, ]
+						for(row3 in 2:nrow(theoricPattern)){
+							tmp <- suppressWarnings(forceTargetChloroPara(xr, 
+								as.double(theoricPattern[row3, c('mzmin', 'mzmax')]), 
+								as.double(peaksA[row2, c('lmin', 'lmax')]), 
+								missingScans))
+							if(nrow(tmp) > 0) peaks <- peaks %>% rbind(tmp %>% 
+								mutate(iso = theoricPattern[row3, 'theoricIso']))
+							else break
+						}				
+						if(nrow(peaks) > 1){
+							peaks <- peaks %>% mutate(abundance = into / max(into) * 100)
+							res <- res %>% append(list(peaks))
+							resInfo <- resInfo %>% rbind(
+								data.frame(
+									score = calculateScore(peaks, theoricPattern, input$targetTolPpm, 100),
+									cci = calculateCCI(peaks, theoricPattern, input$targetTolPpm),
+									rtMean = sum(peaks$rt * (peaks$into / sum(peaks$into))),
+									deviation = calculateDeviation(peaks, theoricPattern, input$targetTolPpm)) %>% 
+								cbind(theoric[, c('formula', 'ion_formula', 'charge', 'C', 'Cl', 'adduct')]) %>% 
+								mutate(ppm = input$targetTolPpm, peakwidth1 = input$targetPeakwidth[1], 
+									peakwidth2 = input$targetPeakwidth[2], machine = input$targetMachine, 
+									project_sample = as.numeric(pj)))
 						}
 					}
-					clusters <- split(peaks, peaks$cluster) %>% 
-						keep(function(x) "A" %in% x$iso & "A+2" %in% x$iso) %>% 
-						map(function(x) x %>% mutate(abundance = into / max(into) * 100))
-					nbChloroParaf <- nbChloroParaf + length(clusters)
-					if(length(clusters) == 0) next
-					res <- res %>% append(clusters)
-					resInfo <- resInfo %>% rbind(
-						do.call(rbind, lapply(clusters, function(cluster) 
-							data.frame(
-								score = calculateScore(cluster, theoricPattern, input$targetTolPpm, 100),
-								cci = calculateCCI(cluster, theoricPattern, input$targetTolPpm),
-								rtMean = sum(cluster$rt * (cluster$into / sum(cluster$into))),
-								deviation = calculateDeviation(cluster, theoricPattern, input$targetTolPpm)))) %>% 
-							cbind(theoric[, c('formula', 'ion_formula', 'charge', 'C', 'Cl', 'adduct')]) %>% 
-							mutate(ppm = input$targetTolPpm, peakwidth1 = input$targetPeakwidth[1], 
-								peakwidth2 = input$targetPeakwidth[2], machine = input$targetMachine, 
-								project_sample = as.numeric(pj)))
-					if(length(res) != nrow(resInfo)) browser()
 				}
 				pbVal <- pbVal + 1
 				updateProgressBar(session, id='pb', title=sprintf("Targeting in %s", project_samples() %>% 
@@ -180,7 +160,7 @@ observeEvent(input$target, {
 			}
 			rm(xr)
 			gc()
-			success <- c(success, nbChloroParaf)
+			success <- c(success, nrow(resInfo %>% filter(project_sample == pj)))
 		}
 		print(success)
 		if(length(res) > 1) recordTarget(res, resInfo)
@@ -205,13 +185,14 @@ observeEvent(input$target, {
 	print('############################################################')
 })
 
-integrate <- function(eic, omz, scalerange, baseline, sdnoise){
+integrate <- function(eic, omz, scalerange, baseline, sdnoise, missingScans = 1){
 	scales <- seq(from = scalerange[1], to = scalerange[2], by = 2)
 	wCoefs <- xcms:::MSW.cwt(eic$intensity, 
-		scales = scales, wavelet = 'mexh') %>% 
-		apply(2, function(x) smooth.spline(x, spar = 0)$y)
+		scales = scales, wavelet = 'mexh')
 	if(is.null(dim(wCoefs))) return(data.frame()) 
-	else if(all(sapply(wCoefs, function(x) 
+	else wCoefs <- apply(wCoefs, 2, function(x) smooth.spline(x, spar = 0)$y)
+	
+	if(all(sapply(wCoefs, function(x) 
 		all(x - baseline < sdnoise)))) return(data.frame())
 	localMax <- xcms:::MSW.getLocalMaximumCWT(wCoefs)
 	rL <- xcms:::MSW.getRidge(localMax) %>% keep(
@@ -235,101 +216,109 @@ integrate <- function(eic, omz, scalerange, baseline, sdnoise){
 			m <- wCoefs[opp[maxpi], maxpi]
 			bestcol <- which(m == max(m), arr.ind = TRUE)[2]
 			best.scale <- maxpi[bestcol]
-		} else  best.scale <- maxpi
+		} else best.scale <- maxpi
 		best.scale.pos <- opp[best.scale]
 		
 		lwpos <- max(1, best.scale.pos - best.scale)
 		rwpos <- min(best.scale.pos + best.scale, nrow(eic))
 		# smooth because it can be jagged
-		lm <- descendMin(wCoefs[, best.scale], best.scale.pos)
+		lm <- descendMin(wCoefs[, best.scale], best.scale.pos, missingScans)
 		if(length(lm) < 2) next
 		else if(lm[2] - lm[1] < scalerange[1]) next
-		lm <- narrow_rt_boundaries_extend(lm, best.scale.pos, eic$intensity - baseline)
-		lm <- narrow_rt_boundaries_reduce(lm, best.scale.pos, eic$intensity - baseline)
-		if(length(lm) < 2) next
-		else if(lm[2] - lm[1] < scalerange[1]) next
-				
-		mz.value <- omz %>% filter(scan >= eic[lwpos , 'scan'] 
-			& scan <= eic[rwpos, 'scan'] & 
-			intensity > 0) %>% pull(mz)
-		mz.int <- omz %>% filter(scan >= eic[lwpos , 'scan'] 
-			& scan <= eic[rwpos, 'scan'] & 
-			intensity > 0) %>% pull(intensity)
-		maxo <- max(mz.int)
-		maxo.pos <- which.max(mz.int)
-		if(length(mz.value) == 0) next
-		mzrange <- range(mz.value)
-		mz <- do.call(xcms:::mzCenter.wMean, list(mz = mz.value,
-			intensity = mz.int))
-		sn <- trapz(eic[lm[1]:lm[2], 'intensity'] - baseline[lm[1]:lm[2]]) / 
-			trapz(rep(sdnoise, diff(lm) + 1))
-		if(is.na(sn)) next
-		else if(sn < 1) next
-		peaks <- peaks %>% rbind(data.frame(
-			mz = mz, mzmin = mzrange[1], mzmax = mzrange[2], 
-			rt = eic[best.scale.pos, 'rt'], 
-			rtmin = eic[lm[1], 'rt'], 
-			rtmax = eic[lm[2], 'rt'], 
-			into = 	trapz(eic[lm[1]:lm[2], 'intensity']),
-			maxo = maxo, scale = scales[best.scale],
-			scpos = eic[best.scale.pos, 'scan'], 
-			scmin = eic[lwpos, 'scan'], 
-			scmax = eic[rwpos, 'scan'], 
-			lmin = eic[lm[1], 'scan'], 
-			lmax = eic[lm[2], 'scan'], 
-			sn = sn))
+		peaks <- peaks %>% rbind(integrate2(eic, omz, baseline, sdnoise, lm, missingScans, best.scale.pos))
 	}
 	peaks %>% distinct
 }
 
-descendMin <- function(int, center, minPts = 1){
-	lefts <- split(center:1, 
-		cumsum(c(TRUE, diff(int[center:1]) < 0)))
-	left <- center - which(lengths(lefts) > minPts)[1]
+
+integrate2 <- function(eic, omz, baseline, sdnoise, lm, missingScans, center = NULL){
+	if(is.null(center)) center <- sum(lm) / 2
+	lm <- narrow_rt_boundaries_extend(lm, center, eic$intensity - baseline, missingScans)
+	lm <- narrow_rt_boundaries_reduce(lm, center, eic$intensity - baseline, missingScans)
+	if(length(lm) < 2) return(data.frame())
+	else if(diff(lm) <= 0) return(data.frame())
 	
-	rights <- split(center:length(int), 
-		cumsum(c(TRUE, diff(int[center:length(int)]) < 0)))
-	right <- center + which(lengths(rights) > minPts)[1]
-	if(is.na(left)) left <- center
-	if(is.na(right)) right <- center
+	mz.value <- omz %>% filter(scan >= eic[lm[1] , 'scan'] 
+		& scan <= eic[lm[2], 'scan'] & 
+		intensity > 0) %>% pull(mz)
+	mz.int <- omz %>% filter(scan >= eic[lm[1] , 'scan'] 
+		& scan <= eic[lm[2], 'scan'] & 
+		intensity > 0) %>% pull(intensity)
+	maxo <- max(mz.int)
+	maxo.pos <- which.max(mz.int)
+	if(length(mz.value) == 0) return(data.frame())
+	mzrange <- range(mz.value)
+	mz <- do.call(xcms:::mzCenter.wMean, list(mz = mz.value,
+		intensity = mz.int))
+	sn <- trapz(eic[lm[1]:lm[2], 'intensity'] - baseline[lm[1]:lm[2]]) / 
+		trapz(rep(sdnoise, diff(lm) + 1))
+	if(is.na(sn)) return(data.frame())
+	else if(sn < 1) return(data.frame())
+	data.frame(
+		mz = mz, mzmin = mzrange[1], mzmax = mzrange[2], 
+		rt = eic[center, 'rt'], 
+		rtmin = eic[lm[1], 'rt'], 
+		rtmax = eic[lm[2], 'rt'], 
+		into = 	trapz(eic[lm[1]:lm[2], 'intensity']),
+		maxo = maxo, scale = 0,
+		scpos = eic[center, 'scan'], 
+		scmin = eic[lm[1], 'scan'], 
+		scmax = eic[lm[2], 'scan'], 
+		lmin = eic[lm[1], 'scan'], 
+		lmax = eic[lm[2], 'scan'], 
+		sn = sn)
+}
+descendMin <- function(int, center, minPts = 1){
+	left <- if(center != 1){
+		lefts <- split((center - 1):1, 
+			cumsum(diff(int[center:1]) < 0))
+		limit <- which(lengths(lefts) > minPts)[1]
+		if(is.na(limit)) 1 else lefts[[limit]][1]
+	} else center
+	
+	right <- if(center != length(int)){
+		rights <- split((center + 1):length(int), 
+			cumsum(diff(int[center:length(int)]) < 0))
+		limit <- which(lengths(rights) > minPts)[1]
+		if(is.na(limit)) length(int) else rights[[limit]][1]
+	} else center
+	
 	c(left, right)
 }
-narrow_rt_boundaries_extend <- function(lm, center, int, minPts = 2){
-	lefts <- lm[1]:1
-	lefts <- lefts[which(int[lm[1]:1] > 0)]
-	left <- if(length(lefts) > 0){
-		lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) < -minPts)))[[1]]
-		left <- lefts[length(lefts)] - 1
-		if(left == 0) 1 else left
+narrow_rt_boundaries_extend <- function(lm, center, int, minPts = 1){
+	left <- if(lm[1] != 1){
+		lefts <- (lm[1]:1)[which(int[lm[1]:1] <= 0)]
+		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > 1)))
+		limit <- which(lengths(limits) > minPts)[1]
+		if(is.na(limit)) 1 else limits[[limit]][1]
 	} else lm[1]
-
-	rights <- lm[2]:length(int)
-	rights <- rights[which(int[lm[2]:length(int)] > 0)]
-	right <- if(length(rights) > 0){
-		rights <- split(rights, cumsum(c(TRUE, diff(rights) > minPts)))[[1]]
-		right <- rights[length(rights)] + 1
-		if(right > length(int)) length(int) else right
+	
+	right <- if(lm[2] != length(int)){
+		rights <- (lm[2]:length(int))[which(int[lm[2]:length(int)] <= 0)]
+		limits <- split(rights, cumsum(c(TRUE, diff(rights) > 1)))
+		limit <- which(lengths(limits) > minPts)[1]
+		if(is.na(limit)) length(int) else limits[[limit]][1]
 	} else lm[2]
+	
 	c(left, right)
 }
-
-narrow_rt_boundaries_reduce <- function(lm, center, int, minPts = 2){
-	lefts <- lm[1]:center
-	lefts <- lefts[which(int[lm[1]:center] > 0)]
-	left <- if(length(lefts) > 0){
-		lefts <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts)))
-		lefts <- lefts[which(length(lefts) > 1)]
-		if(length(lefts) == 0) center else lefts[[1]][1]
-	} else center
-
-	rights <- lm[2]:center
-	rights <- rights[which(int[lm[2]:center] > 0)]
-	right <- if(length(rights) > 0){
-		rights <- split(rights, cumsum(c(TRUE, diff(rights) < -minPts)))
-		rights[which(length(rights) > 1)]
-		if(length(rights) == 0) center else rights[[1]][1]
-	} else center
-	c(left, right)
+narrow_rt_boundaries_reduce <- function(lm, center, int, minPts = 1){
+	left <- if(lm[1] != center){
+		lefts <- (lm[1]:center)[which(int[lm[1]:center] > 0)]
+		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts)))
+		limit <- which(lengths(limits) > minPts)[1]
+		if(is.na(limit)) lm[1] else limits[[limit]][1] - 1
+	} else lm[1]
+	
+	right <- if(lm[2] != center){
+		rights <- (lm[2]:center)[which(int[lm[2]:center] > 0)]
+		limits <- split(rights, cumsum(c(TRUE, diff(rights) > minPts)))
+		limit <- which(lengths(limits) > minPts)[1]
+		if(is.na(limit)) lm[2] else limits[[limit]][1] + 1
+	} else lm[2]
+	
+	c(if(left < 1) 1 else left, 
+		if(right > length(int)) length(int) else right)
 }
 
 overlap <- function(peaks, eic){
@@ -373,32 +362,36 @@ fusionPeaks <- function(peaks, eic){
 	)
 }
 
-targetChloroPara <- function(xr, scalerange, mzRange, scRange, printPlot = FALSE){
+targetChloroPara <- function(xr, scalerange, mzRange, scRange, 
+		printPlot = FALSE, missingScans = 1){
 	eic <- rawEIC(xr, mzrange = mzRange) %>% as.data.frame %>% 
 		cbind(rt = xr@scantime)
 	mzMat <- rawMat(xr, mzrange = mzRange) %>% data.frame %>% 
-		mutate(scan = sapply(time, function(x) which(xr@scantime == x)))
+		left_join(data.frame(scan = 1:length(xr@scantime), 
+			time = xr@scantime), by = 'time') %>% filter(!is.na(scan))
 	if(all(eic$intensity == 0)) return(data.frame())
 	
-	baseline <- runmed(eic$intensity, scalerange[2]*3, 
+	baseline <- runmed(eic$intensity, length(xr@scantime) / 3, 
 			endrule="constant", algorithm="Turlach")
 	noise <- eic %>% pull(intensity) %>% sd
-	if(length(which(eic$intensity - baseline >= noise)) <= scalerange[1]) return(data.frame())
+	
+	rois <- which(eic$intensity - baseline > noise)
+	if(length(rois) == 0) return(data.frame())
+	else if(length(rois) <= scalerange[1]) return(data.frame())
 	
 	if(printPlot) print(plot_ly(type="scatter", mode = "lines", data = eic, 
 		x = ~scan, y = ~intensity) %>% add_lines(y = baseline) %>% 
 		add_lines(y = noise))
 			
-	rois <- which(eic$intensity - baseline > noise)
-	if(length(rois) == 0) return(data.frame())
-	rois <- split(rois, cumsum(c(TRUE, diff(rois) > 3))) %>% 
+	
+	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missingScans))) %>% 
 		map(function(x) eic[x, ]) %>% 
 		keep(function(x) x %>% filter(between(scan, scRange[1], scRange[2]) & 
 			intensity - baseline[scan] >= noise) %>% 
 				nrow >= ceiling(scalerange[1])) %>% 
 		map(function(x) c(
-			max(1, min(x$scan) - ((max(x$scan) - min(x$scan)) / 2)),
-			min(nrow(eic), max(x$scan) + ((max(x$scan) - min(x$scan)) / 2)))) %>% 
+			max(1, min(x$scan) - ((max(x$scan) - min(x$scan)) * 2)),
+			min(nrow(eic), max(x$scan) + ((max(x$scan) - min(x$scan)) * 2)))) %>% 
 		overlapROI
 	if(length(rois) == 0) return(data.frame())
 	do.call(rbind, 
@@ -407,8 +400,25 @@ targetChloroPara <- function(xr, scalerange, mzRange, scRange, printPlot = FALSE
 				mzMat %>% filter(between(scan, roi[1], roi[2])), 
 				scalerange, 
 				baseline[roi[1]:roi[2]], 
-				noise))) %>% 
+				noise, missingScans))) %>% 
 					overlap(eic)
+}
+
+forceTargetChloroPara <- function(xr, mzRange, scRange, missingScans = 1){
+	eic <- rawEIC(xr, mzrange = mzRange) %>% 
+		as.data.frame %>% cbind(rt = xr@scantime)
+	mzMat <- rawMat(xr, mzrange = mzRange, scanrange = scRange) %>% 
+		data.frame %>% 
+		left_join(data.frame(scan = 1:length(xr@scantime), 
+			time = xr@scantime), by = 'time') %>% filter(!is.na(scan))
+	if(all(eic$intensity == 0)) return(data.frame())
+
+	baseline <- runmed(eic$intensity, length(xr@scantime) / 3, 
+			endrule="constant", algorithm="Turlach")
+	noise <- eic %>% pull(intensity) %>% sd
+	
+	integrate2(eic %>% filter(between(scan, scRange[1], scRange[2])), mzMat, 
+		baseline[scRange[1]:scRange[2]], noise, c(1, diff(scRange)), missingScans)
 }
 
 overlapROI <- function(rois){
