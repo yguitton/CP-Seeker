@@ -1,12 +1,25 @@
 tabItem(tabName='tetras', 
 	column(width = 3, 
 		box(title = "Load Data", width = 12, 
-			tabsetPanel( 
-				tabPanel('Database', 
-					uiOutput('uiTetrasSample'),
-					uiOutput('uiTetrasAdduct')
+			tabsetPanel(id = "tetrasTab", 
+				tabPanel('Database', value = "tetrasDBTab", 
+					uiOutput('uiTetrasSample')
 				),
-				tabPanel('xlsxFile'
+				tabPanel('Excel File', value = "tetrasXlsxTab", 
+					tags$div(class="form-group shiny-input-container", style = "padding-top: 5%;", 
+						tags$div(class="input-group", 
+							tags$label(class="input-group-btn", 
+								tags$span(id="tetrasXlsxSpan", class="btn btn-default btn-file action-button", "Browse...",
+									shinyFilesButton("tetrasXlsxImport", 'select file(s)', class="shinyjs-resettable", 
+										multiple=FALSE, label="", style="display: none;")
+								)
+							),
+							tags$input(id = "tetrasXlsxFileName", type = "text", class = "form-control", 
+								placeholder = "no file selected", readonly = "readonly")
+						),
+						div(style='font-style:italic; font-weight:lighter',
+							"NB: 3 columns are required (C, Cl and Int)")
+					)
 				)
 			),
 			sliderInput('tetrasVTarget', 'volume targeted', min = 0, max = 100, 

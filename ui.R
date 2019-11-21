@@ -38,9 +38,9 @@ body <- dashboardBody(fluidPage(
 		
 		source('ui/target.R', local=TRUE)$value,
 		
-		source('ui/tetras.R', local=TRUE)$value,
+		source('ui/details.R', local=TRUE)$value,
 		
-		source('ui/details.R', local=TRUE)$value
+		source('ui/tetras.R', local=TRUE)$value
 	)
 ))
 

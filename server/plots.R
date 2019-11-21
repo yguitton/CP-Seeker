@@ -129,3 +129,43 @@ plotMS <- function(clusters, theoric){
 	massSpectrum %>% layout(xaxis = list(range = c(minMz - 1, maxMz + 1)))
 }
 
+draw2D <- function(zones = NULL, xrange, yrange, zCut){
+	p <- plot_ly(type="scatter", mode="lines")
+	if(!is.null(zones)){
+		# begin at 2 because first is the zone under zCut
+		for(i in 2:length(zones)) p <- p %>% 
+			add_lines(data = getEdges(zones[[i]], zCut), x=~x, y=~y, hoverinfo = "text", showlegend = FALSE, 
+				text = ~paste("C:", round(x, precision), "<br />Cl:", round(y, precision)))
+	}
+	p %>%
+		layout(xaxis=list(title="Number of Carbon", range=xrange), 
+			yaxis=list(title="Number of Chlorine", range=yrange)) %>% 
+		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(
+			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
+}
+
+
+draw3D <- function(triangles=NULL, xrange, yrange, zCut = 0){
+	p <- plot_ly()
+	if(!is.null(triangles)){
+		faces <- do.call(rbind, triangles)
+		edges <- purrr::reduce(triangles, function(a, b) 
+			a %>% rbind(data.frame(x = NA, y = NA, z = NA)) %>% 
+				rbind(b[c(1:3, 1), ]), .init=data.frame())
+		p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
+				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1, hoverinfo="text", 
+				text=~paste('C:', round(x, precision), '<br />Cl:', round(y, precision), 
+					'<br />intensity:', formatC(z))) %>% 
+			add_trace(mode='lines', color=I('black'), line=list(width=2), data=edges, x=~x, y=~y, z=~z, hoverinfo='none')
+		if(zCut > 0) p <- p %>% add_trace(data = data.frame(
+				x = rep(xrange, each = 2), y = rep(yrange, times = 2), z=rep(zCut, times=4)),
+				x = ~x, y = ~y, z = ~z, i = c(0,3), j = c(1,1), k = c(2,2), 
+				opacity = .5, hoverinfo = "none")
+	}
+	p %>% layout(showlegend=FALSE, scene=list(camera=list(eye=list(x=1.25, y=-1.25, z=1.25)), 
+			zaxis=list(title="Intensity", rangemode='tozero'), 
+			xaxis=list(title="Number of Carbon", range=xrange), 
+			yaxis=list(title="Number of Chlorine", range=yrange))) %>% 
+		plotly::config(modeBarButtons=list(list('toImage', 'zoom3d', 'pan3d', 'orbitRotation', 'tableRotation',
+			'resetCameraDefault3d', 'resetCameraLastSave3d')), displaylogo=FALSE)
+}

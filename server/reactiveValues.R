@@ -187,6 +187,32 @@ recordProject_sample_adduct <- function(project_sample, adduct, machine){
 	"success"
 }
 
+# deleteProfile <- function(name){
+	# query <- sprintf('delete from point where profile == "%s";', name)
+	# print(query)
+	# dbExecute(db, query)
+	# query <- sprintf('delete from profile where name == "%s";', name)
+	# print(query)
+	# dbExecute(db, query)
+# }
+
+# recordProfile <- function(name, vTarget, triangles, zCut, project_sample_adduct = NULL, xlsxFile = NULL){
+	# query <- if(is.null(xlsxFile)) sprintf('insert into profile (name, vTarget, zCut, project_sample_adduct) 
+			# values ("%s", %s, %s, %s, "%s");', name, vTarget, zCut, project_sample, adduct)
+		# else sprintf('insert into profile (name, vTarget, zCut, xlsxFile) 
+			# values ("%s", %s, %s, "%s");', name, vTarget, zCut, xlsxFile)
+	# print(query)
+	# dbExecute(db, query)
+	# triangles <- do.call(rbind, lapply(1:length(triangles), function(i) 
+		# triangles[[i]] %>% mutate(triangle = i))) %>% mutate(profile = name)
+	# query <- sprintf('insert into point (x, y, z, triangle, profile) values %s;', 
+		# paste(sprintf('(%s, %s, %s, %s, "%s")', triangles$x, triangles$y, 
+			# triangles$z, triangles$triangle, triangles$profile), collapse = ', '))
+	# dbExecute(db, query)
+# }
+
+
+
 output$downloadProject <- downloadHandler(
 	filename = function(){
 		if(!is.null(input$project)) paste(projects() %>% 

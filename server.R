@@ -94,24 +94,24 @@ output$download <- downloadHandler(
 	}
 )
 
-source(file.path('server', 'func.R'), local=TRUE)$value
+source('server/func.R', local=TRUE)$value
 
-source(file.path("server", "project.R"), local=TRUE)$value
+source("server/project.R", local=TRUE)$value
 
-source(file.path("server", "file.R"), local=TRUE)$value
+source("server/file.R", local=TRUE)$value
 
-source(file.path('server', 'delete.R'), local = TRUE)$value
+source('server/delete.R', local = TRUE)$value
 
-source(file.path('server', 'plots.R'), local=TRUE)$value
+source('server/plots.R', local=TRUE)$value
 
-source(file.path('server', 'chemFunc.R'), local=TRUE)$value
+source('server/chemFunc.R', local=TRUE)$value
 
 source('server/target.R', local=TRUE)$value
 
 source('server/details.R', local=TRUE)$value
 
-# source('server/tetras.R', local = TRUE)$value
+source('server/tetras.R', local = TRUE)$value
 
-
+source('server/tetrahedrization.R', local = TRUE)$value
 
 })

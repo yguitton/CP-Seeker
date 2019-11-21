@@ -4,6 +4,13 @@ if(is.null(config$appname)) stop('Missing appname in file config.cfg')
 if(is.null(reg_paths$chrome)) stop('Missing chrome in file reg_paths.json')
 if(is.null(config$pkgs)) stop('Missing pkgs in file config.cfg')
 if(is.null(config$pkgs$pkgs)) stop('Missing pkgs in file config.cfg')
+if(!is.numeric(config$minC)) stop('minC is not numeric in file config.cfg')
+if(!is.numeric(config$maxC)) stop('maxC is not numeric in file config.cfg')
+if(!is.numeric(config$minCl)) stop('minCl is not numeric in file config.cfg')
+if(!is.numeric(config$maxCl)) stop('maxCl is not numeric in file config.cfg')
+if(!is.numeric(config$missingScans)) stop('missingScans is not numeric in file config.cfg')
+if(!is.numeric(config$minScore)) stop('minPts is not numeric in file config.cfg')
+if(!is.numeric(config$precision)) stop('precision is not numeric in file config.cfg')
 
 if(is.null(reg_paths$sqlitePath)) stop('Missing sqlitePath in file reg_paths.json')
 if(is.null(reg_paths$converter)) stop('Missing converter in file reg_paths.json')
@@ -26,7 +33,7 @@ maxC <- config$maxC
 minCl <- config$minCl
 maxCl <- config$maxCl
 missingScans <- config$missingScans
-minPts <- config$minPts
+minScore <- config$minScore
 precision <- config$precision
 sqlitePath <- reg_paths$sqlitePath
 converter <- reg_paths$converter

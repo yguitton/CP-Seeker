@@ -102,7 +102,7 @@ output$detailsTable <- DT::renderDataTable({
 	data
 }, selection="none", extensions='Scroller', class='display cell-border compact nowrap', options=list(
 	info=FALSE, paging=FALSE, dom='Bfrtip', scoller=TRUE, scrollX=TRUE, bFilter=FALSE, ordering=FALSE,
-	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS("
+	columnDefs=list(list(className='dt-body-center', targets="_all")), initComplete = htmlwidgets::JS(sprintf("
 		function(settings, json){
 			var table = settings.oInstance.api();
 			var switchVal = $('#detailsSwitch input').toArray().filter(x => x.checked)[0].value;
@@ -119,14 +119,14 @@ output$detailsTable <- DT::renderDataTable({
 							: switchVal == 'CCI' ? values[3]
 							: values[4];
 						table.cell(i, j).data(Number(value));
-						if(values[1] < 70) $(table.cell(i, j).node()).css('background-color', 'rgb(255,36,0)');
+						if(values[1] < %s) $(table.cell(i, j).node()).css('background-color', 'rgb(255,36,0)');
 						if(Number(values[0]) > 1) $(table.cell(i, j).node()).css('border', '5px solid orange');
 					}
 				}
 			}
 			table.columns.adjust();
 		}
-	")), callback = htmlwidgets::JS("
+	", minScore))), callback = htmlwidgets::JS(sprintf("
 		function getFormula(table, obj){
 			var id = obj.index();
 			var C = Number(table.cell(id.row, 0).data().replace('C', ''));
@@ -150,7 +150,7 @@ output$detailsTable <- DT::renderDataTable({
 							: switchVal == 'CCI' ? values[3]
 							: values[4];
 						table.cell(i, j+1).data(Number(value));
-						if(values[1] < 70) $(table.cell(i, j+1).node()).css('background-color', 'rgb(255,36,0)');
+						if(values[1] < %s) $(table.cell(i, j+1).node()).css('background-color', 'rgb(255,36,0)');
 						if(Number(values[0]) > 1) $(table.cell(i, j+1).node()).css('border', '5px solid orange');
 					}
 				}
@@ -177,7 +177,7 @@ output$detailsTable <- DT::renderDataTable({
 			var switchVal = $('#detailsSwitch input').toArray().filter(x => x.checked)[0].value;
 			Shiny.onInputChange('detailsTable_selected', {C:0, Cl:0});
 			values = message.split('/');
-			if(values[1] < 50 ) var backColor = 'rgb(255,36,0)'
+			if(values[1] < %s ) var backColor = 'rgb(255,36,0)'
 			else var backColor = 'rgba(0,0,0,0)'
 			$(table.cell('.selected').node()).css('background-color', backColor);
 			$(table.cell('.selected').node()).css('border', '');
@@ -200,7 +200,7 @@ output$detailsTable <- DT::renderDataTable({
 			df[cellInfo.row][cellInfo.column - 1] = null;
 			
 		})
-	"))
+	", minScore, minScore)))
 	
 observeEvent(input$detailsTable_selected, {
 	tryCatch({

@@ -67,10 +67,6 @@ $(document).on('click', '#fileAdd', function(){
 	}
 })
 
-$(document).on('change', '#detailsSwitch2 input', function(){
-	console.log($('#detailsSwitch2 input').toArray().filter(x => x.checked)[0].value);
-})
-
 Shiny.addCustomMessageHandler("dfUpdate", function(message){
 	df = message;	
 })

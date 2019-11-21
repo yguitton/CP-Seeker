@@ -1,7 +1,16 @@
-distMatrix <- function(data, nbRow, nbCol){
-	data2 <- matrix(0, nrow=nbRow, ncol=nbCol)
-	for(row in 1:nrow(data)) data2[data[row, 'x'], data[row, 2]] <- data[row, 3]
-	data2
+initializeTetras <- function(pja, minScore = 70){
+	query <- sprintf('select C as x, Cl as y, sum("into") as z 
+		from feature left join cluster on cluster.cluster = feature.cluster 
+		where project_sample_adduct == %s and score >= %s 
+		group by(formula);', pja, minScore)
+	print(query)
+	dbGetQuery(db, query)
+}
+
+profileMat <- function(data, maxRow, maxCol){
+	data2 <- matrix(0, nrow = maxRow, ncol = maxCol)
+	for(row in 1:nrow(data)) data2[data[row, 'x'], data[row, 'y']] <- data[row, 'z']
+	data2 / max(data2)
 }
 
 triangulization <- function(data){
@@ -30,36 +39,43 @@ triangulization <- function(data){
 		D <- data.frame(x=x+1, y=y+1, z=data[x+1, y+1])
 		E <- (A+B+C+D)/4
 				
-		trianglesTmp <- list(
+		triangles <- triangles %>% append(list(
 			E %>% rbind(A) %>% rbind(B),
 			E %>% rbind(B) %>% rbind(D),
 			E %>% rbind(C) %>% rbind(D),
-			E %>% rbind(C) %>% rbind(A))
-			
-		trianglesTmp <- trianglesTmp %>% keep(function(x) any(x$z > 0))
-		if(length(trianglesTmp) == 0) next
-		triangles <- append(triangles, trianglesTmp %>%
-			purrr::map(function(tri) tri %>% arrange(desc(z))))
+			E %>% rbind(C) %>% rbind(A)) %>% 
+			keep(function(x) any(x$z > 0)))
 	}
 	triangles
 }
 
-computeVolume <- function(triangle, zVal=0){
+getZCut <- function(triangles, vTarget=90, digits=2, pb = NULL){	
+	vT <- computeVolumeTris(triangles)
+	vCurr <- 100
+	zHigh <- 1
+	zDown <- 0
+	while(vCurr != vTarget){
+		zMed <- (zHigh + zDown) / 2
+		vCurr <- do.call(sum, lapply(triangles, function(triangle) 
+			triangle %>% cutTriangle(zVal = zMed) %>% computeVolumeTris))
+		vCurr <- round(vCurr * 100 / vT, digits=digits)
+		print(vCurr)
+		if(!is.null(pb)) updateProgressBar(session, id = pb, title=paste("Reach", vCurr, "%"), value = 100)
+		if(vCurr > vTarget) zDown <- zMed else zHigh <- zMed
+	}
+	print(sprintf('found zMed: %s', zMed)) 
+	return(zMed)
+}
+
+computeVolumeTris <- function(triangles, zVal = 0){
+	do.call(sum, lapply(triangles, function(triangle) 
+		computeVolumeTri(triangle, zVal)))
+}
+
+computeVolumeTri <- function(triangle, zVal=0){
 	abs((sum(triangle$z) - 3*zVal) * 
 		((triangle[2, 'x'] - triangle[1, 'x']) * (triangle[3, 'y'] - triangle[1, 'y']) -
 			(triangle[2, 'y'] - triangle[1, 'y']) * (triangle[3, 'x'] - triangle[1, 'x']))/6)
-}
-
-newCoords <- function(a, b, z){
-	if(z > 0) data.frame(
-			x = ((b$x - a$x) * (z - a$z)) / (b$z - a$z) + a$x,
-			y = ((b$y - a$y) * (z - a$z)) / (b$z - a$z) + a$y,
-			z = z
-	) else data.frame(
-		x = (b$x + a$x) / 2,
-		y = (b$y + a$y) / 2,
-		z = 0
-	)
 }
 
 # don't return triangles under zVal
@@ -119,104 +135,84 @@ splitTriangle <- function(triangle, zVal){
 	} else return(list(triangle))
 }
 
-getZCut <- function(triangles, vTarget=90, digits=2){	
-	vT <- purrr::reduce(triangles, function(a, b) a + 
-		computeVolume(b), .init=0)
-	if(vT == 0) return(0)
-	vCurr <- 100
-	zHigh <- purrr::reduce(triangles, function(a, b) max(c(a, b$z)), .init=0)
-	zDown <- 0
-	while(vCurr != vTarget){
-		zMed <- (zHigh + zDown) / 2
-		vCurr <- keep(triangles, function(triangle) any(triangle$z >= zMed)) %>%
-			purrr::reduce(function(a, b) a %>%  
-				append(cutTriangle(b, zVal=zMed)), .init=list()) %>% 
-				purrr::reduce(function(a, b) a + computeVolume(b, zMed), .init=0)
-		vCurr <- round(vCurr * 100 / vT, digits=digits)
-		if(vCurr > vTarget) zDown <- zMed else zHigh <- zMed
-	}
-	print(sprintf('found zMed: %s', zMed)) 
-	return(zMed)
+newCoords <- function(a, b, z){
+	if(z > 0) data.frame(
+			x = ((b$x - a$x) * (z - a$z)) / (b$z - a$z) + a$x,
+			y = ((b$y - a$y) * (z - a$z)) / (b$z - a$z) + a$y,
+			z = z
+	) else data.frame(
+		x = (b$x + a$x) / 2,
+		y = (b$y + a$y) / 2,
+		z = 0
+	)
 }
 
 splitToZones <- function(triangles){
-	centroids <- purrr::reduce(triangles, function(a, b)
-		a %>% rbind((b[1, ] + b[2, ] + b[3, ]) / 3), .init=data.frame())
+	centroids <- do.call(rbind, lapply(triangles, function(triangle)
+		(triangle[1, ] + triangle[2, ] + triangle[3, ]) / 3))
 	split(triangles, dbscan(dist(centroids[, -3]), .5, 1)$cluster)
 }
 
-scoreZones <- function(zone1, zone2){
-	pts1 <- purrr::reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	pts2 <- purrr::reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	(200 - sum(abs(data1 - data2))) / 2 
+getEdges <- function(triangles, zCut){
+	lapply(triangles, function(triangle) 
+		list(triangle[1:2, ], triangle[2:3, ], triangle[c(1, 3), ])) %>% 
+	unlist(recursive = FALSE) %>% 
+	keep(function(edge) all(edge$z == zCut)) %>% 
+	purrr::reduce(function(a, b) a %>% 
+		rbind(data.frame(x = NA, y = NA, z = NA)) %>% 
+		rbind(b), .init=data.frame())
 }
 
-drawTri <- function(triangles=NULL, maxC, maxCl){
-	p <- plot_ly()
-	if(!is.null(triangles)){
-		if(length(triangles) > 0){
-			faces <- purrr::reduce(triangles, bind_rows)
-			p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
-				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1, hoverinfo="text", 
-				text=~paste('C:', x, '<br />Cl:', y, '<br />intensity:', formatC(z)))
-			edges <- purrr::reduce(triangles, function(a, b) a %>% bind_rows(data.frame(x=NA, y=NA)) %>%
-				bind_rows(b[c(1, 2), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
-				bind_rows(b[c(1, 3), ]) %>% bind_rows(data.frame(x=NA, y=NA)) %>% 
-				bind_rows(b[c(2, 3), ]), .init=data.frame())
-			p <- p %>% add_trace(mode='lines', color=I('black'), line=list(width=2), data=edges, x=~x, y=~y, z=~z, hoverinfo='none')
-		}
-	}
-	p %>% layout(showlegend=FALSE, scene=list(camera=list(eye=list(x=1.25, y=-1.25, z=1.25)), 
-			zaxis=list(title="Intensity", rangemode='tozero'), 
-			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))) %>% 
-		plotly::config(modeBarButtons=list(list('toImage', 'zoom3d', 'pan3d', 'orbitRotation', 'tableRotation',
-			'resetCameraDefault3d', 'resetCameraLastSave3d')), displaylogo=FALSE)
-}
 
-drawTriCut <- function(triangles=NULL, z=NULL, maxC, maxCl){
-	p <- drawTri(triangles, maxC, maxCl)
-	if(!is.null(z)) p %>% add_trace(data=data.frame(x=c(0,0,maxC,maxC), y=c(0,maxCl,0,maxCl), z=rep(z, times=4)),
-		x=~x, y=~y, z=~z, i=c(0,3), j=c(1,1), k=c(2,2),opacity=.5, hoverinfo="text", text=
-			paste("Intensity:", rep(z, times=4)))
-	else p
-}
 
-contourPolyhedras <- function(triangles=NULL, zVals=0, samples=NULL, maxC, maxCl){
-	if(is.null(triangles)) return(
-		plot_ly(type="scatter", mode="lines") %>% 
-		 layout(showlegend=FALSE, 
-			xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl)))
-	)
-	p <- plot_ly(type="scatter", mode="lines")
-	colors <- brewer.pal(8, 'Set1')
-	pal <- colorRampPalette(colors)
-	pal <- pal(length(triangles))
-	
-	for(i in 1:length(triangles)){
-		zones <- purrr::map(triangles[[i]], function(zone) purrr::reduce(zone, function(a, b) a %>% 
-			append(list(b[1:2, ], b[2:3, ], b[c(1, 3), ])),
-			.init=list()))
-		zones <- purrr::map(zones, function(zone) keep(zone, function(edge) all(edge$z == zVals[i])))
-		zones <- purrr::map(zones, function(zone) purrr::reduce(zone, function(a, b) a %>% 
-			rbind(b[, c('x', 'y', 'z')]) %>% rbind(data.frame(x=NA, y=NA, z=NA)), .init=data.frame()))
-		
-		if(length(zones) > 1) for(j in 1:length(zones)) p <- p %>% add_lines(data=zones[[j]], x=~x, y=~y, 
-			hoverinfo="text", legendgroup=samples[i], 
-			name=paste(samples[i], ' - Zone', j), color=pal[i])
-		else  p <- p %>% add_lines(data=zones[[1]], x=~x, y=~y, 
-			hoverinfo="text", legendgroup=samples[i], 
-			name=samples[i], color=pal[i])
-	}
 
-	p %>%
-		layout(xaxis=list(title="Number of Carbon", range=list(0, maxC)), 
-			yaxis=list(title="Number of Chlorine", range=list(0, maxCl))) %>% 
-		plotly::config(scrollZoom=TRUE, displaylogo=FALSE, modeBarButtons=list(
-			list('zoom2d', 'pan2d', 'autoScale2d', 'resetScale2d')))
-}
+
+
+# scoreProfiles <- function(zone1, zone2, minC, maxC, minCl, maxCl){
+	# mat1 <- do.call(rbind, zone1) %>% distinct %>% 
+		# profileMat(minC, maxC, minCl, maxCl)
+	# mat2 <- do.call(rbind, zone2) %>% distinct %>% 
+		# profileMat(minC, maxC, minCl, maxCl)
+	# weights <- sum(mat1 + mat2)
+	# sum((mat1**2 + mat2**2) / weights) * 50
+# }
+
+
+
+# distMatrix <- function(data, nbRow, nbCol){
+	# data2 <- matrix(0, nrow=nbRow, ncol=nbCol)
+	# for(row in 1:nrow(data)) data2[data[row, 'x'], data[row, 2]] <- data[row, 3]
+	# data2
+# }
+
+# scoreZones <- function(zone1, zone2){
+	# pts1 <- purrr::reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+		# distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	# pts2 <- purrr::reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
+		# distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
+	# data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	# data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
+	# (200 - sum(abs(data1 - data2))) / 2 
+# }
+
+
+# getProfile <- function(profile){
+	# query <- sprintf('select x, y, z, triangle from point where 
+		# profile == %s;', profile)
+	# print(query)
+	# triangles <- dbGetQuery(db, query)
+	# triangles <- split(triangles, triangles$triangle)
+	# query <- sprintf('select zCut from profile where profile == %s;', profile)
+	# print(query)
+	# zCut <- dbGetQuery(db, query)$zCut
+	# sepTri(triangles, zCut)
+# }
+
+
+
+
+# sepTri <- function(triangles, zCut){
+	# keep(triangles, function(triangle) all(triangle$z) >= zCut) %>% 
+	# lapply(function(triangle) triangle %>% mutate(z = z - zCut))
+# }
+
