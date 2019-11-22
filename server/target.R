@@ -190,7 +190,7 @@ integrate <- function(eic, omz, scalerange, baseline, sdnoise, missingScans = 1)
 	wCoefs <- xcms:::MSW.cwt(eic$intensity, 
 		scales = scales, wavelet = 'mexh')
 	if(is.null(dim(wCoefs))) return(data.frame()) 
-	else wCoefs <- apply(wCoefs, 2, function(x) smooth.spline(x, spar = 0)$y)
+	wCoefs <- apply(wCoefs, 2, function(x) smooth.spline(x, spar = 0)$y)
 	
 	if(all(sapply(wCoefs, function(x) 
 		all(x - baseline < sdnoise)))) return(data.frame())
@@ -199,13 +199,13 @@ integrate <- function(eic, omz, scalerange, baseline, sdnoise, missingScans = 1)
 		function(x) {
 				w <- min(1:length(x),ncol(wCoefs))
 			any(wCoefs[x,w]- baseline[x] >= sdnoise) & 
-				length(x) >= 1
+				length(unique(x)) > 1
 	})
 	if(length(rL) == 0) return(data.frame())
 	
 	peaks <- data.frame()
 	irange <- ceiling(scales[1]/2)
-	for(opp in rL){
+	for(opp in rL){	
 		inti <- sapply(opp, function(x){
 			left <- ifelse(x - irange > 1, x - irange, 1)
 			right <- ifelse(x + irange < nrow(eic), x + irange, nrow(eic))

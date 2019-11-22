@@ -129,13 +129,12 @@ plotMS <- function(clusters, theoric){
 	massSpectrum %>% layout(xaxis = list(range = c(minMz - 1, maxMz + 1)))
 }
 
-draw2D <- function(zones = NULL, xrange, yrange, zCut){
+draw2D <- function(data = NULL, xrange, yrange){
 	p <- plot_ly(type="scatter", mode="lines")
-	if(!is.null(zones)){
-		# begin at 2 because first is the zone under zCut
-		for(i in 2:length(zones)) p <- p %>% 
-			add_lines(data = getEdges(zones[[i]], zCut), x=~x, y=~y, hoverinfo = "text", showlegend = FALSE, 
-				text = ~paste("C:", round(x, precision), "<br />Cl:", round(y, precision)))
+	if(length(data) > 0){
+		for(i in 1:length(data)) p <- p %>% add_lines(data = data[[i]], 
+			x=~x, y=~y, hoverinfo = "text", showlegend = TRUE, name = names(data)[i],
+				text = ~paste(names(data)[i], "<br />C:", round(x, precision), "<br />Cl:", round(y, precision)))
 	}
 	p %>%
 		layout(xaxis=list(title="Number of Carbon", range=xrange), 
@@ -145,13 +144,14 @@ draw2D <- function(zones = NULL, xrange, yrange, zCut){
 }
 
 
-draw3D <- function(triangles=NULL, xrange, yrange, zCut = 0){
+draw3D <- function(points=NULL, xrange, yrange, zCut = 0){
 	p <- plot_ly()
-	if(!is.null(triangles)){
-		faces <- do.call(rbind, triangles)
-		edges <- purrr::reduce(triangles, function(a, b) 
-			a %>% rbind(data.frame(x = NA, y = NA, z = NA)) %>% 
-				rbind(b[c(1:3, 1), ]), .init=data.frame())
+	if(!is.null(points)){
+		faces <- points
+		edges <- split(points, paste(points$zone, points$triangle)) %>% 
+			purrr::reduce(function(a, b) 
+				a %>% rbind(data.frame(x = NA, y = NA, z = NA)) %>% 
+					rbind(b[c(1:3, 1), c('x', 'y', 'z')]), .init=data.frame())
 		p <- p %>% add_trace(data=faces, x=~x, y=~y, z=~z, i=seq(1, nrow(faces), by=3)-1,
 				j=seq(2, nrow(faces), by=3)-1, k=seq(3, nrow(faces), by=3)-1, hoverinfo="text", 
 				text=~paste('C:', round(x, precision), '<br />Cl:', round(y, precision), 

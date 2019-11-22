@@ -153,66 +153,33 @@ splitToZones <- function(triangles){
 	split(triangles, dbscan(dist(centroids[, -3]), .5, 1)$cluster)
 }
 
-getEdges <- function(triangles, zCut){
-	lapply(triangles, function(triangle) 
+getEdges <- function(points, zCut){
+	split(points, points$triangle) %>% 
+	lapply(function(triangle) 
 		list(triangle[1:2, ], triangle[2:3, ], triangle[c(1, 3), ])) %>% 
 	unlist(recursive = FALSE) %>% 
 	keep(function(edge) all(edge$z == zCut)) %>% 
 	purrr::reduce(function(a, b) a %>% 
 		rbind(data.frame(x = NA, y = NA, z = NA)) %>% 
-		rbind(b), .init=data.frame())
+		rbind(b %>% select(x, y, z)), .init=data.frame())
 }
 
+getPoints <- function(profileName){
+	query <- sprintf('select x, y, z from point where z >= (
+		select zCut from profile where profile == "%s") and 
+		profile == "%s";', profileName, profileName)
+	print(query)
+	dbGetQuery(db, query)
+}
 
-
-
-
-
-# scoreProfiles <- function(zone1, zone2, minC, maxC, minCl, maxCl){
-	# mat1 <- do.call(rbind, zone1) %>% distinct %>% 
-		# profileMat(minC, maxC, minCl, maxCl)
-	# mat2 <- do.call(rbind, zone2) %>% distinct %>% 
-		# profileMat(minC, maxC, minCl, maxCl)
-	# weights <- sum(mat1 + mat2)
-	# sum((mat1**2 + mat2**2) / weights) * 50
-# }
-
-
-
-# distMatrix <- function(data, nbRow, nbCol){
-	# data2 <- matrix(0, nrow=nbRow, ncol=nbCol)
-	# for(row in 1:nrow(data)) data2[data[row, 'x'], data[row, 2]] <- data[row, 3]
-	# data2
-# }
-
-# scoreZones <- function(zone1, zone2){
-	# pts1 <- purrr::reduce(zone1, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		# distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	# pts2 <- purrr::reduce(zone2, rbind) %>% select(x, y, z) %>% filter(z > min(z)) %>% 
-		# distinct %>% dplyr::mutate(x=x*4, y=y*4, z=z/sum(z)*100)
-	# data1 <- distMatrix(pts1, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	# data2 <- distMatrix(pts2, max(pts1$x, pts2$x), max(pts1$y, pts2$y))
-	# (200 - sum(abs(data1 - data2))) / 2 
-# }
-
-
-# getProfile <- function(profile){
-	# query <- sprintf('select x, y, z, triangle from point where 
-		# profile == %s;', profile)
-	# print(query)
-	# triangles <- dbGetQuery(db, query)
-	# triangles <- split(triangles, triangles$triangle)
-	# query <- sprintf('select zCut from profile where profile == %s;', profile)
-	# print(query)
-	# zCut <- dbGetQuery(db, query)$zCut
-	# sepTri(triangles, zCut)
-# }
-
-
-
-
-# sepTri <- function(triangles, zCut){
-	# keep(triangles, function(triangle) all(triangle$z) >= zCut) %>% 
-	# lapply(function(triangle) triangle %>% mutate(z = z - zCut))
-# }
-
+scoreProfiles <- function(points1, points2){
+	points1 <- unique(points1)
+	points2 <- unique(points2)
+	maxRow <- max(c(points1$x, points2$x))
+	maxCol <- max(c(points1$y, points2$y))
+	profile1 <- profileMat(points1, maxRow, maxCol)
+	profile2 <- profileMat(points2, maxRow, maxCol)
+	profile1 <- profile1 / sum(profile1)
+	profile2 <- profile2 / sum(profile2)
+	round((2 - sum(abs(profile1 - profile2))) / 2 * 100)
+}

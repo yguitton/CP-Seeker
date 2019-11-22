@@ -11,7 +11,7 @@ output$uiTetrasSample <- renderUI({
 		sendSweetAlert("Cannot retrieve analyzed samples", paste(e$message))
 		data.frame(name = c(), project_sample_adduct = c())
 	})
-	pickerInput('tetrasSample', 'sample(s)', choices=setNames(
+	pickerInput('tetrasSample', 'sample', choices=setNames(
 		choices$project_sample_adduct, choices$name), 
 		multiple=FALSE, options=list(`live-search`=TRUE))
 })
@@ -28,7 +28,7 @@ param$tetrahedras <- list(
 	pja = NULL,
 	xlsxFile = NULL,
 	vTarget = NULL, 
-	zones = NULL,
+	points = NULL,
 	zCut = NULL
 )
 
@@ -43,10 +43,10 @@ observeEvent(input$tetrasCompute, {
 	tryCatch({
 		if(input$tetrasTab == "tetrasDBTab"){
 			args <- 'tetrasSample'
-			titles <- 'sample(s) picker'
+			titles <- 'sample picker'
 			conditions <- length(input$tetrasSample) == 0
 			messages <- c('You need to select a sample')
-			test <- inputsTest(args, conditions, messages)
+			test <- inputsTest(args, conditions, titles, messages)
 			if(!test) custom_stop('invalid', 'invalid args')
 			data <- initializeTetras(input$tetrasSample, minScore)
 		} else {
@@ -82,14 +82,18 @@ observeEvent(input$tetrasCompute, {
 		zoneUnderZ <- keep(triangles, function(triangle) 
 			all(triangle$z <= zCut))
 		zoneAboveZ <- keep(triangles, function(triangle) 
-			all(triangle$z >= zCut))
-		zones <- c(list(zoneUnderZ), splitToZones(zoneAboveZ))
+			all(triangle$z >= zCut)) %>% splitToZones
+		points <- do.call(rbind, lapply(1:length(zoneUnderZ), function(i) 
+			zoneUnderZ[[i]] %>% mutate(triangle = i, zone = 0)))
+		points <- points %>% rbind(do.call(rbind, lapply(1:length(zoneAboveZ), function(i) 
+			do.call(rbind, lapply(1:length(zoneAboveZ[[i]]), function(j) 
+				zoneAboveZ[[i]][[j]] %>% mutate(zone = i, triangle = j))))))
 		
 		param$tetrahedras <- list(
 			pja = if(input$tetrasTab == "tetrasDBTab") input$tetrasSample else NULL,
 			xlsxFile = if(input$tetrasTab == "tetrasXlsxTab") file$datapath else NULL,
 			vTarget = input$tetrasVTarget, 
-			zones = zones,
+			points = points, 
 			zCut = zCut
 		)
 		closeSweetAlert(session)
@@ -98,7 +102,7 @@ observeEvent(input$tetrasCompute, {
 			pja = NULL,
 			xlsxFile = NULL,
 			vTarget = NULL, 
-			zones = NULL,
+			points = NULL,
 			zCut = NULL
 		)
 	, minor_error = function(e){
@@ -108,7 +112,7 @@ observeEvent(input$tetrasCompute, {
 			pja = NULL,
 			xlsxFile = NULL,
 			vTarget = NULL, 
-			zones = NULL,
+			points = NULL,
 			zCut = NULL
 		)
 	}, error = function(e){
@@ -116,7 +120,7 @@ observeEvent(input$tetrasCompute, {
 			pja = NULL,
 			xlsxFile = NULL,
 			vTarget = NULL, 
-			zones = NULL,
+			points = NULL,
 			zCut = NULL
 		)
 		print(e)
@@ -129,56 +133,127 @@ observeEvent(input$tetrasCompute, {
 })
 
 output$tetras2D <- renderPlotly({
-	tryCatch(
-	draw2D(param$tetrahedras$zones, c(minC, maxC), c(minCl, maxCl), param$tetrahedras$zCut)
-	, error = function(e){
-		print('ERR tetras3D')
+	tryCatch({
+	data <- list()
+	if(!is.null(param$tetrahedras$points)){
+		data <- data %>% append(
+			list(getEdges(param$tetrahedras$points, param$tetrahedras$zCut)))
+		names(data) <- project_samples_adducts() %>% 
+			left_join(project_samples(), by="project_sample") %>% 
+			filter(project_sample_adduct == param$tetrahedras$pja) %>% 
+			mutate(name = paste(sampleID, adduct)) %>% 
+			pull(name)
+	}
+	if(length(input$tetrasCompare) > 0){
+		data2 <- lapply(input$tetrasCompare, function(profile){
+				points <- dbGetQuery(db, sprintf('select * from point where profile == "%s";', profile))
+				zCut <- dbGetQuery(db, sprintf('select zCut from profile where profile == "%s";', profile))$zCut
+				getEdges(points, zCut)
+			})
+		names(data2) <- input$tetrasCompare
+		data <- data %>% append(data2)
+	}
+	draw2D(data, xrange = c(minC, maxC), yrange = c(minCl, maxCl))
+	}, error = function(e){
+		print('ERR tetras2D')
 		print(e)
-		toastr_error('Cannot draw 3D profile', paste(e$message))
-		draw2D(c(minC, maxC), c(minCl, maxCl))
+		toastr_error('Cannot draw 2D profile', paste(e$message))
+		draw2D(xrange = c(minC, maxC), yrange = c(minCl, maxCl))
 	})
 })
 
 output$tetras3D <- renderPlotly({
 	tryCatch(
-	draw3D(unlist(param$tetrahedras$zones, recursive = FALSE), c(minC, maxC), c(minCl, maxCl), param$tetrahedras$zCut)
+	draw3D(param$tetrahedras$points, c(minC, maxC), c(minCl, maxCl), param$tetrahedras$zCut)
 	, error = function(e){
 		print('ERR tetras3D')
 		print(e)
 		toastr_error('Cannot draw 3D profile', paste(e$message))
-		draw3D(c(minC, maxC), c(minCl, maxCl))
+		draw3D(xrange=c(minC, maxC), yrange=c(minCl, maxCl))
 	})
 })
 
+output$uiTetrasCompare <- renderUI({
+	choices <- tryCatch({
+		profiles()$profile
+	}, error = function(e){
+		print('ERR uiTetrasCompare')
+		print(e)
+		sendSweetAlert("Cannot retrieve profiles in database")
+		c()
+	})
+	pickerInput('tetrasCompare', 'profiles', choices = choices, 
+		multiple = TRUE, options=list(`actions-box`=TRUE, `live-search`=TRUE))
+})
 
-# observeEvent(input$tetrasRecord, {
-	# print('############################################################')
-	# print('######################### RECORD TETRAS ####################')
-	# print('############################################################')
-	
-	# tryCatch({
-		# print(list(name = input$tetrasName, nbTriangles = length(param$tetras$triangles)))
-		# profileNames <- dbGetQuery(db, 'select name from profile;')$name
-		# args <- c("tetrasName", "tetrasName", "")
-		# conditions <- c(input$tetrasName == "", input$tetrasName %in% profileNames, 
-			# is.null(param$tetras$triangles))
-		# messages <- c("You have to specify a name for the record", 
-			# "A profile with this name already exists", "no profile computed")
-		# if(!inputsTest(args, conditions, messages)) custom_stop('invalid', 'invalid args')
+output$tetrasTableScores <- renderDataTable({
+	tryCatch({
+		if(is.null(param$tetrahedras$points)) custom_stop('invalid', 'no profile computed')
+		else if(length(input$tetrasCompare) == 0) custom_stop('invalid', 'no profile selected for comparison')
 		
-		# recordProfile(input$tetrasName, param$tetras$vTarget, param$tetras$triangles, 
-			# param$tetras$zCut, pja = param$tetras$pja, xlsx = param$tetras$xlsxFile)
-	# }, invalid = function(i) NULL
-	# , error = function(e){
-		# print(e)
-		# deleteProfile(input$tetrasName)
-		# sendSweetAlert('Cannot record this profile', paste(e$message))
-	# })
-	# actualize$profiles <- TRUE
-	# print('############################################################')
-	# print('######################### END RECORD TETRAS ################')
-	# print('############################################################')
-# })
+		profiles <- list(param$tetrahedras$points) %>% 
+			append(lapply(input$tetrasCompare, getPoints))
+		scoreMat <- matrix(, nrow = length(profiles), ncol = length(profiles))
+		for(i in 1:(length(profiles) - 1)) for(j in (i + 1):length(profiles)) scoreMat[i, j] <- scoreProfiles(profiles[[i]], profiles[[j]])
+		scoreMat <- data.frame(scoreMat)
+		profileNameComputed <- project_samples_adducts() %>% 
+			left_join(project_samples(), by="project_sample") %>% 
+			filter(project_sample_adduct == input$tetrasSample) %>% 
+			mutate(name = paste(sampleID, adduct)) %>% 
+			pull(name)
+			
+		rownames(scoreMat) <- c(profileNameComputed, input$tetrasCompare)
+		colnames(scoreMat) <- c(profileNameComputed, input$tetrasCompare)
+		scoreMat
+	}, invalid = function(i) data.frame()
+	, error = function(e){
+		print('ERR tetrasTableScores')
+		print(e)
+		sendSweetAlert('Cannot compare profiles between them', paste(e$message))
+		data.frame()
+	})
+}, selection = "none", extensions = "Scroller", class='display cell-border compact nowrap', options = list(
+dom = "frtip", info = FALSE, ordering = FALSE, scroller = TRUE, bFilter = FALSE, 
+scrollX = TRUE))
+
+
+observeEvent(input$tetrasRecord, {
+	print('############################################################')
+	print('######################### RECORD TETRAS ####################')
+	print('############################################################')
+	
+	tryCatch({
+		print(list(param$tetrahedras[c('pja', 'xlsxFile', 'vTarget', 'zCut')], 
+			input$tetrasName))
+		
+		inputs <- c('', 'tetrasName')
+		titles <- c('missing profile', 'profile name')
+		conditions <- c(is.null(param$tetrahedras[['pja']]) & is.null(param$tetrahedras[['xlsxFile']]), 
+			length(input$tetrasName) == 0)
+		messages <- c('you need to compute first the profile before recording it', 
+			'you need to provide a name for this profile')
+		if(!inputsTest(inputs, conditions, titles, messages)) custom_stop('invalid', 'invalid args')
+		inputs <- inputs[-1]
+		titles <- titles[-1]
+		conditons <- any(str_detect(input$tetrasName, specialChars))
+		messages <- 'Profile name cannot contain any special characters ([\\:*?\"<>|])'
+		if(!inputsTest(inputs, conditions, titles, messages)) custom_stop('invalid', 'invalid args')
+			
+		deleteProfiles(input$tetrasName)
+		recordProfile(input$tetrasName, param$tetrahedras$zCut, param$tetrahedras$vTarget, 
+			param$tetrahedras$pja, param$tetrahedras$xlsxFile)
+		recordPoints(param$tetrahedras$points, input$tetrasName)
+		toastr_success(paste(input$tetrasName, "recorded"))
+	}, invalid = function(i) NULL
+	, error = function(e){
+		print(e)
+		sendSweetAlert('Cannot record this profile', paste(e$message))
+	})
+	actualize$profiles <- TRUE
+	print('############################################################')
+	print('######################### END RECORD TETRAS ################')
+	print('############################################################')
+})
 
 
 

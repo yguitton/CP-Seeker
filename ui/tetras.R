@@ -29,8 +29,7 @@ tabItem(tabName='tetras',
 			)
 		),
 		box(title = "Compare", width = 12, 
-			selectInput('tetrasCompare', 'Profiles to compare', 
-				choices = c())
+			uiOutput('uiTetrasCompare')
 		),
 		box(title="Record profile", width = 12, 
 			textInput('tetrasName', 'Name of the profile', 
@@ -43,12 +42,12 @@ tabItem(tabName='tetras',
 	column(width = 9,
 		tabBox(width = 12, 
 			tabPanel("2D", 
-				plotlyOutput('tetras2D') %>% withSpinner()
+				plotlyOutput('tetras2D') %>% withSpinner(),
+				dataTableOutput('tetrasTableScores') %>% withSpinner()
 			),
 			tabPanel("3D", 
 				plotlyOutput('tetras3D', height= '800px') %>% withSpinner()
-			),
-			tabPanel("Table")
+			)
 		)
 	)
 )
