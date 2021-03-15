@@ -1,7 +1,0 @@
-{
-"r": "R-Portable",
-"chrome": "chrome/chrome.exe",
-"sqlitePath": "database.sqlite",
-"converter": "pwiz/msconvert.exe",
-"thermo": "pwiz/ThermoRawMetaDump.exe"
-}
