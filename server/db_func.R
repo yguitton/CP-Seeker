@@ -12,12 +12,18 @@ export_lighted_database <- function(db, db_lighted_path) {
 		ion_source, analyzer, detector_type, resolution, agc_target, maximum_it, 
 		number_of_scan_range, scan_range from sample;")
     RSQLite::dbWriteTable(db2, "sample", tmp, overwrite = TRUE)
-    tmp <- RSQLite::dbReadTable(db, "adduct")
+	tmp <- RSQLite::dbReadTable(db, "project")
     RSQLite::dbWriteTable(db2, "project", tmp, overwrite = TRUE)
     tmp <- RSQLite::dbReadTable(db, "project_sample")
     RSQLite::dbWriteTable(db2, "project_sample", tmp, overwrite = TRUE)
     tmp <- RSQLite::dbReadTable(db, "user")
     RSQLite::dbWriteTable(db2, "user", tmp, overwrite = TRUE)
+    tmp <- RSQLite::dbReadTable(db, "chloroparaffin")
+    RSQLite::dbWriteTable(db2, "chloroparaffin", tmp, overwrite = TRUE)
+    tmp <- RSQLite::dbReadTable(db, "chloroparaffin_ion")
+    RSQLite::dbWriteTable(db2, "chloroparaffin_ion", tmp, overwrite = TRUE)
+    tmp <- RSQLite::dbReadTable(db, "feature")
+    RSQLite::dbWriteTable(db2, "feature", tmp, overwrite = TRUE)
     RSQLite::dbDisconnect(db2)
 }
 
@@ -90,10 +96,6 @@ clean_samples <- function(db) {
 #'
 #' @param db sqlite connection
 clean_params <- function(db) {
-	db_execute(db, "delete from param_xcms where param_xcms not in (
-		select param_xcms from project_sample);")
-	db_execute(db, "delete from param_camera where param_camera not in (
-		select param_camera from project_sample);")
-	db_execute(db, "delete from param_alignment where param_alignment not in (
-		select param_alignment from project_sample);")
+	db_execute(db, "delete from deconvolution_param where deconvolution_param not in (
+		select deconvolution_param from project_sample);")
 }
