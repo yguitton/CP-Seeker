@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Removes low intensity peaks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removePeaks-methods {MSnbase}"><tr><td>removePeaks-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Removes low intensity peaks </h2>
+
+<h3>Description</h3>
+
+<p>This method sets low intensity peaks from individual spectra
+(<code>Spectrum</code> instances) or whole experiments (<code>MSnExp</code>
+instances) to 0. The intensity threshold is set with the <code>t</code>
+parameter. Default is the <code>"min"</code> character. The threshold is
+then set as the non-0 minimum intensity found in the spectrum. Any
+other numeric values is valid. All peaks with maximum intensity
+smaller or equal to <code>t</code> are set to 0.
+</p>
+<p>If the spectrum is in profile mode, ranges of successive non-0 peaks
+&lt;= <code>t</code> are set to 0. If the spectrum is centroided, then
+individual peaks &lt;= <code>t</code> are set to 0. See the example below for
+an illustration.
+</p>
+<p>Note that the number of peaks is not changed; the peaks below the
+threshold are set to 0 and the object is not cleanded out (see
+<code><a href="clean-methods.html">clean</a></code>). An illustrative example is shown below. 
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "MSnExp", t, verbose = "logical" )</code></dt><dd>
+<p>Removes low intensity peaks of all spectra in <code>MSnExp</code>
+object. <code>t</code> sets the minimum peak intensity. Default is
+&quot;min&quot;, i.e the smallest intensity in each spectrum. Other
+<code>numeric</code> values are valid.
+Displays a control bar if verbose set to <code>TRUE</code>
+(default). Returns a new <code>MSnExp</code> instance. 
+</p>
+</dd>
+<dt><code>signature(object = "Spectrum", t, msLevel. =
+      "numeric")</code></dt><dd><p> Removes low intensity peaks of <code>Spectrum</code>
+object.  <code>t</code> sets the minimum peak intensity. Default is
+&quot;min&quot;, i.e the smallest intensity in each spectrum. Other
+<code>numeric</code> values are valid. <code>msLevel.</code> defines the level
+of the spectrum, and if <code>msLevel(object) != msLevel.</code>,
+cleaning is ignored. Only relevant when called from
+<code>OnDiskMSnExp</code> and is only relevant for developers.
+</p>
+<p>Returns a new <code>Spectrum</code> instance.  </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="clean-methods.html">clean</a></code> and <code><a href="trimMz-methods.html">trimMz</a></code> for other spectra
+processing methods.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+int &lt;- c(2, 0, 0, 0, 1, 5, 1, 0, 0, 1, 3, 1, 0, 0, 1, 4, 2, 1)
+sp1 &lt;- new("Spectrum2",
+           intensity = int,
+           mz = 1:length(int),
+           centroided = FALSE)
+sp2 &lt;- removePeaks(sp1) ## no peaks are removed here
+                        ## as min intensity is 1 and
+                        ## no peak has a max int &lt;= 1
+sp3 &lt;- removePeaks(sp1, 3)
+intensity(sp1)
+intensity(sp2)
+intensity(sp3)
+
+peaksCount(sp1) == peaksCount(sp2)
+peaksCount(sp3) &lt;= peaksCount(sp1)
+
+data(itraqdata)
+itraqdata2 &lt;- removePeaks(itraqdata, t = 2.5e5)
+table(unlist(intensity(itraqdata)) == 0)
+table(unlist(intensity(itraqdata2)) == 0)
+processingData(itraqdata2)
+
+## difference between centroided and profile peaks
+
+int &lt;- c(104, 57, 32, 33, 118, 76, 38, 39, 52, 140, 52, 88, 394, 71,
+         408, 94, 2032)
+sp &lt;- new("Spectrum2",
+          intensity = int,
+          centroided = FALSE,
+          mz = seq_len(length(int)))
+
+## unchanged, as ranges of peaks &lt;= 500 considered
+intensity(removePeaks(sp, 500))
+stopifnot(identical(intensity(sp), intensity(removePeaks(sp, 500))))
+
+centroided(sp) &lt;- TRUE
+## different!
+intensity(removePeaks(sp, 500))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot extracted ion chromatograms from the profile matrix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotChrom-methods {xcms}"><tr><td>plotChrom-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot extracted ion chromatograms from the profile matrix</h2>
+
+<h3>Description</h3>
+
+<p>Uses the pre-generated profile mode matrix to plot averaged or
+base peak extracted ion chromatograms over a specified mass range.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>base</code></td>
+<td>
+<p>logical, plot a base-peak chromatogram</p>
+</td></tr>
+<tr valign="top"><td><code>ident</code></td>
+<td>
+<p>logical, use mouse to identify and label peaks</p>
+</td></tr>
+<tr valign="top"><td><code>fitgauss</code></td>
+<td>
+<p>logical, fit a gaussian to the largest peak</p>
+</td></tr>
+<tr valign="top"><td><code>vline</code></td>
+<td>
+<p>numeric vector with locations of vertical lines</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments passed to <code><a href="profRange-methods.html">profRange</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>If <code>ident == TRUE</code>, an integer vector with the indecies of
+the points that were identified. If <code>fitgauss == TRUE</code>, a
+<code>nls</code> model with the fitted gaussian. Otherwise a two-column
+matrix with the plotted points.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>plotChrom(object, base = FALSE, ident = FALSE,
+                  fitgauss = FALSE, vline = numeric(0), ...)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: _Deprecated_: xcmsPapply</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsPapply {xcms}"><tr><td>xcmsPapply {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2><em>Deprecated</em>: xcmsPapply </h2>
+
+<h3>Description</h3>
+
+<p>This function is deprecated, use <code><a href="../../BiocParallel/html/bplapply.html">bplapply</a></code>
+instead.
+</p>
+<p>An apply-like function which uses Rmpi to distribute
+the processing evenly across a cluster.  Will use a non-MPI
+version if distributed processing is not available.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+    xcmsPapply(arg_sets, papply_action, papply_commondata = list(),
+           show_errors = TRUE, do_trace = FALSE, also_trace = c())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>arg_sets</code></td>
+<td>
+<p> a list, where each item will be given as an argument
+to papply\_action </p>
+</td></tr>
+<tr valign="top"><td><code>papply_action</code></td>
+<td>
+<p> A function which takes one argument.  It will be
+called on each element of arg\_sets </p>
+</td></tr>
+<tr valign="top"><td><code>papply_commondata</code></td>
+<td>
+<p> A list containing the names and values of
+variables to be accessible to the papply\_action.
+'attach' is used locally to import this list. </p>
+</td></tr>
+<tr valign="top"><td><code>show_errors</code></td>
+<td>
+<p> If set to TRUE, overrides Rmpi's default, and
+messages for errors which occur in R slaves are
+produced. </p>
+</td></tr>
+<tr valign="top"><td><code>do_trace</code></td>
+<td>
+<p> If set to TRUE, causes the papply\_action function to
+be traced. i.e. Each statement is output before it is
+executed by the slaves. </p>
+</td></tr>
+<tr valign="top"><td><code>also_trace</code></td>
+<td>
+<p> If supplied an array of function names, as strings,
+tracing will also occur for the specified functions. </p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Similar to apply and lapply, applies a function to all items
+of a list, and returns a list with the corresponding results.
+</p>
+<p>Uses Rmpi to implement a pull idiom in order to distribute
+the processing evenly across a cluster.
+If Rmpi is not available, or there are no slaves,
+implements this as a non-parallel algorithm.
+</p>
+<p><code>xcmsPapply</code> is a modified version of the papply function from package papply 0.2 (Duane Currie).
+Parts of the slave function were wrapped in try() to make it failsafe and progress output was added.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A list of return values from papply\_action.  Each value corresponds to
+the element of arg\_sets used as a parameter to papply\_action
+</p>
+
+
+<h3>Note</h3>
+
+<p> Does not support distributing recursive calls in parallel.  If
+papply is used inside papply\_action, it will call a non-parallel
+version </p>
+
+
+<h3>Author(s)</h3>
+
+<p> Duane Currie &lt;duane.currie@acadiau.ca&gt;, modified by Ralf Tautenhahn &lt;rtautenh@ipb-halle.de&gt;. </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Not run: 
+library(Rmpi)
+library(xcms)
+
+number_lists &lt;- list(1:10,4:40,2:27)
+
+mpi.spawn.Rslaves(nslaves=2)
+
+results &lt;- xcmsPapply(number_lists,sum)
+results
+
+mpi.close.Rslaves()
+
+
+## End(Not run)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

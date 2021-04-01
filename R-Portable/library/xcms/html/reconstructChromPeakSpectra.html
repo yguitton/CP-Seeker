@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Data independent acquisition (DIA): reconstruct MS2 spectra</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for reconstructChromPeakSpectra {xcms}"><tr><td>reconstructChromPeakSpectra {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Data independent acquisition (DIA): reconstruct MS2 spectra</h2>
+
+<h3>Description</h3>
+
+<p>Reconstructs MS2 spectra for each MS1 chromatographic peak (if possible) for
+data independent acquisition (DIA) data (such as SWATH). See the
+<em>LC-MS/MS analysis</em> vignette for more details and examples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+reconstructChromPeakSpectra(object, expandRt = 1, diffRt = 2,
+  minCor = 0.8, intensity = "maxo",
+  peakId = rownames(chromPeaks(object, msLevel = 1L)),
+  BPPARAM = bpparam())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><code>XCMSnExp</code> with identified chromatographic peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>expandRt</code></td>
+<td>
+<p><code>numeric(1)</code> allowing to expand the retention time range
+for extracted ion chromatograms by a constant value (for the peak
+shape correlation).</p>
+</td></tr>
+<tr valign="top"><td><code>diffRt</code></td>
+<td>
+<p><code>numeric(1)</code> defining the maximal allowed difference between
+the retention time of the chromatographic peak (apex) and the retention
+times of MS2 chromatographic peaks (apex) to consider them as
+representing candidate fragments of the original ion.</p>
+</td></tr>
+<tr valign="top"><td><code>minCor</code></td>
+<td>
+<p><code>numeric(1)</code> defining the minimal required correlation
+coefficient for MS2 chromatographic peaks to be considered for MS2
+spectrum reconstruction.</p>
+</td></tr>
+<tr valign="top"><td><code>intensity</code></td>
+<td>
+<p><code>character(1)</code> defining the column in the <code>chromPeaks</code>
+matrix that should be used for the intensities of the reconstructed
+spectra's peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>peakId</code></td>
+<td>
+<p>optional <code>character</code> vector with peak IDs (i.e. rownames of
+<code>chromPeaks</code>) of MS1 peaks for which MS2 spectra should be reconstructed.
+By default they are reconstructed for all MS1 chromatographic peaks.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>parallel processing setup. See <code><a href="../../BiocParallel/html/register.html">bpparam()</a></code> for more
+information.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>In detail, the function performs for each MS1 chromatographic peak:
+</p>
+
+<ul>
+<li><p> Identify all MS2 chromatographic peaks from the isolation window
+containing the m/z of the ion (i.e. the MS1 chromatographic peak) with
+approximately the same retention time than the MS1 peak (accepted rt shift
+can be specified with the <code>diffRt</code> parameter).
+</p>
+</li>
+<li><p> Correlate the peak shapes of the candidate MS2 chromatographic peaks with
+the peak shape of the MS1 peak retaining only MS2 chromatographic peaks
+for which the correlation is <code>&gt; minCor</code>.
+</p>
+</li>
+<li><p> Reconstruct the MS2 spectrum using the m/z of all above selected MS2
+chromatographic peaks and their intensity (either <code>"maxo"</code> or <code>"into"</code>).
+Each MS2 chromatographic peak selected for an MS1 peak will thus represent
+one <strong>mass peak</strong> in the reconstructed spectrum.
+</p>
+</li></ul>
+
+<p>The resulting <code>Spectra</code> object provides also the peak IDs of the MS2
+chromatographic peaks for each spectrum as well as their correlation value.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code><a href="../../MSnbase/html/Spectra.html">Spectra()</a></code> with the reconstructed MS2 spectra for all MS1 peaks
+in <code>object</code>. Contains empty <a href="../../MSnbase/html/Spectrum2-class.html">Spectrum2</a> objects for MS1 peaks for
+which reconstruction was not possible (either no MS2 signal was recorded
+or the correlation of the MS2 chromatographic peaks with the MS1
+chromatographic peak was below threshold <code>minCor</code>. <code>Spectra</code> metadata
+columns <code>"ms2_peak_id"</code> and <code>"ms2_peak_cor"</code> (of type <code><a href="../../IRanges/html/AtomicList-class.html">CharacterList()</a></code>
+and <code><a href="../../IRanges/html/AtomicList-class.html">NumericList()</a></code> with length equal to the number of peaks per
+reconstructed MS2 spectrum) providing the IDs and the correlation of the
+MS2 chromatographic peaks from which the MS2 spectrum was reconstructed.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer, Micheal Witting
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="findChromPeaksIsolationWindow.html">findChromPeaksIsolationWindow()</a></code> for the function to perform MS2
+peak detection in DIA isolation windows and for examples.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Wrapper for vsn to be used as a normalization method with...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for normalize.AffyBatch.vsn {vsn}"><tr><td>normalize.AffyBatch.vsn {vsn}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Wrapper for vsn to be used as a normalization method with expresso</h2>
+
+<h3>Description</h3>
+
+<p>Wrapper for <code><a href="vsn2.html">vsn2</a></code> to be used as a normalization
+method with the expresso function of the package affy. The expresso
+function is deprecated, consider using <code><a href="justvsn.html">justvsn</a></code>
+instead. The normalize.AffyBatch.vsn can still be useful on its own,
+as it provides some additional control of the normalization process
+(fitting on subsets, alternate transform parameters). </p>
+
+
+<h3>Usage</h3>
+
+<pre>
+  normalize.AffyBatch.vsn(
+     abatch,
+     reference,
+     strata = NULL,
+     subsample = if (nrow(exprs(abatch))&gt;30000L) 30000L else 0L,
+     subset,
+     log2scale = TRUE,
+     log2asymp=FALSE,
+     ...)</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>abatch</code></td>
+<td>
+<p>An object of type
+<code><a href="../../affy/html/AffyBatch-class.html">AffyBatch</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>reference</code></td>
+<td>
+<p>Optional, a 'vsn' object from a previous fit. If this
+argument is specified, the data in 'x' are normalized &quot;towards&quot; an
+existing set of reference arrays whose parameters are stored in the
+object 'reference'. If this argument is not specified, then the data
+in 'x' are normalized &quot;among themselves&quot;. See  <code><a href="vsn2.html">vsn2</a></code>
+for details.</p>
+</td></tr>
+<tr valign="top"><td><code>strata</code></td>
+<td>
+<p>The 'strata' functionality is not supported, the
+parameter is ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>subsample</code></td>
+<td>
+<p>Is passed on to <code><a href="vsn2.html">vsn2</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>subset</code></td>
+<td>
+<p>This allows the specification of a subset of expression
+measurements to be used for the vsn fit. The transformation with the
+parameters of this fit is then, however, applied to the whole
+dataset. This is useful for excluding expression measurements that
+are known to be differentially expressed or control probes that may
+not match the vsn model, thus avoiding that they influence the
+normalization process. This operates at the level of probesets, not
+probes. Both 'subset' and 'subsample' can be used together.</p>
+</td></tr>
+<tr valign="top"><td><code>log2scale</code></td>
+<td>
+<p>If TRUE, this will perform a global affine transform on
+the data to put them on a similar scale as the original
+non-transformed data. Many users prefer this.  Fold-change estimates
+are not affected by this transform. In some situations,
+however, it may be helpful to turn this off, e.g., when comparing
+independently normalized subsets of the data.</p>
+</td></tr>
+<tr valign="top"><td><code>log2asymp</code></td>
+<td>
+<p>If TRUE, this will perform a global affine transform on
+the data to make the generalized log (asinh) transform be
+asymptotically identical to a log base 2 transform. Some people find
+this helpful. Only <b>one</b> of 'log2scale' or 'log2asymp' can be
+set to TRUE. Fold-change estimates are not affected by this
+transform.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further parameters for <code><a href="vsn2.html">vsn2</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Please refer to the <em>Details</em> and <em>References</em>
+sections of the
+man page for <code><a href="vsn2.html">vsn2</a></code> for more details about this method.
+</p>
+<p><b>Important note</b>: after calling <code><a href="vsn2.html">vsn2</a></code>, the function
+<code>normalize.AffyBatch.vsn</code> <b>exponentiates</b> the data (base 2).
+This is done in order to make the behavior of this function similar to the
+other normalization methods in affy. That packages uses the convention
+of taking the logarithm to base in
+subsequent analysis steps (e.g. in <code><a href="../../stats/html/medpolish.html">medpolish</a></code>).
+</p>
+
+
+<h3>Value</h3>
+
+<p>An object of class <code><a href="../../affy/html/AffyBatch-class.html">AffyBatch</a></code>.
+The <code>vsn</code> object returned, which can be used as <code>reference</code> for
+subsequent fits, is provided by
+<code>description(abatch)@preprocessing$vsnReference</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>D. P. Kreil <a href="http://bioinf.boku.ac.at/">http://bioinf.boku.ac.at/</a>,
+Wolfgang Huber</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="vsn2.html">vsn2</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Please see vignette.
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vsn</em> version 3.54.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -68,7 +68,7 @@ newcgd <- tmerge(newcgd, cgd0, id=id, infect = event(etime7))
 newcgd <- tmerge(newcgd, newcgd, id, enum=cumtdc(tstart))
 dim(newcgd)
 newcgd[1:5,c(1, 4:6, 13:17)]
-attr(newcgd, "tcount")
+summary(newcgd)
 coxph(Surv(tstart, tstop, infect) ~ treat + inherit + steroids +
       + cluster(id), newcgd)
 
@@ -96,6 +96,10 @@ tdata <- with(jasa, data.frame(subject = subject,
                                               (tx.date - accept.dt)),
                                fustat = fustat
                              ))
+xdata <- tmerge(jasa, tdata, id=subject,
+                  death = event(futime, fustat),
+                  transplant   =  tdc(txtime), 
+                  options= list(idname="subject"))
 
 sdata <- tmerge(jasa, tdata, id=subject,
                   death = event(futime, fustat),
@@ -125,20 +129,20 @@ rbind('baseline fit' = coef(fit1),
 
 
 ###################################################
-### code chunk number 11: timedep.Rnw:583-584
+### code chunk number 11: timedep.Rnw:598-599
 ###################################################
 attr(pbc2, "tcount")
 
 
 ###################################################
-### code chunk number 12: timedep.Rnw:586-588
+### code chunk number 12: timedep.Rnw:601-603
 ###################################################
 #grab a couple of numbers for the paragraph below
 atemp <- attr(pbc2, "tcount")[2:3,]
 
 
 ###################################################
-### code chunk number 13: timedep.Rnw:669-675 (eval = FALSE)
+### code chunk number 13: timedep.Rnw:684-690 (eval = FALSE)
 ###################################################
 ## temp <- subset(pbc, id <= 312, select=c(id:sex, stage))
 ## pbc2 <- tmerge(temp, temp, id=id, death = event(time, status))
@@ -316,7 +320,7 @@ c(tdata=nrow(tdata), tdata2=nrow(tdata2))
 
 
 ###################################################
-### code chunk number 28: timedep.Rnw:1176-1183
+### code chunk number 28: timedep.Rnw:1191-1198
 ###################################################
 function(x, t, riskset, weights){ 
     obrien <- function(x) {
@@ -328,7 +332,7 @@ function(x, t, riskset, weights){
 
 
 ###################################################
-### code chunk number 29: timedep.Rnw:1193-1195
+### code chunk number 29: timedep.Rnw:1208-1210
 ###################################################
 function(x, t, riskset, weights) 
     unlist(tapply(x, riskset, rank))

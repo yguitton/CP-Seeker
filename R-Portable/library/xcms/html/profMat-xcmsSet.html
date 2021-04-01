@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The profile matrix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for profMat-xcmsSet {xcms}"><tr><td>profMat-xcmsSet {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The profile matrix</h2>
+
+<h3>Description</h3>
+
+<p>The <em>profile</em> matrix is an n x m matrix, n (rows)
+representing equally spaced m/z values (bins) and m (columns) the
+retention time of the corresponding scans. Each cell contains the maximum
+intensity measured for the specific scan and m/z values falling within
+the m/z bin.
+</p>
+<p>The <code>profMat</code> method creates a new profile matrix or returns the
+profile matrix within the object's <code>@env</code> slot, if available.
+Settings for the profile matrix generation, such as <code>step</code> (the bin
+size), <code>method</code> or additional settings are extracted from the
+respective slots of the <code><a href="xcmsRaw-class.html">xcmsRaw</a></code> object.
+Alternatively it is possible to specify all of the settings as
+additional parameters.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'xcmsRaw'
+profMat(object, method, step, baselevel, basespace,
+  mzrange.)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>The <code><a href="xcmsRaw-class.html">xcmsRaw</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>The profile matrix generation method. Allowed are <code>"bin"</code>,
+<code>"binlin"</code>, <code>"binlinbase"</code> and <code>"intlin"</code>. See details
+section for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>step</code></td>
+<td>
+<p>numeric(1) representing the m/z bin size.</p>
+</td></tr>
+<tr valign="top"><td><code>baselevel</code></td>
+<td>
+<p>numeric(1) representing the base value to which
+empty elements (i.e. m/z bins without a measured intensity) should be
+set. Only considered if <code>method = "binlinbase"</code>. See
+<code>baseValue</code> parameter of <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for more
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>basespace</code></td>
+<td>
+<p>numeric(1) representing the m/z length after
+which the signal will drop to the base level. Linear interpolation will
+be used between consecutive data points falling within
+<code>2 * basespace</code> to each other. Only considered if
+<code>method = "binlinbase"</code>. If not specified, it defaults to
+<code>0.075</code>. Internally this parameter is translated into the
+<code>distance</code> parameter of the <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code>
+function by <code>distance = floor(basespace / step)</code>. See
+<code>distance</code> parameter of <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for more
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>mzrange.</code></td>
+<td>
+<p>Optional numeric(2) manually specifying the mz value range to
+be used for binnind. If not provided, the whole mz value range is used.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Profile matrix generation methods:
+</p>
+
+<dl>
+<dt>bin</dt><dd><p>The default profile matrix generation method that does a
+simple binning, i.e. aggregating of intensity values falling within an
+m/z bin.</p>
+</dd>
+<dt>binlin</dt><dd><p>Binning followed by linear interpolation to impute missing
+values. The value for m/z bins without a measured intensity are inferred
+by a linear interpolation between neighboring bins with a measured
+intensity.</p>
+</dd>
+<dt>binlinbase</dt><dd><p>Binning followed by a linear interpolation to impute
+values for empty elements (m/z bins) within a user-definable proximity to
+non-empty elements while stetting the element's value to the
+<code>baselevel</code> otherwise. See <code>impute = "linbase"</code> parameter of
+<code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for more details.</p>
+</dd>
+<dt>intlin</dt><dd><p>Set the elements' values to the integral of the linearly
+interpolated data from plus to minus half the step size.</p>
+</dd>
+</dl>
+
+
+
+<h3>Value</h3>
+
+<p><code>profMat</code> returns the profile matrix (rows representing scans,
+columns equally spaced m/z values).
+</p>
+
+
+<h3>Note</h3>
+
+<p>From <code>xcms</code> version 1.51.1 on only the <code>profMat</code> method
+should be used to extract the profile matrix instead of the previously
+default way to access it directly <em>via</em> <code>object@env$profile</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw</a></code>, <code><a href="binYonX.html">binYonX</a></code> and
+<code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for the employed binning and
+missing value imputation methods, respectively.
+<code><a href="XCMSnExp-class.html">profMat,XCMSnExp-method</a></code> for the method on
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> objects.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+file &lt;- system.file('cdf/KO/ko15.CDF', package = "faahKO")
+## Load the data without generating the profile matrix (profstep = 0)
+xraw &lt;- xcmsRaw(file, profstep = 0)
+## Extract the profile matrix
+profmat &lt;- profMat(xraw, step = 0.3)
+dim(profmat)
+## If not otherwise specified, the settings from the xraw object are used:
+profinfo(xraw)
+## To extract a profile matrix with linear interpolation use
+profmat &lt;- profMat(xraw, step = 0.3, method = "binlin")
+## Alternatively, the profMethod of the xraw objects could be changed
+profMethod(xraw) &lt;- "binlin"
+profmat_2 &lt;- profMat(xraw, step = 0.3)
+all.equal(profmat, profmat_2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

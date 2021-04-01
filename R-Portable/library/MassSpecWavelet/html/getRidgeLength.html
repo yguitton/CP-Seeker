@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Estimate the length of the ridge</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getRidgeLength {MassSpecWavelet}"><tr><td>getRidgeLength {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Estimate the length of the ridge</h2>
+
+<h3>Description</h3>
+
+<p>Estimate the length of the ridge line, which is composed of local maxima at adjacent CWT scales. The ridge line is cut off at the end point, whose amplitude divided by the maximum ridge amplitude is larger than the cutoff amplitude ratio threshold (0.5 by default).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getRidgeLength(ridgeList, Th = 0.5)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ridgeList</code></td>
+<td>
+<p> a list of identified ridges </p>
+</td></tr>
+<tr valign="top"><td><code>Th</code></td>
+<td>
+<p> the cutoff amplitude ratio (the amplitude divided by the maximum amplitude of the ridge) threshold of the ridge line end.  </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a vector of estimated ridge length
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Pan Du</p>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

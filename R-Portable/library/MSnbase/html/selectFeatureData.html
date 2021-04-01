@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Select feature variables of interest</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for selectFeatureData {MSnbase}"><tr><td>selectFeatureData {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Select feature variables of interest</h2>
+
+<h3>Description</h3>
+
+<p>Select feature variables to be retained.
+</p>
+<p><code>requiredFvarLabels</code> returns a <code>character</code> vector with the
+required feature data variable names (<code>fvarLabels</code>, i.e. the column
+names in the <code>fData</code> <code>data.frame</code>) for the specified object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+selectFeatureData(object, graphics = TRUE, fcol)
+
+requiredFvarLabels(x = c("OnDiskMSnExp", "MSnExp", "MSnSet"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An <code>MSnSet</code>, <code>MSnExp</code> or <code>OnDiskMSnExp</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>graphics</code></td>
+<td>
+<p>A <code>logical</code> (default is <code>TRUE</code>)
+indicating whether a shiny application should be used if
+available. Otherwise, a text menu is used. Ignored if <code>k</code>
+is not missing.</p>
+</td></tr>
+<tr valign="top"><td><code>fcol</code></td>
+<td>
+<p>A <code>numeric</code>, <code>logical</code> or <code>character</code> of
+valid feature variables to be passed directly.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>character(1)</code> specifying the class name for which the required
+feature data variable names should be returned.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>For <code>selectFeatureData</code>: updated object containing only
+selected feature variables.
+</p>
+<p>For <code>requiredFvarLabels</code>: <code>character</code> with the required feature
+variable names.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+library("pRolocdata")
+data(hyperLOPIT2015)
+## 5 first feature variables
+x &lt;- selectFeatureData(hyperLOPIT2015, fcol = 1:5)
+fvarLabels(x)
+## Not run: 
+## select via GUI
+x &lt;- selectFeatureData(hyperLOPIT2015)
+fvarLabels(x)
+
+## End(Not run)
+
+## Subset the feature data of an OnDiskMSnExp object to the minimal
+## required columns
+f &lt;- system.file("microtofq/MM14.mzML", package = "msdata")
+od &lt;- readMSData(f, mode = "onDisk")
+
+## what columns do we have?
+fvarLabels(od)
+
+## Reduce the feature data data.frame to the required columns only
+od &lt;- selectFeatureData(od, fcol = requiredFvarLabels(class(od)))
+fvarLabels(od)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

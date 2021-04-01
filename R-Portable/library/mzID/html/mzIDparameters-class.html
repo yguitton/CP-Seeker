@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: A Class to store analysis information from the mzIdentML file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for mzIDparameters-class {mzID}"><tr><td>mzIDparameters-class {mzID}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>A Class to store analysis information from the mzIdentML file</h2>
+
+<h3>Description</h3>
+
+<p>This class tries to collect the multitude of different analysis information 
+required to rerun the analysis. The intended data to be stored are: The 
+software used in the analysis of the data, the location and nature of the 
+rawfile(s), the location and nature of the database file(s), the location of 
+the mzIDentML file itself as well as all the parameters used during the 
+analysis leading to the mzIdentML file. Information regarding how the LC-MS 
+experiment was performed should be collected from the raw data file. As the 
+parameters used in different software solutions can vary greatly, all these
+parameters are stored in a named list, which can thus be very different from 
+pipeline to pipeline. It is the users responsibility to check conformity 
+between samples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'mzIDparameters'
+show(object)
+
+## S4 method for signature 'mzIDparameters'
+length(x)
+
+## S4 method for signature 'mzIDparameters'
+parameters(object)
+
+## S4 method for signature 'mzIDparameters'
+software(object)
+
+## S4 method for signature 'mzIDparameters'
+files(object)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An mzIDparameters object</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An mzIDparameters object</p>
+</td></tr>
+</table>
+
+
+<h3>Methods (by generic)</h3>
+
+
+<ul>
+<li> <p><code>show</code>: Short summary of the content
+</p>
+</li>
+<li> <p><code>length</code>: Get the length of the object
+</p>
+</li>
+<li> <p><code>parameters</code>: Get the parameters used for the search
+</p>
+</li>
+<li> <p><code>software</code>: Get the software used to arrive at the results
+</p>
+</li>
+<li> <p><code>files</code>: Get the data files used for the analysis
+</p>
+</li></ul>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>software</code></dt><dd><p>A data frame with information retaining to the software used 
+for the analysis. At least the name and an id is given, but optionally also 
+version number and URI.</p>
+</dd>
+<dt><code>rawFile</code></dt><dd><p>A data frame with information about the raw data file(s) used 
+for the analysis. The data frame will contain at least the location and 
+spectrum ID format.</p>
+</dd>
+<dt><code>databaseFile</code></dt><dd><p>A data frame containing at least the location and file 
+format of the database file used in the search.</p>
+</dd>
+<dt><code>idFile</code></dt><dd><p>A character string containing the location of the mzIdentML file
+at the time of parsing.</p>
+</dd>
+<dt><code>parameters</code></dt><dd><p>A list containing containing the information stored in the 
+MzIdentML/AnalysisProtocolCollection/SpectrumIdentificationProtocol node. 
+SearchType and Threshold are the only required parameters given by the 
+mzIdentML standard.</p>
+</dd>
+</dl>
+
+
+<h3>Objects from the class</h3>
+
+<p>Objects of mzIDparameters are not meant to be created explicitly but as part 
+of the <code><a href="mzID-class.html">mzID-class</a></code>. Still object can be created with the 
+constructor <code><a href="mzIDparameters.html">mzIDparameters</a></code> (not exported).
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="mzIDparameters.html">mzIDparameters</a></code>
+</p>
+<p>Other mzID.classes: <code><a href="mzID-class.html">mzID-class</a></code>,
+<code><a href="mzIDCollection-class.html">mzIDCollection-class</a></code>,
+<code><a href="mzIDdatabase-class.html">mzIDdatabase-class</a></code>,
+<code><a href="mzIDevidence-class.html">mzIDevidence-class</a></code>,
+<code><a href="mzIDpeptides-class.html">mzIDpeptides-class</a></code>,
+<code><a href="mzIDpsm-class.html">mzIDpsm-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>mzID</em> version 1.24.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

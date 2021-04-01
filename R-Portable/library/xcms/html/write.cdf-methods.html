@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Save an xcmsRaw object to file</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for write.cdf-methods {xcms}"><tr><td>write.cdf-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Save an xcmsRaw object to file</h2>
+
+<h3>Description</h3>
+
+<p>Write the raw data to a (simple) CDF file.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>filename</code></td>
+<td>
+<p>filename (may include full path)
+for the CDF file. Pipes or URLs are not allowed.
+</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Currently the only application known to read the resulting file is
+XCMS. Others, especially those which build on the AndiMS library,
+will refuse to load the output.
+</p>
+
+
+<h3>Value</h3>
+
+<p>None.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>write.cdf(object, filename)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>,
+<code><a href="xcmsRaw.html">xcmsRaw</a></code>,
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

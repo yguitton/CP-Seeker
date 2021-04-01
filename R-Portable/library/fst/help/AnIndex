@@ -1,0 +1,12 @@
+fst-package	fst-package
+compress_fst	compress_fst
+decompress_fst	decompress_fst
+fst	fst
+fst.metadata	metadata_fst
+hash_fst	hash_fst
+metadata_fst	metadata_fst
+read.fst	write_fst
+read_fst	write_fst
+threads_fst	threads_fst
+write.fst	write_fst
+write_fst	write_fst

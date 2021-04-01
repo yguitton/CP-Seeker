@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Remove decoy identification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for removeDecoy {mzID}"><tr><td>removeDecoy {mzID}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Remove decoy identification</h2>
+
+<h3>Description</h3>
+
+<p>This function trims down an mzID or mzIDCollection object by removing all
+information that is only related to the decoy database search. If some 
+information relates to both the regular and decoy database (e.g. a peptide
+sequence that can be found in both databases) it is kept.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+removeDecoy(object, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>An mzID or mzIDCollection to remove decoy information from</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Currently ignored</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An mzID or mzIDCollection object depending on the input
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="mzID-class.html">mzID-class</a></code> <code><a href="mzIDCollection-class.html">mzIDCollection-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>mzID</em> version 1.24.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

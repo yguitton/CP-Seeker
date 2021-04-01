@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Import peptide-spectrum matches</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readMzIdData {MSnbase}"><tr><td>readMzIdData {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Import peptide-spectrum matches</h2>
+
+<h3>Description</h3>
+
+<p>Reads as set of <code>mzId</code> files containing PSMs an generates a
+<code>data.frame</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readMzIdData(files)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>files</code></td>
+<td>
+<p>A <code>character</code> of <code>mzid</code> files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function uses the functionality provided by the <code>mzR</code> package
+to access data in the <code>mzId</code> files. An object of class <code>mzRident</code>
+can also be coerced to a <code>data.frame</code> using <code>as(, "data.frame")</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>data.frame</code> containing the PSMs stored in the <code>mzId</code>
+files.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="filterIdentificationDataFrame.html">filterIdentificationDataFrame()</a></code> to filter out unreliable PSMs.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+idf &lt;- "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01-20141210.mzid"
+f &lt;- msdata::ident(full.names = TRUE, pattern = idf)
+basename(f)
+readMzIdData(f)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

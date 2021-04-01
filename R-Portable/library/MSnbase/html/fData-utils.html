@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Expand or merge feature variables</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for expandFeatureVars {MSnbase}"><tr><td>expandFeatureVars {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Expand or merge feature variables</h2>
+
+<h3>Description</h3>
+
+<p>The <code>expandFeatureVars</code> and <code>mergeFeatureVars</code> respectively expand
+and merge groups of feature variables. Using these functions, a
+set of columns in a feature data can be merged into a single new
+data.frame-column variables and a data.frame-column can be
+expanded into single feature columns. The original feature
+variables are removed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+expandFeatureVars(x, fcol, prefix)
+
+mergeFeatureVars(x, fcol, fcol2)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>An object of class <code>MSnSet</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fcol</code></td>
+<td>
+<p>A <code>character()</code> of feature variables to expand (for
+<code>expandFeatureVars</code>) or merge (for <code>mergeFeatureVars</code>).</p>
+</td></tr>
+<tr valign="top"><td><code>prefix</code></td>
+<td>
+<p>A <code>character(1)</code> to use as prefix to the new feature
+variables. If missing (default), then <code>fcol</code> is used
+instead. If <code>NULL</code>, then no prefix is used.</p>
+</td></tr>
+<tr valign="top"><td><code>fcol2</code></td>
+<td>
+<p>A <code>character(1)</code> defining the name of the new feature
+variable.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An <code>MSnSet</code> for expanded (merged) feature variables.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("pRolocdata")
+data(hyperLOPIT2015)
+fvarLabels(hyperLOPIT2015)
+## Let's merge all svm prediction feature variables
+(k &lt;- grep("^svm", fvarLabels(hyperLOPIT2015), value = TRUE))
+hl &lt;- mergeFeatureVars(hyperLOPIT2015, fcol = k, fcol2 = "SVM")
+fvarLabels(hl)
+head(fData(hl)$SVM)
+
+## Let's expand the new SVM into individual columns
+hl2 &lt;- expandFeatureVars(hl, "SVM")
+fvarLabels(hl2)
+## We can set the prefix manually
+hl2 &lt;- expandFeatureVars(hl, "SVM", prefix = "Expanded")
+fvarLabels(hl2)
+## If we don't want any prefix
+hl2 &lt;- expandFeatureVars(hl, "SVM", prefix = NULL)
+fvarLabels(hl2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

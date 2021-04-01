@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: plot a probe set</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot.ProbeSet {affy}"><tr><td>plot.ProbeSet {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>plot a probe set</h2>
+
+<h3>Description</h3>
+
+<p>Plot intensities by probe set.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S3 method for class 'ProbeSet'
+plot(x, which=c("pm", "mm"), xlab = "probes", type = "l", ylim = NULL, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a <code>ProbeSet</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>get the PM or the MM.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>x-axis label.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>plot type.</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>range of the y-axis.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>optional arguments to be passed to <code>matplot</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>This function is only used for its (graphical) side-effect.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="ProbeSet-class.html">ProbeSet</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(SpikeIn)
+plot(SpikeIn)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

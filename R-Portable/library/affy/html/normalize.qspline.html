@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Normalize arrays</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for normalize.qspline {affy}"><tr><td>normalize.qspline {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Normalize arrays</h2>
+
+<h3>Description</h3>
+
+<p>normalizes arrays in an AffyBatch each other or to a set of target intensities
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+normalize.AffyBatch.qspline(abatch,type=c("together", "pmonly", "mmonly",
+                 "separate"), ...)
+
+normalize.qspline(x, target = NULL, samples = NULL, 
+                  fit.iters = 5, min.offset = 5, 
+                  spline.method = "natural", smooth = TRUE,
+                  spar = 0, p.min = 0, p.max = 1.0, 
+                  incl.ends = TRUE, converge = FALSE, 
+                  verbose = TRUE, na.rm = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a <code>data.matrix</code> of intensities</p>
+</td></tr>
+<tr valign="top"><td><code>abatch</code></td>
+<td>
+<p>an <code>AffyBatch</code></p>
+</td></tr>
+<tr valign="top"><td><code>target</code></td>
+<td>
+<p>numerical vector of intensity values to normalize to.
+(could be the name for one of the celfiles in 'abatch').</p>
+</td></tr>
+<tr valign="top"><td><code>samples</code></td>
+<td>
+<p>numerical, the number of quantiles to be used for spline.
+if (0,1], then it is a sampling rate.</p>
+</td></tr>
+<tr valign="top"><td><code>fit.iters</code></td>
+<td>
+<p>number of spline interpolations to average.</p>
+</td></tr>
+<tr valign="top"><td><code>min.offset</code></td>
+<td>
+<p>minimum span between quantiles (rank difference) for the
+different fit iterations.</p>
+</td></tr>
+<tr valign="top"><td><code>spline.method</code></td>
+<td>
+<p>specifies the type of spline to be used. Possible values are 
+&lsquo;&quot;fmm&quot;&rsquo;, &lsquo;&quot;natural&quot;&rsquo;, and &lsquo;&quot;periodic&quot;&rsquo;.</p>
+</td></tr>
+<tr valign="top"><td><code>smooth</code></td>
+<td>
+<p>logical, if &lsquo;TRUE&rsquo;, smoothing splines are used on the quantiles.</p>
+</td></tr>
+<tr valign="top"><td><code>spar</code></td>
+<td>
+<p>smoothing parameter for &lsquo;splinefun&rsquo;, typically in (0,1].</p>
+</td></tr>
+<tr valign="top"><td><code>p.min</code></td>
+<td>
+<p>minimum percentile for the first quantile.</p>
+</td></tr>
+<tr valign="top"><td><code>p.max</code></td>
+<td>
+<p>maximum percentile for the last quantile.</p>
+</td></tr>
+<tr valign="top"><td><code>incl.ends</code></td>
+<td>
+<p>include the minimum and maximum values from the normalized
+and target arrays in the fit.</p>
+</td></tr>
+<tr valign="top"><td><code>converge</code></td>
+<td>
+<p>(currently unimplemented)</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p>logical, if &lsquo;TRUE&rsquo; then normalization progress is reported.</p>
+</td></tr>
+<tr valign="top"><td><code>na.rm</code></td>
+<td>
+<p>logical, if &lsquo;TRUE&rsquo; then handle NA values (by ignoring
+them).</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>a string specifying how the normalization should be
+applied. See details for more.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>optional parameters to be passed through.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This normalization method uses the quantiles from each array and the 
+target to fit a system of cubic splines to normalize the data. The 
+target should be the mean (geometric) or median of each probe but could 
+also be the name of a particular chip in the <code>abatch</code> object.
+</p>
+<p>Parameters setting can be of much importance when using this method.
+The parameter <code>fit.iter</code> is used as a starting point to find a
+more appropriate value. Unfortunately the algorithm used do not
+converge in some cases. If this happens, the <code>fit.iter</code> value is
+used and a warning is thrown. Use of different settings for the
+parameter <code>samples</code> was reported to give good results. More
+specifically, for about 200   data points use
+<code>samples = 0.33</code>, for about 2000  data points use
+<code>samples = 0.05</code>, for about 10000 data points use
+<code>samples = 0.02</code>
+(thanks to Paul Boutros).
+</p>
+<p>The <code>type</code> argument should be one of
+<code>"separate","pmonly","mmonly","together"</code> which indicates whether
+to normalize only one probe type (PM,MM) or both together or separately.
+</p>
+
+
+<h3>Value</h3>
+
+<p>a normalized <code>AffyBatch</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent and Workman C.
+</p>
+
+
+<h3>References</h3>
+
+<p>Christopher Workman, Lars Juhl Jensen, Hanne Jarmer, Randy Berka,
+Laurent Gautier, Henrik Bjorn Nielsen, Hans-Henrik Saxild, Claus
+Nielsen, Soren Brunak, and Steen Knudsen. A new non-linear normal-
+ization method for reducing variability in dna microarray experiments.
+Genome Biology, accepted, 2002
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

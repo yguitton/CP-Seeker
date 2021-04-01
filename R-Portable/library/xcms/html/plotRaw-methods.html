@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Scatterplot of raw data points</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotRaw-methods {xcms}"><tr><td>plotRaw-methods {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Scatterplot of raw data points</h2>
+
+<h3>Description</h3>
+
+<p>Produce a scatterplot showing raw data point location in retention
+time and m/z. This plot is more useful for centroided data than
+continuum data.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>the <code>xcmsRaw</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>mzrange</code></td>
+<td>
+
+<p>numeric vector of length &gt;= 2 whose range will be used to select
+the masses to plot
+</p>
+</td></tr>
+<tr valign="top"><td><code>rtrange</code></td>
+<td>
+
+<p>numeric vector of length &gt;= 2 whose range will be used to select
+the retention times to plot
+</p>
+</td></tr>
+<tr valign="top"><td><code>scanrange</code></td>
+<td>
+
+<p>numeric vector of length &gt;= 2 whose range will be used to select
+scans to plot
+</p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+
+<p>logical, log transform intensity
+</p>
+</td></tr>
+<tr valign="top"><td><code>title</code></td>
+<td>
+
+<p>main title of the plot
+</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A matrix with the points plotted.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>object = &quot;xcmsRaw&quot;</dt><dd>
+<p><code>plotRaw(object, mzrange = numeric(), rtrange = numeric(),
+                scanrange = numeric(), log=FALSE, title='Raw Data')</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsRaw-class.html">xcmsRaw-class</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

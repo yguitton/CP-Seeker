@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plot extracted ion chromatograms from multiple files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plot.xcmsEIC {xcms}"><tr><td>plot.xcmsEIC {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plot extracted ion chromatograms from multiple files</h2>
+
+<h3>Description</h3>
+
+<p>Batch plot a list of extracted ion chromatograms to the current
+graphics device.
+</p>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>the <code>xcmsEIC</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>optional <code>xcmsSet</code> object with peak integration data</p>
+</td></tr>
+<tr valign="top"><td><code>groupidx</code></td>
+<td>
+
+<p>either character vector with names or integer vector with
+indicies of peak groups for which to plot EICs
+</p>
+</td></tr>
+<tr valign="top"><td><code>sampleidx</code></td>
+<td>
+
+<p>either character vector with names or integer vector with
+indicies of samples for which to plot EICs
+</p>
+</td></tr>
+<tr valign="top"><td><code>rtrange</code></td>
+<td>
+
+<p>a two column matrix with minimum and maximum retention times
+between which to return EIC data points
+</p>
+<p>if it has the same number of rows as the number groups in the
+<code>xcmsEIC</code> object, then <code>sampleidx</code> is used to subset
+it. otherwise, it is repeated over the length of <code>sampleidx</code>
+</p>
+<p>it may also be a single number specifying the time window around
+the peak for which to plot EIC data
+</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+
+<p>color to use for plotting extracted ion chromatograms. if missing
+and <code>y</code> is specified, colors are taken from
+<code>unclass(sampclass(y))</code> and the default palette
+</p>
+<p>if it is the same length as the number groups in the <code>xcmsEIC</code>
+object, then <code>sampleidx</code> is used to subset it. otherwise,
+it is repeated over the length of <code>sampleidx</code>
+</p>
+</td></tr>
+<tr valign="top"><td><code>legtext</code></td>
+<td>
+
+<p>text to use for legend. if <code>NULL</code> and <code>y</code> is specified,
+legend text is taken from the sample class information found
+in the <code>xcmsSet</code>
+</p>
+</td></tr>
+<tr valign="top"><td><code>peakint</code></td>
+<td>
+
+<p>logical, plot integrated peak area with darkened lines (requires
+that <code>y</code> also be specified)
+</p>
+</td></tr>
+<tr valign="top"><td><code>sleep</code></td>
+<td>
+<p>seconds to pause between plotting EICs</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>other graphical parameters</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <code>xcmsSet</code> object.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>x = &quot;xcmsEIC&quot;</dt><dd>
+<p><code>
+plot.xcmsEIC(x, y, groupidx = groupnames(x), sampleidx = sampnames(x), rtrange = x@rtrange,
+             col = rep(1, length(sampleidx)), legtext = NULL, peakint = TRUE, sleep = 0, ...)</code>
+</p>
+</dd>
+</dl>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsEIC-class.html">xcmsEIC-class</a></code>,
+<code><a href="../../grDevices/html/png.html">png</a></code>,
+<code><a href="../../grDevices/html/pdf.html">pdf</a></code>,
+<code><a href="../../grDevices/html/postscript.html">postscript</a></code>,
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

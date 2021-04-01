@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bayesian PCA missing value estimation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bpca {pcaMethods}"><tr><td>bpca {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bayesian PCA missing value estimation</h2>
+
+<h3>Description</h3>
+
+<p>Implements a Bayesian PCA missing value estimator.  The script
+is a port of the Matlab version provided by Shigeyuki OBA.  See
+also <a href="http://ishiilab.jp/member/oba/tools/BPCAFill.html">http://ishiilab.jp/member/oba/tools/BPCAFill.html</a>.
+BPCA combines an EM approach for PCA with a Bayesian model.  In
+standard PCA data far from the training set but close to the
+principal subspace may have the same reconstruction error.  BPCA
+defines a likelihood function such that the likelihood for data
+far from the training set is much lower, even if they are close to
+the principal subspace.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bpca(Matrix, nPcs = 2, maxSteps = 100, verbose = interactive(),
+  threshold = 1e-04, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>Matrix</code></td>
+<td>
+<p><code>matrix</code> &ndash; Pre-processed matrix (centered,
+scaled) with variables in columns and observations in rows. The
+data may contain missing values, denoted as <code>NA</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>nPcs</code></td>
+<td>
+<p><code>numeric</code> &ndash; Number of components used for
+re-estimation. Choosing few components may decrease the
+estimation precision.</p>
+</td></tr>
+<tr valign="top"><td><code>maxSteps</code></td>
+<td>
+<p><code>numeric</code> &ndash; Maximum number of estimation
+steps.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><code>boolean</code> &ndash; BPCA prints the number of steps
+and the increase in precision if set to TRUE. Default is
+interactive().</p>
+</td></tr>
+<tr valign="top"><td><code>threshold</code></td>
+<td>
+<p>convergence threshold</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Reserved for future use. Currently no further
+parameters are used</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Scores and loadings obtained with Bayesian PCA slightly differ
+from those obtained with conventional PCA.  This is because BPCA
+was developed especially for missing value estimation.  The
+algorithm does not force orthogonality between factor loadings, as
+a result factor loadings are not necessarily orthogonal.  However,
+the BPCA authors found that including an orthogonality criterion
+made the predictions worse.
+</p>
+<p>The authors also state that the difference between real and
+predicted Eigenvalues becomes larger when the number of
+observation is smaller, because it reflects the lack of
+information to accurately determine true factor loadings from the
+limited and noisy data.  As a result, weights of factors to
+predict missing values are not the same as with conventional PCA,
+but the missing value estimation is improved.
+</p>
+<p>BPCA works iteratively, the complexity is growing with
+<i>O(n^3)</i> because several matrix inversions are
+required.  The size of the matrices to invert depends on the
+number of components used for re-estimation.
+</p>
+<p>Finding the optimal number of components for estimation is not a
+trivial task; the best choice depends on the internal structure of
+the data.  A method called <code>kEstimate</code> is provided to
+estimate the optimal number of components via cross validation.
+In general few components are sufficient for reasonable estimation
+accuracy. See also the package documentation for further
+discussion about on what data PCA-based missing value estimation
+makes sense.
+</p>
+<p>It is not recommended to use this function directely but rather to
+use the pca() wrapper function.
+</p>
+<p>There is a difference with respect the interpretation of rows
+(observations) and columns (variables) compared to matlab
+implementation. For estimation of missing values for microarray
+data, the suggestion in the original bpca is to intepret genes as
+observations and the samples as variables. In pcaMethods however,
+genes are interpreted as variables and samples as observations
+which arguably also is the more natural interpretation. For bpca
+behavior like in the matlab implementation, simply transpose your
+input matrix.
+</p>
+<p>Details about the probabilistic model underlying BPCA are found in
+Oba et. al 2003. The algorithm uses an expectation maximation
+approach together with a Bayesian model to approximate the
+principal axes (eigenvectors of the covariance matrix in PCA).
+The estimation is done iteratively, the algorithm terminates if
+either the maximum number of iterations was reached or if the
+estimated increase in precision falls below <i>1e^-4</i>.
+</p>
+<p><b>Complexity:</b> The relatively high complexity of the method is
+a result of several matrix inversions required in each step.
+Considering the case that the maximum number of iteration steps is
+needed, the approximate complexity is given by the term
+</p>
+<p style="text-align: center;"><i>maxSteps * row_miss
+* O(n^3)</i></p>
+<p> Where <i>row_miss</i> is the number of rows
+containing missing values and <i>O(n^3)</i> is the
+complexity for inverting a matrix of size
+<i>components</i>. Components is the number of
+components used for re-estimation.
+</p>
+
+
+<h3>Value</h3>
+
+<p>Standard PCA result object used by all PCA-based methods
+of this package. Contains scores, loadings, data mean and
+more. See <code><a href="pcaRes.html">pcaRes</a></code> for details.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Requires <code>MASS</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+
+<h3>References</h3>
+
+<p>Shigeyuki Oba, Masa-aki Sato, Ichiro Takemasa, Morito
+Monden, Ken-ichi Matsubara and Shin Ishii.  A Bayesian missing
+value estimation method for gene expression profile
+data. <em>Bioinformatics, 19(16):2088-2096, Nov 2003</em>.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="ppca.html">ppca</a></code>, <code><a href="svdImpute.html">svdImpute</a></code>,
+<code><a href="../../stats/html/prcomp.html">prcomp</a></code>, <code><a href="nipalsPca.html">nipalsPca</a></code>,
+<code><a href="pca.html">pca</a></code>,
+<code><a href="pcaRes.html">pcaRes</a></code>. <code><a href="kEstimate.html">kEstimate</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Load a sample metabolite dataset with 5\% missig values (metaboliteData)e
+data(metaboliteData)
+## Perform Bayesian PCA with 2 components
+pc &lt;- pca(t(metaboliteData), method="bpca", nPcs=2)
+## Get the estimated principal axes (loadings)
+loadings &lt;- loadings(pc)
+## Get the estimated scores
+scores &lt;- scores(pc)
+## Get the estimated complete observations
+cObs &lt;- completeObs(pc)
+## Now make a scores and loadings plot
+slplot(pc)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

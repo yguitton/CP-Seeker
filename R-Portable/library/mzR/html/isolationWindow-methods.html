@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Returns the ion selection isolation window</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for isolationWindow-methods {mzR}"><tr><td>isolationWindow-methods {mzR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2> Returns the ion selection isolation window </h2>
+
+<h3>Description</h3>
+
+<p>The methods return matrices of lower (column <code>low</code>) and upper
+(column <code>high</code>) isolation window offsets. Matrices are returned
+as a list of length equal to the number of input files (provided as
+file names of raw mass spectrometry data objects, see below). By
+default (i.e when <code>unique. = TRUE</code> ), only unique offsets are
+returned, as they are expected to identical for all spectra per
+acquisition. If this is not the case, a message is displayed.
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>signature(object = "character", unique. = "logical",
+	simplify = "logical")</code></dt><dd><p>Returns the isolation window for the
+file <code>object</code>. By default, only unique isolation windows
+are returned per file (<code>unique = TRUE</code>); if set to
+<code>FALSE</code>, a <code>matrix</code> with as many rows as there are MS2
+spectra. If only one file passed an input and <code>simplify</code> is
+set to <code>TRUE</code> (default), the resulting <code>list</code> of
+length 1 is simplified to a <code>matrix</code>.  </p>
+</dd>
+<dt><code>signature(object = "mzRpwiz", unique. = "logical",
+	simplify = "logical")</code></dt><dd><p>As above for <code>mzRpwiz</code> objects. </p>
+</dd>
+<dt><code>signature(object = "mzRramp", unique. = "logical",
+	simplify = "logical")</code></dt><dd><p>As above for <code>mzRramp</code> object. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt; based on the functionality from the
+<code>msPurity:::get_isolation_offsets</code> function.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("msdata")
+f &lt;- msdata::proteomics(full.names = TRUE,
+                        pattern = "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.mzML.gz")
+isolationWindow(f)
+
+rw &lt;- openMSfile(f)
+isolationWindow(rw)
+str(isolationWindow(rw, unique = FALSE))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>mzR</em> version 2.20.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

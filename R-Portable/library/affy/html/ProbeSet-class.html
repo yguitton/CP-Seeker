@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class ProbeSet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for ProbeSet-class {affy}"><tr><td>ProbeSet-class {affy}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class ProbeSet</h2>
+
+<h3>Description</h3>
+
+<p>A simple class that contains the PM and MM data for a probe
+set from one or more samples.</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created by applying the method <code><a href="AffyBatch-class.html">probeset</a></code> to
+instances of AffyBatch.</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>id</code>:</dt><dd><p>Object of class <code>"character"</code> containing the
+probeset ID.</p>
+</dd>
+<dt><code>pm</code>:</dt><dd><p>Object of class <code>"matrix"</code> containing the PM
+intensities. Columns represent samples and rows the different probes.</p>
+</dd>
+<dt><code>mm</code>:</dt><dd><p>Object of class <code>"matrix"</code> containing the MM
+intensities.</p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>colnames</dt><dd><p><code>signature(x = "ProbeSet")</code>: the column names
+of the <code>pm</code> matrices which  are the sample names</p>
+</dd>
+<dt>express.summary.stat</dt><dd><p><code>signature(x = "ProbeSet",
+	  pmcorrect = "character", summary = "character")</code>: applies a summary
+statistic to the probe set.</p>
+</dd>
+<dt>sampleNames</dt><dd><p><code>signature(object = "ProbeSet")</code>: the column names
+of the <code>pm</code> matrices which  are the sample names.</p>
+</dd>
+</dl>
+
+
+
+<h3>Note</h3>
+
+<p>More details are contained in the vignette.</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="AffyBatch-class.html">probeset</a></code>,
+<code><a href="AffyBatch-class.html">AffyBatch-class</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if (require(affydata)) {
+  data(Dilution)
+  ps &lt;- probeset(Dilution, geneNames(Dilution)[1:2])
+  names(ps)
+  print(ps[[1]])
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>affy</em> version 1.64.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

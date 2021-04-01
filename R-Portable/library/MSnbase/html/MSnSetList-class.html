@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Storing multiple related MSnSets</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for MSnSetList-class {MSnbase}"><tr><td>MSnSetList-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Storing multiple related MSnSets</h2>
+
+<h3>Description</h3>
+
+<p>A class for storing lists of <code><a href="MSnSet-class.html">MSnSet</a></code>
+instances.
+</p>
+
+
+<h3>Details</h3>
+
+<p>There are two ways to store different sets of measurements pertaining
+an experimental unit, such as replicated measures of different
+conditions that were recorded over more than one MS
+acquisition. Without focusing on any proteomics technology in
+particular, these multiple assays can be recorded as
+</p>
+
+<ul>
+<li><p> A single combined <code>MSnSet</code> (see the section
+<em>Combining MSnSet instances</em> in the <em>MSnbase-demo</em>
+section). In such cases, the different experimental (phenotypical)
+conditions are recorded as an
+<code><a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a></code> in the <code>phenoData</code>
+slots.
+</p>
+<p>Quantitative data for features that were missing in an assay are
+generally encode as missing with <code>NA</code> values. Alternatively,
+only features observed in all assays could be selected. See the
+<code><a href="commonFeatureNames.html">commonFeatureNames</a></code> functions to select only common
+features among two or more <code>MSnSet</code> instance.
+</p>
+</li>
+<li><p> Each set of measurements is stored in an <code>MSnSet</code> which
+are combined into one <code>MSnSetList</code>. Each <code>MSnSet</code> elements
+can have identical or different samples and features. Unless
+compiled directly manually by the user, one would expect at least
+one of these dimensions (features/rows or samples/columns) are
+conserved (i.e. all feature or samples names are identical). See
+<code>split</code>/<code>unsplit</code> below.
+</p>
+</li></ul>
+
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created and manipluated with:
+</p>
+
+<dl>
+<dt><code>MSnSetList(x, log, featureDAta)</code></dt><dd><p>The class constructor
+that takes a list of valid <code>MSnSet</code> instances as input
+<code>x</code>, an optional logging <code>list</code>, and an optional feature
+metadata <code>data.frame</code>.</p>
+</dd>
+<dt><code>split(x, f)</code></dt><dd><p>An <code>MSnSetList</code> can be created from
+an <code><a href="MSnSet-class.html">MSnSet</a></code> instance. <code>x</code> is a single
+<code>MSnSet</code> and <code>f</code> is a <code>factor</code> or a
+<code>character</code> of length 1. In the latter case, <code>f</code> will be
+matched to the feature- and phenodata variable names (in that
+order). If a match is found, the respective variable is extracted,
+converted to a factor if it is not one already, and used to split
+<code>x</code> along the features/rows (<code>f</code> was a feature variable
+name) or samples/columns (<code>f</code> was a phenotypic variable
+name).  If <code>f</code> is passed as a factor, its length will be
+matched to <code>nrow(x)</code> or <code>ncol(x)</code> (in that order) to
+determine if <code>x</code> will be split along the features (rows) or
+sample (columns). Hence, the length of <code>f</code> must match exactly
+to either dimension. </p>
+</dd>
+<dt><code>unsplit(value, f)</code></dt><dd><p>The <code>unsplit</code> method reverses
+the effect of splitting the <code>value</code> <code>MSnSet</code> along the
+groups <code>f</code>.</p>
+</dd>
+<dt><code>as(x, "MSnSetList")</code></dt><dd><p>Where <code>x</code> is an instance of
+class <a href="MzTab-class.html">MzTab</a>. See the class documentation for
+details.</p>
+</dd>
+</dl>
+
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>x</code>:</dt><dd><p>Object of class <code>list</code> containing valid
+<code>MSnSet</code> instances. Can be extracted with the
+<code>msnsets()</code> accessor. </p>
+</dd>
+<dt><code>log</code>:</dt><dd><p>Object of class <code>list</code> containing an object
+creation log, containing among other elements the call that
+generated the object. Can be accessed with <code>objlog()</code>. </p>
+</dd>
+<dt><code>featureData</code>:</dt><dd><p>Object of class <code>DataFrame</code> that
+stores metadata for each object in the <code>x</code> slot. The number of
+rows of this <code>data.frame</code> must be equal to the number of items
+in the <code>x</code> slot and their respective (row)names must be
+identical. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>The version of the instance. For
+development purposes only. </p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><code>"[["</code></dt><dd><p>Extracts a single <code>MSnSet</code> at position. </p>
+</dd>
+<dt><code>"["</code></dt><dd><p>Extracts one of more <code>MSnSets</code> as
+<code>MSnSetList</code>. </p>
+</dd>
+<dt><code>length</code></dt><dd><p>Returns the number of <code>MSnSets</code>. </p>
+</dd>
+<dt><code>names</code></dt><dd><p>Returns the names of <code>MSnSets</code>, if
+available. The replacement method is also available. </p>
+</dd>
+<dt><code>show</code></dt><dd><p> Display the object by printing a short
+summary. </p>
+</dd>
+<dt><code>lapply(x, FUN, ...)</code></dt><dd><p> Apply function <code>FUN</code> to each
+element of the input <code>x</code>. If the application of <code>FUN</code>
+returns and <code>MSnSet</code>, then the return value is an
+<code>MSnSetList</code>, otherwise a <code>list</code></p>
+</dd></dl>
+<p>.
+</p>
+<dl>
+<dt><code>sapply(x, FUN, ..., simplify = TRUE, USE.NAMES =
+	TRUE)</code></dt><dd><p> A <code>lapply</code> wrapper that simplifies the ouptut to a
+vector, matric or array is possible. See <code>?base::sapply</code>
+for details. </p>
+</dd></dl>
+<p>.
+</p>
+<dl>
+<dt><code>fData</code></dt><dd><p>Returns the features metadata <code>featureData</code>
+slot. </p>
+</dd>
+<dt><code>fData&lt;-</code></dt><dd><p>Features metadata <code>featureData</code>
+replacement method. </p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="commonFeatureNames.html">commonFeatureNames</a></code> function to select common
+features among <code>MSnSet</code> instances. </p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library("pRolocdata")
+data(tan2009r1)
+data(tan2009r2)
+
+## The MSnSetList class
+##  for an unnamed list, names are set to indices
+msnl &lt;- MSnSetList(list(tan2009r1, tan2009r2))
+names(msnl)
+##  a named example
+msnl &lt;- MSnSetList(list(A = tan2009r1, B = tan2009r2))
+names(msnl)
+msnsets(msnl)
+length(msnl)
+objlog(msnl)
+msnl[[1]] ## an MSnSet
+msnl[1]   ## an MSnSetList of length 1
+
+## Iterating over the elements
+lapply(msnl, dim) ## a list
+lapply(msnl, normalise) ## an MSnSetList
+
+fData(msnl)
+fData(msnl)$X &lt;- sapply(msnl, nrow)
+fData(msnl)
+
+## Splitting and unsplitting
+##  splitting along the columns/samples
+data(dunkley2006)
+head(pData(dunkley2006))
+(splt &lt;- split(dunkley2006, "replicate"))
+lapply(splt, dim) ## the number of rows and columns of the split elements
+unsplt &lt;- unsplit(splt, dunkley2006$replicate)
+stopifnot(compareMSnSets(dunkley2006, unsplt))
+
+##  splitting along the rows/features
+head(fData(dunkley2006))
+(splt &lt;- split(dunkley2006, "markers"))
+unsplt &lt;- unsplit(splt, factor(fData(dunkley2006)$markers))
+simplify2array(lapply(splt, dim))
+stopifnot(compareMSnSets(dunkley2006, unsplt))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

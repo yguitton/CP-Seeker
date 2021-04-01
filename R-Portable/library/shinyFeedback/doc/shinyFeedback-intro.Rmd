@@ -1,0 +1,162 @@
+---
+title: "shinyFeedback Intro"
+author: "Andy Merlino"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ShinyFeedback Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Functionality
+
+The `shinyFeedback` package displays user friendly messages that appear alongside `shiny` inputs.  e.g.
+
+![](feedback_screenshot.png)
+
+`shinyFeedback` currently works with the following `shiny` and `shinyWidgets` inputs:
+
+- `shiny::dateInput()`
+- `shiny::dateRangeInput()`
+- `shiny::fileInput()`
+- `shiny::numericInput()`
+- `shiny::passwordInput()`
+- `shiny::selectInput()`
+- `shiny::sliderInput()`
+- `shiny::textAreaInput()`
+- `shiny::textInput()`
+- `shinyWidgets::airDatepickerInput()`
+- `shinyWidgets::pickerInput()`
+
+
+## Setup
+
+In order to use `shinyFeedback` you need to include the `useShinyFeedback()` function at the top of your UI.
+
+The following is a minimal example of a `shiny` app that uses `shinyFeedback`.  Run the following code in your R console to run the app.
+
+```{r, eval=FALSE}
+library(shiny)
+library(shinyFeedback)
+
+ui <- fluidPage(
+  useShinyFeedback(), # include shinyFeedback
+  
+  textInput(
+    "myInput",
+    "Warn if >3 characters",
+    value = ""
+  )
+)
+
+server <- function(input, output, session) {
+  observeEvent(input$myInput, {
+    
+    if (nchar(input$myInput) > 3) {
+      showFeedbackWarning(
+        inputId = "myInput",
+        text = "too many chars"
+      )  
+    } else {
+      hideFeedback("myInput")
+    }
+    
+  })
+}
+
+shinyApp(ui, server)
+```
+
+The above app has one `textInput()` input in the UI.  In the server function, we write the code to conditionally display a feedback message. If the text input has more than 3 characters, the feedback message is displayed.
+
+# `feedback()`
+
+The `feedback()` function is an alternative to using `showFeedback()` and `hideFeedback()`.  With `feedback()` the feedback message is shown/hidden based on whether the `show` argument to `feedback()` is "truthy".  "truthiness" is determined by `shiny::isTruthy()`.  `feedback()` works nicely with reactive expressions that use `shiny::req()` to check the validity of Shiny inputs.  e.g.
+
+```{r, eval=FALSE}
+library(shiny)
+library(shinyFeedback)
+
+ui <- fluidPage(
+  useShinyFeedback(), # include shinyFeedback
+  
+  selectInput(
+    "dataset",
+    "Dataset",
+    choices = c(
+      "airquality",
+      "Unknown dataset"
+    )
+  ),
+  
+  tableOutput('data_table')
+)
+
+server <- function(input, output, session) {
+  
+  data_out <- reactive({
+    req(input$dataset)
+    
+    dataset_exists <- exists(input$dataset, "package:datasets")
+    feedbackWarning("dataset", !dataset_exists, "Unknown dataset")
+    req(dataset_exists, cancelOutput = TRUE)
+
+    get(input$dataset, "package:datasets")
+  })
+  
+  output$data_table <- renderTable({
+    head(data_out())
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+## Usage Inside Shiny Modules
+
+`shinyFeedback` works inside [shiny modules](https://shiny.rstudio.com/articles/modules.html).
+
+As for all modules, input and output IDs in the module UI code must be wrapped in `shiny::ns()` calls.
+Inside your module server code, you need *not* wrap input or output IDs inside `shiny::ns()`; shinyFeedback will automatically prepend the namespace of your current module.
+
+Here is a simple example using shinyFeedback inside a module:
+
+```{r, eval=FALSE}
+library(shiny)
+library(shinyFeedback)
+
+numberInput <- function(id) {
+  ns <- NS(id)
+  tagList(
+    useShinyFeedback(),
+    numericInput(
+      ns("warningInput"),
+      "Warn if Negative",
+      value = 0
+    )
+  )
+}
+
+number <- function(input, output, session) {
+  observeEvent(input$warningInput, {
+    req(input$warningInput)
+    if (input$warningInput < 0) {
+      showFeedbackWarning(inputId = "warningInput")
+    } else {
+      hideFeedback("warningInput")
+    }
+  })
+}
+
+ui <- fluidPage(
+  numberInput(id = "numberFoo")
+)
+
+server <- function(input, output) {
+  callModule(module = number, id = "numberFoo")
+}
+
+shinyApp(ui, server)
+```

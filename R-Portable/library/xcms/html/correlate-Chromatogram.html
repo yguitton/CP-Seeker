@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Correlate chromatograms</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for correlate,Chromatogram,Chromatogram-method {xcms}"><tr><td>correlate,Chromatogram,Chromatogram-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Correlate chromatograms</h2>
+
+<h3>Description</h3>
+
+<p>Correlate intensities of two chromatograms with each other. If the two
+<code>Chromatogram</code> objects have different retention times they are first
+<em>aligned</em> to match data points in the first to data points in the second
+chromatogram. See <code><a href="align-Chromatogram.html">align()</a></code> for more details.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'Chromatogram,Chromatogram'
+correlate(x, y,
+  use = "pairwise.complete.obs", method = c("pearson", "kendall",
+  "spearman"), align = c("matchRtime", "approx"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code><a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram()</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p><code><a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram()</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>use</code></td>
+<td>
+<p><code>character(1)</code> passed to the <code>cor</code> function. See <code><a href="../../stats/html/cor.html">cor()</a></code> for
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p><code>character(1)</code> passed to the <code>cor</code> function. See <code><a href="../../stats/html/cor.html">cor()</a></code> for
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>align</code></td>
+<td>
+<p><code>character(1)</code> defining the alignment method to be used. See
+<code><a href="align-Chromatogram.html">align()</a></code> for details. The value of this parameter is passed to the
+<code>method</code> parameter of <code>align</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>optional parameters passed along to the <code>align</code> method.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>numeric(1)</code> with the correlation coefficient.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Michael Witting, Johannes Rainer
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

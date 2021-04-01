@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class to Contain Raw Mass-Spectrometry Assays and...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pSet-class {MSnbase}"><tr><td>pSet-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>
+Class to Contain Raw Mass-Spectrometry Assays and Experimental
+Metadata
+</h2>
+
+<h3>Description</h3>
+
+<p>Container for high-throughput mass-spectrometry assays and
+experimental metadata. This class is based on Biobase's
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code> virtual class, with the notable exception
+that 'assayData' slot is an environment contain objects of class
+<code>"<a href="Spectrum-class.html">Spectrum</a>"</code>.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>A virtual Class: No objects may be created from it.
+See <code>"<a href="MSnExp-class.html">MSnExp</a>"</code> for instantiatable sub-classes.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>assayData</code>:</dt><dd><p>Object of class <code>"environment"</code>
+containing the MS spectra (see <code>"<a href="Spectrum1-class.html">Spectrum1</a>"</code>
+and <code>"<a href="Spectrum2-class.html">Spectrum2</a>"</code>). </p>
+</dd>
+<dt><code>phenoData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing
+experimenter-supplied variables describing sample (i.e the
+individual tags for an labelled MS experiment)
+See <code><a href="../../Biobase/html/phenoData.html">phenoData</a></code> for more details.</p>
+</dd>
+<dt><code>featureData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing variables
+describing features (spectra in our case), e.g. identificaiton data,
+peptide sequence, identification score,... (inherited from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See <code><a href="../../Biobase/html/featureData.html">featureData</a></code> for
+more details. </p>
+</dd>
+<dt><code>experimentData</code>:</dt><dd><p>Object of class
+<code>"<a href="MIAPE-class.html">MIAPE</a>"</code>, containing details of experimental
+methods. See <code><a href="../../Biobase/html/abstract.html">experimentData</a></code> for more details. </p>
+</dd>
+<dt><code>protocolData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing
+equipment-generated variables (inherited from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See <code><a href="../../Biobase/html/protocolData.html">protocolData</a></code> for
+more details. </p>
+</dd>
+<dt><code>processingData</code>:</dt><dd><p>Object of class
+<code>"<a href="MSnProcess-class.html">MSnProcess</a>"</code> that records all processing. </p>
+</dd>
+<dt><code>.cache</code>:</dt><dd><p>Object of class <code>environment</code> used to
+cache data. Under development. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.Versions.html">Versions</a>"</code> describing the versions of the class.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="../../Biobase/html/class.VersionedBiobase.html">VersionedBiobase</a>"</code>, directly.
+Class <code>"<a href="../../Biobase/html/class.Versioned.html">Versioned</a>"</code>, by class &quot;VersionedBiobase&quot;, distance 2.
+</p>
+
+
+<h3>Methods</h3>
+
+<p>Methods defined in derived classes may override the methods described
+here.
+</p>
+
+<dl>
+<dt>[</dt><dd><p><code>signature(x = "pSet")</code>: Subset current object and
+return object of same class. </p>
+</dd>
+<dt>[[</dt><dd><p><code>signature(x = "pSet")</code>: Direct access to individual
+spectra. </p>
+</dd>
+<dt>$</dt><dd><p><code>signature(x = "pSet")</code>: directly access a specific
+sample annotation column from the <code>pData</code>.</p>
+</dd>
+<dt>$&lt;-</dt><dd><p><code>signature(x = "pSet")</code>: replace or add a
+sample annotation column in the <code>pData</code>.</p>
+</dd>
+<dt>abstract</dt><dd><p>Access abstract in <code>experimentData</code>. </p>
+</dd>
+<dt>assayData</dt><dd><p><code>signature(object = "pSet")</code>: Access the
+<code>assayData</code> slot. Returns an <code>environment</code>. </p>
+</dd>
+<dt>desciption</dt><dd><p><code>signature(x = "pSet")</code>: Synonymous with
+experimentData. </p>
+</dd>
+<dt>dim</dt><dd><p><code>signature(x = "pSet")</code>: Returns the dimensions of
+the <code>phenoData</code> slot. </p>
+</dd>
+<dt>experimentData</dt><dd><p><code>signature(x = "pSet")</code>: Access details
+of experimental methods. </p>
+</dd>
+<dt>featureData</dt><dd><p><code>signature(x = "pSet")</code>: Access the
+<code>featureData</code> slot. </p>
+</dd>
+<dt>fData</dt><dd><p><code>signature(x = "pSet")</code>: Access feature data
+information. </p>
+</dd>
+<dt>featureNames</dt><dd><p><code>signature(x = "pSet")</code>: Coordinate access
+of feature names (e.g spectra, peptides or proteins) in
+<code>assayData</code> slot. </p>
+</dd>
+<dt>fileNames</dt><dd><p><code>signature(object = "pSet")</code>: Access file
+names in the <code>processingData</code> slot. </p>
+</dd>
+<dt>fromFile</dt><dd><p><code>signature(object = "pSet")</code>: Access raw data
+file indexes (to be found in the 'codeprocessingData' slot) from
+which the individual object's spectra where read from. </p>
+</dd>
+<dt>centroided</dt><dd><p><code>signature(object = "pSet")</code>: Indicates
+whether individual spectra are centroided ('TRUE') of uncentroided
+('FALSE'). Use <code>centroided(object) &lt;- value</code> to update a
+whole experiment, ensuring that <code>object</code> and <code>value</code>
+have the same length. </p>
+</dd>
+<dt>smoothed</dt><dd><p><code>signature(object = "pSet")</code>: Indicates
+whether individual spectra are smoothed ('TRUE') of unsmoothed
+('FALSE'). Use <code>smoothed(object) &lt;- value</code> to update a
+whole experiment, ensuring that <code>object</code> and <code>value</code>
+have the same length. </p>
+</dd>
+<dt>fvarMetadata</dt><dd><p><code>signature(x = "pSet")</code>: Access metadata
+describing features reported in <code>fData</code>. </p>
+</dd>
+<dt>fvarLabels</dt><dd><p><code>signature(x = "pSet")</code>: Access variable
+labels in <code>featureData</code>. </p>
+</dd>
+<dt>length</dt><dd><p><code>signature(x = "pSet")</code>: Returns the number of
+features in the <code>assayData</code> slot. </p>
+</dd>
+<dt>notes</dt><dd><p><code>signature(x = "pSet")</code>:  Retrieve and
+unstructured notes associated with <code>pSet</code> in the
+<code>experimentData</code> slot. </p>
+</dd>
+<dt>pData</dt><dd><p><code>signature(x = "pSet")</code>: Access sample data
+information. </p>
+</dd>
+<dt>pData&lt;-</dt><dd><p><code>signature(x = "pSet", value)</code>: Replace sample data
+information with <code>value</code>, value being a <code>data.frame</code>.</p>
+</dd>
+<dt>phenoData</dt><dd><p><code>signature(x = "pSet")</code>: Access the
+<code>phenoData</code> slot. </p>
+</dd>
+<dt>phenoData&lt;-</dt><dd><p><code>signature(x = "pSet", value)</code>: Replace
+sample data information with <code>value</code>. <code>value</code> can be a
+<code>data.frame</code> or an <code>AnnotatedDataFrame</code>.</p>
+</dd>
+<dt>processingData</dt><dd><p><code>signature(object = "pSet")</code>: Access the
+<code>processingData</code> slot. </p>
+</dd>
+<dt>protocolData</dt><dd><p><code>signature(x = "pSet")</code>: Access the
+<code>protocolData</code> slot. </p>
+</dd>
+<dt>pubMedIds</dt><dd><p><code>signature(x = "pSet")</code>: Access PMIDs in
+<code>experimentData</code>. </p>
+</dd>
+<dt>sampleNames</dt><dd><p><code>signature(x = "pSet")</code>: Access sample names
+in <code>phenoData</code>. A replacement method is also available. </p>
+</dd>
+<dt>spectra</dt><dd><p><code>signature(x = "pSet", ...)</code>: Access the
+<code>assayData</code> slot, returning the features as a <code>list</code>.
+Additional arguments are currently ignored. </p>
+</dd>
+<dt>varMetadata</dt><dd><p><code>signature(x = "pSet")</code>: Access metadata
+describing variables reported in <code>pData</code>. </p>
+</dd>
+<dt>varLabels</dt><dd><p><code>signature(x = "pSet")</code>: Access variable
+labels in <code>phenoData</code>. </p>
+</dd>
+<dt>acquisitionNum</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for spectra acquisition numbers. </p>
+</dd>
+<dt>scanIndex</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for spectra scan indices. </p>
+</dd>
+<dt>collisionEnergy</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for MS2 spectra collision energies. </p>
+</dd>
+<dt>intensity</dt><dd><p><code>signature(object = "pSet", ...)</code>: Accessor
+for spectra instenities, returned as named list. Additional
+arguments are currently ignored. </p>
+</dd>
+<dt>msInfo</dt><dd><p><code>signature(object = "pSet")</code>: Prints the MIAPE-MS
+meta-data stored in the <code>experimentData</code> slot. </p>
+</dd>
+<dt>msLevel</dt><dd><p><code>signature(object = "pSet")</code>: Accessor for
+spectra MS levels. </p>
+</dd>
+<dt>mz</dt><dd><p><code>signature(object = "pSet", ...)</code>: Accessor for spectra
+M/Z values, returned as a named list.  Additional arguments are
+currently ignored. </p>
+</dd>
+<dt>peaksCount</dt><dd><p><code>signature(object = "pSet")</code>: Accessor for
+spectra preak counts. </p>
+</dd>
+<dt>peaksCount</dt><dd><p><code>signature(object = "pSet", scans =
+	"numeric")</code>: Accessor to <code>scans</code> spectra preak counts. </p>
+</dd>
+<dt>polarity</dt><dd><p><code>signature(object = "pSet")</code>: Accessor for MS1
+spectra polarities. </p>
+</dd>
+<dt>precursorCharge</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for MS2 precursor charges. </p>
+</dd>
+<dt>precursorIntensity</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for MS2 precursor intensity. </p>
+</dd>
+<dt>precursorMz</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for MS2 precursor M/Z values. </p>
+</dd>
+<dt>precAcquisitionNum</dt><dd><p><code>signature(object = "pSet")</code>: Accessor
+for MS2 precursor scan numbers. </p>
+</dd>
+<dt>precScanNum</dt><dd><p>see <code>precAcquisitionNum</code>. </p>
+</dd>
+<dt>rtime</dt><dd><p><code>signature(object = "pSet", ...)</code>: Accessor for spectra
+retention times. Additional arguments are currently ignored. </p>
+</dd>
+<dt>tic</dt><dd><p><code>signature(object = "pSet", ...)</code>: Accessor for spectra
+total ion counts. Additional arguments are currently ignored. </p>
+</dd>
+<dt>ionCount</dt><dd><p><code>signature(object = "pSet")</code>: Accessor for spectra
+total ion current. </p>
+</dd>
+<dt>header</dt><dd><p><code>signature(object = "pSet")</code>: Returns a data
+frame containing all available spectra parameters (MSn only). </p>
+</dd>
+<dt>header</dt><dd><p><code>signature(object = "pSet", scans = "numeric")</code>:
+Returns a data frame containing <code>scans</code> spectra parameters
+(MSn only). </p>
+</dd>
+<dt>spectrapply</dt><dd>
+<p><code>spectrapply(signature(object = "pSet"), FUN = NULL,
+	BPPARAM = bpparam(), ...)</code>: applies the function <code>FUN</code> to each
+spectrum passing additional parameters in <code>...</code> to that
+function and return its results. For <code>FUN = NULL</code> it returns
+the list of spectra (same as a call to <code>spectra</code>). Parameter
+<code>BPPARAM</code> allows to specify how and if parallel processing
+should be enabled.
+</p>
+<p>Returns a list with the result for each of spectrum.
+</p>
+</dd>
+<dt>isolationWindowLowerMz</dt><dd>
+<p><code>isolationWindowLowerMz(object = "pSet")</code>: return the
+lower m/z boundary for the isolation window. Note that this method
+is at present only available for <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+objects.
+</p>
+</dd>
+<dt>isolationWindowUpperMz</dt><dd>
+<p><code>isolationWindowUpperMz(object = "pSet")</code>: return the
+upper m/z boundary for the isolation window. Note that this method
+is at present only available for <code><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+objects.
+</p>
+</dd>
+</dl>
+
+<p>Additional accessors for the experimental metadata
+(<code>experimentData</code> slot) are defined. See
+<code>"<a href="MIAPE-class.html">MIAPE</a>"</code> for details.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>References</h3>
+
+<p>The <code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code> class, on which <code>pSet</code> is based.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code>"<a href="MSnExp-class.html">MSnExp</a>"</code> for an instantiatable application of
+<code>pSet</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+showClass("pSet")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

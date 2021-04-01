@@ -1,0 +1,59 @@
+useDynLib(mzR)
+
+import(methods)
+import(BiocGenerics)
+import(ProtGenerics)
+importClassesFrom(Biobase, "Versioned")
+importFrom(Biobase, validMsg)
+importFrom("utils", "packageVersion")
+import(Rcpp)
+import(ncdf4)
+
+export(openMSfile,
+       openIDfile,
+       pwiz.version,
+       nChrom,
+       copyWriteMSData)
+
+exportMethods(close,
+              isInitialized,
+              initializeRamp,
+              runInfo,
+              fileName,
+              instrumentInfo,
+              chromatogramsInfo,
+              manufacturer,
+              model,
+	      isolationWindow,
+              ionisation,
+              analyzer,
+              detector,
+              header,
+              peaksCount,
+              peaks, spectra,
+              get3Dmap,
+              softwareInfo,
+              sampleInfo,
+              sourceInfo,
+              mzidInfo,
+              psms,
+              modifications,
+              substitutions,
+              database,
+              enzymes,
+              tolerance,
+              score,
+              para,
+              specParams,
+              tic,
+              chromatogram,
+              chromatograms,
+              chromatogramHeader,
+              writeMSData)
+
+exportClasses("mzR",
+              "mzRramp",
+              "mzRnetCDF",
+              "mzRpwiz",
+              "mzRident")
+

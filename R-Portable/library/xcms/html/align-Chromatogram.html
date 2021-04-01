@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Aligning chromatographic data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for align,Chromatogram,Chromatogram-method {xcms}"><tr><td>align,Chromatogram,Chromatogram-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Aligning chromatographic data</h2>
+
+<h3>Description</h3>
+
+<p>Align chromatogram <code>x</code> against chromatogram <code>y</code>. The resulting chromatogram
+has the same length (number of data points) than <code>y</code> and the same retention
+times thus allowing to perform any pair-wise comparisons between the
+chromatograms. If <code>x</code> is a <code><a href="../../MSnbase/html/Chromatograms-class.html">Chromatograms()</a></code> object, each <code>Chromatogram</code> in
+it is aligned against <code>y</code>.
+</p>
+<p>Parameter <code>method</code> allows to specify which alignment method
+should be used. Currently there are the following options:
+</p>
+
+<ul>
+<li> <p><code>method = "matchRtime"</code> (the default): match data points in the first
+chromatogram (<code>x</code>) to those of the second (<code>y</code>) based on the difference
+between their retention times: each data point in <code>x</code> is assigned to the
+data point in <code>y</code> with the smallest difference in their retention times
+if their difference is smaller than the minimum average difference between
+retention times in <code>x</code> or <code>y</code>.
+</p>
+</li>
+<li> <p><code>method = "approx"</code>: uses the base R <code>approx</code> function to approximate
+intensities in <code>x</code> to the retention times in <code>y</code> (using linear
+interpolation). This should only be used for chromatograms that were
+measured in the same measurement run (e.g. MS1 and corresponding MS2
+chromatograms from SWATH experiments).
+</p>
+</li></ul>
+
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'Chromatogram,Chromatogram'
+align(x, y,
+  method = c("matchRtime", "approx"), ...)
+
+## S4 method for signature 'Chromatograms,Chromatogram'
+align(x, y,
+  method = c("matchRtime", "approx"), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code><a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram()</a></code> or <code><a href="../../MSnbase/html/Chromatograms-class.html">Chromatograms()</a></code> to be aligned against <code>y</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p><code><a href="../../MSnbase/html/Chromatogram-class.html">Chromatogram()</a></code> to which <code>x</code> should be aligned to.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p><code>character(1)</code></p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional parameters to be passed along to the alignment
+functions.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>Chromatogram</code> (or <code>Chromatograms</code>) representing <code>x</code> aligned
+against <code>y</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer, Michael Witting
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+chr1 &lt;- Chromatogram(rtime = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+    intensity = c(3, 5, 14, 30, 24, 6, 2, 1, 1, 0))
+chr2 &lt;- Chromatogram(rtime = c(2.5, 3.42, 4.5, 5.43, 6.5),
+    intensity = c(5, 12, 15, 11, 5))
+
+plot(chr1, col = "black")
+points(rtime(chr2), intensity(chr2), col = "blue", type = "l")
+
+## Align chr2 to chr1 without interpolation
+res &lt;- align(chr2, chr1)
+rtime(res)
+intensity(res)
+points(rtime(res), intensity(res), col = "#00ff0080", type = "l")
+
+## Align chr2 to chr1 with interpolation
+res &lt;- align(chr2, chr1, method = "approx")
+points(rtime(res), intensity(res), col = "#ff000080", type = "l")
+
+legend("topright", col = c("black", "blue", "#00ff0080", "#ff000080"), lty = 1,
+    legend = c("chr1", "chr2", "chr2 matchRtime", "chr2 approx"))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

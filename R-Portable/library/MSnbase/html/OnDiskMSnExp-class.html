@@ -1,0 +1,639 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: The 'OnDiskMSnExp' Class for MS Data And Meta-Data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for OnDiskMSnExp-class {MSnbase}"><tr><td>OnDiskMSnExp-class {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>The <code>OnDiskMSnExp</code> Class for MS Data And Meta-Data</h2>
+
+<h3>Description</h3>
+
+<p>Like the <code><a href="MSnExp-class.html">MSnExp</a></code> class, the <code>OnDiskMSnExp</code> class
+encapsulates data and meta-data for mass spectrometry
+experiments, but does, in contrast to the former, not keep the
+spectrum data in memory, but fetches the M/Z and intensity values on
+demand from the raw files. This results in some instances to a
+reduced performance, has however the advantage of a much smaller
+memory footprint.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The <code>OnDiskMSnExp</code> object stores many spectrum related
+information into the <code>featureData</code>, thus, some calls, like
+<code>rtime</code> to retrieve the retention time of the individual scans
+does not require the raw data to be read. Only M/Z and intensity
+values are loaded on-the-fly from the original files. Extraction of
+values for individual scans is, for mzML files, very fast. Extraction
+of the full data (all spectra) are performed in a per-file parallel
+processing strategy.
+</p>
+<p>Data manipulations related to spectras' M/Z or intensity values
+(e.g. <code><a href="removePeaks-methods.html">removePeaks</a></code> or <code><a href="clean-methods.html">clean</a></code>) are (for
+<code>OnDiskMSnExp</code> objects) not applied immediately, but are stored
+for later execution into the <code>spectraProcessingQueue</code>. The
+manipulations are performed <em>on-the-fly</em> upon data retrieval.
+Other manipulations, like removal of individual spectra are applied
+directly, since the corresponding data is available in the object's
+<code>featureData</code> slot.
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created by calls of the form
+<code>new("OnDiskMSnExp",...)</code>. However, it is preferred to use the
+<code><a href="readMSData.html">readMSData</a></code> function with argument <code>backend="disk"</code>
+that will read raw mass spectrometry data to generate a valid
+<code>"OnDiskMSnExp"</code> instance.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>backend</code>:</dt><dd>
+<p>Character string specifying the used backend.
+</p>
+</dd>
+<dt><code>spectraProcessingQueue</code>:</dt><dd>
+<p><code>list</code> of <code><a href="ProcessingStep-class.html">ProcessingStep</a></code> objects
+defining the functions to be applied <em>on-the-fly</em> to the
+spectra data (M/Z and intensity duplets).
+</p>
+</dd>
+<dt><code>assayData</code>:</dt><dd><p>Object of class <code>"environment"</code> that
+is however empty, as no spectrum data is stored.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>phenoData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing
+experimenter-supplied variables describing sample (i.e the
+individual tags for an labelled MS experiment)
+See <code><a href="../../Biobase/html/phenoData.html">phenoData</a></code> for more details.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>featureData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing variables
+describing features (spectra in our case). See
+<code><a href="../../Biobase/html/featureData.html">featureData</a></code> for more details.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>experimentData</code>:</dt><dd><p>Object of class
+<code>"<a href="MIAPE-class.html">MIAPE</a>"</code>, containing details of experimental
+methods. See <code><a href="../../Biobase/html/abstract.html">experimentData</a></code> for more details.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>protocolData</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.AnnotatedDataFrame.html">AnnotatedDataFrame</a>"</code> containing
+equipment-generated variables (inherited from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). See <code><a href="../../Biobase/html/protocolData.html">protocolData</a></code> for
+more details.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>processingData</code>:</dt><dd><p>Object of class
+<code>"<a href="MSnProcess-class.html">MSnProcess</a>"</code> that records all processing.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>. </p>
+</dd>
+<dt><code>.__classVersion__</code>:</dt><dd><p>Object of class
+<code>"<a href="../../Biobase/html/class.Versions.html">Versions</a>"</code> describing the versions of R,
+the Biobase package, <code>"<a href="pSet-class.html">pSet</a>"</code> and
+<code>MSnExp</code> of the current instance.
+Slot is inherited from <code>"<a href="pSet-class.html">pSet</a>"</code>.
+Intended for developer use and debugging (inherited from
+<code>"<a href="../../Biobase/html/class.eSet.html">eSet</a>"</code>). </p>
+</dd>
+</dl>
+
+
+
+<h3>Extends</h3>
+
+<p>Class <code>"<a href="MSnExp-class.html">MSnExp</a>"</code>, directly.
+Class <code>"<a href="pSet-class.html">pSet</a>"</code>, by class &quot;MSnExp&quot;, distance 3.
+Class <code>"<a href="../../Biobase/html/class.VersionedBiobase.html">VersionedBiobase</a>"</code>, by class &quot;pSet&quot;, distance 4.
+Class <code>"<a href="../../Biobase/html/class.Versioned.html">Versioned</a>"</code>, by class &quot;pSet&quot;, distance 5.
+</p>
+
+
+<h3>Getter/setter methods</h3>
+
+<p>(in alphabetical order)
+See also methods for <code><a href="MSnExp-class.html">MSnExp</a></code> or
+<code><a href="pSet-class.html">pSet</a></code> objects.
+</p>
+
+<dl>
+<dt>[</dt><dd>
+<p><code>object[i]</code>:subset the <code>OnDiskMSnExp</code> by
+spectra.  <code>i</code> can be a <code>numeric</code> or <code>logical</code>
+vector specifying to which spectra the data set should be reduced
+(with <code>i</code> being the index of the spectrum in the object's
+<code>featureData</code>).
+</p>
+<p>The method returns a <code>OnDiskMSnExp</code> object with the data
+sub-set.
+</p>
+</dd>
+<dt>[[</dt><dd>
+<p><code>object[[i]]</code>: extract s single spectrum from the
+<code>OnDiskMSnExp</code> object <code>object</code>. Argument <code>i</code> can be
+either numeric or character specifying the index or the name of
+the spectrum in the object (i.e. in the <code>featureData</code>). The
+relevant information will be extracted from the corresponding raw
+data file.
+</p>
+<p>The method returns a <code>Spectrum1</code> object.
+</p>
+</dd>
+<dt>acquisitionNum</dt><dd>
+<p><code>acquisitionNum(signature(object="OnDiskMSnExp"))</code>: get the
+acquisition number of each spectrum in each individual file. The
+relevant information is extracted from the object's
+<code>featureData</code> slot.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>assayData</dt><dd>
+<p><code>assayData(signature(object = "OnDiskMSnExp"))</code>:
+Extract the full data, i.e. read all spectra from the original files,
+apply all processing steps from the <code>spectraProcessingQueue</code>
+slot and return the data. Due to the required processing time
+accessing the full data should be avoided wherever possible.
+</p>
+<p>Returns an <code>environment</code>.
+</p>
+</dd>
+<dt>centroided,centroided&lt;-</dt><dd>
+<p><code>centroided(signature(object="OnDiskMSnExp", msLevel, =
+      "numeric"))</code>: whether individual spectra are centroided or
+uncentroided. The relevant information is extracted from the
+object's <code>featureData</code> slot. Returns a logical vector with
+names corresponding to the spectrum names.  Use
+<code>centroided(object) &lt;- value</code> to update the information, with
+value being a logical vector of length equal to the number of
+spectra in the experiment.  </p>
+</dd>
+<dt><code>isCentroided(object, k = 0.025, qtl = 0.9, verbose =
+      TRUE)</code></dt><dd><p> A heuristic assessing if the spectra in the <code>object</code>
+are in profile or centroided mode. The function takes the
+<code>qtl</code>th quantile top peaks, then calculates the difference
+between adjacent M/Z value and returns <code>TRUE</code> if the first
+quartile is greater than <code>k</code>. (See
+<code>MSnbase:::.isCentroided</code> for the code.) If <code>verbose</code>
+(default), a table indicating mode for all MS levels is printed.
+</p>
+<p>The function has been tuned to work for MS1 and MS2 spectra and
+data centroided using different peak picking algorithms, but false
+positives can occur. See
+<a href="https://github.com/lgatto/MSnbase/issues/131">https://github.com/lgatto/MSnbase/issues/131</a> for
+details. For whole experiments, where all MS1 and MS2 spectra are
+expected to be in the same, albeit possibly different modes, it is
+advised to assign the majority result for MS1 and MS2 spectra,
+rather than results for individual spectra.
+</p>
+<p>See also <code><a href="isCentroidedFromFile.html">isCentroidedFromFile</a></code> that accessed the mode
+directly from the raw data file.
+</p>
+</dd>
+<dt>fromFile</dt><dd>
+<p><code>fromFile(signature(object = "OnDiskMSnExp"))</code>: get the
+index of the file (in <code>fileNames(object)</code>) from which the
+spectra were read. The relevant information is extracted from the
+object's <code>featureData</code> slot.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>intensity</dt><dd>
+<p><code>intensity(signature(object="OnDiskMSnExp"))</code>:
+return the intensities from each spectrum in the data
+set. Intensities are first read from the raw files followed by an
+optional processing (depending on the processing steps defined in
+the <code>spectraProcessingQueue</code>). To reduce the amount of
+required  memory, this is performed on a per-file basis.
+The <code>BPPARAM</code> argument allows to specify how
+and if parallel processing should be used. Information from
+individual files will be processed in parallel (one process per
+original file).
+</p>
+<p>The method returns a <code>list</code> of numeric intensity values. Each
+list element represents the intensities from one spectrum.
+</p>
+</dd>
+<dt>ionCount</dt><dd>
+<p><code>ionCount(signature(object="OnDiskMSnExp",
+	BPPARAM=bpparam()))</code>:
+extract the ion count (i.e. sum of intensity values) for each
+spectrum in the data set. The relevant data has to be extracted
+from the raw files (with eventually applying processing steps).
+The <code>BPPARAM</code> argument can be used to define how
+and if parallel processing should be used. Information from
+individual files will be processed in parallel (one process per
+original file).
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>isolationWindowLowerMz</dt><dd>
+<p><code>isolationWindowLowerMz(object = "OnDiskMSnExp")</code>: return the
+lower m/z boundary for the isolation window.
+</p>
+<p>Returns a numeric vector of length equal to the number of spectra
+with the lower m/z value of the isolation window or <code>NA</code> if
+not specified in the original file.
+</p>
+</dd>
+<dt>isolationWindowUpperMz</dt><dd>
+<p><code>isolationWindowUpperMz(object = "OnDiskMSnExp")</code>: return the
+upper m/z boundary for the isolation window.
+</p>
+<p>Returns a numeric vector of length equal to the number of spectra
+with the upper m/z value of the isolation window or <code>NA</code> if
+not specified in the original file.
+</p>
+</dd>
+<dt>length</dt><dd>
+<p><code>length(signature(object="OnDiskMSnExp"))</code>:
+Returns the number of spectra of the current experiment.
+</p>
+</dd>
+<dt>msLevel</dt><dd>
+<p><code>msLevel(signature(object = "OnDiskMSnExp"))</code>: extract the
+MS level from the spectra. The relevant information is extracted
+from the object's <code>featureData</code> slot.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>mz</dt><dd>
+<p><code>mz(signature(object="OnDiskMSnExp"))</code>:
+return the M/Z values from each spectrum in the data
+set. M/Z values are first read from the raw files followed by an
+optional processing (depending on the processing steps defined in
+the <code>spectraProcessingQueue</code>). To reduce the amount of
+required  memory, this is performed on a per-file basis.
+The <code>BPPARAM</code> argument allows to specify how
+and if parallel processing should be used. Information from
+individual files will be processed in parallel (one process per
+original file).
+</p>
+<p>The method returns a <code>list</code> of numeric M/Z values. Each
+list element represents the values from one spectrum.
+</p>
+</dd>
+<dt>peaksCount</dt><dd>
+<p><code>peaksCount(signature(object="OnDiskMSnExp",
+	scans="numeric"), BPPARAM=bpparam())</code>:
+extrac the peaks count from each spectrum in the object. Depending
+on the eventually present <code>ProcessingStep</code> objects in the
+<code>spectraProcessingQueue</code> raw data will be loaded to calculate
+the peaks count. If no steps are present, the data is extracted
+from the <code>featureData</code>. Optional argument <code>scans</code> allows
+to specify the index of specific spectra from which the count
+should be returned. The <code>BPPARAM</code> argument can be used to define how
+and if parallel processing should be used. Information from
+individual files will be processed in parallel (one process per
+original file).
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>polarity</dt><dd>
+<p><code>polarity(signature(object="OnDiskMSnExp"))</code>:
+returns a numeric vector with the polarity of the individual
+spectra in the data set. The relevant information is extracted
+from the <code>featureData</code>.
+</p>
+</dd>
+<dt>rtime</dt><dd>
+<p><code>rtime(signature(object="OnDiskMSnExp"))</code>:
+extrac the retention time of the individual spectra in the data
+set (from the <code>featureData</code>).
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>scanIndex</dt><dd>
+<p><code>scanIndex(signature(object="OnDiskMSnExp"))</code>:
+get the spectra scan indices within the respective file. The
+relevant information is extracted from the object's <code>featureData</code> slot.
+Returns a numeric vector of indices with names corresponding to the
+spectrum names.
+</p>
+</dd>
+<dt>smoothed,smoothed&lt;-</dt><dd>
+<p><code>smoothed(signature(object="OnDiskMSnExp", msLevel. =
+      "numeric"))</code>: whether individual spectra are smoothed or
+unsmoothed. The relevant information is extracted from the
+object's <code>featureData</code> slot. Returns a logical vector with
+names corresponding to the spectrum names.  Use
+<code>smoothed(object) &lt;- value</code> to update the information, with
+value being a logical vector of length equal to the number of
+spectra in the experiment.  </p>
+</dd>
+<dt>spectra</dt><dd>
+<p><code>spectra(signature(object="OnDiskMSnExp"), BPPARAM=bpparam())</code>:
+extract spectrum data from the individual files. This causes the
+spectrum data to be read from the original raw files. After that
+all processing steps defined in the <code>spectraProcessingQueue</code>
+are applied to it. The results are then returned as a <code>list</code>
+of <code><a href="Spectrum1-class.html">Spectrum1</a></code> objects.
+</p>
+<p>The <code>BPPARAM</code> argument can be used to define how and if
+parallel processing should be used. Information from individual
+files will be processed in parallel (one process per file).
+Note: extraction of selected spectra results in a considerable
+processing speed and should thus be preferred over whole data
+extraction.
+</p>
+<p>Returns a <code>list</code> of <code><a href="Spectrum1-class.html">Spectrum1</a></code> objects
+with names corresponding to the spectrum names.
+</p>
+</dd>
+<dt>tic</dt><dd>
+<p><code>tic(signature(object="OnDiskMSnExp"), initial = TRUE,
+      BPPARAM = bpparam())</code>:
+get the total ion current (TIC) of each spectrum in the data
+set. If <code>initial = TRUE</code>, the information is extracted from
+the object's <code>featureData</code> and represents the tic provided in
+the header of the original raw data files. For <code>initial =
+      FALSE</code>, the TIC is calculated from the actual intensity values in
+each spectrum after applying all eventual data manipulation
+methods.
+</p>
+<p>See also https://github.com/lgatto/MSnbase/issues/332 for
+more details.
+</p>
+<p><code>BPPARAM</code> parameter: see <code>spectra</code> method above.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>bpi</dt><dd>
+<p><code>bpi(signature(object="OnDiskMSnExp"), initial = TRUE,
+      BPPARAM = bpparam())</code>:
+get the base peak intensity (BPI), i.e. the maximum intensity from
+each spectrum in the data set. If <code>initial = TRUE</code>, the
+information is extracted from the object's <code>featureData</code> and
+represents the bpi provided in the header of the original raw data
+files. For <code>initial = FALSE</code>, the BPI is calculated from the
+actual intensity values in each spectrum after applying all
+eventual data manipulation methods.
+</p>
+<p>See also https://github.com/lgatto/MSnbase/issues/332 for
+more details.
+</p>
+<p><code>BPPARAM</code> parameter: see <code>spectra</code> method above.
+</p>
+<p>Returns a numeric vector with names corresponding to the spectrum
+names.
+</p>
+</dd>
+<dt>featureNames</dt><dd>
+<p><code>tic(signature(object="OnDiskMSnExp"))</code>: return a
+<code>character</code> of length <code>length(object)</code> containing the
+feature names. A replacement method is also available.
+</p>
+</dd>
+<dt>spectrapply</dt><dd>
+<p><code>spectrapply(signature(object = "OnDiskMSnExp"), FUN = NULL,
+	BPPARAM = bpparam(), ...)</code>: applies the function <code>FUN</code> to each
+spectrum passing additional parameters in <code>...</code> to that
+function and return its results. For <code>FUN = NULL</code> it returns
+the list of spectra (same as a call to <code>spectra</code>). Parameter
+<code>BPPARAM</code> allows to specify how and if parallel processing
+should be enabled.
+</p>
+<p>Returns a list with the result for each of spectrum.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Data manipulation methods</h3>
+
+<p>(in alphabetical order)
+See also methods for <code><a href="MSnExp-class.html">MSnExp</a></code> or
+<code><a href="pSet-class.html">pSet</a></code> objects. In contrast to the same-named
+methods for <code><a href="pSet-class.html">pSet</a></code> or <code><a href="MSnExp-class.html">MSnExp</a></code>
+classes, the actual data manipulation is not performed immediately,
+but only on-demand, e.g. when intensity or M/Z values are loaded.
+</p>
+
+<dl>
+<dt>clean</dt><dd>
+<p><code>clean(signature(object="OnDiskMSnExp"), all=TRUE, verbose=TRUE)</code>:
+add an <em>clean</em> processing step to the lazy processing queue
+of the <code>OnDiskMSnExp</code> object. The <code>clean</code> command will
+only be executed when spectra information (including M/Z and
+intensity values) is requested from the <code>OnDiskMSnExp</code>
+object. Optional arguments to the methods are <code>all=TRUE</code> and
+<code>verbose=TRUE</code>.
+</p>
+<p>The method returns an <code>OnDiskMSnExp</code> object.
+</p>
+<p>For more details see documentation of the <code><a href="clean-methods.html">clean</a></code>
+method.
+</p>
+</dd>
+<dt>normalize</dt><dd>
+<p><code>normalize(signature(object="OnDiskMSnExp"), method=c("max",
+	"sum"), ...)</code>:
+add a <code>normalize</code> processing step to the lazy processing
+queue of the returned <code>OnDiskMSnExp</code> object.
+</p>
+<p>The method returns an <code>OnDiskMSnExp</code> object.
+</p>
+<p>For more details see documentation of the
+<code><a href="normalize.html">normalize</a></code> method.
+</p>
+</dd>
+<dt>removePeaks</dt><dd>
+<p><code>removePeaks(signature(object="OnDiskMSnExp"), t="min", verbose=TRUE)</code>:
+add a <code>removePeaks</code> processing step to the lazy processing
+queue of the returned <code>OnDiskMSnExp</code> object.
+</p>
+<p>The method returns an <code>OnDiskMSnExp</code> object.
+</p>
+<p>For more details see documentation of the <code><a href="removePeaks-methods.html">removePeaks</a></code>
+method.
+</p>
+</dd>
+<dt>trimMz</dt><dd>
+<p><code>trimMz(signature(object="OnDiskMSnExp", mzlim="numeric"),...)</code>:
+add a <code>trimMz</code> processing step to the lazy processing queue
+of the returned <code>OnDiskMSnExp</code> object.
+</p>
+<p>The method returns an <code>OnDiskMSnExp</code> object.
+</p>
+<p>For more details see documentation of the <code><a href="trimMz-methods.html">trimMz</a></code>
+method.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Other methods and functions</h3>
+
+
+<dl>
+<dt>validateOnDiskMSnExp</dt><dd>
+<p><code>validateOnDiskMSnExp(signature(object = "OnDiskMSnExp"))</code>:
+validates an <code>OnDiskMSnExp</code> object and all of its spectra. In
+addition to the <em>standard</em> <code>validObject</code> method, this
+method reads also all spectra from the original files, applies
+eventual processing steps and evaluates their validity.
+</p>
+</dd>
+<dt><code>as(from, "MSnExp")</code></dt><dd><p>Converts the <code>OnDiskMSnExp</code>
+object <code>from</code>, to an in-memory <code>MSnExp</code>. Also available
+as an S3 method <code>as.MSnExp()</code>.</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer &lt;johannes.rainer@eurac.edu&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pSet-class.html">pSet</a></code>,
+<code><a href="MSnExp-class.html">MSnExp</a></code>,
+<code><a href="readMSData.html">readMSData</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Get some example mzML files
+library(msdata)
+mzfiles &lt;- c(system.file("microtofq/MM14.mzML", package="msdata"),
+	     system.file("microtofq/MM8.mzML", package="msdata"))
+## Read the data as an OnDiskMSnExp
+odmse &lt;- readMSData(mzfiles, msLevel=1, centroided = TRUE)
+
+## Get the length of data, i.e. the total number of spectra.
+length(odmse)
+
+## Get the MS level
+head(msLevel(odmse))
+
+## Get the featureData, use fData to return as a data.frame
+head(fData(odmse))
+
+## Get to know from which file the spectra are
+head(fromFile(odmse))
+
+## And the file names:
+fileNames(odmse)
+
+## Scan index and acquisitionNum
+head(scanIndex(odmse))
+head(acquisitionNum(odmse))
+
+## Extract the spectra; the data is retrieved from the raw files.
+head(spectra(odmse))
+
+## Extracting individual spectra or a subset is much faster.
+spectra(odmse[1:50])
+
+## Alternatively, we could also subset the whole object by spectra and/or samples:
+subs &lt;- odmse[rtime(odmse) &gt;= 2 &amp; rtime(odmse) &lt;= 20, ]
+fileNames(subs)
+rtime(subs)
+
+## Extract intensities and M/Z values per spectrum; the methods return a list,
+## each element representing the values for one spectrum.
+ints &lt;- intensity(odmse)
+mzs &lt;- mz(odmse)
+
+## Return a data.frame with mz and intensity pairs for each spectrum from the
+## object
+res &lt;- spectrapply(odmse, FUN = as, Class = "data.frame")
+
+## Calling removePeaks, i.e. setting intensity values below a certain threshold to 0.
+## Unlike the name suggests, this is not actually removing peaks. Such peaks with a 0
+## intensity are then removed by the "clean" step.
+## Also, the manipulations are not applied directly, but put into the "lazy"
+## processing queue.
+odmse &lt;- removePeaks(odmse, t=10000)
+odmse &lt;- clean(odmse)
+
+## The processing steps are only applied when actual raw data is extracted.
+spectra(odmse[1:2])
+
+## Get the polarity of the spectra.
+head(polarity(odmse))
+
+## Get the retention time of all spectra
+head(rtime(odmse))
+
+## Get the intensities after removePeaks and clean
+intsAfter &lt;- intensity(odmse)
+
+head(lengths(ints))
+head(lengths(intsAfter))
+
+## The same for the M/Z values
+mzsAfter &lt;- intensity(odmse)
+head(lengths(mzs))
+head(lengths(mzsAfter))
+
+
+## Centroided or profile mode
+f &lt;- msdata::proteomics(full.names = TRUE,
+			pattern = "MS3TMT11.mzML")
+odmse &lt;- readMSData(f, mode = "onDisk")
+validObject(odmse)
+odmse[[1]]
+
+table(isCentroidedFromFile(odmse), msLevel(odmse))
+
+## centroided status could be set manually
+centroided(odmse, msLevel = 1) &lt;- FALSE
+centroided(odmse, msLevel = 2) &lt;- TRUE
+centroided(odmse, msLevel = 3) &lt;- TRUE
+
+## or when reading the data
+odmse2 &lt;- readMSData(f, centroided = c(FALSE, TRUE, TRUE),
+		     mode = "onDisk")
+table(centroided(odmse), msLevel(odmse))
+
+## Filtering precursor scans
+
+head(acquisitionNum(odmse))
+head(msLevel(odmse))
+
+## Extract all spectra stemming from the first MS1 spectrum
+(from1 &lt;- filterPrecursorScan(odmse, 21945))
+table(msLevel(from1))
+
+
+## Extract the second sepctrum's parent (MS1) and children (MS3)
+## spectra
+(from2 &lt;- filterPrecursorScan(odmse, 21946))
+table(msLevel(from2))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

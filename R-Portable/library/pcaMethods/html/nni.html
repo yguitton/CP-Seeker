@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Nearest neighbour imputation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for nni {pcaMethods}"><tr><td>nni {pcaMethods}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Nearest neighbour imputation</h2>
+
+<h3>Description</h3>
+
+<p>Wrapper function for imputation methods based on nearest neighbour
+clustering. Currently llsImpute only.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+nni(object, method = c("llsImpute"), subset = numeric(), ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>Numerical matrix with (or an object coercible to
+such) with samples in rows and variables as columns. Also takes
+<code>ExpressionSet</code> in which case the transposed expression
+matrix is used.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>For convenience one can pass a large matrix but only
+use the variable specified as subset. Can be colnames or indices.</p>
+</td></tr>
+<tr valign="top"><td><code>subset</code></td>
+<td>
+<p>Currently &quot;llsImpute&quot; only.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Further arguments to the chosen method.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This method is wrapper function to llsImpute, See documentation
+for <code>link{llsImpute}</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <code>clusterRes</code> object. Or a list containing a
+clusterRes object as first and an ExpressionSet object as second
+entry if the input was of type ExpressionSet.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Wolfram Stacklies
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="llsImpute.html">llsImpute</a></code>, <code><a href="pca.html">pca</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(metaboliteData)
+llsRes &lt;- nni(metaboliteData, k=6, method="llsImpute", allGenes=TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>pcaMethods</em> version 1.78.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

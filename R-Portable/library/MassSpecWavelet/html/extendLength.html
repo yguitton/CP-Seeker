@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Extend the length of a signal or matrix</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for extendLength {MassSpecWavelet}"><tr><td>extendLength {MassSpecWavelet}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Extend the length of a signal or matrix</h2>
+
+<h3>Description</h3>
+
+<p>Extend the length of a signal or matrix by row
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+extendLength(x, addLength = NULL, method = c("reflection", "open", "circular"), direction = c("right", "left", "both"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p> a vector or matrix with column with each column as a signal </p>
+</td></tr>
+<tr valign="top"><td><code>addLength</code></td>
+<td>
+<p> the length to be extended </p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p> three methods available, c(&quot;reflection&quot;, &quot;open&quot;, &quot;circular&quot;). By default, it is &quot;reflection&quot;. </p>
+</td></tr>
+<tr valign="top"><td><code>direction</code></td>
+<td>
+<p> three options available: c(&quot;right&quot;, &quot;left&quot;, &quot;both&quot;) </p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>return the extended vector or matrix. 
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p> Pan Du </p>
+
+
+<h3>See Also</h3>
+
+ <p><code><a href="extendNBase.html">extendNBase</a></code></p>
+
+
+<h3>Examples</h3>
+
+<pre>
+	# a = matrix(rnorm(9), 3)
+	# extendLength(a, 3, direction='right') 	## not exposed function
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MassSpecWavelet</em> version 1.52.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

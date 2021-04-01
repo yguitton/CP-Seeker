@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Accessing mz-rt feature data values</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for featureValues,XCMSnExp-method {xcms}"><tr><td>featureValues,XCMSnExp-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Accessing mz-rt feature data values</h2>
+
+<h3>Description</h3>
+
+<p><code>featureValues,XCMSnExp</code> : extract a <code>matrix</code> for
+feature values with rows representing features and columns samples.
+Parameter <code>value</code> allows to define which column from the
+<code><a href="XCMSnExp-class.html">chromPeaks</a></code> matrix should be returned. Multiple
+chromatographic peaks from the same sample can be assigned to a feature.
+Parameter <code>method</code> allows to specify the method to be used in such
+cases to chose from which of the peaks the value should be returned.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'XCMSnExp'
+featureValues(object, method = c("medret", "maxint",
+  "sum"), value = "into", intensity = "into", filled = TRUE,
+  missing = NA)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object providing the feature
+definitions.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p><code>character</code> specifying the method to resolve
+multi-peak mappings within the same sample, i.e. to define the
+<em>representative</em> peak for a feature in samples where more than
+one peak was assigned to the feature. If <code>"medret"</code>: select the
+peak closest to the median retention time of the feature.
+If <code>"maxint"</code>: select the peak yielding the largest signal. If
+<code>"sum"</code>: sum the values (only if <code>value</code> is <code>"into"</code> or
+<code>"maxo"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p><code>character</code> specifying the name of the column in
+<code>chromPeaks(object)</code> that should be returned. Defaults to
+<code>"into"</code> in which case the integrated peak area is returned. To
+get the index of the peak in the <code>chromPeaks(object)</code> matrix use
+<code>"index"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>intensity</code></td>
+<td>
+<p><code>character</code> specifying the name of the column in the
+<code>chromPeaks(objects)</code> matrix containing the intensity value of the
+peak that should be used for the conflict resolution if
+<code>method = "maxint"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>filled</code></td>
+<td>
+<p><code>logical(1)</code> specifying whether values for filled-in
+peaks should be returned or not. If <code>filled = FALSE</code>, an <code>NA</code>
+is returned in the matrix for the respective peak. See
+<code><a href="fillChromPeaks.html">fillChromPeaks</a></code> for details on peak filling.</p>
+</td></tr>
+<tr valign="top"><td><code>missing</code></td>
+<td>
+<p>how missing values should be reported. Allowed values are
+<code>NA</code> (the default), a <code>numeric</code> or
+<code>missing = "rowmin_half"</code>. The latter replaces any <code>NA</code> with
+half of the row's minimal (non-missing) value.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>For <code>featureValues</code>: a <code>matrix</code> with
+feature values, columns representing samples, rows features. The order
+of the features matches the order found in the
+<code>featureDefinitions(object)</code> <code>DataFrame</code>. The rownames of the
+<code>matrix</code> are the same than those of the <code>featureDefinitions</code>
+<code>DataFrame</code>. <code>NA</code> is reported for features without
+corresponding chromatographic peak in the respective sample(s).
+</p>
+
+
+<h3>Note</h3>
+
+<p>This method is equivalent to the <code><a href="groupval-methods.html">groupval</a></code> for
+<code>xcmsSet</code> objects. Note that <code>missing = 0</code> should be used to
+get the same behaviour as <code>groupval</code>, i.e. report missing values as 0
+after a call to <code>fillPeaks</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for information on the data object.
+</p>
+<p><code><a href="XCMSnExp-class.html">featureDefinitions</a></code> to extract the <code>DataFrame</code> with the
+feature definitions.
+</p>
+<p><code><a href="featureChromatograms.html">featureChromatograms</a></code> to extract ion chromatograms for each
+feature.
+</p>
+<p><code><a href="XCMSnExp-class.html">hasFeatures</a></code> to evaluate whether the
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> provides feature definitions.
+</p>
+<p><code><a href="groupval-methods.html">groupval</a></code> for the equivalent method on <code>xcmsSet</code> objects.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Gaussian Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for SSgauss {xcms}"><tr><td>SSgauss {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Gaussian Model</h2>
+
+<h3>Description</h3>
+
+<p>This <code>selfStart</code> model evalueates the Gaussian model and its
+gradient. It has an <code>initial</code> attribute that will evalueate
+the inital estimates of the parameters <code>mu</code>, <code>sigma</code>,
+and <code>h</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+SSgauss(x, mu, sigma, h)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a numeric vector of values at which to evaluate the model</p>
+</td></tr>
+<tr valign="top"><td><code>mu</code></td>
+<td>
+<p>mean  of the distribution function</p>
+</td></tr>
+<tr valign="top"><td><code>sigma</code></td>
+<td>
+<p>standard deviation of the distribution fuction</p>
+</td></tr>
+<tr valign="top"><td><code>h</code></td>
+<td>
+<p>height of the distribution function</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Initial values for <code>mu</code> and <code>h</code> are chosen from the
+maximal value of <code>x</code>. The initial value for <code>sigma</code> is
+determined from the area under <code>x</code> divided by <code>h*sqrt(2*pi)</code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector of the same length as <code>x</code>. It is the value
+of the expression <code>h*exp(-(x-mu)^2/(2*sigma^2)</code>, which is a
+modified gaussian function where the maximum height is treated
+as a separate parameter not dependent on <code>sigma</code>. If arguments
+<code>mu</code>, <code>sigma</code>, and <code>h</code> are names of objects, the
+gradient matrix with respect to these names is attached as an
+attribute named <code>gradient</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../stats/html/nls.html">nls</a></code>,
+<code><a href="../../stats/html/selfStart.html">selfStart</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

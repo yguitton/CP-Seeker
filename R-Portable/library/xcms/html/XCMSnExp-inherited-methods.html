@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: XCMSnExp data manipulation methods inherited from MSnbase</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bin,XCMSnExp-method {xcms}"><tr><td>bin,XCMSnExp-method {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>XCMSnExp data manipulation methods inherited from MSnbase</h2>
+
+<h3>Description</h3>
+
+<p>The methods listed on this page are <code><a href="XCMSnExp-class.html">XCMSnExp</a></code>
+methods inherited from its parent, the
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> class from the <code>MSnbase</code>
+package, that alter the raw data or are related to data subsetting. Thus
+calling any of these methods causes all <code>xcms</code> pre-processing
+results to be removed from the <code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object to ensure
+its data integrity.
+</p>
+<p><code>bin</code>: allows to <em>bin</em> spectra. See
+<code><a href="../../MESS/html/bin.html">bin</a></code> documentation in the <code>MSnbase</code> package for more
+details and examples.
+</p>
+<p><code>clean</code>: removes unused <code>0</code> intensity data
+points. See <code><a href="../../MSnbase/html/clean-methods.html">clean</a></code> documentation in the <code>MSnbase</code> package
+for details and examples.
+</p>
+<p><code>filterAcquisitionNum</code>: filters the
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object keeping only spectra with the provided
+acquisition numbers. See <code><a href="../../MSnbase/html/MSnExp-class.html">filterAcquisitionNum</a></code> for
+details and examples.
+</p>
+<p>The <code>normalize</code> method performs basic normalization of
+spectra intensities. See <code><a href="../../BBmisc/html/normalize.html">normalize</a></code> documentation
+in the <code>MSnbase</code> package for details and examples.
+</p>
+<p>The <code>pickPeaks</code> method performs peak picking. See
+<code><a href="../../MSnbase/html/pickPeaks-method.html">pickPeaks</a></code> documentation for details and examples.
+</p>
+<p>The <code>removePeaks</code> method removes mass peaks (intensities)
+lower than a threshold. Note that these peaks refer to <em>mass</em>
+peaks, which are different to the chromatographic peaks detected and
+analyzed in a metabolomics experiment! See
+<code><a href="../../MSnbase/html/removePeaks-methods.html">removePeaks</a></code> documentation for details and
+examples.
+</p>
+<p>The <code>smooth</code> method smooths spectra. See
+<code><a href="adjustRtime-peakGroups.html">smooth</a></code> documentation in <code>MSnbase</code> for details and
+examples.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'XCMSnExp'
+bin(object, binSize = 1L, msLevel.)
+
+## S4 method for signature 'XCMSnExp'
+clean(object, all = FALSE, verbose = FALSE,
+  msLevel.)
+
+## S4 method for signature 'XCMSnExp'
+filterAcquisitionNum(object, n, file)
+
+## S4 method for signature 'XCMSnExp'
+normalize(object, method = c("max", "sum"), ...)
+
+## S4 method for signature 'XCMSnExp'
+pickPeaks(object, halfWindowSize = 3L,
+  method = c("MAD", "SuperSmoother"), SNR = 0L, ...)
+
+## S4 method for signature 'XCMSnExp'
+removePeaks(object, t = "min", verbose = FALSE,
+  msLevel.)
+
+## S4 method for signature 'XCMSnExp'
+smooth(x, method = c("SavitzkyGolay",
+  "MovingAverage"), halfWindowSize = 2L, verbose = FALSE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> or <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+object.</p>
+</td></tr>
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p><code>numeric(1)</code> defining the size of a bin (in Dalton).</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel.</code></td>
+<td>
+<p>For <code>bin</code>, <code>clean</code>, <code>filterMsLevel</code>,
+<code>removePeaks</code>: <code>numeric(1)</code> defining the MS level(s)
+to which operations should be applied or to which the object should be
+subsetted.</p>
+</td></tr>
+<tr valign="top"><td><code>all</code></td>
+<td>
+<p>For <code>clean</code>: <code>logical(1)</code>, if <code>TRUE</code> all zeros are
+removed.</p>
+</td></tr>
+<tr valign="top"><td><code>verbose</code></td>
+<td>
+<p><code>logical(1)</code> whether progress information should be
+displayed.</p>
+</td></tr>
+<tr valign="top"><td><code>n</code></td>
+<td>
+<p>For <code>filterAcquisitionNum</code>: <code>integer</code> defining the
+acquisition numbers of the spectra to which the data set should be
+sub-setted.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>For <code>filterAcquisitionNum</code>:
+<code>integer</code> defining the file index within the object to subset the
+object by file.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>For <code>normalize</code>: <code>character(1)</code> specifying the
+normalization method. See <code><a href="../../BBmisc/html/normalize.html">normalize</a></code> in the <code>MSnbase</code>
+package for details.
+For <code>pickPeaks</code>: <code>character(1)</code> defining the method. See
+<code><a href="../../MSnbase/html/pickPeaks-method.html">pickPeaks</a></code> for options. For <code>smooth</code>:
+<code>character(1)</code> defining the method. See
+<code><a href="adjustRtime-peakGroups.html">smooth</a></code> in the <code>MSnbase</code> package for options and
+details.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Optional additional arguments.</p>
+</td></tr>
+<tr valign="top"><td><code>halfWindowSize</code></td>
+<td>
+<p>For <code>pickPeaks</code> and <code>smooth</code>:
+<code>integer(1)</code> defining the window size for the peak picking. See
+<code><a href="../../MSnbase/html/pickPeaks-method.html">pickPeaks</a></code> and <code><a href="adjustRtime-peakGroups.html">smooth</a></code> in the <code>MSnbase</code>
+package for details and options.</p>
+</td></tr>
+<tr valign="top"><td><code>SNR</code></td>
+<td>
+<p>For <code>pickPeaks</code>: <code>numeric(1)</code> defining the signal to
+noise ratio to be considered. See <code><a href="../../MSnbase/html/pickPeaks-method.html">pickPeaks</a></code>
+documentation for details.</p>
+</td></tr>
+<tr valign="top"><td><code>t</code></td>
+<td>
+<p>For <code>removePeaks</code>: either a <code>numeric(1)</code> or <code>"min"</code>
+defining the threshold (method) to be used. See
+<code><a href="../../MSnbase/html/removePeaks-methods.html">removePeaks</a></code> for details.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> or <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code>
+object.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>For all methods: a <code>XCMSnExp</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="XCMSnExp-filter-methods.html">XCMSnExp-filter</a></code> for methods to filter and subset
+<code>XCMSnExp</code> objects.
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for base class documentation.
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> for the documentation of the
+parent class.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

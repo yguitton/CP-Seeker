@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Exploring missing data in 'MSnSet' instances</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotNA-methods {MSnbase}"><tr><td>plotNA-methods {MSnbase}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Exploring missing data in 'MSnSet' instances</h2>
+
+<h3>Description</h3>
+
+<p>These methods produce plots that illustrate missing data.
+</p>
+<p><code>is.na</code> returns the expression matrix of it <code>MSnSet</code>
+argument as a matrix of logicals referring whether the corresponding
+cells are <code>NA</code> or not. It is generally used in conjunction with
+<code>table</code> and <code>image</code> (see example below).
+</p>
+<p>The <code>plotNA</code> method produces plots that illustrate missing data.
+The completeness of the full dataset or a set of proteins (ordered by
+increasing NA content along the x axis) is represented. 
+The methods make use the <code>ggplot2</code> system. An object of class
+'ggplot' is returned invisibly. 
+</p>
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt>is.na</dt><dd><p><code>signature(x = "MSnSet")</code></p>
+</dd></dl>
+      
+<p>Returns the a matrix of logicals of dimensions <code>dim(x)</code>
+specifiying if respective values are missing in the
+<code>MSnSet</code>'s expression matrix.
+
+</p>
+<dl>
+<dt>plotNA</dt><dd><p><code>signature(object = "MSnSet", pNA = "numeric")</code></p>
+</dd></dl>
+
+<p>Plots missing data for an <code>MSnSet</code> instance. <code>pNA</code> is a
+<code>numeric</code> of length 1 that specifies the percentage 
+of accepted missing data values per features. This value will be
+highlighted with a point on the figure, illustrating the overall
+percentage of NA values in the full data set and the number of
+proteins retained. Default is 1/2.
+
+
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Laurent Gatto &lt;lg390@cam.ac.uk&gt;
+</p>
+
+
+<h3>See Also</h3>
+
+<p>See also the <code><a href="MSnSet-class.html">filterNA</a></code> method to filter out features with
+a specified proportion if missing values.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+data(msnset)
+exprs(msnset)[sample(prod(dim(msnset)), 120)] &lt;- NA
+
+head(is.na(msnset))
+table(is.na(msnset))
+image(msnset)
+
+plotNA(msnset, pNA = 1/4)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>MSnbase</em> version 2.12.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

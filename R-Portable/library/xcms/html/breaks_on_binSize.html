@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Generate breaks for binning using a defined bin size.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for breaks_on_binSize {xcms}"><tr><td>breaks_on_binSize {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Generate breaks for binning using a defined bin size.</h2>
+
+<h3>Description</h3>
+
+<p>Defines breaks for <code>binSize</code> sized bins for values ranging
+from <code>fromX</code> to <code>toX</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+breaks_on_binSize(fromX, toX, binSize)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>fromX</code></td>
+<td>
+<p>numeric(1) specifying the lowest value for the bins.</p>
+</td></tr>
+<tr valign="top"><td><code>toX</code></td>
+<td>
+<p>numeric(1) specifying the largest value for the bins.</p>
+</td></tr>
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p>numeric(1) defining the size of a bin.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function creates breaks for bins of size <code>binSize</code>. The
+function ensures that the full data range is included in the bins, i.e. the
+last value (upper boundary of the last bin) is always equal <code>toX</code>. This
+however means that the size of the last bin will not always be equal to the
+desired bin size.
+See examples for more details and a comparisom to R's <code>seq</code> function.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector defining the lower and upper bounds of the bins.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="binYonX.html">binYonX</a></code> for a binning function.
+</p>
+<p>Other functions to define bins: <code><a href="breaks_on_nBins.html">breaks_on_nBins</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+## Define breaks with a size of 0.13 for a data range from 1 to 10:
+breaks_on_binSize(1, 10, 0.13)
+## The size of the last bin is however larger than 0.13:
+diff(breaks_on_binSize(1, 10, 0.13))
+## If we would use seq, the max value would not be included:
+seq(1, 10, by = 0.13)
+
+## In the next example we use binSize that leads to an additional last bin with
+## a smaller binSize:
+breaks_on_binSize(1, 10, 0.51)
+## Again, the max value is included, but the size of the last bin is &lt; 0.51.
+diff(breaks_on_binSize(1, 10, 0.51))
+## Using just seq would result in the following bin definition:
+seq(1, 10, by = 0.51)
+## Thus it defines one bin (break) less.
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

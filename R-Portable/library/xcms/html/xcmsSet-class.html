@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Class xcmsSet, a class for preprocessing peak data</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for xcmsSet-class {xcms}"><tr><td>xcmsSet-class {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Class xcmsSet, a class for preprocessing peak data</h2>
+
+<h3>Description</h3>
+
+<p>This class transforms a set of peaks from multiple LC/MS or GC/MS
+samples into a matrix of preprocessed data. It groups the peaks
+and does nonlinear retention time correction without internal
+standards. It fills in missing peak values from raw data. Lastly,
+it generates extracted ion chromatograms for ions of interest.
+</p>
+
+
+<h3>Details</h3>
+
+<p>The <code>phenoData</code> slot (and <code>phenoData</code> parameter in the
+<code><a href="xcmsSet.html">xcmsSet</a></code> function) is intended to contain a <code>data.frame</code> describing
+all experimental factors, i.e. the samples along with their
+properties. If this <code>data.frame</code> contains a column named
+&ldquo;class&rdquo;, this will be returned by the <code>sampclass</code> method
+and will thus be used by all methods to determine the sample
+grouping/class assignment (e.g. to define the colors in various plots
+or for the <code><a href="group-methods.html">group</a></code> method).
+</p>
+<p>The <code>sampclass&lt;-</code> method adds or replaces the &ldquo;class&rdquo;
+column in the <code>phenoData</code> slot. If a <code>data.frame</code> is
+submitted to this method, the interaction of its columns will be
+stored into the &ldquo;class&rdquo; column.
+</p>
+<p>Also, similar to other classes in Bioconductor, the <code>$</code> method
+can be used to directly access all columns in the <code>phenoData</code>
+slot (e.g. use <code>xset$name</code> on a <code>xcmsSet</code> object called
+&ldquo;xset&rdquo; to extract the values from a column named &ldquo;name&rdquo; in the <code>phenoData</code> slot).
+</p>
+
+
+<h3>Objects from the Class</h3>
+
+<p>Objects can be created with the <code><a href="xcmsSet.html">xcmsSet</a></code> constructor
+which gathers peaks from a set NetCDF files. Objects can also be
+created by calls of the form <code>new("xcmsSet", ...)</code>.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt>peaks</dt><dd>
+<p><code>matrix</code> containing peak data.
+</p>
+</dd>
+<dt>filled</dt><dd>
+<p>A vector with peak indices of peaks which have been added by a
+<code><a href="fillPeaks-methods.html">fillPeaks</a></code> method.
+</p>
+</dd>
+<dt>groups</dt><dd>
+<p>Matrix containing statistics about peak groups.
+</p>
+</dd>
+<dt>groupidx</dt><dd>
+<p>List containing indices of peaks in each group.
+</p>
+</dd>
+<dt>phenoData</dt><dd>
+<p>A <code>data.frame</code> containing the experimental design factors.
+</p>
+</dd>
+<dt>rt</dt><dd>
+<p><code>list</code> containing two lists, <code>raw</code> and <code>corrected</code>,
+each containing retention times for every scan of every sample.
+</p>
+</dd>
+<dt>filepaths</dt><dd>
+<p>Character vector with absolute path name of each NetCDF file.
+</p>
+</dd>
+<dt>profinfo</dt><dd>
+<p><code>list</code> containing the values <code>method</code> - profile generation
+method, and <code>step</code> - profile m/z step size and eventual
+additional parameters to the profile function.
+</p>
+</dd>
+<dt>dataCorrection</dt><dd>
+<p><code>logical</code> vector filled if the waters Lock mass correction
+parameter is used.
+</p>
+</dd>
+<dt>polarity</dt><dd>
+<p>A string (&quot;positive&quot; or &quot;negative&quot; or NULL) describing whether only
+positive or negative scans have been used reading the raw data.
+</p>
+</dd>
+<dt>progressInfo</dt><dd>
+<p>Progress informations for some xcms functions (for GUI).
+</p>
+</dd>
+<dt>progressCallback</dt><dd>
+<p>Function to be called, when progressInfo changes (for GUI).
+</p>
+</dd>
+<dt>mslevel</dt><dd>
+<p>Numeric representing the MS level on which the peak picking was
+performed (by default on MS1). This slot should be accessed
+through its getter method <code>mslevel</code>.
+</p>
+</dd>
+<dt>scanrange</dt><dd>
+<p>Numeric of length 2 specifying the scan range (or <code>NULL</code> for
+the full range). This slot should be accessed through its getter
+method <code>scanrange</code>. The scan range provided in this slot
+represents the scans to which the whole raw data is subsetted.
+</p>
+</dd>
+<dt>.processHistory</dt><dd>
+<p>Internal slot to be used to keep track of performed processing
+steps. This slot should not be directly accessed by the user.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Methods</h3>
+
+
+<dl>
+<dt><a href="c.xcmsSet.html">c</a></dt><dd>
+<p><code>signature("xcmsSet")</code>: combine objects together
+</p>
+</dd>
+<dt>filepaths&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set <code>filepaths</code> slot
+</p>
+</dd>
+<dt>filepaths</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get <code>filepaths</code> slot
+</p>
+</dd>
+<dt><a href="diffreport-methods.html">diffreport</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: create report of
+differentially regulated ions including EICs
+</p>
+</dd>
+<dt><a href="fillPeaks-methods.html">fillPeaks</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: fill in peak data for
+groups with missing peaks
+</p>
+</dd>
+<dt><a href="getEIC-methods.html">getEIC</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get list of EICs for
+each sample in the set
+</p>
+</dd>
+<dt><a href="getXcmsRaw-methods.html">getXcmsRaw</a></dt><dd>
+<p><code>signature(object = "xcmsSet", sampleidx = 1,
+	profmethod = profMethod(object), profstep = profStep(object),
+	profparam=profinfo(object), mslevel = NULL, scanrange = NULL,
+	rt=c("corrected", "raw"), BPPARAM = bpparam())</code>: read the raw
+data for one or more files in the <code>xcmsSet</code> and return
+it. The default parameters will apply all settings used in the
+original <code><a href="xcmsSet.html">xcmsSet</a></code> call to generate the <code>xcmsSet</code>
+object to be applied also to the raw data. Parameter
+<code>sampleidx</code> allows to specify which raw file(s) should be
+loaded. Argument <code>BPPARAM</code> allows to setup parallel
+processing.
+</p>
+</dd>
+<dt>groupidx&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set <code>groupidx</code> slot
+</p>
+</dd>
+<dt>groupidx</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get <code>groupidx</code> slot
+</p>
+</dd>
+<dt><a href="groupnames-methods.html">groupnames</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get textual names for
+peak groups
+</p>
+</dd>
+<dt>groups&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set <code>groups</code> slot
+</p>
+</dd>
+<dt>groups</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get <code>groups</code> slot
+</p>
+</dd>
+<dt><a href="groupval-methods.html">groupval</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get matrix of values
+from peak data with a row for each peak group
+</p>
+</dd>
+<dt><a href="group-methods.html">group</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: find groups of peaks
+across samples that share similar m/z and retention times
+</p>
+</dd>
+<dt>mslevel</dt><dd>
+<p>Getter method for the <code>mslevel</code> slot.
+</p>
+</dd>
+<dt>peaks&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set <code>peaks</code> slot
+</p>
+</dd>
+<dt>peaks</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get <code>peaks</code> slot
+</p>
+</dd>
+<dt><a href="plotrt-methods.html">plotrt</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: plot retention time
+deviation profiles
+</p>
+</dd>
+<dt>profinfo&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set <code>profinfo</code> slot
+</p>
+</dd>
+<dt>profinfo</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get <code>profinfo</code> slot
+</p>
+</dd>
+<dt>profMethod</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: extract the method used to
+generate the profile matrix.
+</p>
+</dd>
+<dt>profStep</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: extract the profile step
+used for the generation of the profile matrix.
+</p>
+</dd>
+<dt><a href="retcor-methods.html">retcor</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: use initial grouping
+of peaks to do nonlinear loess retention time correction
+</p>
+</dd>
+<dt>sampclass&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: Replaces the column
+&ldquo;class&rdquo; in the <code>phenoData</code> slot. See details for more information.
+</p>
+</dd>
+<dt>sampclass</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: Returns the content of the
+column &ldquo;class&rdquo; from the <code>phenoData</code> slot or, if not
+present, the interaction of the experimental design factors
+(i.e. of the <code>phenoData</code> <code>data.frame</code>). See details for
+more information.
+</p>
+</dd>
+<dt>phenoData&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set the <code>phenoData</code> slot
+</p>
+</dd>
+<dt>phenoData</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get the <code>phenoData</code> slot
+</p>
+</dd>
+<dt>progressCallback&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set the <code>progressCallback</code> slot
+</p>
+</dd>
+<dt>progressCallback</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get the <code>progressCallback</code> slot
+</p>
+</dd>
+<dt>scanrange</dt><dd>
+<p>Getter method for the <code>scanrange</code> slot. See scanrange slot
+description above for more details.
+</p>
+</dd>
+<dt>sampnames&lt;-</dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: set rownames in the
+<code>phenoData</code> slot
+</p>
+</dd>
+<dt><a href="sampnames-methods.html">sampnames</a></dt><dd>
+<p><code>signature(object = "xcmsSet")</code>: get rownames in the
+<code>phenoData</code> slot
+</p>
+</dd>
+<dt><a href="split.xcmsSet.html">split</a></dt><dd>
+<p><code>signature("xcmsSet")</code>: divide the xcmsSet into a list of
+xcmsSet objects depending on the provided factor. Note that only
+peak data will be preserved, i.e. eventual peak grouping information
+will be lost.
+</p>
+</dd>
+<dt><code>object$name</code>, <code>object$name&lt;-value</code></dt><dd>
+<p>Access and set <code>name</code> column in <code>phenoData</code>
+</p>
+</dd>
+<dt><code>object[, i]</code></dt><dd>
+<p>Conducts subsetting of a <code>xcmsSet</code> instance. Only subsetting
+on columns, i.e. samples, is supported. Subsetting is performed on
+all slots, also on <code>groups</code> and <code>groupidx</code>. Parameter
+<code>i</code> can be an integer vector, a logical vector or a character
+vector of sample names (matching <code>sampnames</code>).
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A. Smith, <a href="mailto:csmith@scripps.edu">csmith@scripps.edu</a>, Johannes Rainer <a href="mailto:johannes.rainer@eurac.edu">johannes.rainer@eurac.edu</a></p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="xcmsSet.html">xcmsSet</a></code>
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

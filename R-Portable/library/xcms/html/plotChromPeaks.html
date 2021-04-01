@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: General visualizations of peak detection results</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotChromPeaks {xcms}"><tr><td>plotChromPeaks {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>General visualizations of peak detection results</h2>
+
+<h3>Description</h3>
+
+<p><code>plotChromPeaks</code> plots the identified chromatographic
+peaks from one file into the plane spanned by the retention time and mz
+dimension (x-axis representing the retention time and y-axis mz).
+Each chromatographic peak is plotted as a rectangle representing its
+width in rt and mz dimension.
+</p>
+<p>This plot is supposed to provide some initial overview of the
+chromatographic peak detection results.
+</p>
+<p><code>plotChromPeakImage</code> plots the number of detected peaks for
+each sample along the retention time axis as an <em>image</em> plot, i.e.
+with the number of peaks detected in each bin along the retention time
+represented with the color of the respective cell.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plotChromPeaks(x, file = 1, xlim = NULL, ylim = NULL, add = FALSE,
+  border = "#00000060", col = NA, xlab = "retention time",
+  ylab = "mz", main = NULL, ...)
+
+plotChromPeakImage(x, binSize = 30, xlim = NULL, log = FALSE,
+  xlab = "retention time", yaxt = par("yaxt"),
+  main = "Chromatographic peak counts", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>file</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: <code>numeric(1)</code> specifying the
+index of the file within <code>x</code> for which the plot should be created.
+Defaults to <code>1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
+<p><code>numeric(2)</code> specifying the x-axis limits (retention time
+dimension). Defaults to <code>NULL</code> in which case the full retention
+time range of the file is used.</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: <code>numeric(2)</code> specifying the
+y-axis limits (mz dimension). Defaults to <code>NULL</code> in which case the
+full mz range of the file is used.</p>
+</td></tr>
+<tr valign="top"><td><code>add</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: <code>logical(1)</code> whether the plot
+should be added or created as a new plot.</p>
+</td></tr>
+<tr valign="top"><td><code>border</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: the color for the rectangles'
+border.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: the color to be used to fill the
+rectangles.</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p><code>character(1)</code> defining the x-axis label.</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>For <code>plotChromPeaks</code>: <code>character(1)</code> defining the
+y-axis label.</p>
+</td></tr>
+<tr valign="top"><td><code>main</code></td>
+<td>
+<p><code>character(1)</code> defining the plot title. By default (i.e.
+<code>main = NULL</code> the name of the file will be used as title.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments passed to the <code>plot</code> (for
+<code>plotChromPeaks</code>) and <code>image</code> (for
+<code>plotChromPeakImage</code>) functions. Ignored if <code>add = TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p>For <code>plotChromPeakImage</code>: <code>numeric(1)</code> defining the
+size of the bins along the x-axis (retention time). Defaults to
+<code>binSize = 30</code>, peaks within each 30 seconds will thus counted and
+plotted.</p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+<p>For <code>plotChromPeakImage</code>: <code>logical(1)</code> whether the peak
+counts should be log2 transformed before plotting.</p>
+</td></tr>
+<tr valign="top"><td><code>yaxt</code></td>
+<td>
+<p>For <code>plotChromPeakImage</code>: <code>character(1)</code> defining
+whether y-axis labels should be added. To disable the y-axis use
+<code>yaxt = "n"</code>. For any other value of <code>yaxt</code> the axis will be
+drawn. See <code>par</code> help page for more details.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The width and line type of the rectangles indicating the detected
+chromatographic peaks for the <code>plotChromPeaks</code> function can be
+specified using the <code>par</code> function, i.e. with <code>par(lwd = 3)</code>
+and <code>par(lty = 2)</code>, respectively.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Johannes Rainer
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="highlightChromPeaks.html">highlightChromPeaks</a></code> for the function to highlight
+detected chromatographic peaks in extracted ion chromatogram plots.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Perform peak detection on two files from the faahKO package.
+library(xcms)
+library(faahKO)
+faahko_file &lt;- c(system.file('cdf/KO/ko16.CDF', package = "faahKO"),
+                 system.file('cdf/KO/ko18.CDF', package = "faahKO"))
+
+od &lt;- readMSData(faahko_file, mode = "onDisk")
+
+## Peak detection using the 'matchedFilter' method. Note that we are using a
+## larger binSize to reduce the runtime of the example.
+xod &lt;- findChromPeaks(od, param = MatchedFilterParam(binSize = 0.3, snthresh = 20))
+
+## plotChromPeakImage: plot an image for the identified peaks per file
+plotChromPeakImage(xod)
+
+## Show all detected chromatographic peaks from the first file
+plotChromPeaks(xod)
+
+## Plot all detected peaks from the second file and restrict the plot to a
+## mz-rt slice
+plotChromPeaks(xod, file = 2, xlim = c(3500, 3600), ylim = c(400, 600))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>

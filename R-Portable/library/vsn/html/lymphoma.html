@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Intensity data for 8 cDNA slides with CLL and DLBL samples...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for lymphoma {vsn}"><tr><td>lymphoma {vsn}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Intensity data for 8 cDNA slides with CLL and DLBL samples from
+the Alizadeh et al. paper in Nature 2000</h2>
+
+<h3>Description</h3>
+
+<p>8 cDNA chips from Alizadeh lymphoma paper</p>
+
+
+<h3>Usage</h3>
+
+<pre>data(lymphoma)</pre>
+
+
+<h3>Format</h3>
+
+<p><code>lymphoma</code> is an <code><a href="../../Biobase/html/class.ExpressionSet.html">ExpressionSet</a></code>
+containing the data from 8 chips
+from the lymphoma data set by Alizadeh et al. (see references). Each
+chip represents two samples: on color channel 1 (CH1, Cy3, green) the
+common reference sample, and on color channel 2 (CH2, Cy5, red) the
+various disease samples. See <code>pData(lymphoma)</code>. The 9216x16
+matrix <code>exprs(lymphoma)</code> contains the background-subtracted spot
+intensities (CH1I-CH1B and CH2I-CH2B, respectively). 
+</p>
+
+
+<h3>Details</h3>
+
+<p>The chip intensity files were downloaded from the Stanford
+microarray database. Starting from the link below, this was done by
+following the links <em>Published Data</em> -&gt; 
+<em>Alizadeh AA, et al. (2000) Nature 403(6769):503-11</em> -&gt; 
+<em>Data in SMD</em> -&gt; <em>Display Data</em>, and selecting the following 
+8 slides:
+</p>
+
+<table summary="Rd table">
+<tr>
+ <td style="text-align: left;">
+lc7b019</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b047</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b048</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b056</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b057</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b058</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b069</td>
+</tr>
+<tr>
+ <td style="text-align: left;">
+lc7b070
+</td>
+</tr>
+
+</table>
+
+<p>Then, the script <code>makedata.R</code> from the <code>scripts</code> subdirectory
+of this package was run to generate the <span style="font-family: Courier New, Courier; color: #666666;"><b>R</b></span> data object.
+</p>
+
+
+<h3>Source</h3>
+
+<p>http://genome-www5.stanford.edu/MicroArray/SMD</p>
+
+
+<h3>References</h3>
+
+<p>A. Alizadeh et al., Distinct types of diffuse large B-cell 
+lymphoma identified by gene expression profiling. Nature 403(6769):503-11, 
+Feb 3, 2000.</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+   data("lymphoma")
+   lymphoma
+   pData(lymphoma)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>vsn</em> version 3.54.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,4 @@
+useDynLib(enviPat, .registration = TRUE)
+export(isopattern,check_chemform,check_several,envelope,getR,isowrap,vdetect,check_ded,multiform,subform,mergeform)
+import("graphics")
+import("stats")

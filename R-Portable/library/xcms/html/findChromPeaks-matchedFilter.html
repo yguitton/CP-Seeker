@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Peak detection in the chromatographic time domain</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findChromPeaks-matchedFilter {xcms}"><tr><td>findChromPeaks-matchedFilter {xcms}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Peak detection in the chromatographic time domain</h2>
+
+<h3>Description</h3>
+
+<p>The <em>matchedFilter</em> algorithm identifies peaks in the
+chromatographic time domain as described in [Smith 2006]. The intensity
+values are binned by cutting The LC/MS data into slices (bins) of a mass
+unit (<code>binSize</code> m/z) wide. Within each bin the maximal intensity is
+selected. The chromatographic peak detection is then performed in each
+bin by extending it based on the <code>steps</code> parameter to generate
+slices comprising bins <code>current_bin - steps +1</code> to
+<code>current_bin + steps - 1</code>. Each of these slices is then filtered
+with matched filtration using a second-derative Gaussian as the model
+peak shape. After filtration peaks are detected using a signal-to-ratio
+cut-off. For more details and illustrations see [Smith 2006].
+</p>
+<p>The <code>MatchedFilterParam</code> class allows to specify all
+settings for a chromatographic peak detection using the matchedFilter
+method. Instances should be created with the <code>MatchedFilterParam</code>
+constructor.
+</p>
+<p>The <code>findChromPeaks,OnDiskMSnExp,MatchedFilterParam</code>
+method performs peak detection using the <em>matchedFilter</em> algorithm
+on all samples from an <code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object.
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> objects encapsule all experiment
+specific data and load the spectra data (mz and intensity values) on the
+fly from the original files applying also all eventual data
+manipulations.
+</p>
+<p><code>binSize</code>,<code>binSize&lt;-</code>: getter and setter for the
+<code>binSize</code> slot of the object.
+</p>
+<p><code>impute</code>,<code>impute&lt;-</code>: getter and setter for the
+<code>impute</code> slot of the object.
+</p>
+<p><code>baseValue</code>,<code>baseValue&lt;-</code>: getter and setter for the
+<code>baseValue</code> slot of the object.
+</p>
+<p><code>distance</code>,<code>distance&lt;-</code>: getter and setter for the
+<code>distance</code> slot of the object.
+</p>
+<p><code>fwhm</code>,<code>fwhm&lt;-</code>: getter and setter for the
+<code>fwhm</code> slot of the object.
+</p>
+<p><code>sigma</code>,<code>sigma&lt;-</code>: getter and setter for the
+<code>sigma</code> slot of the object.
+</p>
+<p><code>max</code>,<code>max&lt;-</code>: getter and setter for the
+<code>max</code> slot of the object.
+</p>
+<p><code>snthresh</code>,<code>snthresh&lt;-</code>: getter and setter for the
+<code>snthresh</code> slot of the object.
+</p>
+<p><code>steps</code>,<code>steps&lt;-</code>: getter and setter for the
+<code>steps</code> slot of the object.
+</p>
+<p><code>mzdiff</code>,<code>mzdiff&lt;-</code>: getter and setter for the
+<code>mzdiff</code> slot of the object.
+</p>
+<p><code>index</code>,<code>index&lt;-</code>: getter and setter for the
+<code>index</code> slot of the object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+MatchedFilterParam(binSize = 0.1, impute = "none",
+  baseValue = numeric(), distance = numeric(), fwhm = 30,
+  sigma = fwhm/2.3548, max = 5, snthresh = 10, steps = 2,
+  mzdiff = 0.8 - binSize * steps, index = FALSE)
+
+## S4 method for signature 'OnDiskMSnExp,MatchedFilterParam'
+findChromPeaks(object, param,
+  BPPARAM = bpparam(), return.type = "XCMSnExp", msLevel = 1L)
+
+## S4 method for signature 'MatchedFilterParam'
+show(object)
+
+## S4 method for signature 'MatchedFilterParam'
+binSize(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+binSize(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+impute(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+impute(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+baseValue(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+baseValue(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+distance(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+distance(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+fwhm(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+fwhm(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+sigma(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+sigma(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+max(x)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+max(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+snthresh(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+snthresh(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+steps(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+steps(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+mzdiff(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+mzdiff(object) &lt;- value
+
+## S4 method for signature 'MatchedFilterParam'
+index(object)
+
+## S4 replacement method for signature 'MatchedFilterParam'
+index(object) &lt;- value
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>binSize</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the width of the
+bins/slices in m/z dimension.</p>
+</td></tr>
+<tr valign="top"><td><code>impute</code></td>
+<td>
+<p>Character string specifying the method to be used for missing
+value imputation. Allowed values are <code>"none"</code> (no linear
+interpolation), <code>"lin"</code> (linear interpolation), <code>"linbase"</code>
+(linear interpolation within a certain bin-neighborhood) and
+<code>"intlin"</code>. See <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>baseValue</code></td>
+<td>
+<p>The base value to which empty elements should be set. This
+is only considered for <code>method = "linbase"</code> and corresponds to the
+<code>profBinLinBase</code>'s <code>baselevel</code> argument.</p>
+</td></tr>
+<tr valign="top"><td><code>distance</code></td>
+<td>
+<p>For <code>method = "linbase"</code>: number of non-empty
+neighboring element of an empty element that should be considered for
+linear interpolation. See details section for more information.</p>
+</td></tr>
+<tr valign="top"><td><code>fwhm</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the full width at half maximum
+of matched filtration gaussian model peak. Only used to calculate the
+actual sigma, see below.</p>
+</td></tr>
+<tr valign="top"><td><code>sigma</code></td>
+<td>
+<p><code>numeric(1)</code> specifying the standard deviation (width)
+of the matched filtration model peak.</p>
+</td></tr>
+<tr valign="top"><td><code>max</code></td>
+<td>
+<p><code>numeric(1)</code> representing the maximum number of peaks
+that are expected/will be identified per slice.</p>
+</td></tr>
+<tr valign="top"><td><code>snthresh</code></td>
+<td>
+<p><code>numeric(1)</code> defining the signal to noise cutoff
+to be used in the chromatographic peak detection step.</p>
+</td></tr>
+<tr valign="top"><td><code>steps</code></td>
+<td>
+<p><code>numeric(1)</code> defining the number of bins to be
+merged before filtration (i.e. the number of neighboring bins that will
+be joined to the slice in which filtration and peak detection will be
+performed).</p>
+</td></tr>
+<tr valign="top"><td><code>mzdiff</code></td>
+<td>
+<p><code>numeric(1)</code> defining the minimum difference
+in m/z for peaks with overlapping retention times</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p><code>logical(1)</code> specifying whether indicies should be
+returned instead of values for m/z and retention times.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>For <code>findChromPeaks</code>: an
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> object containing the MS- and all
+other experiment-relevant data.
+</p>
+<p>For all other methods: a parameter object.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>An <code>MatchedFilterParam</code> object containing all settings for
+the matchedFilter algorithm.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A parameter class specifying if and how parallel processing
+should be performed. It defaults to <code><a href="../../BiocParallel/html/register.html">bpparam</a></code>.
+See documentation of the <code>BiocParallel</code> for more details. If
+parallel processing is enabled, peak detection is performed in parallel
+on several of the input samples.</p>
+</td></tr>
+<tr valign="top"><td><code>return.type</code></td>
+<td>
+<p>Character specifying what type of object the method should
+return. Can be either <code>"XCMSnExp"</code> (default), <code>"list"</code> or
+<code>"xcmsSet"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>msLevel</code></td>
+<td>
+<p><code>integer(1)</code> defining the MS level on which the peak
+detection should be performed. Defaults to <code>msLevel = 1</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>The value for the slot.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For <code>max</code>: a <code>MatchedFilterParam</code> object.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The intensities are binned by the provided m/z values within each
+spectrum (scan). Binning is performed such that the bins are centered
+around the m/z values (i.e. the first bin includes all m/z values between
+<code>min(mz) - bin_size/2</code> and <code>min(mz) + bin_size/2</code>).
+</p>
+<p>For more details on binning and missing value imputation see
+<code><a href="binYonX.html">binYonX</a></code> and <code><a href="imputeLinInterpol.html">imputeLinInterpol</a></code> methods.
+</p>
+<p>Parallel processing (one process per sample) is supported and can
+be configured either by the <code>BPPARAM</code> parameter or by globally
+defining the parallel processing mode using the
+<code><a href="../../BiocParallel/html/register.html">register</a></code> method from the <code>BiocParallel</code>
+package.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The <code>MatchedFilterParam</code> function returns a
+<code>MatchedFilterParam</code> class instance with all of the settings
+specified for chromatographic detection by the <em>matchedFilter</em>
+method.
+</p>
+<p>For <code>findChromPeaks</code>: if <code>return.type = "XCMSnExp"</code> an
+<code><a href="XCMSnExp-class.html">XCMSnExp</a></code> object with the results of the peak detection.
+If <code>return.type = "list"</code> a list of length equal to the number of
+samples with matrices specifying the identified peaks.
+If <code>return.type = "xcmsSet"</code> an <code><a href="xcmsSet-class.html">xcmsSet</a></code> object
+with the results of the peak detection.
+</p>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>.__classVersion__,binSize,impute,baseValue,distance,fwhm,sigma,max,snthresh,steps,mzdiff,index</code></dt><dd><p>See corresponding parameter above. <code>.__classVersion__</code> stores
+the version from the class. Slots values should exclusively be accessed
+<em>via</em> the corresponding getter and setter methods listed above.</p>
+</dd>
+</dl>
+
+
+<h3>Note</h3>
+
+<p>These methods and classes are part of the updated and modernized
+<code>xcms</code> user interface which will eventually replace the
+<code><a href="findPeaks-methods.html">findPeaks</a></code> methods. It supports chromatographic peak
+detection on
+<code><a href="../../MSnbase/html/OnDiskMSnExp-class.html">OnDiskMSnExp</a></code> objects (defined in the
+<code>MSnbase</code> package). All of the settings to the matchedFilter
+algorithm can be passed with a <code>MatchedFilterParam</code> object.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Colin A Smith, Johannes Rainer
+</p>
+
+
+<h3>References</h3>
+
+<p>Colin A. Smith, Elizabeth J. Want, Grace O'Maille, Ruben Abagyan and
+Gary Siuzdak. &quot;XCMS: Processing Mass Spectrometry Data for Metabolite
+Profiling Using Nonlinear Peak Alignment, Matching, and Identification&quot;
+<em>Anal. Chem.</em> 2006, 78:779-787.
+</p>
+
+
+<h3>See Also</h3>
+
+<p>The <code><a href="do_findChromPeaks_matchedFilter.html">do_findChromPeaks_matchedFilter</a></code> core API function
+and <code><a href="findPeaks.matchedFilter-xcmsRaw-method.html">findPeaks.matchedFilter</a></code> for the old user interface.
+</p>
+<p><code><a href="peaksWithMatchedFilter.html">peaksWithMatchedFilter</a></code> for functions to perform matchedFilter
+peak detection in purely chromatographic data.
+</p>
+<p><code><a href="XCMSnExp-class.html">XCMSnExp</a></code> for the object containing the results of
+the chromatographic peak detection.
+</p>
+<p>Other peak detection methods: <code><a href="chromatographic-peak-detection.html">chromatographic-peak-detection</a></code>,
+<code><a href="findChromPeaks-centWaveWithPredIsoROIs.html">findChromPeaks-centWaveWithPredIsoROIs</a></code>,
+<code><a href="findChromPeaks-centWave.html">findChromPeaks-centWave</a></code>,
+<code><a href="findChromPeaks-massifquant.html">findChromPeaks-massifquant</a></code>,
+<code><a href="findPeaks-MSW.html">findPeaks-MSW</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+## Create a MatchedFilterParam object. Note that we use a unnecessarily large
+## binSize parameter to reduce the run-time of the example.
+mfp &lt;- MatchedFilterParam(binSize = 5)
+## Change snthresh parameter
+snthresh(mfp) &lt;- 15
+mfp
+
+## Perform the peak detection using matchecFilter on the files from the
+## faahKO package. Files are read using the readMSData from the MSnbase
+## package
+library(faahKO)
+library(MSnbase)
+fls &lt;- dir(system.file("cdf/KO", package = "faahKO"), recursive = TRUE,
+           full.names = TRUE)
+raw_data &lt;- readMSData(fls[1:2], mode = "onDisk")
+## Perform the chromatographic peak detection using the settings defined
+## above. Note that we are also disabling parallel processing in this
+## example by registering a "SerialParam"
+register(SerialParam())
+res &lt;- findChromPeaks(raw_data, param = mfp)
+head(chromPeaks(res))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>xcms</em> version 3.8.2 <a href="00Index.html">Index</a>]</div>
+</body></html>
