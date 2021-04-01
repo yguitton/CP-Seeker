@@ -37,27 +37,13 @@ CREATE TABLE `project` (
 CREATE TABLE `deconvolution_param` ( 
 	`deconvolution_param` INTEGER PRIMARY KEY AUTOINCREMENT, 
 	`adduct` TEXT NOT NULL, 
-	`resolution` = REAL, 
-	`resolution_mz` = REAL, 
-	`resolution_index` = INTEGER, 
+	`resolution` REAL, 
+	`resolution_mz` REAL, 
+	`resolution_index` INTEGER, 
 	`ppm` REAL NOT NULL, 
 	`peakwidth_min` REAL NOT NULL,  
 	`peakwidth_max` REAL NOT NULL, 
 	`missing_scans` INTEGER NOT NULL 
-);
-CREATE TABLE `chloroparaffin` (
-	`chloroparaffin` INTEGER PRIMARY KEY, 
-	`C` INTEGER NOT NULL, 
-	`Cl` INTEGER NOT NULL, 
-	`H` INTEGER NOT NULL, 
-	`formula` TEXT NOT NULL 
-);
-CREATE TABLE `chloroparaffin_ion` (
-	`chloroparaffin_ion` INTEGER PRIMARY KEY, 
-	`ion_formula` TEXT NOT NULL, 
-	`adduct` TEXT NOT NULL, 
-	`charge` INTEGER NOT NULL, 
-	`chloroparaffin` INTEGER NOT NULL
 );
 CREATE TABLE `feature` (
 	`feature` INTEGER PRIMARY KEY AUTOINCREMENT, 
