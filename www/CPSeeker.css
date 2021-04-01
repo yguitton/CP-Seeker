@@ -1,0 +1,142 @@
+#titleApp{
+	width: 200px;
+	float: left;
+}
+.modal-lg {
+	width: 100%;
+} 
+.modal-sm {
+	width: 50%;
+}
+.selectize-dropdown-content {
+	max-height: 200px; 
+}
+.lds-dual-ring {
+  display: inline-block;
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  top: 45%;
+  left: 45%;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 30px solid #3c8dbc;
+  border-color: #3c8dbc transparent #3c8dbc transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.modal-content {
+	margin: 0px 40px 0px 40px;
+}
+.bttn-no-fill {
+  margin: 0;
+  padding: 8px 15px;
+  border: none;
+  font-weight: 400;
+  cursor: pointer;
+  position: relative;
+  font-size: 24px;
+  font-family: inherit;
+  padding: 5px 12px;
+  z-index: 0;
+  border: none;
+  background: none;
+  color: #3c8dbc;
+  font-size: 40px;
+  -webkit-transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
+  transition: all 0.3s cubic-bezier(0.02, 0.01, 0.47, 1);
+}
+.bttn-no-fill:before {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  content: '';
+  opacity: 0;
+  -webkit-transition: opacity 0.15s ease-out, -webkit-transform 0.15s ease-out;
+  transition: opacity 0.15s ease-out, -webkit-transform 0.15s ease-out;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out, -webkit-transform 0.15s ease-out;
+  z-index: -1;
+  -webkit-transform: scaleX(0);
+          transform: scaleX(0);
+}
+.bttn-no-fill:hover,
+.bttn-no-fill:focus {
+  box-shadow: 0 1px 10px rgba(58,51,53,0.3);
+  color: #3c8dbc;
+  -webkit-transition: all 0.5s cubic-bezier(0.02, 0.01, 0.47, 1);
+  transition: all 0.5s cubic-bezier(0.02, 0.01, 0.47, 1);
+}
+.bttn-no-fill:hover:before,
+.bttn-no-fill:focus:before {
+  opacity: 1;
+  -webkit-transition: opacity 0.2s ease-in, -webkit-transform 0.2s ease-in;
+  transition: opacity 0.2s ease-in, -webkit-transform 0.2s ease-in;
+  transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+  transition: transform 0.2s ease-in, opacity 0.2s ease-in, -webkit-transform 0.2s ease-in;
+  -webkit-transform: scaleX(1);
+          transform: scaleX(1);
+}
+.bttn-no-fill>icon {
+	font-size: 40px;
+}
+.table-collapsed {
+	width: 100%;
+	table-layout: fixed;
+}
+.table-collapsed td {
+	vertical-align: bottom;
+	text-align: center;
+}
+.modal-dialog {
+	width: 100%;
+	min-width: 600px
+}
+.table-params {
+	width: 100%;
+	table-layout: fixed;
+}
+.table-params tr{
+	vertical-align: bottom;
+}
+.table-params td{
+	width: 50%;
+	padding: 5px;
+	text-align: center;
+	vertical-align: bottom;
+}
+table td input {
+ width: 100%;   
+}
+.swal2-container {
+  z-index: 1044 !important;
+}
+.modal { 
+  z-index: 999999997 !important; 
+}
+.modal .introjs-fixedTooltip { 
+  z-index: 99999998 !important; /*I give less value to this one. The other way introJs always blocks my modals*/
+}
+.modal .introjs-showElement { 
+  z-index: 999999999 !important; 
+}
+.modal-body {
+    /* 100% = dialog height, 120px = header + footer */
+    max-height: 80vh;
+    overflow-y: scroll;
+}

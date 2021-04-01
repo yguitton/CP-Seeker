@@ -1,0 +1,6 @@
+options(warn = -1) # deactivate warnings cause of plotly (multiplication)
+options(stringsAsFactors = FALSE)
+options(browser = chromium)
+options(show.error.messages = TRUE)
+volumes <- c(home = tools::file_path_as_absolute("~"), shinyFiles::getVolumes()())
+shiny::runApp(".", launch.browser = TRUE)
