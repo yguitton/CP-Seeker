@@ -28,6 +28,34 @@ db_get_query <- function(db, query) {
     suppressWarnings(RSQLite::dbGetQuery(db, query))
 }
 
+#' @title Send query to database
+#'
+#' @description
+#' Suppress warnings when sending query to database with RSQLite pkg
+#' also repeat process while the database is locked because it so dumb it stopped directly after first try...
+#' replace NA entries by null for more convenience
+#'
+#' @param db sqlite connection
+#' @param db query string
+#'
+#' @examples
+#' \dontrun{db_execute(db, "insert into mtcars (id) values (1);")}
+db_execute <- function(db, query, ...){
+	if (length(query) == 0) stop('error when inserting in database')
+	else if (length(query) > 1) stop('multiple request not authorized')
+	query <- gsub("\"NA\"", "null", query)
+	query <- gsub("NA", "null", query)
+	query <- gsub("\"\"", "null", query)
+	msg <- "database is locked"
+	while (msg == "database is locked") {
+		msg <- tryCatch ({
+			suppressWarnings(RSQLite::dbExecute(db, query, ...))
+			"success"
+		}, error = function(e) e$message)
+	}
+	if (msg != "success") stop(msg)
+}
+
 condition <- function(subclass, message, call=sys.call(-1), ...){
     structure(
         class=c(subclass, "condition"),
