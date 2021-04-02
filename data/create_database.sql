@@ -41,6 +41,7 @@ CREATE TABLE `deconvolution_param` (
 	`resolution_mz` REAL, 
 	`resolution_index` INTEGER, 
 	`ppm` REAL NOT NULL, 
+	`mda` REAL NOT NULL, 
 	`peakwidth_min` REAL NOT NULL,  
 	`peakwidth_max` REAL NOT NULL, 
 	`missing_scans` INTEGER NOT NULL 

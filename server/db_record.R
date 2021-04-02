@@ -101,3 +101,56 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 	db_execute(db, query)
 	actualize$project_samples <- runif(1)
 }
+
+#' @title Record deconvolution params
+#'
+#' @description
+#' Record deconvolution parameters
+#' 
+#' @param db sqlite connection
+#' @param params list with items:
+#' \itemize{
+#' 		\item adduct string adduct name
+#' 		\item list with items: 
+#' 		\itemize{
+#' 			\item resolution
+#' 			\item mz 
+#' 			\item index
+#' 		}
+#' 		\item ppm float ppm tolerance used
+#' 		\item mda float mda tolerance used
+#' 		\item peakwidth vector(float)[2] peakwidth
+#' 		\item missing_scans integer missing scan parameter
+#' }
+record_params <- function(db, params) {
+	query <- sprintf("insert into deconvolution_param (adduct, 
+		resolution, resolution_mz, resolution_index, ppm, mda, peakwidth_min, 
+		peakwidth_max, missing_scans) values (\"%s\", %s, %s, %s, %s, %s, %s, %s)", 
+		params$adduct, params$resolution$resolution, params$resolution$mz, 
+		params$resolutions$index, params$ppm, params$mda, params$peakwidth[1], 
+		params$peakwidth[2], params$missing_scans)
+	print(query)
+	db_execute(db, query)
+}
+
+#' @title Record features
+#' 
+#' @description 
+#' Record feature in database
+#'
+#' @param feature dataframe with coluns
+record_features(db, features) {
+	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
+		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, theoric_mz, 
+		theoric_abundance, iso, abundance, chloroparaffin_ion, project_sample) %s;", 
+		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+			%s, %s, \"%s\", %s, %s, %s)", features$mz, features$mzmin, 
+			features$mzmax, features$rt, features$rtmin, features$rtmax, 
+			features$into, features$intb, features$maxo, features$sn, 
+			features$scale, features$scpos, features$scmin, features$scmax, 
+			features$theoric_mz, features$theoric_abundance, features$iso, 
+			features$abundance, features$chloroparaffin_ion, features$project_sample), 
+			collapse = ", "))
+	print(query)
+	db_execute(db, query)
+}

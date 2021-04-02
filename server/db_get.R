@@ -94,6 +94,27 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 			paste(project_samples, collapse = ", "))
 	else return(data.frame())
 	print(query)
-	# db_get_query(db, query)
-	DBI::dbGetQuery(db, query)
+	db_get_query(db, query)
+}
+
+#' @title Get all chloroparaffin ions
+#' 
+#' @description
+#' Get all chloroparaffin ions given an adduct name
+#' 
+#' @param db sqlite connection
+#' @param adduct_name string adduct name
+#'
+#' @return dataframe with columns:
+#' \itemize{
+#' 		\item chloroparaffin_ion integer chloroparaffin_ion ID
+#' 		\item ion_formula string ion formula
+#' 		\item charge integer charge of ion
+#' }
+get_chloroparaffin_ions <- function(db, adduct_name = NULL) {
+	if (is.null(adduct_name)) return(data.frame())
+	query <- sprintf("select chloroparaffin_ion, ion_formula, charge 
+		from chloroparaffin_ion where adduct == \"%s\";", adduct_name)
+	print(query)
+	db_get_query(db, query)
 }

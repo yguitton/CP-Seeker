@@ -35,7 +35,8 @@ da_to_ppm <- function(mass, da) da * 10**6 / mass
 #' \dontrun{get_mass_range(c(641.64474, 605.668062258), ppm = 5, mda = 0)}
 get_mass_range <- function(mass, ppm = 0, mda = 0) {
 	tol_da <- ppm_to_da(mass, ppm) + mda * 10**-3
-	matrix(c(mass - tol_da, mass + tol_da), ncol = 2)
+	matrix(c(mass - tol_da, mass + tol_da), ncol = 2, dimnames = list(
+		c(), c("mzmin", "mzmax")))
 }
 
 #' @title Interpolation of MS measurement resolution

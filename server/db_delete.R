@@ -68,3 +68,18 @@ delete_project_samples <- function(db, project_samples = NULL){
 	db_execute(db, query)
 	actualize$project_samples <<- runif(1)
 }
+
+#' @title Delete features in db
+#'
+#' @description
+#' Delete features in db
+#' 
+#' @param db sqlite connection
+#' @param project_samples vector(integers) project_samples ids
+delete_features <- function(db, project_samples = NULL) {
+	if (length(project_samples) == 0) return()
+	query <- sprintf("delete from features where project_sample in (%s);", 
+		paste(project_samples, collapse = ", "))
+	print(query)
+	db_execute(db, query)
+}
