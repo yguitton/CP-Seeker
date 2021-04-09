@@ -80,9 +80,13 @@ source(file.path('server', 'file.R'), local = TRUE)$value
 
 source(file.path('server', 'manage.R'), local = TRUE)$value
 
-# source(file.path('server', 'process.R'), local = TRUE)$value
+source(file.path('server', 'process.R'), local = TRUE)$value
+
+source(file.path('server', 'deconvolution.R'), local = TRUE)$value
 
 source(file.path('server', 'EIC.R'), local=TRUE)$value
+
+source(file.path('server', 'process_results.R'), local = TRUE)$value
 
 # hide loader & show app div
 shinyjs::hide(id='loader', anim=TRUE, animType='fade')

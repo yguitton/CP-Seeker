@@ -100,7 +100,7 @@ get_theoric <- function(formulas, charge, resolution) {
 	masses <- sapply(pattern, function(x) x[1, 1])
 	resolution_masses <- if (!is.na(resolution$index)) getR(masses, 
 			resmass = resolution_list[[resolution$index]], 
-			nknots = 6, spar = .2, plotit = FALSE)
+			nknots = 6, spar = .2)
 		else resolution$resolution * sqrt(1 / masses) / sqrt(1 / resolution$mz)
 	profiles <- enviPat::envelope(pattern, ppm = FALSE, dmz = "get", frac = 1/4, 
 		env = "Gaussian", resolution = resolution_masses, plotit = FALSE, verbose = FALSE)
@@ -150,7 +150,7 @@ get_isotope_annot <- function(isotopic_pattern) {
 #' \itemize{
 #'      \item rt float, retention time in min
 #'      \item int float, intensity
-#'      \item name string, sample ID
+#'      \item sample_name string, sample ID
 #'}
 get_tics <- function(db, project = NULL, project_samples = NULL) {
 	samples <- get_samples(db, project, project_samples)
@@ -158,7 +158,7 @@ get_tics <- function(db, project = NULL, project_samples = NULL) {
 	do.call(rbind, lapply(1:nrow(samples), function(i) 
 		cbind(
 			get_tic(db, samples[i, "sample"]), 
-			name = samples[i, "sample_id"]
+			sample_name = samples[i, "sample_id"]
 		)
 	))
 }
@@ -199,35 +199,41 @@ get_tic <- function(db, sample) {
 #' @title Get EIC
 #'
 #' @description
-#' Get EIC data for all files in project
+#' Get EIC data for all files in project for one or multiple m/z
 #' If no project or no files available return an empty dataframe
-#' The resulting dataframe contain 2 type of trace fo each file: 
-#'        one with raw data (caracterized by the column `integrated` at FALSE)
-#'        one with integrated data (caracterized by the column `integrated` at TRUE)
 #'
 #' @param db sqlite connection
 #' @param project integer, project ID
 #' @param project_samples vector of integers, project_sample IDs
-#' @param mz float, m/z
-#' @param mz_tol float, m/z tolerance in mDa
+#' @param mzs vector(float) m/z
+#' @param ppm float m/z tolerance in ppm
+#' @param mda float m/z tolerance in mDa
 #'
 #' @return dataframe with columns: 
 #' \itemize{
 #'      \item rt float, retention time in min
 #'      \item int float, intensity
-#'      \item integrated boolean, if point is a part of a feature integrated
-#'      \item name string, sample ID
+#'      \item mz float m/z asked for EIC
+#' 		\item sample_name string, sample name
 #'}
-get_eics <- function(db, project = NULL, project_samples = NULL, mz, mz_tol) {
+get_eics <- function(db, project = NULL, project_samples = NULL, 
+		mzs = c(), ppm = 0, mda = 0) {
 	samples <- get_samples(db, project, project_samples)
 	if (nrow(samples) == 0) custom_stop("invalid", "no files in project")
-	mzrange <- c(mz - (mz_tol * 10**-3), mz + (mz_tol * 10**-3))
-	do.call(rbind, lapply(1:nrow(samples), function(i) 
-		cbind(
-			get_eic(db, samples[i, "sample"], mzrange), 
-			name = samples[i, "sample_id"]
-		)
-	))
+	mz_ranges <- cbind(mzs, get_mass_range(mzs, ppm, mda))
+	do.call(rbind, lapply(1:nrow(samples), function(i) { 
+		ms_file <- load_ms_file(db, sample = samples[i, "sample"])
+		data <- do.call(rbind, lapply(seq(nrow(mz_ranges)), function(j) 
+			cbind(
+				get_eic(db, ms_file, mz_ranges[j, c("mzmin", "mzmax")]), 
+				mz = mzs[j], 
+				sample_name = samples[i, "sample_id"]
+			)
+		))
+		rm(ms_file)
+		gc()
+		data
+	}))
 }
 
 #' @title Get EIC
@@ -245,8 +251,7 @@ get_eics <- function(db, project = NULL, project_samples = NULL, mz, mz_tol) {
 #'      \item rt float, retention time in min
 #'      \item int float, intensity
 #'}
-get_eic <- function(db, sample, mzrange) {
-	ms_file <- load_ms_file(db, sample = sample)
+get_eic <- function(db, ms_file, mzrange) {
 	ids <- which(ms_file@env$mz >= mzrange[1] & 
 		ms_file@env$mz <= mzrange[2])
 	scans <- sapply(ids, function(id) which.min(abs(ms_file@scanindex - id)))
@@ -283,7 +288,7 @@ get_eic <- function(db, sample, mzrange) {
 #' \itemize{
 #'      \item mz float, m/z
 #'      \item int float, intensity
-#'      \item name string, sample ID
+#'      \item sample_name string, sample ID
 #'}
 get_mss <- function(db, project = NULL, project_samples = NULL, rt) {
 	samples <- get_samples(db, project, project_samples)
@@ -292,7 +297,7 @@ get_mss <- function(db, project = NULL, project_samples = NULL, rt) {
 	do.call(rbind, lapply(1:nrow(samples), function(i) 
 		cbind(
 			get_ms(db, samples[i, "sample"], rt), 
-			name = samples[i, "sample_id"]
+			sample_name = samples[i, "sample_id"]
 		)
 	))
 }

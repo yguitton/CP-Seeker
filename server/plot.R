@@ -121,6 +121,7 @@ plot_empty_chromato <- function(title = "Total Ion Chromatogram(s)") {
 #' Plot TIC of multiple files with plotly pkg
 #' If no project or no files available return an empty plot with 
 #'       function `plot_empty_chromato`
+#' Will plot all TICs of files in a project if given or only files according the `project_samples` parameter
 #'
 #' @param db sqlite connection
 #' @param project integer, project ID
@@ -132,7 +133,7 @@ plot_TIC <- function(db, project = NULL, project_samples = NULL,
 		title = "Total Ion Chromatogram(s)"){
 	datas <- get_tics(db, project, project_samples)
 	p <- plot_empty_chromato(
-		title = if (length(unique(datas$name)) > 1) "Total Ion Chromatograms"
+		title = if (length(unique(datas$sample_name)) > 1) "Total Ion Chromatograms"
 			 else "Total Ion Chromatogram")
 	if (nrow(datas) == 0) return(p)
 	
@@ -141,8 +142,8 @@ plot_TIC <- function(db, project = NULL, project_samples = NULL,
 		data = datas 	, 
 		x = ~rt, 
 		y = ~int, 
-		name = ~name, 
-		color = ~name, 
+		name = ~sample_name, 
+		color = ~sample_name, 
 		marker = list(
 			opacity = 1, 
 			size = 1*10**-9
@@ -153,30 +154,31 @@ plot_TIC <- function(db, project = NULL, project_samples = NULL,
 #' @title Plot EIC
 #'
 #' @description
-#' Plot TIC of multiple files with plotly pkg
+#' Plot EIC of multiple files with plotly pkg
 #' If no project or no files available return an empty plot with 
 #'       function `plot_empty_chromato`
 #' Draw a dashed line for non integrated data & continuous for integrated
+#' Will plot all EICs of files in a project if given or only files according the `project_samples` parameter
 #'
 #' @param db sqlite connection
-#' @param project integer, project ID
 #' @param project_samples vector of integers, project_sample IDs
 #' @param mz float, m/z
-#' @param mz_tol float, m/z tolerance in mDa
+#' @param mda float, m/z tolerance in mDa
 #'
 #' @return plotly object
-plot_EIC <- function(db, project = NULL, project_samples = NULL, mz, mz_tol) {
-	datas <- get_eics(db, project, project_samples, mz, mz_tol)
+plot_EIC <- function(db, project = NULL, project_samples = NULL, 
+		mz = NULL, ppm = 0, mda = 0) {
+	datas <- get_eics(db, project, project_samples, mz, ppm, mda)
 	p <- plot_empty_chromato("EIC")
 	if (nrow(datas) == 0) return(p)
 	
-	plotly::add_trace(p, 
+	p <- plotly::add_trace(p, 
 		mode = "lines+markers", 
 		data = datas, 
 		x = ~rt, 
 		y = ~int, 
-		legendgroup = ~name, 
-		name = ~name, 
+		legendgroup = ~sample_name, 
+		name = ~sample_name, 
 		marker = list(
 			opacity = 1, 
 			size = 1*10**-9
@@ -188,6 +190,81 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL, mz, mz_tol) {
 		),
 		showlegend = FALSE
 	)
+	plotly::toWebGL(p)
+}
+
+#' @title Plot EIC for chloroparaffin
+#'
+#' @description
+#' Plot EIC for each isotopologue of a chloroparaffin
+#' If some chloroparaffin were integrated it will color the area integrated
+#'
+#' @param db sqlite connection
+#' @param project_sample integer project_sample IDs
+#' @param adduct string adduct name
+#' @param C integer number of carbon of chloroparaffin
+#' @param Cl integer number of chlore of chloroparaffin
+#' @param ppm float m/z tolerance in ppm
+#' @param mda float m/z tolerance in mDa
+#' @param resolution list with items:
+#' \itemize{
+#' 		\item resolution float, resolution of instrument if Orbitrap
+#' 		\item mz float, resolution@mz if Orbitrap
+#'		\item index integer, index of the instrument in the enviPat resolution_list
+#' }
+#' 
+#' @return plotly object
+plot_chloroparaffin_EIC <- function(db, project_sample = NULL, 
+		adduct = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL) {
+	p <- plot_empty_chromato("EIC")
+	
+	chloroparaffin_ion <- get_chloroparaffin_ion(db, adduct, C, Cl)
+	if (nrow(chloroparaffin_ion) == 0) return(p)
+	
+	theoric_pattern <- get_theoric(chloroparaffin_ion$ion_formula, 
+		chloroparaffin_ion$charge, resolution)[[1]]
+	if (nrow(theoric_pattern) == 0) return(p)
+	# now get eic data
+	datas <- get_eics(db, project = NULL, project_sample,  
+		theoric_pattern[, "mz"], ppm, mda)
+	if (nrow(datas) == 0) return(p)
+	# add iso column on datas
+	datas <- merge(datas, theoric_pattern[, c("mz", "iso")], 
+		by = "mz", all.x = TRUE)
+	p <- plotly::add_trace(p, 
+		mode = "lines", 
+		data = datas, 
+		x = ~rt, 
+		y = ~int, 
+		legendgroup = ~iso, 
+		name = ~iso, 
+		line = list(
+			color = 'rgb(0,0,0)', 
+			width = 1, 
+			dash = 'dash'
+		),
+		showlegend = FALSE
+	)
+	
+	# get integrated data 
+	features <- get_chloroparaffin_features(db, project_sample, 
+		chloroparaffin_ion$chloroparaffin_ion)
+	if (nrow(features) == 0) return(plotly::toWebGL(p))
+	# now color only between the rt range where integrated
+	for (i in seq(nrow(features))) p <- plotly::add_trace(p, 
+		mode = "lines", 
+		data = datas[which(
+			datas$rt >= features[i, "rtmin"] & 
+			datas$rt <= features[i, "rtmax"] & 
+			datas$iso == features[i, "iso"]), ], 
+		x = ~rt, 
+		y = ~int, 
+		legendgroup = ~iso, 
+		name = ~iso, 
+		fill = "tozeroy", 
+		showlegend = FALSE
+	)
+	plotly::toWebGL(p)
 }
 
 #' @title Construct empty MS
@@ -285,7 +362,7 @@ plot_empty_MS <- function(title = "Mass Spectra", yTitle = 'Intensity') {
 plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 	datas <- get_mss(db, project, project_samples, rt)
 	p <- plot_empty_MS(
-		title = if (length(unique(datas$name)) > 1) sprintf(
+		title = if (length(unique(datas$sample_name)) > 1) sprintf(
 				"Mass spectra (%s min)", round(rt, 2))
 		else sprintf("Mass spectrum (%s min)", round(rt, 2)))
 	if (nrow(datas) == 0) return(p)
@@ -294,14 +371,14 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 		data = datas, 
 		x = ~mz, 
 		xend = ~mz, 
-		y = ~int, 
-		yend = 0, 
-		legendgroup = ~name, 
-		name = ~name, 
+		y = 0, 
+		yend = ~int, 
+		legendgroup = ~sample_name, 
+		name = ~sample_name, 
 		color = I("black"),
 		showlegend = FALSE
 	)
-	p <- plotly::layout(p, 
+	plotly::layout(p, 
 		xaxis = list(
 			range = c(
 				min(datas$mz) - 1, 
@@ -309,5 +386,68 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 			)
 		)
 	)
-	plotly::toWebGL(p)
+}
+
+#' @title Plot MS for chloroparaffin
+#'
+#' @description
+#' Plot MS of a chloroparaffin in mirror mode:
+#' above the observed (features integrated) & below the theoretical
+#'
+#' @param db sqlite connection
+#' @param project_sample integer project_sample IDs
+#' @param adduct string adduct name
+#' @param C integer number of carbon of chloroparaffin
+#' @param Cl integer number of chlore of chloroparaffin
+#' @param resolution list with items:
+#' \itemize{
+#' 		\item resolution float, resolution of instrument if Orbitrap
+#' 		\item mz float, resolution@mz if Orbitrap
+#'		\item index integer, index of the instrument in the enviPat resolution_list
+#' }
+#' 
+#' @return plotly object
+plot_chloroparaffin_MS <- function(db, project_sample = NULL, 
+		adduct = NULL, C = 0, Cl = 0, resolution = NULL) {
+	p <- plot_empty_MS()
+	chloroparaffin_ion <- get_chloroparaffin_ion(db, adduct, C, Cl)
+	if (nrow(chloroparaffin_ion) == 0) return(p)
+	
+	theoric_pattern <- get_theoric(chloroparaffin_ion$ion_formula, 
+		chloroparaffin_ion$charge, resolution)[[1]]
+	if (nrow(theoric_pattern) == 0) return(p)
+	theoric_pattern$abundance <- -theoric_pattern$abundance
+	p <- plotly::add_segments(p, 
+		data = theoric_pattern, 
+		x = ~mz, 
+		xend = ~mz, 
+		y = 0, 
+		yend = ~abundance, 
+		name = "theoric", 
+		color = I("red"),
+		showlegend = FALSE
+	)
+	p <- plotly::layout(p, 
+		xaxis = list(
+			range = c(
+				min(theoric_pattern$mz) - 1, 
+				max(theoric_pattern$mz) + 1
+			)
+		)
+	)
+	
+	# now get the features integrated
+	data <- get_chloroparaffin_features(db, project_sample, 
+		chloroparaffin_ion$chloroparaffin_ion)
+	if (nrow(data) == 0) return(p)
+	p <- plotly::add_segments(p, 
+		data = data, 
+		x = ~mz, 
+		xend = ~mz, 
+		y = 0, 
+		yend = ~abundance, 
+		name = "observed", 
+		color = I("green"),
+		showlegend = FALSE
+	)
 }

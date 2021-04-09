@@ -140,3 +140,9 @@ table td input {
     max-height: 80vh;
     overflow-y: scroll;
 }
+.params-inline {
+	display: flex;
+}
+.params-inline div {
+	margin: 0 5px 0 5px;
+}
