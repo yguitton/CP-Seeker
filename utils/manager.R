@@ -21,8 +21,7 @@ print('add path...')
 Sys.setenv(PATH = paste(rtools, Sys.getenv("PATH"), sep=";"))
 
 # ensure all package dependencies are installed
-applibpath <- file.path(appwd, 
-	file.path(reg_paths$r, "library", sep='\\'))
+applibpath <- file.path(appwd, reg_paths$r, "library")
 .libPaths(applibpath)
 
 # Load functions to ensure software dependencies
