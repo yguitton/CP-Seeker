@@ -45,7 +45,7 @@ output$eic_chromato <- plotly::renderPlotly({
 		check_inputs(inputs, conditions, msgs)
 		
 		plot_EIC(db, project_samples = params$files, 
-			mz = params$mz, mz_tol = params$mz_tol)
+			mz = params$mz, mda = params$mz_tol)
 	}
 	}, invalid = function(i) plot_empty_chromato()
 	, error = function(e){
