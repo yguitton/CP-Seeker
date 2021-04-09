@@ -26,8 +26,8 @@
 #' @example
 #' \dontrun{get_eic(xr, c(640.636, 640.637))}
 get_mzmat_eic <- function(xr, mz_range) {
-	ids <- which(xr@env$mz >= mz_range[1] & 
-		xr@env$mz <= mz_range[2])
+	ids <- which(xr@env$mz >= mz_range[[1]] & 
+		xr@env$mz <= mz_range[[2]])
 	scans <- sapply(ids, function(id) which.min(abs(xr@scanindex - id)))
 	mzmat <- matrix(c(scans, xr@env$mz[ids], xr@env$intensity[ids]), 
 		ncol = 3, dimnames = list(c(), c("scan", "mz", "int")))
@@ -63,7 +63,7 @@ get_rois <- function(ints, min_width, noiserange, missing_scans = 1) {
 	baseline <- runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach")
 	rois <- which(ints - baseline > 0)
 	if (length(rois) == 0) return(NULL)
-	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans)))
+	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
 	rois <- rois[which(lengths(rois) >= min_width)]
 	if (length(rois) == 0) return(NULL)
 	rois <- lapply(rois, function(roi) range(
@@ -113,13 +113,13 @@ descend_min <- function(y, center, minPts = 1) {
 	left <- if (center != 1) {
 		lefts <- split((center - 1):1, 
 			cumsum(diff(y[center:1]) < 0))
-		limit <- which(lengths(lefts) > minPts)[1]
+		limit <- which(lengths(lefts) > minPts + 1)[1]
 		if (is.na(limit)) 1 else lefts[[limit]][1]
 	} else center
 	right <- if (center != length(y)) {
 		rights <- split((center + 1):length(y), 
 			cumsum(diff(y[center:length(y)]) < 0))
-		limit <- which(lengths(rights) > minPts)[1]
+		limit <- which(lengths(rights) > minPts + 1)[1]
 		if (is.na(limit)) 1 else rights[[limit]][1]
 	} else center
 	c(left, right)	
@@ -140,14 +140,14 @@ narrow_rt_boundaries_extend <- function(xrange, center, y, minPts = 1){
 	left <- if(xrange[1] != 1){
 		lefts <- (xrange[1]:1)[which(y[xrange[1]:1] <= 0)]
 		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > 1)))
-		limit <- which(lengths(limits) > minPts)[1]
+		limit <- which(lengths(limits) > minPts + 1)[1]
 		if(is.na(limit)) 1 else limits[[limit]][1]
 	} else xrange[1]
 	
 	right <- if(xrange[2] != length(y)){
 		rights <- (xrange[2]:length(y))[which(y[xrange[2]:length(y)] <= 0)]
 		limits <- split(rights, cumsum(c(TRUE, diff(rights) > 1)))
-		limit <- which(lengths(limits) > minPts)[1]
+		limit <- which(lengths(limits) > minPts + 1)[1]
 		if(is.na(limit)) length(y) else limits[[limit]][1]
 	} else xrange[2]
 	c(left, right)
@@ -167,15 +167,15 @@ narrow_rt_boundaries_extend <- function(xrange, center, y, minPts = 1){
 narrow_rt_boundaries_reduce <- function(xrange, center, y, minPts = 1){
 	left <- if(xrange[1] != center){
 		lefts <- (xrange[1]:center)[which(y[xrange[1]:center] > 0)]
-		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts)))
-		limit <- which(lengths(limits) > minPts)[1]
+		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts + 1)))
+		limit <- which(lengths(limits) > minPts + 1)[1]
 		if(is.na(limit)) xrange[1] else limits[[limit]][1] - 1
 	} else xrange[1]
 	
 	right <- if(xrange[2] != center){
 		rights <- (xrange[2]:center)[which(y[xrange[2]:center] > 0)]
-		limits <- split(rights, cumsum(c(TRUE, diff(rights) > minPts)))
-		limit <- which(lengths(limits) > minPts)[1]
+		limits <- split(rights, cumsum(c(TRUE, diff(rights) > minPts + 1)))
+		limit <- which(lengths(limits) > minPts + 1)[1]
 		if(is.na(limit)) xrange[2] else limits[[limit]][1] + 1
 	} else xrange[2]
 	c(
@@ -386,11 +386,10 @@ integrate <- function(eic, scalerange, baseline, noise, missing_scans, mzmat) {
 	# get ridge lines
 	localMax <- xcms:::MSW.getLocalMaximumCWT(wCoefs)
 	rL <- xcms:::MSW.getRidge(localMax)
-	rL <- rL[which(sapply(rL, function(x) {
-		w <- min(1:length(x), ncol(wCoefs))
-		any(wCoefs[x, w] - baseline[x] >= noise) & 
+	rL <- rL[which(sapply(rL, function(x) 
+		any(wCoefs[x, length(x)] - baseline[x] >= noise) & 
 			length(unique(x)) > 1
-	}))]
+	))]
 	if(length(rL) == 0) return(NULL)
 	irange <- ceiling(scales[1] / 2)
 	overlap_peaks(unique(do.call(rbind, lapply(rL, function(opp) {
@@ -484,9 +483,9 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 		mz = mz, 
 		mzmin = mz_range[1], 
 		mzmax = mz_range[2], 
-		rt = eic[center, 'rt'], 
-		rtmin = eic[lm[1], 'rt'], 
-		rtmax = eic[lm[2], 'rt'], 
+		rt = eic[center, 'rt'] / 60, 
+		rtmin = eic[lm[1], 'rt'] / 60, 
+		rtmax = eic[lm[2], 'rt'] / 60, 
 		into = pracma::trapz(eic[lm[1]:lm[2], 'int']),
 		intb = intb, 
 		maxo = max(mz_vals[, "int"]), 
@@ -539,63 +538,90 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item scmax integer born scan max
 #' 		\item lmin integer to ignore
 #' 		\item lmax integer to ignore
-#' 		\item theoric_mz float theoretical m/z
-#' 		\item theoric_abundance float theoretical abundance
 #' 		\item iso string isotopologue annotation
 #' 		\item abundance float abundance
+#'		\item roi integer ROI id to differentiate if multiple ROIs
+#' 		\item score float isotopic pattern score
+#' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_id integer id of the chloroparaffin
 #' }
 deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
 		missing_scans = 1, pb = NULL) {
 	peaks <- NULL
-	elapsed <- 0
 	pb_max <- length(theoric_patterns)
+	elapsed <- 0
 	for (i in seq(theoric_patterns)) {
-		elapsed <- system.time({
-			traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-			rois <- get_rois(traces$eic[, "int"], scalerange[1], ceiling(
-				scalerange[2] * 1.5)
-			if (length(rois) == 0) next
-			
-			traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
-				get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
-			# xcms define noiserange as 1.5x peakwidth_max
-			baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(eic) / 3, 
-				endrule = "constant", algorithm = "Turlach"))
-			noises <- sapply(traces, function(x) sd(x$eic[-unlist(rois), "int"]))
-			
-			peaks2 <- NULL
-			for (roi in rois) {
-				basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
-					baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans, 
-					traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])
-				if (length(basepeaks) == 0) next
-				for (j in seq(nrow(basepeaks)) {
-					for (k in 2:length(traces)) {
-						peak <- integrate2(traces[[k]]$eic[roi[1]:roi[2], ], 
-							unlist(basepeaks[j, c("lmin", "lmax")]), 
-							baselines[[k]][roi[1]:roi[2]], noises[k], missing_scans, 
-							traces[[k]]$mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])
-						if (length(peak) == 0) break
-						if (k == 2) peaks2 <- rbind(peaks2, cbind(
-							theoric_mz = theoric_patterns[[i]][1, "mz"], 
-							theoric_abundance = theoric_patterns[[i]][1, "abundance"], 
-							abundance = 100, iso = "A")
-						peaks2 <- rbind(peaks2, cbind(
-							theoric_mz = theoric_patterns[[i]][k, "mz"], 
-							theoric_abundance = theoric_patterns[[i]][k, "abundance"], 
-							peak, abundance = peak$intb / basepeaks[j, "intb"] * 100, 
-							iso = theoric_patterns[[i]][k, "iso"]))
-						)
-					}
+		time_begin <- Sys.time()
+		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
+		rois <- get_rois(traces$eic[, "int"], scalerange[1], ceiling(
+			scalerange[2] * 1.5))
+		if (length(rois) == 0) next
+		
+		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
+			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
+		# xcms define noiserange as 1.5x peakwidth_max
+		baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(x$eic) / 3, 
+			endrule = "constant", algorithm = "Turlach"))
+		noises <- sapply(traces, function(x) sd(x$eic[-unlist(rois), "int"]))
+		
+		roi_nb <- 1
+		for (roi in rois) {
+			basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
+				baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans, 
+				traces[[1]]$mzmat[which(
+					traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+						, , drop = FALSE])
+			if (length(basepeaks) == 0) next
+			basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
+			for (j in seq(nrow(basepeaks))) {
+				basepeak <- basepeaks[j, ]
+				peaks2 <- NULL
+				scores <- c(theoric_patterns[[i]][1, "weight"])
+				deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
+				continue_integration <- TRUE
+				k <- 2
+				while (k < length(traces) & continue_integration) {
+					eic <- traces[[k]]$eic
+					mzmat <- traces[[k]]$mzmat
+					peak <- integrate2(eic[roi[1]:roi[2], ], 
+						unlist(basepeaks[j, c("lmin", "lmax")]), 
+						baselines[[k]][roi[1]:roi[2]], noises[k], missing_scans, 
+						mzmat[which(mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])[1, ]
+					if (length(peak) > 0) {
+						if (k == 2) peaks2 <- basepeak
+						peak <- cbind(peak, 
+							abundance = peak[1, "intb"] / basepeak[1, "intb"] * 100, 
+							iso = theoric_patterns[[i]][k, "iso"])
+						scores <- c(scores, (1 - 
+							abs(theoric_patterns[[i]][k, "abundance"] - peak[1, "abundance"]) / 
+								theoric_patterns[[i]][k, "abundance"]) * 
+									theoric_patterns[[i]][k, "weight"])
+						deviations <- c(deviations, 
+							theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+						peaks2 <- rbind(peaks2, peak)
+					} else continue_integration <- FALSE
+					k <- k + 1
 				}
-				if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
-					peaks2, chloroparaffin_ion = chloroparaffin_ids[i]))
-			}		
-		})["elapsed"] + elapsed
+				if (length(peaks2) > 0) {
+					peaks <- rbind(peaks, cbind(
+							peaks2, 
+							roi = roi_nb, 
+							score = sum(scores) * 100, 
+							deviation = mean(deviations) * 10**3, 
+							chloroparaffin_ion = chloroparaffin_ids[i]
+					))
+					roi_nb <- roi_nb + 1
+				}
+			}
+		}
+		elapsed <- elapsed + (Sys.time() - time_begin)
+		remaining <- (pb_max - i)* elapsed / i
+		if (as.double(remaining) > 60) units(remaining) <- "mins"
 		shinyWidgets::updateProgressBar(session, id = pb, 
 			value = i * 100 / pb_max,  
-			title = sprintf("remaining~%s", round(pb_max * elapsed / i, 2)))
+			title = sprintf("remaining~%s %s", 
+				round(as.double(remaining)), 
+				units(remaining)))
 	}
 	peaks
 }

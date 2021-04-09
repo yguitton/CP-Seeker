@@ -7,7 +7,8 @@ actualize <- shiny::reactiveValues(
 	users = 0,
 	projects = 0, 
 	samples = 0, 
-	project_samples = 0
+	project_samples = 0, 
+	deconvolution_params = 0
 )
 
 share_vars <- shiny::reactiveValues()
@@ -139,4 +140,45 @@ shiny::observeEvent(c(project_samples(), input$project), {
 			choices$project_sample, choices$sample_id))
 	shinyjs::runjs("Shiny.onInputChange('process_TIC_rt', 0);")
 	shinyjs::runjs("Shiny.onInputChange('eic_rt', 0);")
+	shiny::updateSelectInput(session, "process_results_file", 
+		label = "Select sample(s)", choices = setNames(
+			choices$project_sample, choices$sample_id))
+})
+
+#' @title deconvolution_params reactive value
+#'
+#' @description
+#' deconvolution_params reactive value update each time actualize is modified
+#' represent the deconvolution_param table in database
+#'
+#' @return dataframe with columns
+#' \itemize{
+#'      \item deconvolution_param integer deconvolution_param ID
+#' 		\item adduct string adduct name
+#' 		\item instrument string name of the instrument
+#' 		\item resolution float resolution of the instrument
+#' 		\item mz float m/z where resolution of the instrument where measured
+#' 		\item resolution_index integer ID in the list resolution_list of enviPat
+#' 		\item ppm float ppm tolerance used
+#' 		\item mda float mda tolerance used
+#' 		\item peakwidth_min float peakwidth min
+#' 		\item peakwidth_max float peakwidth max
+#' 		\item missing_scans integer missing scan parameter
+#'}
+deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params, 
+	db_get_query(db, "select * from deconvolution_param;"))
+	
+#' @title deconvolution_params reactive value event
+#'
+#' @description
+#' update adduct list of when a deconvolution was made
+#'
+#' @param deconvolution_params reactive value deconvolution_param table database
+#' @param input$project integer, project id
+shiny::observeEvent(c(deconvolution_params(), input$project), {
+	choices <- deconvolution_params()[which(
+		deconvolution_params()$project == input$project), 
+		"adduct"]
+	shiny::updateSelectInput(session, "process_results_adduct", 
+		"Adduct", choices = choices)
 })

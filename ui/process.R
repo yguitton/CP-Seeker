@@ -10,9 +10,20 @@ shinydashboard::tabItem(tabName = 'process',
 			bsplus::bs_embed_tooltip(
 				bsplus::shiny_iconlink(),
 				placement = 'top', 
-				title = 'Adducts to use for ion formula generation', 
+				title = 'Adducts to use for ion formula generation'
 			)
-		), 
+		),
+		shiny::tags$div(style = "display: flex; align-items: center;", 
+			shiny::tags$div(style = "margin-right: 0px;", 
+				shiny::numericInput("process_mz_tol", "mass tolerance", 
+					value = 5)
+			), 
+			shiny::tags$div(style = "margin-left: 0px;", 
+				shiny::tags$br(), 
+				shinyWidgets::switchInput("process_mz_tol_unit", "", 
+					value = TRUE, onLabel = "ppm", offLabel = "mDa")
+			)
+		), 		
 		shiny::selectInput('process_instrument', 'Instrument', 
 			choices = c("Orbitrap", "QTOF_XevoG2-S", "Sciex_TripleTOF5600", 
 				"Sciex_TripleTOF6600", "Sciex_QTOFX500R", "Agilent_QTOF6550")),
@@ -36,48 +47,37 @@ shinydashboard::tabItem(tabName = 'process',
 			shiny::selectInput('process_resolution_index', 
 				'Resolution', choices = setNames(25, "25k@200"))
 		), 
-		shiny::column(width = 12, 
-			shiny::tags$div(style = "margin-right: 0px;", 
-				shiny::numericInput("process_mz_tol", "mass tolerance", 
-					value = 5)
-			), 
-			shiny::tags$div(style = "margin-left: 0px;", 
-				shiny::tags$br(), 
-				shinyWidgets::switchInput("process_mz_tol_unit", "", 
-					value = TRUE, onLabel = "ppm", offLabel = "mDa")
-			)
-		), 
-		shiny::column(width = 12, 
-			shiny::column(width = 6, 
-				bsplus::shinyInput_label_embed(
-					shiny::numericInput('process_peakwidth_min', 
-						'Peakwidth min (s)', value = 5),
-					bsplus::bs_embed_tooltip(
-						bsplus::shiny_iconlink(),
-						placement = 'top', 
-						title = 'Expected approximate peak width in chromatographic space'
-					)
+		shiny::column(width = 6, 
+			bsplus::shinyInput_label_embed(
+				shiny::numericInput('process_peakwidth_min', 
+					'Peakwidth min (s)', value = 5),
+				bsplus::bs_embed_tooltip(
+					bsplus::shiny_iconlink(),
+					placement = 'top', 
+					title = 'Expected approximate peak width in chromatographic space'
 				)
-			),
-			shiny::column(width = 6, 
-				bsplus::shinyInput_label_embed(
-					shiny::numericInput('process_peakwidth_max', 
-						'Peakwidth max (s)', value = 60),
-					bsplus::bs_embed_tooltip(
-						bsplus::shiny_iconlink(),
-						placement = 'top', 
-						title = 'Expected approximate peak width in chromatographic space'
-					)
+			)
+		),
+		shiny::column(width = 6, 
+			bsplus::shinyInput_label_embed(
+				shiny::numericInput('process_peakwidth_max', 
+					'Peakwidth max (s)', value = 60),
+				bsplus::bs_embed_tooltip(
+					bsplus::shiny_iconlink(),
+					placement = 'top', 
+					title = 'Expected approximate peak width in chromatographic space'
 				)
 			)
 		), 
-		bsplus::shinyInput("process_missing_scans", 
-			shiny::numericInput("process_missing_scans", "missing scans", 
-				value = 1), 
-			bsplus::bs_embed_tooltip(
-				bsplus::shiny_iconlink(),
-				placement = 'top', 
-				title = 'Maximim number of scans to consider them consecutive.'
+		shiny::column(width = 6, 
+			bsplus::shinyInput_label_embed(
+				shiny::numericInput("process_missing_scans", "missing scans", 
+					value = 1), 
+				bsplus::bs_embed_tooltip(
+					bsplus::shiny_iconlink(),
+					placement = 'top', 
+					title = 'Maximim number of scans to consider them consecutive.'
+				)
 			)
 		)
 	), 

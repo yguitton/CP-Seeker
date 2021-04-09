@@ -33,11 +33,13 @@ delete_samples <- function(db, samples = NULL) {
 #' @description
 #' Delete projects in db
 #' delete also all project_samples associated
+#' delete also all deconvolution parameter associated
 #'
 #' @param db sqlite connection
 #' @param projects vector of integers, project ids to delete
 delete_projects <- function(db, projects = NULL){
 	if (length(projects) == 0) return()
+	delete_deconvolution_params(db, projects)
 	query <- sprintf('select project_sample from project_sample where 
 		project in (%s);', paste(projects, collapse=', '))
 	print(query)
@@ -64,9 +66,29 @@ delete_project_samples <- function(db, project_samples = NULL){
 	delete_features(db, project_samples)
 	query <- sprintf('delete from project_sample where project_sample in (%s);', 
 		paste(project_samples, collapse=', '))
-	print(query)
 	db_execute(db, query)
 	actualize$project_samples <<- runif(1)
+}
+
+#' @title Delete deconvolution parameters in db
+#'
+#' @descriptionO
+#' Delete deconvolution parameters in db
+#' 
+#' @param db sqlite connection
+#' @param projects vector(integers) project ids
+#' @param adducts vector(string) adduct names
+delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL) {
+	if (length(projects) == 0) return()
+	query <- if (length(adducts) > 0) sprintf(
+			"delete from deconvolution_param where 
+			project in (%s) and adduct in (%s);", 
+			paste(projects, collapse = ", "),  
+			paste('"', adducts, '"', sep = "", collapse = ", "))
+		else sprintf("delete from deconvolution_param where 
+			project == %s;", paste(projects, collapse = ", "))
+	db_execute(db, query)
+	actualize$deconvolution_params <<- runif(1)	
 }
 
 #' @title Delete features in db
@@ -78,8 +100,7 @@ delete_project_samples <- function(db, project_samples = NULL){
 #' @param project_samples vector(integers) project_samples ids
 delete_features <- function(db, project_samples = NULL) {
 	if (length(project_samples) == 0) return()
-	query <- sprintf("delete from features where project_sample in (%s);", 
+	query <- sprintf("delete from feature where project_sample in (%s);", 
 		paste(project_samples, collapse = ", "))
-	print(query)
 	db_execute(db, query)
 }

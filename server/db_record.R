@@ -7,7 +7,6 @@
 #' @param login string, user login to create
 record_user <- function(db, login) {
 	query <- sprintf("insert into user (user) values (\"%s\");", login)
-	print(query)
 	db_execute(db, query)
 	last_user <<- login
 	actualize$users <<- runif(1)
@@ -25,10 +24,9 @@ record_project <- function(db, name, comments) {
 	query <- sprintf("insert into project (name, comments, creation, modified) 
 		values (\"%s\", \"%s\", Date(\"now\"), Date(\"now\"));", 
 		name, comments)
-	print(query)
 	db_execute(db, query)
 	last_project <<- db_get_query(db, "select last_insert_rowid();")[1, 1]
-	actualize$projects <- runif(1)
+	actualize$projects <<- runif(1)
 }
 
 #' @title Record sample
@@ -78,7 +76,6 @@ record_sample <- function(db, project, sample_name, sample_id, filepath,
 		infos$software_name, infos$software_version, infos$ion_source, 
 		infos$analyzer, infos$detector_type, infos$resolution, infos$agc_target, 
 		infos$maximum_it, infos$number_of_scan_range, infos$scan_range)
-	print(query)
 	db_execute(db, query, params = list(a = raw_data))
 	rm(raw_data)
 	gc()
@@ -97,9 +94,8 @@ record_sample <- function(db, project, sample_name, sample_id, filepath,
 record_project_sample <- function(db, project, sample_name, sample_id) {
 	query <- sprintf("insert into project_sample (project, sample, sample_id) 
 		values (%s, \"%s\", \"%s\");", project, sample_name, sample_id)
-	print(query)
 	db_execute(db, query)
-	actualize$project_samples <- runif(1)
+	actualize$deconvolution_params <<- runif(1)
 }
 
 #' @title Record deconvolution params
@@ -110,9 +106,11 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' @param db sqlite connection
 #' @param params list with items:
 #' \itemize{
+#' 		\item project integer project ID
 #' 		\item adduct string adduct name
 #' 		\item list with items: 
 #' 		\itemize{
+#'			\item instrument
 #' 			\item resolution
 #' 			\item mz 
 #' 			\item index
@@ -122,15 +120,17 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' 		\item peakwidth vector(float)[2] peakwidth
 #' 		\item missing_scans integer missing scan parameter
 #' }
-record_params <- function(db, params) {
-	query <- sprintf("insert into deconvolution_param (adduct, 
-		resolution, resolution_mz, resolution_index, ppm, mda, peakwidth_min, 
-		peakwidth_max, missing_scans) values (\"%s\", %s, %s, %s, %s, %s, %s, %s)", 
-		params$adduct, params$resolution$resolution, params$resolution$mz, 
-		params$resolutions$index, params$ppm, params$mda, params$peakwidth[1], 
-		params$peakwidth[2], params$missing_scans)
-	print(query)
+record_deconvolution_params <- function(db, params) {
+	query <- sprintf("insert into deconvolution_param (project, adduct, 
+		instrument, resolution, resolution_mz, resolution_index, ppm, 
+		mda, peakwidth_min, peakwidth_max, missing_scans) values 
+		(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s)", 
+		params$project, params$adduct, params$resolution$instrument, 
+		params$resolution$resolution, params$resolution$mz, 
+		params$resolution$index, params$ppm, params$mda, 
+		params$peakwidth[1], params$peakwidth[2], params$missing_scans)
 	db_execute(db, query)
+	actualize$deconvolution_params <<- runif(1)
 }
 
 #' @title Record features
@@ -138,19 +138,43 @@ record_params <- function(db, params) {
 #' @description 
 #' Record feature in database
 #'
-#' @param feature dataframe with coluns
-record_features(db, features) {
+#' @param features dataframe with columns:
+#' \itemize{
+#' 		\item mz float m/z
+#' 		\item mzmin float born m/z min
+#' 		\item mzmax float born m/z max
+#' 		\item rt float rT
+#' 		\item rtmin float born rT min
+#' 		\item rtmax float born rT max
+#' 		\item into float area integrated
+#' 		\item intb float area above baseline integrated
+#' 		\item maxo float max intensity
+#' 		\item sn float signal/noise
+#' 		\item scale integer wave used for integration
+#' 		\item scpos integer center scan position
+#' 		\item scmin integer born scan min
+#' 		\item scmax integer born scan max
+#' 		\item lmin integer to ignore
+#' 		\item lmax integer to ignore
+#' 		\item iso string isotopologue annotation
+#' 		\item abundance float abundance
+#'		\item roi integer ROI id to differentiate if multiple ROIs
+#' 		\item score float isotopic pattern score
+#' 		\item deviation float m/z deviation
+#' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
+#' 		\item project_sample id integer project_sample ID
+#' }
+record_features <- function(db, features) {
 	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
-		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, theoric_mz, 
-		theoric_abundance, iso, abundance, chloroparaffin_ion, project_sample) %s;", 
+		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, roi, 
+		score, deviation, chloroparaffin_ion, project_sample) values %s;", 
 		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			%s, %s, \"%s\", %s, %s, %s)", features$mz, features$mzmin, 
+			\"%s\", %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
 			features$mzmax, features$rt, features$rtmin, features$rtmax, 
 			features$into, features$intb, features$maxo, features$sn, 
 			features$scale, features$scpos, features$scmin, features$scmax, 
-			features$theoric_mz, features$theoric_abundance, features$iso, 
-			features$abundance, features$chloroparaffin_ion, features$project_sample), 
+			features$iso, features$abundance, features$roi, features$score, 
+			features$deviation, features$chloroparaffin_ion, features$project_sample), 
 			collapse = ", "))
-	print(query)
 	db_execute(db, query)
 }

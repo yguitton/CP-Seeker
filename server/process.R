@@ -8,9 +8,12 @@
 shiny::observeEvent(input$process_instrument, {
 	params <- list(instrument = input$process_instrument)
 	if (params$instrument == "Orbitrap") {
+		shiny::updateSelectInput(session, "process_resolution_index", choices = NA)
+		shiny::updateNumericInput(session, "input$process_resolution", value = 140)
+		shiny::updateNumericInput(session, "input$process_resolution_mz", value = 200)
 		shinyjs::hide("process_resolution_index")
 		shinyjs::show("process_orbitrap")
-	} else {
+	} else {	
 		choices <- if (params$instrument == "QTOF_XevoG2-S") setNames(25, "25k@200")
 			else if (params$instrument == "Sciex_TripleTOF5600") setNames(26, "25k@200")
 			else if (params$instrument == "Sciex_TripleTOF6600") setNames(27, "25k@200")
@@ -19,6 +22,8 @@ shiny::observeEvent(input$process_instrument, {
 				"low_extended2GHz_highRes", "low_highRes4GHz_highRes"))
 		shiny::updateSelectInput(session, "process_resolution_index", 
 			choices = choices)
+		shiny::updateNumericInput(session, "input$process_resolution", value = NA)
+		shiny::updateNumericInput(session, "input$process_resolution_mz", value = NA)
 		shinyjs::hide("process_orbitrap")
 		shinyjs::show("process_resolution_index")
 	}
@@ -151,8 +156,8 @@ shiny::observeEvent(input$process_launch, {
 		adduct = input$process_adduct, 
 		resolution = list(
 			instrument = input$process_instrument, 
-			index = input$process_resolution_index, 
-			resolution = input$process_resolution, 
+			index = as.numeric(input$process_resolution_index), 
+			resolution = input$process_resolution * 10**3, 
 			mz = input$process_resolution_mz
 		), 
 		mz_tol = input$process_mz_tol, 
@@ -183,14 +188,14 @@ shiny::observeEvent(input$process_launch, {
 			"process_mz_tol", "process_peakwidth_min", "process_peakwidth_max", 
 			"missing_scans")
 		conditions <- c(
-			(params$resolution$instrument == "Orbitrap" & 
+			(is.na(params$resolution$index) & 
 				!is.na(params$resolution$resolution)) | 
-				params$resolution$instrument != "Orbitrap", 
-			(params$resolution$instrument == "Orbitrap" & 
+				!is.na(params$resolution$index), 
+			(is.na(params$resolution$index) & 
 				!is.na(params$resolution$mz)) | 
-				params$resolution$instrument != "Orbitrap"), 
+				!is.na(params$resolution$index), 
 			!is.na(params$mz_tol), !is.na(params$peakwidth[1]), 
-			!is.na(params$peakwidth_max[2]), !is.na(params$missing_scans))
+			!is.na(params$peakwidth[2]), !is.na(params$missing_scans))
 		msgs <- c("the resolution of instrument is required", 
 			"the m/z reference for the resolution of instrument is required", 
 			"m/z tolerance is required", "Peakwidth min (s) is required", 
@@ -198,15 +203,16 @@ shiny::observeEvent(input$process_launch, {
 		check_inputs(inputs, conditions, msgs)
 		
 		conditions <- c(
-			(params$resolution$instrument == "Orbitrap" & 
+			(is.na(params$resolution$index) & 
 				params$resolution$resolution > 0) | 
-				params$resolution$instrument != "Orbitrap", 
-			(params$resolution$instrument == "Orbitrap" & 
-				params$resolution$mz > 0), 
+				!is.na(params$resolution$index), 
+			(is.na(params$resolution$index) & 
+				params$resolution$mz > 0) | 
+				!is.na(params$resolution$index), 
 			params$mz_tol >= 0, params$peakwidth[1] > 0, 
-			params$peakwidth_max > 0, params$missing_scans >= 0)
+			params$peakwidth[2] > 0, params$missing_scans >= 0)
 		messages <- c("the resolution of instrument must be over 0", 
-			"the m/z reference for the resolution of instrument must be over 0"
+			"the m/z reference for the resolution of instrument must be over 0", 
 			"m/z tolerance need to be positive or 0", 
 			"Peakwidth min (s) must be over 0", "Peakwidth max (s) must be over 0", 
 			"missing scans must be a positive number or 0")
@@ -215,7 +221,7 @@ shiny::observeEvent(input$process_launch, {
 		inputs <- c("process_peakwidth_min", "process_peakwidth_max", "missing_scans")
 		conditions <- c(params$peakwidth[1] <= params$peakwidth[2], 
 			params$peakwidth[1] <= params$peakwidth[2], 
-			params$missing_scans %% 1 == 0)			
+			params$missing_scans %% 1 == 0)
 		messages <- c("Peakwidth min (s) must be lower than Peakwidth max (s)", 
 			"Peakwidth min (s) must be lower than Peakwidth max (s)", 
 			"Missing scan must be an integer")
@@ -224,20 +230,20 @@ shiny::observeEvent(input$process_launch, {
 		pb_max <- length(params$samples)
 		shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
 			value = 0, display_pct = TRUE)
-		shiny::insertUI(selector = "sweet-alert-progress-sw", 
+		shiny::insertUI(selector = "#sweet-alert-progress-sw", 
 			ui = shinyWidgets::progressBar("pb2", title = "", value = 0, display_pct = TRUE), 
 			immediate = TRUE, session = session)
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
 		ion_forms <- get_chloroparaffin_ions(db, params$adduct)
-		if (nrow(ion_forms)) custom_stop("minor_error", "no chloroparaffin founded 
+		if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chloroparaffin founded 
 			with this adduct")
 		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
-			ion_forms$charge, params$resolution)
+			ion_forms[1, "charge"], params$resolution)
 		# for each theoric pattern compute m/z borns
 		theoric_patterns <- lapply(theoric_patterns, function(x) 
-			cbind(x, get_mass_range(x[, "mz"], ppm = params$ppm, params$mda)))
+			cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
 		
 		peaks <- NULL
 		for (i in 1:length(params$samples)) {
@@ -246,12 +252,13 @@ shiny::observeEvent(input$process_launch, {
 			msg <- sprintf("load data of %s", params$sample_ids[i])
 			print(msg)
 			shinyWidgets::updateProgressBar(session, id = 'pb', 
-				title = msg, value = pbVal * 100 / maxPb)
+				title = msg, value = (i - 1) * 100 / pb_max)
 			ms_file <- load_ms_file(db, sampleID = params$samples[i])
 			
 			msg <- sprintf("target on %s", params$sample_ids[i])
+			print(msg)
 			shinyWidgets::updateProgressBar(session, id = 'pb', 
-				title = msg, value = pbVal * 100 / maxPb)
+				title = msg, value = (i - 1) * 100 / pb_max)
 			scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
 			peaks2 <- deconvolution(ms_file, theoric_patterns, 
 				ion_forms$chloroparaffin_ion, scalerange, 
@@ -259,17 +266,28 @@ shiny::observeEvent(input$process_launch, {
 			if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
 				project_sample = params$project_samples[i], 
 				peaks2))
+			else toastr_error(sprintf("no chloroparaffin detected 
+				in %s", params$samples[i]))
+		}
+		
+		msg <- "record peaks"
+		print(msg)
+		shinyWidgets::updateProgressBar(session, id = 'pb', 
+			title = msg, value = 100)					
+		delete_features(db, params$project_samples)
+		delete_deconvolution_params(db, params$project, params$adduct)
+		if (length(peaks) > 0) {
+			record_deconvolution_params(db, params)
+			record_features(db, peaks)
 		}
 				
-		delete_features(db, params$project_samples)
-		record_params(db, params)
-		record_features(db, peaks)
-				
 		print('done')
+		shiny::updateTabsetPanel(session, "tabs", "process_results")
 		shinyWidgets::closeSweetAlert(session)
 	}, invalid = function(i) NULL
 	, minor_error = function(e) {
 		print(e)
+		shinyWidgets::closeSweetAlert(session)
 		toastr_error(e$message)
 	}, error = function(e) {
 		print(e)
