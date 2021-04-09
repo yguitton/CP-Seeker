@@ -31,12 +31,13 @@ CREATE TABLE `project` (
 	`name` TEXT NOT NULL, 
 	`comments` TEXT, 
 	`creation` DATE, 
-	`modified` DATE, 
-	`deconvolution_param` INTEGER 
+	`modified` DATE 
 );
 CREATE TABLE `deconvolution_param` ( 
 	`deconvolution_param` INTEGER PRIMARY KEY AUTOINCREMENT, 
+	`project` INTEGER NOT NULL, 
 	`adduct` TEXT NOT NULL, 
+	`instrument` TEXT NOT NULL, 
 	`resolution` REAL, 
 	`resolution_mz` REAL, 
 	`resolution_index` INTEGER, 
@@ -58,14 +59,15 @@ CREATE TABLE `feature` (
 	`intb` REAL NOT NULL,
 	`maxo` REAL NOT NULL,
 	`sn` REAL NOT NULL,
-	`scale` INTEGER NOT NULL, 
+	`scale` INTEGER, 
 	`scpos` INTEGER NOT NULL, 
 	`scmin` INTEGER NOT NULL, 
 	`scmax` INTEGER NOT NULL, 
-	`theoric_mz` REAL NOT NULL,
-	`theoric_abundance` REAL NOT NULL,
 	`iso` TEXT NOT NULL, 
 	`abundance` REAL NOT NULL,
+	`roi` INTEGER NOT NULL, 
+	`score` REAL NOT NULL, 
+	`deviation` REAL NOT NULL, 
 	`chloroparaffin_ion` INTEGER NOT NULL, 
 	`project_sample` INTEGER NOT NULL
 );
