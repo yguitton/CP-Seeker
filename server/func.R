@@ -25,6 +25,7 @@ db_disconnect <- function(db) {
 #' \dontrun{db_get_query(db, "select * from mtcars;")}
 db_get_query <- function(db, query) {
     if (length(query) > 1) stop('multiple request not authorized')
+	print(query)
     suppressWarnings(RSQLite::dbGetQuery(db, query))
 }
 
@@ -46,6 +47,7 @@ db_execute <- function(db, query, ...){
 	query <- gsub("\"NA\"", "null", query)
 	query <- gsub("NA", "null", query)
 	query <- gsub("\"\"", "null", query)
+	print(query)
 	msg <- "database is locked"
 	while (msg == "database is locked") {
 		msg <- tryCatch ({

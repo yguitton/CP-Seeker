@@ -38,7 +38,6 @@ export_lighted_database <- function(db, db_lighted_path) {
 rename_project <- function(db, project, name) {
 	query <- sprintf("update project set name = \"%s\", modified = Date('now') 
 		where project == %s", name, project)
-	print(query)
 	db_execute(db, query)
 	actualize$projects <<- runif(1)
 }
@@ -54,7 +53,6 @@ rename_project <- function(db, project, name) {
 rename_project_sample <- function(db, project_sample, sample_id) {
 	query <- sprintf("update project_sample set sample_id = \"%s\" 
 		where project_sample == %s;", sample_id, project_sample)
-	print(query)
 	db_execute(db, query)
 	update_project(db, project_sample = project_sample)
 	actualize$project_samples <<- runif(1)
@@ -71,7 +69,6 @@ update_project <- function(db, project_sample) {
 	query <- sprintf("update project set modified = Date('now') 
 		where project == (select project from project_sample 
 			where project_sample == %s);", project_sample)
-	print(query)
 	db_execute(db, query)
 	actualize$projects <<- runif(1)
 }
