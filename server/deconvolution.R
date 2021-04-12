@@ -50,27 +50,20 @@ get_mzmat_eic <- function(xr, mz_range) {
 #' Detect ROIs. A ROI is a region with consecuting scans above the noise substracted to baseline
 #' The baseline is considered as a runin median with a window width of `number of scans in file / 3`
 #' It accept non-consecutive scans in a ROI depending the parameter `missing_scans`
-#' It grows the ROI after detection by a specific range (xcms use 1.5x peakwidth max so we use the same)
-#' At the end it will also merge overlap ROIs
 #' 
 #' @param ints vector(float) intensities
 #' @param min_width integer minimum width of a ROI in scans
-#' @param extended_range integer number of scan used to extend the ROI at the end
 #' @param missing_scans integer number of scan before consider it they are not consecutive
 #'
 #' @return list with 2 integer per item: min & max born of each ROI
-get_rois <- function(ints, min_width, noiserange, missing_scans = 1) {
+get_rois <- function(ints, min_width, missing_scans = 1) {
 	baseline <- runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach")
 	rois <- which(ints - baseline > 0)
 	if (length(rois) == 0) return(NULL)
 	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
 	rois <- rois[which(lengths(rois) >= min_width)]
 	if (length(rois) == 0) return(NULL)
-	rois <- lapply(rois, function(roi) range(
-		(if (min(roi) - noiserange < 1) 1 else min(roi) - noiserange) : 
-		(if (max(roi) + noiserange > length(ints)) length(ints) else max(roi) + noiserange)
-	))
-	overlap_rois(rois)
+	else rois
 }
 
 #' @title Overlap ROIs
@@ -489,7 +482,8 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 		into = pracma::trapz(eic[lm[1]:lm[2], 'int']),
 		intb = intb, 
 		maxo = max(mz_vals[, "int"]), 
-		sn = intb / pracma::trapz(rep(noise, diff(lm) + 1)),
+		sn = if (noise == 0) intb 
+			else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
 		scale = scale, 
 		scpos = eic[center, "scan"], 
 		scmin = eic[lm[1], "scan"], 
@@ -550,11 +544,11 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange,
 	peaks <- NULL
 	pb_max <- length(theoric_patterns)
 	elapsed <- 0
+	extend_range <- ceiling(scalerange[2] * 1.5)
 	for (i in seq(theoric_patterns)) {
 		time_begin <- Sys.time()
 		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-		rois <- get_rois(traces$eic[, "int"], scalerange[1], ceiling(
-			scalerange[2] * 1.5))
+		rois <- get_rois(traces$eic[, "int"], scalerange[1])
 		if (length(rois) == 0) next
 		
 		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
@@ -563,6 +557,12 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange,
 		baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(x$eic) / 3, 
 			endrule = "constant", algorithm = "Turlach"))
 		noises <- sapply(traces, function(x) sd(x$eic[-unlist(rois), "int"]))
+		# extend rois for better integration & search those which overlap
+		rois <- lapply(rois, function(roi) range(
+			(if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
+			(if (max(roi) + extend_range > length(ints)) length(ints) else max(roi) + extend_range)
+		))
+		rois <- overlap_rois(rois)
 		
 		roi_nb <- 1
 		for (roi in rois) {
