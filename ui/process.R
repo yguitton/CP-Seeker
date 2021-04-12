@@ -61,7 +61,7 @@ shinydashboard::tabItem(tabName = 'process',
 		shiny::column(width = 6, 
 			bsplus::shinyInput_label_embed(
 				shiny::numericInput('process_peakwidth_max', 
-					'Peakwidth max (s)', value = 60),
+					'Peakwidth max (s)', value = 240),
 				bsplus::bs_embed_tooltip(
 					bsplus::shiny_iconlink(),
 					placement = 'top', 
@@ -72,7 +72,7 @@ shinydashboard::tabItem(tabName = 'process',
 		shiny::column(width = 6, 
 			bsplus::shinyInput_label_embed(
 				shiny::numericInput("process_missing_scans", "missing scans", 
-					value = 1), 
+					value = 2), 
 				bsplus::bs_embed_tooltip(
 					bsplus::shiny_iconlink(),
 					placement = 'top', 
