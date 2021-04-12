@@ -11,19 +11,28 @@
 #' @return xcmsRaw object
 load_ms_file <- function(db, sampleID) {
 	query <- sprintf("select raw_data from sample where sample == \"%s\";", sampleID)
-	ms_file <- tryCatch(unserialize(fst::decompress_fst(unlist(
-		db_get_query(db, query)$raw_data))), error = function(e) NULL)
+	ms_file <- tryCatch(
+		unserialize(
+			fst::decompress_fst(
+				unlist(
+					db_get_query(db, query)$raw_data
+				)
+			)
+		), error = function(e) {
+		print(e)
+		NULL
+	})
 	if (is.null(ms_file)) {
 		# try to found it in the mzXML directory
 		query <- sprintf("select path, raw_path from sample 
 			where sample == \"%s\";", sampleID)
 		paths <- unlist(db_get_query(db, query))
-		paths <- paths[which(file.exist(paths))]
+		paths <- paths[which(file.exists(paths))]
 		if (length(paths) == 0) stop(sprintf("\"%s\" is not found in database", sampleID))
 		else {
 			ms_file <- tryCatch(xcms::xcmsRaw(paths[1], mslevel = 1, profstep = 0), 
 				error = function(e) NULL)
-			if (is.null(ms_file) & length(path) > 1) {
+			if (is.null(ms_file) & length(paths) > 1) {
 				ms_file <- tryCatch(xcms::xcmsRaw(paths[1], mslevel = 1, profstep = 0), 
 					error = function(e) NULL)
 				if (is.null(ms_file)) stop(sprintf("\"%s\" is not found in database", sampleID))
