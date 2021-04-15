@@ -40,7 +40,7 @@ scalerange <- round((peakwidth / mean(diff(xr@scantime))) /2)
 #################################################################
 # search for C14 Cl6
 i <- which(grepl("C14Cl7", ion_forms[, "ion_formula"]))
-traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
+traces <- get_mzmat_eic(xr, theoric_patterns[[i]][6, c("mzmin", "mzmax")])
 
 #################################################################
 # first trace the baseline to see where it cut
@@ -49,7 +49,7 @@ baseline <- runmed(ints, length(ints) / 3,
 	endrule = "constant", algorithm = "Turlach")
 p1a <- plotly::layout(
 	plotly::plot_ly(type = "scatter", mode = "lines", 
-		data = traces$eic, x = ~scan, y = ~int), 
+		data = data.frame(traces$eic), x = ~scan, y = ~int), 
 	xaxis = list(title = "SCAN", titlefont = list(size = 18)), 
 	yaxis = list(title = "INTENSITY", titlefont = list(size = 18)))
 p1b <- plotly::add_trace(p1a, 
