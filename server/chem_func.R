@@ -95,7 +95,7 @@ getR <- function(masses, resmass, nknots = 13, spar = 0.1) {
 #' @example
 #' \dontrun{get_theoric("C12H17Br6", -1, 78223.47)}
 get_theoric <- function(formulas, charge, resolution) {
-	pattern <- enviPat::isopattern(isotopes, formulas, threshold = .1, 
+	pattern <- enviPat::isopattern(isotopes, formulas, threshold = 1, 
 		charge = charge, emass = .00054858, plotit = FALSE, algo = 2, verbose = FALSE)
 	masses <- sapply(pattern, function(x) x[1, 1])
 	resolution_masses <- if (!is.na(resolution$index)) getR(masses, 
