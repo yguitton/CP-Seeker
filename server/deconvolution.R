@@ -514,7 +514,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' }
 #' @param chloroparaffin_ids vector(integers) vector of IDs to differentiate chloroparaffins integrations in the final table
 #' @param scalerange vector(integers)[2] vector with 2 integer representing peakwidth but with unit in scan instead of seconds
-#' @param scan_range vector(float)[2] vector with 2 float representing the scan range in seconds
+#' @param scanrange vector(float)[2] vector with 2 float representing the scan range in seconds
 #' @param missing_scans integer number of scan between two of them to consider them consecutive
 #' @param pb progressbar progressbar used to print the progress like...all existing progressbar... (optional)
 #' 
@@ -573,7 +573,6 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
 		if (length(basepeaks) == 0) next
 		basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
 		basepeak <- basepeaks[which.max(basepeaks$maxo),]
-		browser()
 		peaks2 <- NULL
 		scores <- c(theoric_patterns[[i]][1, "weight"])
 		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
@@ -604,7 +603,6 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
 		if (length(peaks2) > 0) {
 			peaks <- rbind(peaks, cbind(
 					peaks2, 
-					roi = 1, 
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
 					chloroparaffin_ion = chloroparaffin_ids[i]

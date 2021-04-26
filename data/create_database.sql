@@ -65,7 +65,6 @@ CREATE TABLE `feature` (
 	`scmax` INTEGER NOT NULL, 
 	`iso` TEXT NOT NULL, 
 	`abundance` REAL NOT NULL,
-	`roi` INTEGER NOT NULL, 
 	`score` REAL NOT NULL, 
 	`deviation` REAL NOT NULL, 
 	`chloroparaffin_ion` INTEGER NOT NULL, 

@@ -177,7 +177,6 @@ get_chloroparaffin_ion <- function(db, adduct_name = NULL, C = 0, Cl = 0) {
 #' 		\item lmax integer to ignore
 #' 		\item iso string isotopologue annotation
 #' 		\item abundance float abundance
-#'		\item roi integer ROI id to differentiate if multiple ROIs
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
@@ -223,7 +222,6 @@ get_features <- function(db, project_samples = NULL, adducts = NULL) {
 #' 		\item lmax integer to ignore
 #' 		\item iso string isotopologue annotation
 #' 		\item abundance float abundance
-#'		\item roi integer ROI id to differentiate if multiple ROIs
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_ion integer id of the chloroparaffin ion

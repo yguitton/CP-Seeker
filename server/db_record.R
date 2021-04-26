@@ -158,22 +158,22 @@ record_deconvolution_params <- function(db, params) {
 #' 		\item lmax integer to ignore
 #' 		\item iso string isotopologue annotation
 #' 		\item abundance float abundance
-#'		\item roi integer ROI id to differentiate if multiple ROIs
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
 #' 		\item project_sample id integer project_sample ID
 #' }
 record_features <- function(db, features) {
+  features <- features[which(features$score > 0), ]
 	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
-		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, roi, 
+		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
 		score, deviation, chloroparaffin_ion, project_sample) values %s;", 
 		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			\"%s\", %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
+			\"%s\", %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
 			features$mzmax, features$rt, features$rtmin, features$rtmax, 
 			features$into, features$intb, features$maxo, features$sn, 
 			features$scale, features$scpos, features$scmin, features$scmax, 
-			features$iso, features$abundance, features$roi, features$score, 
+			features$iso, features$abundance, features$score, 
 			features$deviation, features$chloroparaffin_ion, features$project_sample), 
 			collapse = ", "))
 	db_execute(db, query)
