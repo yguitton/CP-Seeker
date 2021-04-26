@@ -6,6 +6,7 @@
 #'
 #' @param xr xcmsRaw xcmsRaw object from xcms (represent a file)
 #' @param mz_range vector(integer, 2) m/z min & max (borns)
+#' @param rt_range vector(integer, 2) retention time min & max
 #'
 #' @return list of two items:
 #' \itemize{
@@ -25,7 +26,7 @@
 #'
 #' @example
 #' \dontrun{get_eic(xr, c(640.636, 640.637))}
-get_mzmat_eic <- function(xr, mz_range) {
+get_mzmat_eic <- function(xr, mz_range, rt_range = NULL) {
 	ids <- which(xr@env$mz >= mz_range[[1]] & 
 		xr@env$mz <= mz_range[[2]])
 	scans <- sapply(ids, function(id) which.min(abs(xr@scanindex - id)))
@@ -55,7 +56,7 @@ get_mzmat_eic <- function(xr, mz_range) {
 #' @param min_width integer minimum width of a ROI in scans
 #' @param missing_scans integer number of scan before consider it they are not consecutive
 #'
-#' @return list with 2 integer per item: min & max born of each ROI
+#' @return vector with 2 integer: min & max born of ROI
 get_rois <- function(ints, min_width, missing_scans = 1) {
 	baseline <- runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach")
 	rois <- which(ints - baseline > 0)
@@ -63,7 +64,9 @@ get_rois <- function(ints, min_width, missing_scans = 1) {
 	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
 	rois <- rois[which(lengths(rois) >= min_width)]
 	if (length(rois) == 0) return(NULL)
-	else rois
+	roi <- rois[which(sapply(1:length(rois), function(x) which.max(ints) %in% rois[[x]]))]
+	if (length(roi) == 0) return(NULL)
+	else range(roi)
 }
 
 #' @title Overlap ROIs
@@ -511,6 +514,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' }
 #' @param chloroparaffin_ids vector(integers) vector of IDs to differentiate chloroparaffins integrations in the final table
 #' @param scalerange vector(integers)[2] vector with 2 integer representing peakwidth but with unit in scan instead of seconds
+#' @param scan_range vector(float)[2] vector with 2 float representing the scan range in seconds
 #' @param missing_scans integer number of scan between two of them to consider them consecutive
 #' @param pb progressbar progressbar used to print the progress like...all existing progressbar... (optional)
 #' 
@@ -539,7 +543,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_id integer id of the chloroparaffin
 #' }
-deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
+deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, scanrange, 
 		missing_scans = 1, pb = NULL) {
 	peaks <- NULL
 	pb_max <- length(theoric_patterns)
@@ -548,72 +552,65 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange,
 	for (i in seq(theoric_patterns)) {
 		time_begin <- Sys.time()
 		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-		rois <- get_rois(traces$eic[, "int"], scalerange[1])
-		if (length(rois) == 0) next
-		
+		roi <- get_rois(traces$eic[, "int"], scalerange[1])
+		if (length(roi) == 0) next
 		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
 			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
 		# xcms define noiserange as 1.5x peakwidth_max
 		baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(x$eic) / 3, 
 			endrule = "constant", algorithm = "Turlach"))
-		noises <- sapply(traces, function(x) sd(x$eic[-unlist(rois), "int"]))
-		# extend rois for better integration & search those which overlap
-		rois <- lapply(rois, function(roi) range(
+		noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))
+		# extend roi for better integration
+		roi <- range(
 			(if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
-			(if (max(roi) + extend_range > length(ints)) length(ints) else max(roi) + extend_range)
-		))
-		rois <- overlap_rois(rois)
-		
-		roi_nb <- 1
-		for (roi in rois) {
-			basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
-				baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans, 
-				traces[[1]]$mzmat[which(
-					traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
-						, , drop = FALSE])
-			if (length(basepeaks) == 0) next
-			basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
-			for (j in seq(nrow(basepeaks))) {
-				basepeak <- basepeaks[j, ]
-				peaks2 <- NULL
-				scores <- c(theoric_patterns[[i]][1, "weight"])
-				deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
-				continue_integration <- TRUE
-				k <- 2
-				while (k < length(traces) & continue_integration) {
-					eic <- traces[[k]]$eic
-					mzmat <- traces[[k]]$mzmat
-					peak <- integrate2(eic[roi[1]:roi[2], ], 
-						unlist(basepeaks[j, c("lmin", "lmax")]), 
-						baselines[[k]][roi[1]:roi[2]], noises[k], missing_scans, 
-						mzmat[which(mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])[1, ]
-					if (length(peak) > 0) {
-						if (k == 2) peaks2 <- basepeak
-						peak <- cbind(peak, 
-							abundance = peak[1, "intb"] / basepeak[1, "intb"] * 100, 
-							iso = theoric_patterns[[i]][k, "iso"])
-						scores <- c(scores, (1 - 
-							abs(theoric_patterns[[i]][k, "abundance"] - peak[1, "abundance"]) / 
-								theoric_patterns[[i]][k, "abundance"]) * 
-									theoric_patterns[[i]][k, "weight"])
-						deviations <- c(deviations, 
-							theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
-						peaks2 <- rbind(peaks2, peak)
-					} else continue_integration <- FALSE
-					k <- k + 1
-				}
-				if (length(peaks2) > 0) {
-					peaks <- rbind(peaks, cbind(
-							peaks2, 
-							roi = roi_nb, 
-							score = sum(scores) * 100, 
-							deviation = mean(deviations) * 10**3, 
-							chloroparaffin_ion = chloroparaffin_ids[i]
-					))
-					roi_nb <- roi_nb + 1
-				}
-			}
+			(if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
+		)
+		basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
+			baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans, 
+			traces[[1]]$mzmat[which(
+				traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+					, , drop = FALSE])
+		if (length(basepeaks) == 0) next
+		basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
+		basepeak <- basepeaks[which.max(basepeaks$maxo),]
+		browser()
+		peaks2 <- NULL
+		scores <- c(theoric_patterns[[i]][1, "weight"])
+		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
+		continue_integration <- TRUE
+		k <- 2
+		while (k < length(traces) & continue_integration) {
+			eic <- traces[[k]]$eic
+			mzmat <- traces[[k]]$mzmat
+			peak <- integrate2(eic[roi[1]:roi[2], ], 
+				unlist(basepeak[, c("lmin", "lmax")]), 
+				baselines[[k]][roi[1]:roi[2]], noises[k], missing_scans, 
+				mzmat[which(mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])[1, ]
+			if (length(peak) > 0) {
+				if (k == 2) peaks2 <- basepeak
+				peak <- cbind(peak, 
+					abundance = peak[1, "intb"] / basepeak[1, "intb"] * 100, 
+					iso = theoric_patterns[[i]][k, "iso"])
+				scores <- c(scores, (1 - 
+					abs(theoric_patterns[[i]][k, "abundance"] - peak[1, "abundance"]) / 
+						theoric_patterns[[i]][k, "abundance"]) * 
+							theoric_patterns[[i]][k, "weight"])
+				deviations <- c(deviations, 
+					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+				peaks2 <- rbind(peaks2, peak)
+			} else continue_integration <- FALSE
+			k <- k + 1
 		}
+		if (length(peaks2) > 0) {
+			peaks <- rbind(peaks, cbind(
+					peaks2, 
+					roi = 1, 
+					score = sum(scores) * 100, 
+					deviation = mean(deviations) * 10**3, 
+					chloroparaffin_ion = chloroparaffin_ids[i]
+			))
+		}
+		
 		elapsed <- elapsed + (Sys.time() - time_begin)
 		remaining <- (pb_max - i)* elapsed / i
 		if (as.double(remaining) > 60) units(remaining) <- "mins"
