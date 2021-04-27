@@ -6,7 +6,6 @@
 #'
 #' @param xr xcmsRaw xcmsRaw object from xcms (represent a file)
 #' @param mz_range vector(integer, 2) m/z min & max (borns)
-#' @param rt_range vector(integer, 2) retention time min & max
 #'
 #' @return list of two items:
 #' \itemize{
@@ -26,7 +25,7 @@
 #'
 #' @example
 #' \dontrun{get_eic(xr, c(640.636, 640.637))}
-get_mzmat_eic <- function(xr, mz_range, rt_range = NULL) {
+get_mzmat_eic <- function(xr, mz_range) {
 	ids <- which(xr@env$mz >= mz_range[[1]] & 
 		xr@env$mz <= mz_range[[2]])
 	scans <- sapply(ids, function(id) which.min(abs(xr@scanindex - id)))
@@ -543,7 +542,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_id integer id of the chloroparaffin
 #' }
-deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, scanrange, 
+deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL) {
 	peaks <- NULL
 	pb_max <- length(theoric_patterns)
@@ -572,6 +571,8 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
 					, , drop = FALSE])
 		if (length(basepeaks) == 0) next
 		basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
+		if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
+		if(nrow(basepeaks) == 0) next
 		basepeak <- basepeaks[which.max(basepeaks$maxo),]
 		peaks2 <- NULL
 		scores <- c(theoric_patterns[[i]][1, "weight"])

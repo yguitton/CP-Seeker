@@ -118,17 +118,20 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' 		\item ppm float ppm tolerance used
 #' 		\item mda float mda tolerance used
 #' 		\item peakwidth vector(float)[2] peakwidth
+#' 		\item retention_time vector (float)[2] retention time
 #' 		\item missing_scans integer missing scan parameter
 #' }
 record_deconvolution_params <- function(db, params) {
 	query <- sprintf("insert into deconvolution_param (project, adduct, 
 		instrument, resolution, resolution_mz, resolution_index, ppm, 
-		mda, peakwidth_min, peakwidth_max, missing_scans) values 
-		(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s)", 
+		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
+		missing_scans) values 
+		(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
 		params$project, params$adduct, params$resolution$instrument, 
 		params$resolution$resolution, params$resolution$mz, 
 		params$resolution$index, params$ppm, params$mda, 
-		params$peakwidth[1], params$peakwidth[2], params$missing_scans)
+		params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
+		params$retention_time[2],params$missing_scans)
 	db_execute(db, query)
 	actualize$deconvolution_params <<- runif(1)
 }

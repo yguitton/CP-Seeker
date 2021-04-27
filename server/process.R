@@ -145,6 +145,8 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_mz_tol_unit boolean, if TRUE m/z tolerance is in ppm, else it is in mDa
 #' @param input$process_peakwidth_min float, minimum in peakwidth (in sec)
 #' @param input$process_peakwidth_max float, maximum in peakwidth (in sec)
+#' @param input$process_retention_time_min float, minimum in retention time (in min)
+#' @param input$process_retention_time_max float, minimum in retention time (in min)
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
@@ -163,7 +165,8 @@ shiny::observeEvent(input$process_launch, {
 		mz_tol = input$process_mz_tol, 
 		mz_tol_unit = input$process_mz_tol_unit, 
 		ppm = 0, mda = 0, 
-		peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max), 
+		peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
+		retention_time = c(input$process_retention_time_min, input$process_retention_time_max),
 		missing_scans = input$process_missing_scans
 	)
 	print(params)
@@ -185,7 +188,8 @@ shiny::observeEvent(input$process_launch, {
 		print(params[c("samples", "project_samples", "sample_ids", "polarity")])
 	
 		inputs <- c("process_resolution", "process_resolution_mz", 
-			"process_mz_tol", "process_peakwidth_min", "process_peakwidth_max", 
+			"process_mz_tol", "process_peakwidth_min", "process_peakwidth_max",
+			"process_retention_time_min", "process_retention_time_max",
 			"missing_scans")
 		conditions <- c(
 			(is.na(params$resolution$index) & 
@@ -195,11 +199,13 @@ shiny::observeEvent(input$process_launch, {
 				!is.na(params$resolution$mz)) | 
 				!is.na(params$resolution$index), 
 			!is.na(params$mz_tol), !is.na(params$peakwidth[1]), 
-			!is.na(params$peakwidth[2]), !is.na(params$missing_scans))
+			!is.na(params$peakwidth[2]), !is.na(params$retention_time[1]),
+			!is.na(params$retention_time[2]),!is.na(params$missing_scans))
 		msgs <- c("the resolution of instrument is required", 
 			"the m/z reference for the resolution of instrument is required", 
 			"m/z tolerance is required", "Peakwidth min (s) is required", 
-			"Peakwidth max (s) is required", "missing scans is required")
+			"Peakwidth max (s) is required", "Retention time min (min) is required", 
+			"Retention time max (min) is required", "missing scans is required")
 		check_inputs(inputs, conditions, msgs)
 		
 		conditions <- c(
@@ -210,20 +216,27 @@ shiny::observeEvent(input$process_launch, {
 				params$resolution$mz > 0) | 
 				!is.na(params$resolution$index), 
 			params$mz_tol >= 0, params$peakwidth[1] > 0, 
-			params$peakwidth[2] > 0, params$missing_scans >= 0)
+			params$peakwidth[2] > 0, params$retention_time[1] >= 0, 
+			params$retention_time[2] > 0, params$missing_scans >= 0)
 		messages <- c("the resolution of instrument must be over 0", 
 			"the m/z reference for the resolution of instrument must be over 0", 
 			"m/z tolerance need to be positive or 0", 
 			"Peakwidth min (s) must be over 0", "Peakwidth max (s) must be over 0", 
+			"Retention time min (min) must be a positive number or 0", "Retention time max (min) must be over 0", 
 			"missing scans must be a positive number or 0")
 		check_inputs(inputs, conditions, msgs)
 			
-		inputs <- c("process_peakwidth_min", "process_peakwidth_max", "missing_scans")
+		inputs <- c("process_peakwidth_min", "process_peakwidth_max", "process_retention_time_min", 
+		            "process_retention_time_max", "missing_scans")
 		conditions <- c(params$peakwidth[1] <= params$peakwidth[2], 
-			params$peakwidth[1] <= params$peakwidth[2], 
+			params$peakwidth[1] <= params$peakwidth[2],
+			params$retention_time[1] <= params$retention_time[2], 
+			params$retention_time[1] <= params$retention_time[2],
 			params$missing_scans %% 1 == 0)
 		messages <- c("Peakwidth min (s) must be lower than Peakwidth max (s)", 
 			"Peakwidth min (s) must be lower than Peakwidth max (s)", 
+			"Retention time min (min) must be lower than Retention time max (min)",
+			"Retention time min (min) must be lower than Retention time max (min)",
 			"Missing scan must be an integer")
 		check_inputs(inputs, conditions, msgs)
 		

@@ -68,7 +68,29 @@ shinydashboard::tabItem(tabName = 'process',
 					title = 'Expected approximate peak width in chromatographic space'
 				)
 			)
-		), 
+		),
+		shiny::column(width = 6,
+		  bsplus::shinyInput_label_embed(
+		    shiny::numericInput("process_retention_time_min", "Retention time min (min)", 
+		      value = 0),
+		    bsplus::bs_embed_tooltip(
+		      bsplus::shiny_iconlink(),
+		      placement = 'top',
+		      title = 'Expected approximate retention time'
+		    )
+		  )
+		),
+		shiny::column(width = 6,              
+		  bsplus::shinyInput_label_embed(
+		  	shiny::numericInput("process_retention_time_max", "Retention time max (min)", 
+		  	  value = 20),
+		    bsplus::bs_embed_tooltip(
+		      bsplus::shiny_iconlink(),
+		      placement = 'top',
+		      title = 'Expected approximate retention time'
+		    )
+		  )
+		),
 		shiny::column(width = 6, 
 			bsplus::shinyInput_label_embed(
 				shiny::numericInput("process_missing_scans", "missing scans", 

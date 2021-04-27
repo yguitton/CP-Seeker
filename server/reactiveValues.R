@@ -163,6 +163,8 @@ shiny::observeEvent(c(project_samples(), input$project), {
 #' 		\item mda float mda tolerance used
 #' 		\item peakwidth_min float peakwidth min
 #' 		\item peakwidth_max float peakwidth max
+#' 		\item retention_time_min float retention time min
+#' 		\item retention_time_max float retention time max
 #' 		\item missing_scans integer missing scan parameter
 #'}
 deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params, 

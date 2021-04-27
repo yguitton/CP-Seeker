@@ -44,7 +44,9 @@ CREATE TABLE `deconvolution_param` (
 	`ppm` REAL NOT NULL, 
 	`mda` REAL NOT NULL, 
 	`peakwidth_min` REAL NOT NULL,  
-	`peakwidth_max` REAL NOT NULL, 
+	`peakwidth_max` REAL NOT NULL,
+	`retention_time_min` REAL NOT NULL,
+	`retention_time_max` REAL NOT NULL, 
 	`missing_scans` INTEGER NOT NULL 
 );
 CREATE TABLE `feature` (
