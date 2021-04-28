@@ -136,7 +136,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param db sqlite connection
 #' @param project_samples reactive value, project_samples table
 #' @param input$project integer, project ID
-#' @param input$process_adduct string, Adduct name
+#' @param input$process_adduct vector, Adduct name
 #' @param input$process_instrument string, name of the instrument
 #' @param input$process_resolution_index integer, index of the instrument in the resolution list of enviPat if it is not an Orbitrap
 #' @param input$process_resolution integer, resolution of instrument if it is an Orbitrap
@@ -249,51 +249,53 @@ shiny::observeEvent(input$process_launch, {
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
-		ion_forms <- get_chloroparaffin_ions(db, params$adduct)
-		if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chloroparaffin founded 
-			with this adduct")
-		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
-			ion_forms[1, "charge"], params$resolution)
-		# for each theoric pattern compute m/z borns
-		theoric_patterns <- lapply(theoric_patterns, function(x) 
-			cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
-		
-		peaks <- NULL
-		for (i in 1:length(params$samples)) {
-			shinyWidgets::updateProgressBar(session, id = "pb2", 
-				value = 0, title = "")
-			msg <- sprintf("load data of %s", params$sample_ids[i])
-			print(msg)
-			shinyWidgets::updateProgressBar(session, id = 'pb', 
-				title = msg, value = (i - 1) * 100 / pb_max)
-			ms_file <- load_ms_file(db, sampleID = params$samples[i])
-			
-			msg <- sprintf("target on %s", params$sample_ids[i])
-			print(msg)
-			shinyWidgets::updateProgressBar(session, id = 'pb', 
-				title = msg, value = (i - 1) * 100 / pb_max)
-			scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
-			peaks2 <- deconvolution(ms_file, theoric_patterns, 
-				ion_forms$chloroparaffin_ion, scalerange, 
-				params$missing_scans, pb = "pb2")
-			if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
-				project_sample = params$project_samples[i], 
-				peaks2))
-			else toastr_error(sprintf("no chloroparaffin detected 
-				in %s", params$samples[i]))
-		}
-		
-		msg <- "record peaks"
-		print(msg)
-		shinyWidgets::updateProgressBar(session, id = 'pb', 
-			title = msg, value = 100)					
 		delete_features(db, params$project_samples)
-		delete_deconvolution_params(db, params$project, params$adduct)
-		if (length(peaks) > 0) {
-			record_deconvolution_params(db, params)
-			record_features(db, peaks)
+		for (j in 1:length(params$adduct)){
+  		ion_forms <- get_chloroparaffin_ions(db, params$adduct[j])
+  		if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chloroparaffin founded 
+  			with this adduct")
+  		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
+  			ion_forms[1, "charge"], params$resolution)
+  		# for each theoric pattern compute m/z borns
+  		theoric_patterns <- lapply(theoric_patterns, function(x) 
+  			cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
+  		
+  		peaks <- NULL
+  		for (i in 1:length(params$samples)) {
+  			shinyWidgets::updateProgressBar(session, id = "pb2", 
+  				value = 0, title = "")
+  			msg <- sprintf("load data of %s", params$sample_ids[i])
+  			print(msg)
+  			shinyWidgets::updateProgressBar(session, id = 'pb', 
+  				title = msg, value = (i - 1) * 100 / pb_max)
+  			ms_file <- load_ms_file(db, sampleID = params$samples[i])
+  			
+  			msg <- sprintf("target on %s", params$sample_ids[i])
+  			print(msg)
+  			shinyWidgets::updateProgressBar(session, id = 'pb', 
+  				title = msg, value = (i - 1) * 100 / pb_max)
+  			scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
+  			peaks2 <- deconvolution(ms_file, theoric_patterns, 
+  				ion_forms$chloroparaffin_ion, scalerange, params$retention_time, 
+  				params$missing_scans, pb = "pb2")
+  			if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
+  				project_sample = params$project_samples[i], 
+  				peaks2))
+  			else toastr_error(sprintf("no chloroparaffin detected 
+  				in %s", params$samples[i]))
+  		}
+  		msg <- "record peaks"
+  		print(msg)
+  		shinyWidgets::updateProgressBar(session, id = 'pb', 
+  			title = msg, value = 100)	
+  		delete_deconvolution_params(db, params$project, params$adduct[j])
+  		if (length(peaks) > 0) {
+  		  params2 <- params
+  		  params2$adduct <- params2$adduct[j]
+  			record_deconvolution_params(db, params2)
+  			record_features(db, peaks)
+  		}
 		}
-				
 		print('done')
 		shiny::updateTabsetPanel(session, "tabs", "process_results")
 		shinyWidgets::closeSweetAlert(session)

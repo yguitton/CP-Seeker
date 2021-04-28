@@ -6,7 +6,7 @@ shinydashboard::tabItem(tabName = 'process',
 		),
 		bsplus::shinyInput_label_embed(
 			shiny::selectInput("process_adduct", 
-				"Adduct", choices = available_adducts),
+				"Adduct(s)", choices = available_adducts, multiple = TRUE),
 			bsplus::bs_embed_tooltip(
 				bsplus::shiny_iconlink(),
 				placement = 'top', 
