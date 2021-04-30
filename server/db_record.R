@@ -125,13 +125,14 @@ record_deconvolution_params <- function(db, params) {
 	query <- sprintf("insert into deconvolution_param (project, adduct, 
 		instrument, resolution, resolution_mz, resolution_index, ppm, 
 		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
-		missing_scans) values 
-		(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+		missing_scans) values %s", 
+	  paste(sprintf("(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
 		params$project, params$adduct, params$resolution$instrument, 
 		params$resolution$resolution, params$resolution$mz, 
 		params$resolution$index, params$ppm, params$mda, 
 		params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
-		params$retention_time[2],params$missing_scans)
+		params$retention_time[2],params$missing_scans), collapse = ",")
+		)
 	db_execute(db, query)
 	actualize$deconvolution_params <<- runif(1)
 }

@@ -537,7 +537,6 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item lmax integer to ignore
 #' 		\item iso string isotopologue annotation
 #' 		\item abundance float abundance
-#'		\item roi integer ROI id to differentiate if multiple ROIs
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chloroparaffin_id integer id of the chloroparaffin

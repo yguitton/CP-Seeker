@@ -249,23 +249,17 @@ shiny::observeEvent(input$process_launch, {
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
-		ion_forms <- lapply(1:length(params$adduct), 
-		  function(x) get_chloroparaffin_ions(db, params$adduct[x]))
-		for(i in 1:length(ion_forms)){
-		  if (nrow(ion_forms[[i]]) == 0) custom_stop("minor_error", "no chloroparaffin founded 
-  		  with this adduct")
-		}
-  		
-		theoric_patterns <- lapply(1:length(params$adduct),
-		  function(x) get_theoric(ion_forms[[x]]$ion_formula, 
-		  ion_forms[[x]]$charge[1], params$resolution))
+		ion_forms <- get_chloroparaffin_ions(db, params$adduct)
+
+  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chloroparaffin founded 
+  		with this adduct")	
+  	
+		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
+		  ion_forms$charge[1], params$resolution)
 
   	# for each theoric pattern compute m/z borns
-		for(i in 1:length(theoric_patterns)){
-		  theoric_patterns[[i]] <- lapply(theoric_patterns[[i]], function(x) 
-		    cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
-		}
-
+		theoric_patterns <- lapply(theoric_patterns,
+		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
   	peaks <- NULL
   	for (i in 1:length(params$samples)) {
   		shinyWidgets::updateProgressBar(session, id = "pb2", 
@@ -280,19 +274,16 @@ shiny::observeEvent(input$process_launch, {
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb', 
   			title = msg, value = (i - 1) * 100 / pb_max)
-  			
-  		for(j in 1:length(theoric_patterns)){
   		
-  		  scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
-  		  peaks2 <- deconvolution(ms_file, theoric_patterns[[j]], 
-  			  ion_forms[[j]]$chloroparaffin_ion, scalerange, params$retention_time, 
-  		  	params$missing_scans, pb = "pb2")
-  		  if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
-  			  project_sample = params$project_samples[i], 
-  			  peaks2))
-  		  else toastr_error(sprintf("no chloroparaffin detected 
-  			  in %s", params$samples[i]))
-  		}
+  		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)	
+  		peaks2 <- deconvolution(ms_file, theoric_patterns, 
+  			ion_forms$chloroparaffin_ion, scalerange, params$retention_time, 
+  		  params$missing_scans, pb = "pb2")
+  		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
+  			project_sample = params$project_samples[i], 
+  			peaks2))
+  		else toastr_error(sprintf("no chloroparaffin detected 
+  			in %s", params$samples[i]))
   	}
   	msg <- "record peaks"
   	print(msg)
@@ -300,14 +291,12 @@ shiny::observeEvent(input$process_launch, {
   		title = msg, value = 100)	
   	
   	delete_features(db, params$project_samples)
-  	for (j in 1:length(params$adduct)) delete_deconvolution_params(db, 
-  	  params$project, params$adduct[[j]])	
+  	params2 <- params
+  	params2$adduct <- delete_deconvolution_params(db, params$project, params2$adduct)
+  	
   	if (length(peaks) > 0) {
-  	  for(j in 1:length(params$adduct)){
-  	    params2 <- params
-  	    params2$adduct <- params2$adduct[j]
-  		  record_deconvolution_params(db, params2)
-  	  }
+  	  params2 <- params
+  	  params2 <- record_deconvolution_params(db, params2)
   		record_features(db, peaks)
   	}
 

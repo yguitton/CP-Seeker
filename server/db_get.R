@@ -118,7 +118,8 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 get_chloroparaffin_ions <- function(db, adduct_name = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
 	query <- sprintf("select chloroparaffin_ion, ion_formula, charge 
-		from chloroparaffin_ion where adduct == \"%s\";", adduct_name)
+		from chloroparaffin_ion where adduct in (%s);", 
+	  paste(sprintf("\"%s\"", adduct_name), collapse = ","))
 	db_get_query(db, query)
 }
 
