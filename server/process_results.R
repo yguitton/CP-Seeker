@@ -2,20 +2,23 @@
 #'
 #' @description
 #' Display the profile matrix of a sample 
-#' Each cell contains the score of the deconvolution according the adduct selected
+#' Each cell contains the score of the deconvolution according the adduct selected 
+#'    and the type of chemical studied
 #' A selection of a cell will update the input `process_results_profile_selected` 
 #' 		with the number of Carbon & Chlore retrieve in the rownames & colnames of the table
 #'
 #' @param db sqlite connection
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
+#' @param input$process_chemical_type string type of chemical studied
 #' 
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
 	actualize$deconvolution_params # only to force it reloading after deconvolution
 	params <- list(
 		project_sample = input$process_results_file, 
-		adduct = input$process_results_adduct
+		adduct = input$process_results_adduct,
+		chemical_type = input$process_chemical_type
 	)
 	
 	tryCatch({
@@ -27,7 +30,6 @@ output$process_results_profile <- DT::renderDataTable({
 			adduct selected")
 		else if (params$adduct == "") custom_stop("invalid", "no 
 			adduct selected")
-		get_profile_matrix(db, params$project_sample, params$adduct)
 	}, invalid = function(i) get_profile_matrix(db)
 	, error = function(e) {
 		print("ERR process_results_table")
@@ -35,6 +37,7 @@ output$process_results_profile <- DT::renderDataTable({
 		sweet_alert_error(e$message)
 		get_profile_matrix(db)
 	})
+    get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
@@ -86,16 +89,17 @@ observeEvent(input$process_results_profile_selected, {
 	})
 })
 
-#' @title EIC plot for a chloroparaffin
+#' @title EIC plot for a chemical
 #'
 #' @description
-#' Plot all isotopologue traces for a chloroparaffin according the cell selected
+#' Plot all isotopologue traces for a chemical according the cell selected
 #' It trace the raw data with area colored where the deconvolution process integrate something
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
+#' @param input$process_chemical_type string type of chemical studied
 #' 
 #' @return plotly object
 output$process_results_eic <- plotly::renderPlotly({
@@ -106,15 +110,16 @@ output$process_results_eic <- plotly::renderPlotly({
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct, 
 		C = as.numeric(input$process_results_profile_selected$C), 
-		Cl = as.numeric(input$process_results_profile_selected$Cl)
+		Cl = as.numeric(input$process_results_profile_selected$Cl),
+		chemical_type = input$process_chemical_type
 	)
 	# retrieve the parameters used for the deconvolution to trace EICs with same parameters
 	# same reasoning for the resolution parameter to simulate isotopic pattern
 	deconvolution_param <- as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
 		deconvolution_params()$adduct == params$adduct), ])
-	plot_chloroparaffin_EIC(db, params$project_sample, params$adduct, 
-		params$C, params$Cl, deconvolution_param$ppm, 
+	plot_chemical_EIC(db, params$project_sample, params$adduct, 
+		params$C, params$Cl, params$chemical_type, deconvolution_param$ppm, 
 		deconvolution_param$mda, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
@@ -128,13 +133,14 @@ output$process_results_eic <- plotly::renderPlotly({
 	})
 })
 
-#' @title MS plot for a chloroparaffin
+#' @title MS plot for a chemical
 #'
 #' @description
-#' Plot a MS in mirror mode: above the observed corresponding of the chloroparaffin integrated
+#' Plot a MS in mirror mode: above the observed corresponding of the chemical integrated
 #' 		below the theoretical isotopic pattern
 #'
 #' @param input$process_results_file integer project_sample ID
+#' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_adduct string adduct name
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
@@ -145,7 +151,8 @@ output$process_results_ms <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
-		project_sample = input$process_results_file, 
+		project_sample = input$process_results_file,
+		chemical_type = input$process_chemical_type,
 		adduct = input$process_results_adduct, 
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
@@ -153,9 +160,10 @@ output$process_results_ms <- plotly::renderPlotly({
 	# retrieve the resolution parameter to simulate isotopic pattern
 	deconvolution_param <- as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
-		deconvolution_params()$adduct == params$adduct), ])
-	plot_chloroparaffin_MS(db, params$project_sample, params$adduct, 
-		params$C, params$Cl, resolution = list(
+		deconvolution_params()$adduct == params$adduct & 
+		deconvolution_params()$chemical_type == params$chemical_type), ])
+	plot_chemical_MS(db, params$project_sample, params$adduct, 
+		params$C, params$Cl, params$chemical_type, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
 			index = deconvolution_param$resolution_index))

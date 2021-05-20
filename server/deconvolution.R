@@ -495,15 +495,15 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 	)
 }
 
-#' @title Target Chloroparaffins
+#' @title Target chemicals
 #' 
 #' @description
-#' Target chloroparaffins
+#' Target chemicals
 #' first it will search ROIs in the basepeak's trace
 #' for all ROI founded, it will force an integration for each isotopologue (extend & reduce the integration area from the ROI)
 #' 
 #' @param xr xcmsRaw xcmsRaw object
-#' @param theoric_patterns list of dataframes (each is a chloroparaffin isotopic pattern) with columns
+#' @param theoric_patterns list of dataframes (each is a chemical isotopic pattern) with columns
 #' \itemize{
 #' 		\item mz float m/z
 #' 		\item abundance float relative abundance tolerance
@@ -511,7 +511,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item mzmin float m/z min born
 #' 		\item mzmax float m/z max born
 #' }
-#' @param chloroparaffin_ids vector(integers) vector of IDs to differentiate chloroparaffins integrations in the final table
+#' @param chemical_ids vector(integers) vector of IDs to differentiate chemicals integrations in the final table
 #' @param scalerange vector(integers)[2] vector with 2 integer representing peakwidth but with unit in scan instead of seconds
 #' @param scanrange vector(float)[2] vector with 2 float representing the scan range in seconds
 #' @param missing_scans integer number of scan between two of them to consider them consecutive
@@ -539,9 +539,9 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item abundance float abundance
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
-#' 		\item chloroparaffin_id integer id of the chloroparaffin
+#' 		\item chemical_id integer id of the chemical
 #' }
-deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, scanrange = NULL, 
+deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL) {
 	peaks <- NULL
 	pb_max <- length(theoric_patterns)
@@ -605,7 +605,7 @@ deconvolution <- function(xr, theoric_patterns, chloroparaffin_ids, scalerange, 
 					peaks2, 
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
-					chloroparaffin_ion = chloroparaffin_ids[i]
+					chemical_ion = chemical_ids[i]
 			))
 		}
 		

@@ -1,4 +1,4 @@
-"chloroparaffin_ion","ion_formula","adduct","charge","chemical","chemical_type"
+"chemical_ion","ion_formula","adduct","charge","chemical","chemical_type"
 1,"C7Cl3H12","M-H",-1,1,"CPs"
 2,"C8Cl3H14","M-H",-1,2,"CPs"
 3,"C9Cl3H16","M-H",-1,3,"CPs"

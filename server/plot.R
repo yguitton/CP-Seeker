@@ -193,17 +193,18 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 	plotly::toWebGL(p)
 }
 
-#' @title Plot EIC for chloroparaffin
+#' @title Plot EIC for chemical
 #'
 #' @description
-#' Plot EIC for each isotopologue of a chloroparaffin
-#' If some chloroparaffin were integrated it will color the area integrated
+#' Plot EIC for each isotopologue of a chemical
+#' If some chemical were integrated it will color the area integrated
 #'
 #' @param db sqlite connection
 #' @param project_sample integer project_sample IDs
 #' @param adduct string adduct name
-#' @param C integer number of carbon of chloroparaffin
-#' @param Cl integer number of chlore of chloroparaffin
+#' @param C integer number of carbon of chemical
+#' @param Cl integer number of chlore of chemical
+#' @param chemical_type string type of chemical studied
 #' @param ppm float m/z tolerance in ppm
 #' @param mda float m/z tolerance in mDa
 #' @param resolution list with items:
@@ -214,15 +215,15 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' }
 #' 
 #' @return plotly object
-plot_chloroparaffin_EIC <- function(db, project_sample = NULL, 
-		adduct = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL) {
+plot_chemical_EIC <- function(db, project_sample = NULL, 
+		adduct = NULL, C = 0, Cl = 0, chemical_type = NULL, ppm = 0, mda = 0, resolution = NULL) {
 	p <- plot_empty_chromato("EIC")
 	
-	chloroparaffin_ion <- get_chloroparaffin_ion(db, adduct, C, Cl)
-	if (nrow(chloroparaffin_ion) == 0) return(p)
+	chemical_ion <- get_chemical_ion(db, adduct, C, Cl, chemical_type)
+	if (nrow(chemical_ion) == 0) return(p)
 	
-	theoric_pattern <- get_theoric(chloroparaffin_ion$ion_formula, 
-		chloroparaffin_ion$charge, resolution)[[1]]
+	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
+		chemical_ion$charge, resolution)[[1]]
 	if (nrow(theoric_pattern) == 0) return(p)
 	# now get eic data
 	datas <- get_eics(db, project = NULL, project_sample,  
@@ -247,8 +248,8 @@ plot_chloroparaffin_EIC <- function(db, project_sample = NULL,
 	)
 	
 	# get integrated data 
-	features <- get_chloroparaffin_features(db, project_sample, 
-		chloroparaffin_ion$chloroparaffin_ion)
+	features <- get_chemical_features(db, project_sample, 
+		chemical_ion$chemical_ion)
 	if (nrow(features) == 0) return(plotly::toWebGL(p))
 	# now color only between the rt range where integrated
 	for (i in seq(nrow(features))) p <- plotly::add_trace(p, 
@@ -388,17 +389,18 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 	)
 }
 
-#' @title Plot MS for chloroparaffin
+#' @title Plot MS for chemical
 #'
 #' @description
-#' Plot MS of a chloroparaffin in mirror mode:
+#' Plot MS of a chemical in mirror mode:
 #' above the observed (features integrated) & below the theoretical
 #'
 #' @param db sqlite connection
 #' @param project_sample integer project_sample IDs
 #' @param adduct string adduct name
-#' @param C integer number of carbon of chloroparaffin
-#' @param Cl integer number of chlore of chloroparaffin
+#' @param C integer number of carbon of chemical
+#' @param Cl integer number of chlore of chemical
+#' @param chemical_type string type of chemical studied
 #' @param resolution list with items:
 #' \itemize{
 #' 		\item resolution float, resolution of instrument if Orbitrap
@@ -407,14 +409,14 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 #' }
 #' 
 #' @return plotly object
-plot_chloroparaffin_MS <- function(db, project_sample = NULL, 
-		adduct = NULL, C = 0, Cl = 0, resolution = NULL) {
-	p <- plot_empty_MS()
-	chloroparaffin_ion <- get_chloroparaffin_ion(db, adduct, C, Cl)
-	if (nrow(chloroparaffin_ion) == 0) return(p)
+plot_chemical_MS <- function(db, project_sample = NULL, 
+		adduct = NULL, C = 0, Cl = 0, chemical_type = NULL, resolution = NULL) {
+	p <- plot_empty_MS(yTitle = "Abundance")
+	chemical_ion <- get_chemical_ion(db, adduct, C, Cl, chemical_type)
+	if (nrow(chemical_ion) == 0) return(p)
 	
-	theoric_pattern <- get_theoric(chloroparaffin_ion$ion_formula, 
-		chloroparaffin_ion$charge, resolution)[[1]]
+	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
+		chemical_ion$charge, resolution)[[1]]
 	if (nrow(theoric_pattern) == 0) return(p)
 	theoric_pattern$abundance <- -theoric_pattern$abundance
 	p <- plotly::add_segments(p, 
@@ -437,8 +439,8 @@ plot_chloroparaffin_MS <- function(db, project_sample = NULL,
 	)
 	
 	# now get the features integrated
-	data <- get_chloroparaffin_features(db, project_sample, 
-		chloroparaffin_ion$chloroparaffin_ion)
+	data <- get_chemical_features(db, project_sample, 
+		chemical_ion$chemical_ion)
 	if (nrow(data) == 0) return(p)
 	p <- plotly::add_segments(p, 
 		data = data, 

@@ -154,6 +154,7 @@ shiny::observeEvent(c(project_samples(), input$project), {
 #' @return dataframe with columns
 #' \itemize{
 #'      \item deconvolution_param integer deconvolution_param ID
+#' 	  \item chemical_type string type of chemical
 #' 		\item adduct string adduct name
 #' 		\item instrument string name of the instrument
 #' 		\item resolution float resolution of the instrument

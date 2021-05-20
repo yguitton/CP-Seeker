@@ -107,6 +107,7 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' @param params list with items:
 #' \itemize{
 #' 		\item project integer project ID
+#' 		\item chemical_type string type of chemical studied
 #' 		\item adduct string adduct name
 #' 		\item list with items: 
 #' 		\itemize{
@@ -122,12 +123,12 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' 		\item missing_scans integer missing scan parameter
 #' }
 record_deconvolution_params <- function(db, params) {
-	query <- sprintf("insert into deconvolution_param (project, adduct, 
+	query <- sprintf("insert into deconvolution_param (project, chemical_type, adduct, 
 		instrument, resolution, resolution_mz, resolution_index, ppm, 
 		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
 		missing_scans) values %s", 
-	  paste(sprintf("(%s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-		params$project, params$adduct, params$resolution$instrument, 
+	  paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+		params$project, params$chemical_type, params$adduct, params$resolution$instrument, 
 		params$resolution$resolution, params$resolution$mz, 
 		params$resolution$index, params$ppm, params$mda, 
 		params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
@@ -164,21 +165,21 @@ record_deconvolution_params <- function(db, params) {
 #' 		\item abundance float abundance
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
-#' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
+#' 		\item chemical_ion integer id of the chemical ion
 #' 		\item project_sample id integer project_sample ID
 #' }
 record_features <- function(db, features) {
   features <- features[which(features$score > 0), ]
 	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
 		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
-		score, deviation, chloroparaffin_ion, project_sample) values %s;", 
+		score, deviation, chemical_ion, project_sample) values %s;", 
 		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
 			\"%s\", %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
 			features$mzmax, features$rt, features$rtmin, features$rtmax, 
 			features$into, features$intb, features$maxo, features$sn, 
 			features$scale, features$scpos, features$scmin, features$scmax, 
 			features$iso, features$abundance, features$score, 
-			features$deviation, features$chloroparaffin_ion, features$project_sample), 
+			features$deviation, features$chemical_ion, features$project_sample), 
 			collapse = ", "))
 	db_execute(db, query)
 }

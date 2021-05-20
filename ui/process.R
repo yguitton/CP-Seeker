@@ -1,8 +1,17 @@
-shinydashboard::tabItem(tabName = 'process', 
-	shinydashboard::box(width = 3, 
-		shiny::column(width = 12, style = "margin-bottom: 20px; text-align: center;", 
-			shinyWidgets::actionBttn('process_launch', 'Launch deconvolution process', 
-				style = 'minimal', color = 'primary')
+shinydashboard::tabItem(tabName = 'process',
+  shinydashboard::box(width = 3, 
+    shiny::column(width = 12, style = "margin-bottom: 20px; text-align: center;", 
+      shinyWidgets::actionBttn('process_launch', 'Launch deconvolution process', 
+        style = 'minimal', color = 'primary')
+    ),
+		bsplus::shinyInput_label_embed(
+		  shiny::radioButtons("process_chemical_type",
+		    "Type of chemical", choices = c("CPs", "COs", "CdiOs")),
+		  bsplus::bs_embed_tooltip(
+		    bsplus::shiny_iconlink(),
+		    placement = 'top',
+		    title = 'Type of chemical to study'
+		  )
 		),
 		bsplus::shinyInput_label_embed(
 			shiny::selectInput("process_adduct", 

@@ -101,61 +101,66 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 	db_get_query(db, query)
 }
 
-#' @title Get all chloroparaffin ions
+#' @title Get all chemical ions
 #' 
 #' @description
-#' Get all chloroparaffin ions given an adduct name
+#' Get all chemical ions given an adduct name and a chemical type
 #' 
 #' @param db sqlite connection
 #' @param adduct_name string adduct name
+#' @param chemical_type string type of chemical studied
 #'
 #' @return dataframe with columns:
 #' \itemize{
-#' 		\item chloroparaffin_ion integer chloroparaffin_ion ID
+#' 		\item chemical_ion integer chemical_ion ID
 #' 		\item ion_formula string ion formula
 #' 		\item charge integer charge of ion
 #' }
-get_chloroparaffin_ions <- function(db, adduct_name = NULL) {
+get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-	query <- sprintf("select chloroparaffin_ion, ion_formula, charge 
-		from chloroparaffin_ion where adduct in (%s);", 
-	  paste(sprintf("\"%s\"", adduct_name), collapse = ","))
+	query <- sprintf("select chemical_ion, ion_formula, charge 
+		from chemical_ion where adduct in (%s)
+		and chemical_type == \"%s\";",
+	  paste(sprintf("\"%s\"", adduct_name), collapse = ","), 
+	  chemical_type)
 	db_get_query(db, query)
 }
 
-#' @title Get chloroparaffin ion
+#' @title Get chemical ion
 #' 
 #' @description
-#' Get chloroparaffin ion given an adduct name, a number of C & Cl
+#' Get chemical ion given an adduct name, a number of C & Cl and the chemical type
 #' 
 #' @param db sqlite connection
 #' @param adduct_name string adduct name
 #' @param C integer number of carbon
 #' @param Cl integer number of chlore
+#' @param chemical_type string type of chemical studied
 #'
 #' @return dataframe with columns:
 #' \itemize{
-#' 		\item chloroparaffin_ion integer chloroparaffin_ion ID
+#' 		\item chemical_ion integer chemical_ion ID
 #' 		\item ion_formula string ion formula
 #' 		\item charge integer charge of ion
 #' }
-get_chloroparaffin_ion <- function(db, adduct_name = NULL, C = 0, Cl = 0) {
+get_chemical_ion <- function(db, adduct_name = NULL, C = 0, Cl = 0, chemical_type = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-	query <- sprintf("select chloroparaffin_ion, ion_formula, charge 
-		from chloroparaffin_ion where adduct == \"%s\" and 
-		chloroparaffin == (select chloroparaffin from chloroparaffin 
-		where C == %s and Cl == %s);", adduct_name, C, Cl)
+	query <- sprintf("select chemical_ion, ion_formula, charge 
+		from chemical_ion where adduct == \"%s\" and 
+		chemical == (select chemical from chemical 
+		where C == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
 	db_get_query(db, query)
 }
 
 #' @title Get all features
 #'
 #' @descriptition
-#' Get all features given a project_sample and an adduct
+#' Get all features given a project_sample, an adduct and a chemical type
 #'
 #' @param db sqlite connection
 #' @param project_samples vector(integer) project_sample ID
 #' @param adducts vector(string) adduct names
+#' @param chemical_type string type of chemical studied
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -180,27 +185,28 @@ get_chloroparaffin_ion <- function(db, adduct_name = NULL, C = 0, Cl = 0) {
 #' 		\item abundance float abundance
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
-#' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
+#' 		\item chemical_ion integer id of the chemical ion
 #' 		\item project_sample id integer project_sample ID
 #' }
-get_features <- function(db, project_samples = NULL, adducts = NULL) {
+get_features <- function(db, project_samples = NULL, adducts = NULL, chemical_type = NULL) {
 	if (is.null(project_samples) | is.null(adducts)) return(data.frame())
 	query <- sprintf("select * from feature where project_sample in (%s) 
-		and chloroparaffin_ion in (select chloroparaffin_ion from 
-			chloroparaffin_ion where adduct in (%s));", 
+		and chemical_ion in (select chemical_ion from 
+			chemical_ion where adduct in (%s) and chemical_type == \"%s\");", 
 		paste(project_samples, collapse = ", "), 
-		paste('"', adducts, '"', sep = "", collapse = ", "))
+		paste('"', adducts, '"', sep = "", collapse = ", "),
+		chemical_type)
 	db_get_query(db, query)
 }
 
-#' @title Get all chloroparaffin features
+#' @title Get all chemical features
 #'
 #' @description
-#' Get all features for a chloroparaffin integrated in a project_sample
+#' Get all features for a chemical integrated in a project_sample
 #'
 #' @param db sqlite connection
 #' @param project_sample integer project_sample ID
-#' @param chloroparaffin_ion integer chloroparaffin ion ID
+#' @param chemical_ion integer chemical ion ID
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -225,15 +231,15 @@ get_features <- function(db, project_samples = NULL, adducts = NULL) {
 #' 		\item abundance float abundance
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
-#' 		\item chloroparaffin_ion integer id of the chloroparaffin ion
+#' 		\item chemical_ion integer id of the chemical ion
 #' 		\item project_sample id integer project_sample ID
 #' }
-get_chloroparaffin_features <- function(db, project_sample = NULL, 
-		chloroparaffin_ion = NULL) {
-	if (is.null(project_sample) | is.null(chloroparaffin_ion)) return(data.frame())
+get_chemical_features <- function(db, project_sample = NULL, 
+		chemical_ion = NULL) {
+	if (is.null(project_sample) | is.null(chemical_ion)) return(data.frame())
 	query <- sprintf("select * from feature where project_sample == %s 
-		and chloroparaffin_ion == %s;", project_sample, 
-		chloroparaffin_ion)
+		and chemical_ion == %s;", project_sample, 
+		chemical_ion)
 	db_get_query(db, query)
 }
 
@@ -246,32 +252,33 @@ get_chloroparaffin_features <- function(db, project_sample = NULL,
 #' @param db sqlite connection
 #' @param project_sample integer project_sample ID
 #' @param adduct string adduct name use for deconvolution
+#' @param chemical_type string type of chemical studied
 #' 
-#' @return matrix with isotopic scores of chloroparaffin ions integrated
+#' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore & 
 #'		each row represent a level of carbon
-get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL) {
-	query <- if (is.null(adduct)) "select C, Cl from chloroparaffin;" 
-		else sprintf("select chloroparaffin_ion, C, Cl from chloroparaffin 
-			left join chloroparaffin_ion on 
-			chloroparaffin.chloroparaffin = chloroparaffin_ion.chloroparaffin 
-			where adduct == \"%s\";", adduct)
-	chloroparaffins <- db_get_query(db, query)
-	C <- range(chloroparaffins$C)
-	Cl <- range(chloroparaffins$Cl)
+get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemical_type = NULL) {
+	query <- if (is.null(adduct)) "select C, Cl from chemical;" 
+		else sprintf("select chemical_ion, C, Cl from chemical 
+			left join chemical_ion on 
+			chemical.chemical = chemical_ion.chemical 
+			where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+	chemicals <- db_get_query(db, query)
+	C <- range(chemicals$C)
+	Cl <- range(chemicals$Cl)
 	profile_mat <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1, 
 		dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
 	
 	if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
-	query <- sprintf("select chloroparaffin_ion, round(score,0) as score 
+	query <- sprintf("select chemical_ion, round(score,0) as score 
 		from feature where 
-		iso == \"A\" and project_sample == %s and chloroparaffin_ion in (
-			select chloroparaffin_ion from chloroparaffin_ion
-			where adduct == \"%s\");", project_sample, adduct)
+		iso == \"A\" and project_sample == %s and chemical_ion in (
+			select chemical_ion from chemical_ion
+			where adduct == \"%s\" and chemical_type == \"%s\");", project_sample, adduct, chemical_type)
 	data <- db_get_query(db, query)
 	if (nrow(data) == 0) return(profile_mat)
-	data <- merge(chloroparaffins, data, 
-		by = "chloroparaffin_ion", all.x = TRUE)
+	data <- merge(chemicals, data, 
+		by = "chemical_ion", all.x = TRUE)
 	for (row in seq(nrow(data))) profile_mat[
 		data[row, "C"] - C[1] + 1, 
 		data[row, "Cl"] - Cl[1] + 1] <- 

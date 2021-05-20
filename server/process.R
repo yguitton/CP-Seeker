@@ -136,6 +136,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param db sqlite connection
 #' @param project_samples reactive value, project_samples table
 #' @param input$project integer, project ID
+#' @param input$process_chemical_type string, type of chemical studied 
 #' @param input$process_adduct vector, Adduct name
 #' @param input$process_instrument string, name of the instrument
 #' @param input$process_resolution_index integer, index of the instrument in the resolution list of enviPat if it is not an Orbitrap
@@ -155,6 +156,7 @@ shiny::observeEvent(input$process_launch, {
 	
 	params <- list(
 		project = input$project, 
+		chemical_type = input$process_chemical_type,
 		adduct = input$process_adduct, 
 		resolution = list(
 			instrument = input$process_instrument, 
@@ -249,9 +251,9 @@ shiny::observeEvent(input$process_launch, {
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
-		ion_forms <- get_chloroparaffin_ions(db, params$adduct)
+		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
 
-  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chloroparaffin founded 
+  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded 
   		with this adduct")	
   	
 		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
@@ -277,12 +279,12 @@ shiny::observeEvent(input$process_launch, {
   		
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)	
   		peaks2 <- deconvolution(ms_file, theoric_patterns, 
-  			ion_forms$chloroparaffin_ion, scalerange, params$retention_time, 
+  			ion_forms$chemical_ion, scalerange, params$retention_time, 
   		  params$missing_scans, pb = "pb2")
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
   			project_sample = params$project_samples[i], 
   			peaks2))
-  		else toastr_error(sprintf("no chloroparaffin detected 
+  		else toastr_error(sprintf("no chemical detected 
   			in %s", params$samples[i]))
   	}
   	msg <- "record peaks"

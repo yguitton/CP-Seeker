@@ -36,6 +36,7 @@ CREATE TABLE `project` (
 CREATE TABLE `deconvolution_param` ( 
 	`deconvolution_param` INTEGER PRIMARY KEY AUTOINCREMENT, 
 	`project` INTEGER NOT NULL, 
+	`chemical_type` TEXT NOT NULL,
 	`adduct` TEXT NOT NULL, 
 	`instrument` TEXT NOT NULL, 
 	`resolution` REAL, 
@@ -69,6 +70,6 @@ CREATE TABLE `feature` (
 	`abundance` REAL NOT NULL,
 	`score` REAL NOT NULL, 
 	`deviation` REAL NOT NULL, 
-	`chloroparaffin_ion` INTEGER NOT NULL, 
+	`chemical_ion` INTEGER NOT NULL,
 	`project_sample` INTEGER NOT NULL
 );

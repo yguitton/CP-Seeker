@@ -6,8 +6,8 @@ if (is.null(reg_paths$chromium)) stop('Missing chromium in file reg_paths.json')
 if (is.null(reg_paths$converter)) stop('Missing converter in file reg_paths.json')
 if (is.null(reg_paths$thermo)) stop('Missing thermo in file reg_paths.json')
 if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
-if (is.null(reg_paths$chloroparaffin)) stop('Missing chloroparaffin in file reg_paths.json')
-if (is.null(reg_paths$chloroparaffin_ion)) stop('Missing chloroparaffin_ion in file reg_paths.json')
+if (is.null(reg_paths$chemical)) stop('Missing chemical in file reg_paths.json')
+if (is.null(reg_paths$chemical_ion)) stop('Missing chemical_ion in file reg_paths.json')
 if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
 if (is.null(reg_paths$sqlite_path)) stop('Missing sqlitePath in file reg_paths.json')
 if (is.null(reg_paths$sqlite_lighted_path)) stop('Missing sqlite lighted path in file reg_paths.json')
@@ -23,10 +23,10 @@ for (i in 1:length(reg_paths)){
         db <- RSQLite::dbConnect(RSQLite::SQLite(), path)
         queries <- readLines(reg_paths$create_database)
         lapply(queries, function(x) RSQLite::dbExecute(db, x))
-		RSQLite::dbWriteTable(db, "chloroparaffin", read.csv(
-			reg_paths$chloroparaffin, stringsAsFactors = FALSE))
-		RSQLite::dbWriteTable(db, "chloroparaffin_ion", read.csv(
-			reg_paths$chloroparaffin_ion, stringsAsFactors = FALSE))
+		RSQLite::dbWriteTable(db, "chemical", read.csv(
+			reg_paths$chemical, stringsAsFactors = FALSE))
+		RSQLite::dbWriteTable(db, "chemical_ion", read.csv(
+			reg_paths$chemical_ion, stringsAsFactors = FALSE))
 		RSQLite::dbDisconnect(db)
     }
     else if(name == "r" | name == "sqlite_lighted_path") next

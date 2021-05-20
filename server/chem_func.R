@@ -335,10 +335,10 @@ get_ms <- function(db, sample, rt) {
 		mz = round(data$mz, 5)), FUN = max)
 }
 
-#' @title Simulate all possible chloroparaffins formulas
+#' @title Simulate all possible chemicals formulas
 #'
 #' @description
-#' Simulate all possible chloroparaffins formulas with an adduct
+#' Simulate all possible chemicals formulas with an adduct
 #' Formula is C(x)Cl(y)H(2x+2-y)
 #'
 #' @param adduct_names vector(string) adduct names, must be present in the adduct list of enviPat
@@ -352,10 +352,10 @@ get_ms <- function(db, sample, rt) {
 #' 		\item C integer number of C for the formula
 #' 		\item Cl integer number of Cl for the formula
 #' 		\item H integer number of H for the formula
-#' 		\item formula string chemical formula of chloroparaffin
+#' 		\item formula string chemical formula of chemical element
 #' 		\item adduct string adduct name
-#' 		\item charge integer ion charge of chloroparaffin
-#' 		\item ion_formula string ion chemical formula of chloroparaffin with adduct
+#' 		\item charge integer ion charge of chemical
+#' 		\item ion_formula string ion chemical formula of chemical with adduct
 #' }
 #' 
 #' @examples

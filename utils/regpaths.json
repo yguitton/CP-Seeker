@@ -5,8 +5,8 @@
 "converter": "pwiz/msconvert.exe",
 "thermo": "pwiz/ThermoRawMetaDump.exe",
 "create_database": "data/create_database.min.sql",
-"chloroparaffin": "data/chloroparaffin.csv",
-"chloroparaffin_ion": "data/chloroparaffin_ion.csv",
+"chemical": "data/chemical.csv",
+"chemical_ion": "data/chemical_ion.csv",
 "sqlite_path": "database.sqlite", 
 "sqlite_lighted_path": "database_lighted.sqlite"
 }
