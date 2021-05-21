@@ -78,13 +78,15 @@ delete_project_samples <- function(db, project_samples = NULL){
 #' @param db sqlite connection
 #' @param projects vector(integers) project ids
 #' @param adducts vector(string) adduct names
-delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL) {
+#' @param chemical_type string type of chemical
+delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL, chemical_type = NULL) {
 	if (length(projects) == 0) return()
 	query <- if (length(adducts) > 0) sprintf(
 			"delete from deconvolution_param where 
-			project in (%s) and adduct in (%s);", 
+			project in (%s) and adduct in (%s) and chemical_type == \"%s\";", 
 			paste(projects, collapse = ", "),  
-			paste('"', adducts, '"', sep = "", collapse = ", "))
+			paste('"', adducts, '"', sep = "", collapse = ", "),
+			chemical_type)
 		else sprintf("delete from deconvolution_param where 
 			project == %s;", paste(projects, collapse = ", "))
 	db_execute(db, query)

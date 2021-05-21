@@ -133,9 +133,9 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
 #' 
 #' @param db sqlite connection
 #' @param adduct_name string adduct name
+#' @param chemical_type string type of chemical studied
 #' @param C integer number of carbon
 #' @param Cl integer number of chlore
-#' @param chemical_type string type of chemical studied
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -143,7 +143,7 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
 #' 		\item ion_formula string ion formula
 #' 		\item charge integer charge of ion
 #' }
-get_chemical_ion <- function(db, adduct_name = NULL, C = 0, Cl = 0, chemical_type = NULL) {
+get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0, Cl = 0) {
 	if (is.null(adduct_name)) return(data.frame())
 	query <- sprintf("select chemical_ion, ion_formula, charge 
 		from chemical_ion where adduct == \"%s\" and 

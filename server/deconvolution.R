@@ -318,7 +318,8 @@ merge_peaks <- function(peaks, eic, baseline, noise){
 		into = pracma::trapz(eic[lm[1]:lm[2], 'int']),
 		intb = intb, 
 		maxo = max(peaks[, "maxo"]), 
-		sn = intb / pracma::trapz(rep(noise, diff(lm) + 1)),
+		sn = if (noise == 0) intb 
+		  else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
 		scale = peaks[1, "scale"], 
 		scpos = peaks[1, "scpos"], 
 		scmin = min(peaks[, "scmin"]), 
@@ -614,9 +615,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		if (as.double(remaining) > 60) units(remaining) <- "mins"
 		shinyWidgets::updateProgressBar(session, id = pb, 
 			value = i * 100 / pb_max,  
-			title = sprintf("remaining~%s %s", 
-				round(as.double(remaining)), 
-				units(remaining)))
+			title = "")
 	}
 	peaks
 }

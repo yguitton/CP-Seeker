@@ -294,7 +294,7 @@ shiny::observeEvent(input$process_launch, {
   	
   	delete_features(db, params$project_samples)
   	params2 <- params
-  	params2$adduct <- delete_deconvolution_params(db, params$project, params2$adduct)
+  	params2$adduct <- delete_deconvolution_params(db, params$project, params2$adduct, params2$chemical_type)
   	
   	if (length(peaks) > 0) {
   	  params2 <- params

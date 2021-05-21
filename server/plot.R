@@ -33,7 +33,7 @@ plot_ly <- function(...) {
 #' Construct an empty chromatogram
 #'
 #' @return plotly object
-plot_empty_chromato <- function(title = "Total Ion Chromatogram(s)") {
+plot_empty_chromato <- function(title = "Extracted Ion Chromatogram(s)") {
 	p <- plot_ly(
 		type='scatter', 
 		mode='markers'
@@ -202,9 +202,9 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' @param db sqlite connection
 #' @param project_sample integer project_sample IDs
 #' @param adduct string adduct name
+#' @param chemical_type string type of chemical studied
 #' @param C integer number of carbon of chemical
 #' @param Cl integer number of chlore of chemical
-#' @param chemical_type string type of chemical studied
 #' @param ppm float m/z tolerance in ppm
 #' @param mda float m/z tolerance in mDa
 #' @param resolution list with items:
@@ -216,10 +216,10 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' 
 #' @return plotly object
 plot_chemical_EIC <- function(db, project_sample = NULL, 
-		adduct = NULL, C = 0, Cl = 0, chemical_type = NULL, ppm = 0, mda = 0, resolution = NULL) {
+		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL) {
 	p <- plot_empty_chromato("EIC")
 	
-	chemical_ion <- get_chemical_ion(db, adduct, C, Cl, chemical_type)
+	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl)
 	if (nrow(chemical_ion) == 0) return(p)
 	
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
@@ -398,9 +398,9 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 #' @param db sqlite connection
 #' @param project_sample integer project_sample IDs
 #' @param adduct string adduct name
+#' @param chemical_type string type of chemical studied
 #' @param C integer number of carbon of chemical
 #' @param Cl integer number of chlore of chemical
-#' @param chemical_type string type of chemical studied
 #' @param resolution list with items:
 #' \itemize{
 #' 		\item resolution float, resolution of instrument if Orbitrap
@@ -410,9 +410,9 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 #' 
 #' @return plotly object
 plot_chemical_MS <- function(db, project_sample = NULL, 
-		adduct = NULL, C = 0, Cl = 0, chemical_type = NULL, resolution = NULL) {
+		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, resolution = NULL) {
 	p <- plot_empty_MS(yTitle = "Abundance")
-	chemical_ion <- get_chemical_ion(db, adduct, C, Cl, chemical_type)
+	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl)
 	if (nrow(chemical_ion) == 0) return(p)
 	
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 

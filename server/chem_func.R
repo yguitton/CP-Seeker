@@ -338,14 +338,15 @@ get_ms <- function(db, sample, rt) {
 #' @title Simulate all possible chemicals formulas
 #'
 #' @description
-#' Simulate all possible chemicals formulas with an adduct
+#' Simulate all possible chemicals formulas with an adduct and a chemical type
 #' Formula is C(x)Cl(y)H(2x+2-y)
 #'
 #' @param adduct_names vector(string) adduct names, must be present in the adduct list of enviPat
+#' @param chemical_type string type of chemical studied
 #' @param min_C int minimum of C
 #' @param max_C int maximum of C
 #' @param min_Cl int minimum of Cl
-#' @parama max_Cl int maximum of Cl
+#' @param max_Cl int maximum of Cl
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -356,14 +357,17 @@ get_ms <- function(db, sample, rt) {
 #' 		\item adduct string adduct name
 #' 		\item charge integer ion charge of chemical
 #' 		\item ion_formula string ion chemical formula of chemical with adduct
+#' 		\item chemical_type string type of chemical
 #' }
 #' 
 #' @examples
-#' \dontrun{get_chloropara_form("M+Cl")}
-get_chloropara_form <- function(adduct_names, min_C = 7, max_C = 36, 
+#' \dontrun{get_chloropara_form("M+Cl", "CPs")}
+get_chloropara_form <- function(adduct_names, chemical_type, min_C = 7, max_C = 36, 
 		min_Cl = 3, max_Cl = 30) {
 	forms <- expand.grid(min_C:max_C, min_Cl:max_Cl)
-	forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
+	if(chemical_type == "CPs") forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
+	else if(chemical_type == "COs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - forms[, 2])
+	else if(chemical_type == "CdiOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - 2 - forms[, 2])
 	forms <- forms[which(forms[, 3] > 0), ]
 	forms <- cbind(forms, Var4 = paste("C", forms[, 1], "Cl", forms[, 2], 
 		"H", forms[, 3], sep = ""))
@@ -378,7 +382,8 @@ get_chloropara_form <- function(adduct_names, min_C = 7, max_C = 36,
 			)
 		)
 	}))
-	colnames(forms) <- c("C", "Cl", "H", "formula", "adduct", "charge", "ion_formula")
+	forms <- cdind(forms, Var8 = chemical_type)
+	colnames(forms) <- c("C", "Cl", "H", "formula", "adduct", "charge", "ion_formula", "chemical_type")
 	forms
 }
 

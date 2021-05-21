@@ -67,6 +67,7 @@ initComplete = htmlwidgets::JS("
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
+#' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 observeEvent(input$process_results_profile_selected, {
@@ -77,6 +78,7 @@ observeEvent(input$process_results_profile_selected, {
 	params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct, 
+		chemical_type = input$process_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
@@ -97,9 +99,9 @@ observeEvent(input$process_results_profile_selected, {
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
+#' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
-#' @param input$process_chemical_type string type of chemical studied
 #' 
 #' @return plotly object
 output$process_results_eic <- plotly::renderPlotly({
@@ -107,19 +109,20 @@ output$process_results_eic <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
-		project_sample = input$process_results_file, 
+		project_sample = input$process_results_file,
 		adduct = input$process_results_adduct, 
+		chemical_type = input$process_chemical_type, 
 		C = as.numeric(input$process_results_profile_selected$C), 
-		Cl = as.numeric(input$process_results_profile_selected$Cl),
-		chemical_type = input$process_chemical_type
+		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
 	# retrieve the parameters used for the deconvolution to trace EICs with same parameters
 	# same reasoning for the resolution parameter to simulate isotopic pattern
 	deconvolution_param <- as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
-		deconvolution_params()$adduct == params$adduct), ])
+		deconvolution_params()$adduct == params$adduct &
+		deconvolution_params()$chemical_type == params$chemical_type), ])
 	plot_chemical_EIC(db, params$project_sample, params$adduct, 
-		params$C, params$Cl, params$chemical_type, deconvolution_param$ppm, 
+		params$chemical_type, params$C, params$Cl, deconvolution_param$ppm, 
 		deconvolution_param$mda, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
@@ -140,8 +143,8 @@ output$process_results_eic <- plotly::renderPlotly({
 #' 		below the theoretical isotopic pattern
 #'
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_adduct string adduct name
+#' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 #' 
@@ -152,8 +155,8 @@ output$process_results_ms <- plotly::renderPlotly({
 		"invalid", "no cell selected")
 	params <- list(
 		project_sample = input$process_results_file,
-		chemical_type = input$process_chemical_type,
 		adduct = input$process_results_adduct, 
+		chemical_type = input$process_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
@@ -163,7 +166,7 @@ output$process_results_ms <- plotly::renderPlotly({
 		deconvolution_params()$adduct == params$adduct & 
 		deconvolution_params()$chemical_type == params$chemical_type), ])
 	plot_chemical_MS(db, params$project_sample, params$adduct, 
-		params$C, params$Cl, params$chemical_type, resolution = list(
+		params$chemical_type, params$C, params$Cl, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
 			index = deconvolution_param$resolution_index))
