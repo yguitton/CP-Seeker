@@ -71,5 +71,7 @@ CREATE TABLE `feature` (
 	`score` REAL NOT NULL, 
 	`deviation` REAL NOT NULL, 
 	`chemical_ion` INTEGER NOT NULL,
+	`intensities` REAL NOT NULL,
+	`weighted_deviation` REAL NOT NUL,
 	`project_sample` INTEGER NOT NULL
 );

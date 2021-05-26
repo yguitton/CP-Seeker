@@ -541,6 +541,8 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chemical_id integer id of the chemical
+#' 		\item intensities float standardized intensities
+#' 		\item weighted_deviation float weighted deviation
 #' }
 deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL) {
@@ -577,6 +579,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		peaks2 <- NULL
 		scores <- c(theoric_patterns[[i]][1, "weight"])
 		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
+		weight <- c(theoric_patterns[[i]][1, "weight"])
 		continue_integration <- TRUE
 		k <- 2
 		while (k < length(traces) & continue_integration) {
@@ -597,6 +600,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 							theoric_patterns[[i]][k, "weight"])
 				deviations <- c(deviations, 
 					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+				weight <- c(weight, theoric_patterns[[i]][k, "weight"])
 				peaks2 <- rbind(peaks2, peak)
 			} else continue_integration <- FALSE
 			k <- k + 1
@@ -606,7 +610,9 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 					peaks2, 
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
-					chemical_ion = chemical_ids[i]
+					chemical_ion = chemical_ids[i],
+          intensities = length(traces)*sum(peaks2[,"maxo"])/k,
+          weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
 		

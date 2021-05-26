@@ -1,7 +1,7 @@
 #' @title Profile matix table
 #'
 #' @description
-#' Display the profile matrix of a sample 
+#' Display the profile, intensities or deviation matrix of a sample 
 #' Each cell contains the score of the deconvolution according the adduct selected 
 #'    and the type of chemical studied
 #' A selection of a cell will update the input `process_results_profile_selected` 
@@ -11,6 +11,8 @@
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
 #' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_result_selected_matrix string type of matrix selected, 
+#'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
@@ -18,7 +20,8 @@ output$process_results_profile <- DT::renderDataTable({
 	params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct,
-		chemical_type = input$process_chemical_type
+		chemical_type = input$process_chemical_type,
+		selected_matrix = input$process_results_selected_matrix
 	)
 	
 	tryCatch({
@@ -37,7 +40,17 @@ output$process_results_profile <- DT::renderDataTable({
 		sweet_alert_error(e$message)
 		get_profile_matrix(db)
 	})
-    get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	
+	if(params$selected_matrix == "Scores"){
+	  get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	}
+	else if (params$selected_matrix == "Standardized intensities"){
+	  get_intensities_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	}
+	else if (params$selected_matrix == "Deviations"){
+	  get_deviation_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	}
+    
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 

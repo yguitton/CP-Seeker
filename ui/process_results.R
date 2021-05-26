@@ -7,6 +7,22 @@ shinydashboard::tabItem(tabName = 'process_results',
 				"Adduct", choices = c(), width = "40vw") 
 		)
 	),
+	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
+	  choices = c('Scores', 'Standardized intensities', 'Deviations'), 
+	  checkIcon = list(
+	  yes = shiny::tags$i(
+	    class = "fa fa-circle", 
+	    style = "color: steelblue"
+	  ), 
+	  no = shiny::tags$i(
+	    class = "fa fa-circle-o", 
+	    style = "color: steelblue"
+	  ),
+	  no = shiny::tags$i(
+	    class = "fa fa-circle-o", 
+	    style = "color: steelblue"
+	  )
+	)),
 	shinydashboard::box(width = 9,  
 		shinycssloaders::withSpinner(
 			DT::dataTableOutput('process_results_profile')

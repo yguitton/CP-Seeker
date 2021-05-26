@@ -166,20 +166,23 @@ record_deconvolution_params <- function(db, params) {
 #' 		\item score float isotopic pattern score
 #' 		\item deviation float m/z deviation
 #' 		\item chemical_ion integer id of the chemical ion
+#' 		\item intensities float standardized intensity
+#' 		\item weighted_deviation float weighted deviation
 #' 		\item project_sample id integer project_sample ID
 #' }
 record_features <- function(db, features) {
   features <- features[which(features$score > 0), ]
 	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
 		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
-		score, deviation, chemical_ion, project_sample) values %s;", 
+		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
 		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			\"%s\", %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
+			\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
 			features$mzmax, features$rt, features$rtmin, features$rtmax, 
 			features$into, features$intb, features$maxo, features$sn, 
 			features$scale, features$scpos, features$scmin, features$scmax, 
 			features$iso, features$abundance, features$score, 
-			features$deviation, features$chemical_ion, features$project_sample), 
+			features$deviation, features$chemical_ion, features$intensities, 
+			features$weighted_deviation, features$project_sample), 
 			collapse = ", "))
 	db_execute(db, query)
 }
