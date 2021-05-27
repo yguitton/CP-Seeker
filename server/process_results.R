@@ -191,3 +191,35 @@ output$process_results_ms <- plotly::renderPlotly({
 		plot_empty_MS()
 	})
 })
+
+#' @title Download matrix
+#' 
+#' @description 
+#' Download the selected matrix at the xlsx format
+#' 
+#' @param input$process_results_file integer project_sample ID
+#' @param input$process_results_adduct string adduct name
+#' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_result_selected_matrix string type of matrix selected, 
+#'   can be "Scores", "Standardized intensities", "Deviations"
+#' 
+#' @return xlsx file
+output$process_results_download <- shiny::downloadHandler(
+  filename = function() { paste("CPSeeker0.1_", input$process_results_selected_matrix, ".xlsx", sep = "") },
+  content = function(file) {
+    if(input$process_results_selected_matrix == "Scores") {
+      matr <- get_profile_matrix(db, input$process_results_file, 
+        input$process_results_adduct, input$process_chemical_type)
+    }
+    else if(input$process_results_selected_matrix == "Standardized intensities"){
+      matr <- get_intensities_matrix(db, input$process_results_file,
+        input$process_results_adduct, input$process_chemical_type)
+    }
+    else if(input$process_results_selected_matrix == "Deviations"){
+      matr <- get_deviation_matrix(db, input$process_results_file, 
+        input$process_results_adduct, input$process_chemical_type)
+    }
+    first_col <- matrix(dimnames(matr)[[1]])
+    matr <- cbind(first_col, matr)
+    write.xlsx(matr, file)
+})

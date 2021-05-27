@@ -7,6 +7,8 @@ shinydashboard::tabItem(tabName = 'process_results',
 				"Adduct", choices = c(), width = "40vw") 
 		)
 	),
+	shiny::downloadButton('process_results_download', 'Download matrix'
+	),
 	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
 	  choices = c('Scores', 'Standardized intensities', 'Deviations'), 
 	  checkIcon = list(
