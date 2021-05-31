@@ -10,8 +10,8 @@
 #' @param db sqlite connection
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
-#' @param input$process_chemical_type string type of chemical studied
-#' @param input$process_result_selected_matrix string type of matrix selected, 
+#' @param input$process_results_chemical_type string type of chemical studied
+#' @param input$process_results_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
 #' DataTable instance with the profile matrix
@@ -20,7 +20,7 @@ output$process_results_profile <- DT::renderDataTable({
 	params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct,
-		chemical_type = input$process_chemical_type,
+		chemical_type = input$process_results_chemical_type,
 		selected_matrix = input$process_results_selected_matrix
 	)
 	

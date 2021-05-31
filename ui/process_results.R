@@ -4,10 +4,10 @@ shinydashboard::tabItem(tabName = 'process_results',
 			shiny::selectInput("process_results_file", "Select sample", 
 				choices = c(), multiple = FALSE, width = "40vw"),
 			shiny::selectInput("process_results_adduct", 
-				"Adduct", choices = c(), width = "40vw") 
+				"Adduct", choices = c(), width = "40vw"),
+			shiny::selectInput("process_results_chemical_type",
+			  "Chemical", choices = c("CPs", "COs", "CdiOs"), width = "40vw")
 		)
-	),
-	shiny::downloadButton('process_results_download', 'Download matrix'
 	),
 	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
 	  choices = c('Scores', 'Standardized intensities', 'Deviations'), 
@@ -19,13 +19,11 @@ shinydashboard::tabItem(tabName = 'process_results',
 	  no = shiny::tags$i(
 	    class = "fa fa-circle-o", 
 	    style = "color: steelblue"
-	  ),
-	  no = shiny::tags$i(
-	    class = "fa fa-circle-o", 
-	    style = "color: steelblue"
 	  )
 	)),
-	shinydashboard::box(width = 9,  
+	shinydashboard::box(width = 9,
+	  shiny::downloadButton('process_results_download', 'Download matrix'
+	),
 		shinycssloaders::withSpinner(
 			DT::dataTableOutput('process_results_profile')
 		)
