@@ -1,9 +1,8 @@
 #' @title Event when switch between deconvolution and standard study
 #' 
 #' @description
-#' If deconvolution is choose, will display deconvolution parameters.
-#' Else if standard is choose, will display standard parameters : standard formula, 
-#'   adduct and retention time.
+#' If deconvolution is choose, will display the choice of the type of chemical
+#' Else if standard is choose, will display the choice of the standard formula
 #' 
 #' @param input$process_chemical_standard string, choice 
 shiny::observeEvent(input$process_chemical_standard, {
@@ -215,7 +214,7 @@ shiny::observeEvent(input$process_launch, {
 	  retention_time = c(input$process_standard_retention_time - 2, input$process_standard_retention_time + 2),
 	  missing_scans = input$process_missing_scans
 	  )
-	  if(params$retention_time[1] < 0) params$retention_time[1] <- 0
+	  if(is.na(params$retention_time[1]) == FALSE & params$retention_time[1] < 0) params$retention_time[1] <- 0
 	 }
 	print(params)
 	

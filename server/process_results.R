@@ -1,3 +1,24 @@
+#' @title Event when switch between chemical and standard
+#' 
+#' @description 
+#' If chemical is choose, will display the choice of the chemical type.
+#' If standard is choose, will display the choice of the formula.
+#' 
+#' @param input$process_results_study string, choice
+shiny::observeEvent(input$process_results_study, {
+  params <- list(choice = input$process_results_study)
+  if (params$choice == "chemical") {
+    shinyjs::show("process_results_chemical")
+    shinyjs::hide("process_results_standard")
+    shinyjs::show("process_results_download")
+  }
+  else if (params$choice == "standard") {
+    shinyjs::hide("process_results_chemical")
+    shinyjs::show("process_results_standard")
+    shinyjs::hide("process_results_download")
+  }
+})
+
 #' @title Profile matix table
 #'
 #' @description
@@ -10,9 +31,11 @@
 #' @param db sqlite connection
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
+#' @param input$process_results_study string type of study
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
+#' @param input$process_results_standard_formula string standard formula
 #' 
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
@@ -20,8 +43,10 @@ output$process_results_profile <- DT::renderDataTable({
 	params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct,
+		study = input$process_results_study,
 		chemical_type = input$process_results_chemical_type,
-		selected_matrix = input$process_results_selected_matrix
+		selected_matrix = input$process_results_selected_matrix,
+		standard_formula = input$process_results_standard_formula
 	)
 	
 	tryCatch({
@@ -40,15 +65,21 @@ output$process_results_profile <- DT::renderDataTable({
 		sweet_alert_error(e$message)
 		get_profile_matrix(db)
 	})
-	
-	if(params$selected_matrix == "Scores"){
-	  get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	if(params$study == "chemical"){
+	  shinyjs::show("process_results_selected_matrix")
+	  if(params$selected_matrix == "Scores"){
+  	  get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	}
+  	else if (params$selected_matrix == "Standardized intensities"){
+  	  get_intensities_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	}
+  	else if (params$selected_matrix == "Deviations"){
+  	  get_deviation_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	}
 	}
-	else if (params$selected_matrix == "Standardized intensities"){
-	  get_intensities_matrix(db, params$project_sample, params$adduct, params$chemical_type)
-	}
-	else if (params$selected_matrix == "Deviations"){
-	  get_deviation_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+	else if(params$study == "standard"){
+	  shinyjs::hide("process_results_selected_matrix")
+	  get_standard_table(db, params$project_sample, params$adduct, params$standard_formula)
 	}
     
 }, selection = "none", server = FALSE, extensions = 'Scroller', 

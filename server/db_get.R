@@ -394,3 +394,34 @@ get_deviation_matrix <- function(db, project_sample = NULL, adduct = NULL, chemi
       scales::scientific(data[row, "weighted_deviation"], digits = 3, decimal.mark = ",")
   deviation_mat
 }
+
+#' @title Get standard table
+#' 
+#' @description
+#' Construct standard table with standard formula, adduct, area, score and deviation
+#' 
+#' @param db sqlite connection
+#' @param project_sample
+#' @param adduct
+#' @param standard_formula
+#' 
+#' @return table with standard formula, adduct, area, score and deviation of the standard studied
+get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standard_formula = NULL){
+  query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+    iso == \"A\" and project_sample == %s and chemical_ion in (
+      select chemical_ion from standard_ion where adduct == \"%s\" 
+      and standard == \"%s\");', project_sample, adduct, standard_formula)
+  data <- db_get_query(db, query)
+  if(nrow(data)==0){
+    data <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
+    data <- cbind(formula = standard_formula, adduct = adduct, data)
+    return(data)
+  }
+  data <- cbind(formula = standard_formula, adduct = adduct, data)
+  data$into <- round(data$into, digits = 2)
+  data$intb <- round(data$intb, digits = 2)
+  data$score <- round(data$score, digits = 0)
+  data$weighted_deviation <- scales::scientific(data$weighted_deviation, digits = 3, decimal.mark = ",")
+  data.table::setnames(data, c("into", "intb"), c("total area", "area above baseline"))
+  data
+}
