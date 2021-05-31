@@ -4,35 +4,81 @@ shinydashboard::tabItem(tabName = 'process',
       shinyWidgets::actionBttn('process_launch', 'Launch deconvolution process', 
         style = 'minimal', color = 'primary')
     ),
-		bsplus::shinyInput_label_embed(
-		  shiny::radioButtons("process_chemical_type",
-		    "Type of chemical", choices = c("CPs", "COs", "CdiOs")),
-		  bsplus::bs_embed_tooltip(
-		    bsplus::shiny_iconlink(),
-		    placement = 'top',
-		    title = 'Type of chemical to study'
-		  )
+    shinyWidgets::radioGroupButtons('process_chemical_standard', '', justified = TRUE,
+      choices = c('chemical', 'standard'),
+      checkIcon = list(
+        yes = shiny::tags$i(
+          class = "fa fa-circle", 
+          style = "color: steelblue"
+        ), 
+        no = shiny::tags$i(
+          class = "fa fa-circle-o", 
+          style = "color: steelblue"
+        )
+      )
+    ),
+		shiny::tags$div(id = "process_chemical",
+      bsplus::shinyInput_label_embed(
+  		  shiny::radioButtons("process_chemical_type",
+  		    "Type of chemical", choices = c("CPs", "COs", "CdiOs")),
+  		  bsplus::bs_embed_tooltip(
+  		    bsplus::shiny_iconlink(),
+  		    placement = 'top',
+  		    title = 'Type of chemical to study'
+  		  )
+  		),
+  		bsplus::shinyInput_label_embed(
+  			shiny::selectInput("process_adduct", 
+  				"Adduct(s)", choices = available_adducts, multiple = TRUE),
+  			bsplus::bs_embed_tooltip(
+  				bsplus::shiny_iconlink(),
+  				placement = 'top', 
+  				title = 'Adducts to use for ion formula generation'
+  			)
+  		)
 		),
-		bsplus::shinyInput_label_embed(
-			shiny::selectInput("process_adduct", 
-				"Adduct(s)", choices = available_adducts, multiple = TRUE),
-			bsplus::bs_embed_tooltip(
-				bsplus::shiny_iconlink(),
-				placement = 'top', 
-				title = 'Adducts to use for ion formula generation'
-			)
-		),
-		shiny::tags$div(style = "display: flex; align-items: center;", 
-			shiny::tags$div(style = "margin-right: 0px;", 
-				shiny::numericInput("process_mz_tol", "mass tolerance", 
-					value = 5)
-			), 
-			shiny::tags$div(style = "margin-left: 0px;", 
-				shiny::tags$br(), 
-				shinyWidgets::switchInput("process_mz_tol_unit", "", 
-					value = TRUE, onLabel = "ppm", offLabel = "mDa")
-			)
-		), 		
+    shinyjs::hidden(
+      shiny::tags$div(id = "process_standard",
+        bsplus::shinyInput_label_embed(
+          shiny::selectInput("process_standard_formula", "Standard formula", 
+            choices = c("C12D18Br6", "[13]C12H18Br6")),
+          bsplus::bs_embed_tooltip(
+            bsplus::shiny_iconlink(),
+            placement = 'top',
+            title = "Formula of the standard"
+          )
+        ),
+        bsplus::shinyInput_label_embed(
+          shiny::selectInput("process_standard_adduct", "Adduct",
+            choices = c("M-H", "M+Cl")),
+          bsplus::bs_embed_tooltip(
+            bsplus::shiny_iconlink(),
+            placement = 'top',
+            title = "Adduct to use"
+          )
+        ),
+        bsplus::shinyInput_label_embed(
+          shiny::numericInput("process_standard_retention_time", "Retention time (min)",
+            value = NA),
+          bsplus::bs_embed_tooltip(
+            bsplus::shiny_iconlink(),
+            placement = 'top',
+            title = "Retention time to use for the standard study"
+          )
+        )
+      )
+    ),
+  	shiny::tags$div(style = "display: flex; align-items: center;", 
+  		shiny::tags$div(style = "margin-right: 0px;", 
+  			shiny::numericInput("process_mz_tol", "mass tolerance", 
+  				value = 5)
+  		), 
+  		shiny::tags$div(style = "margin-left: 0px;", 
+  			shiny::tags$br(), 
+  			shinyWidgets::switchInput("process_mz_tol_unit", "", 
+  				value = TRUE, onLabel = "ppm", offLabel = "mDa")
+  		)
+  	), 		
 		shiny::selectInput('process_instrument', 'Instrument', 
 			choices = c("Orbitrap", "QTOF_XevoG2-S", "Sciex_TripleTOF5600", 
 				"Sciex_TripleTOF6600", "Sciex_QTOFX500R", "Agilent_QTOF6550")),
@@ -112,7 +158,7 @@ shinydashboard::tabItem(tabName = 'process',
 			)
 		)
 	), 
-	
+  
 	shinydashboard::box(width = 9, 
 		shinycssloaders::withSpinner(plotly::plotlyOutput('process_TIC')),
 		tags$hr(),

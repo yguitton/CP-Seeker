@@ -93,6 +93,28 @@ delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL, che
 	actualize$deconvolution_params <<- runif(1)	
 }
 
+#' @title Delete standard deconvolution parameters in db
+#'
+#' @description
+#' Delete standard deconvolution parameters in db
+#' 
+#' @param db sqlite connection
+#' @param projects vector(integers) project ids
+#' @param adduct string adduct names
+#' @param standard_formula string type of chemical
+delete_standard_deconvolution_params <- function(db, projects = NULL, adduct = NULL, standard_formula = NULL) {
+  if (length(projects) == 0) return()
+  query <- if (length(adduct) > 0) sprintf(
+    "delete from standard_deconvolution_param where 
+			project in (%s) and adduct == \"%s\" and standard_formula == \"%s\";", 
+    paste(projects, collapse = ", "),  
+    adduct, standard_formula)
+  else sprintf("delete from deconvolution_param where 
+			project == %s;", paste(projects, collapse = ", "))
+  db_execute(db, query)
+  actualize$standard_deconvolution_params <<- runif(1)	
+}
+
 #' @title Delete features in db
 #'
 #' @description

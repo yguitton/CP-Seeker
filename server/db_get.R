@@ -152,6 +152,29 @@ get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0
 	db_get_query(db, query)
 }
 
+#' @title Get standard ion
+#' 
+#' @description
+#' Get standard ion given an adduct name and a standard formula
+#' 
+#' @param db sqlite connection
+#' @param adduct_name string adduct name
+#' @param standard_formula string formula of the standard
+#'
+#' @return dataframe with columns:
+#' \itemize{
+#' 		\item chemical_ion integer chemical_ion ID
+#' 		\item ion_formula string ion formula
+#' 		\item charge integer charge of ion
+#' }
+get_standard_ion <- function(db, adduct_name = NULL, standard_formula = NULL) {
+  if (is.null(adduct_name) | is.null(standard_formula)) return(data.frame())
+  query <- sprintf("select chemical_ion, ion_formula, charge 
+		from standard_ion where adduct == \"%s\" and 
+		standard == \"%s\" ;", adduct_name, standard_formula)
+  db_get_query(db, query)
+}
+
 #' @title Get all features
 #'
 #' @descriptition

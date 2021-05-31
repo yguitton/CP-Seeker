@@ -1,3 +1,27 @@
+#' @title Event when switch between deconvolution and standard study
+#' 
+#' @description
+#' If deconvolution is choose, will display deconvolution parameters.
+#' Else if standard is choose, will display standard parameters : standard formula, 
+#'   adduct and retention time.
+#' 
+#' @param input$process_chemical_standard string, choice 
+shiny::observeEvent(input$process_chemical_standard, {
+  params <- list(choice = input$process_chemical_standard)
+  if (params$choice == "chemical") {
+    shinyjs::show("process_chemical")
+    shinyjs::hide("process_standard")
+    shinyjs::show("process_retention_time_max")
+    shinyjs::show("process_retention_time_min")
+  }
+  else if (params$choice == "standard") {
+    shinyjs::hide("process_chemical")
+    shinyjs::show("process_standard")
+    shinyjs::hide("process_retention_time_max")
+    shinyjs::hide("process_retention_time_min")
+  }
+})
+
 #' @title Event when choosing instrument
 #'
 #' @description
@@ -154,7 +178,8 @@ shiny::observeEvent(input$process_launch, {
 	print('######################### PROCESS ##########################')
 	print('############################################################')
 	
-	params <- list(
+	if(input$process_chemical_standard == "chemical") params <- list(
+	  study = input$process_chemical_standard,
 		project = input$project, 
 		chemical_type = input$process_chemical_type,
 		adduct = input$process_adduct, 
@@ -171,6 +196,27 @@ shiny::observeEvent(input$process_launch, {
 		retention_time = c(input$process_retention_time_min, input$process_retention_time_max),
 		missing_scans = input$process_missing_scans
 	)
+	else if(input$process_chemical_standard == "standard") {
+	  params <- list(
+	  study = input$process_chemical_standard,
+	  project = input$project, 
+	  standard_formula = input$process_standard_formula,
+	  adduct = input$process_standard_adduct, 
+	  resolution = list(
+	    instrument = input$process_instrument, 
+	    index = as.numeric(input$process_resolution_index), 
+	    resolution = input$process_resolution * 10**3, 
+	    mz = input$process_resolution_mz
+	  ), 
+	  mz_tol = input$process_mz_tol, 
+	  mz_tol_unit = input$process_mz_tol_unit, 
+	  ppm = 0, mda = 0, 
+	  peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
+	  retention_time = c(input$process_standard_retention_time - 2, input$process_standard_retention_time + 2),
+	  missing_scans = input$process_missing_scans
+	  )
+	  if(params$retention_time[1] < 0) params$retention_time[1] <- 0
+	 }
 	print(params)
 	
 	tryCatch({
@@ -251,8 +297,9 @@ shiny::observeEvent(input$process_launch, {
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
-		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
-
+		if(params$study == "chemical") ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
+		else if(params$study == "standard") ion_forms <- get_standard_ion(db, params$adduct, params$standard_formula)
+    
   	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded 
   		with this adduct")	
   	
@@ -294,11 +341,15 @@ shiny::observeEvent(input$process_launch, {
   	
   	delete_features(db, params$project_samples)
   	params2 <- params
-  	params2$adduct <- delete_deconvolution_params(db, params$project, params2$adduct, params2$chemical_type)
+  	if(params$study == "chemical") params2$adduct <- delete_deconvolution_params(
+  	  db, params$project, params2$adduct, params2$chemical_type)
+  	else if(params$study == "standard") params2$adduct <- delete_standard_deconvolution_params(
+  	  db, params$project, params2$adduct, params2$standard_formula)
   	
   	if (length(peaks) > 0) {
   	  params2 <- params
-  	  params2 <- record_deconvolution_params(db, params2)
+  	  if(params$study == "chemical") params2 <- record_deconvolution_params(db, params2)
+  	  else if(params$study == "standard") params2 <- record_standard_deconvolution_params(db, params2)
   		record_features(db, peaks)
   	}
 

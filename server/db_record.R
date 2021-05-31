@@ -138,6 +138,46 @@ record_deconvolution_params <- function(db, params) {
 	actualize$deconvolution_params <<- runif(1)
 }
 
+#' @title Record standard deconvolution params
+#'
+#' @description
+#' Record standard deconvolution parameters
+#' 
+#' @param db sqlite connection
+#' @param params list with items:
+#' \itemize{
+#' 		\item project integer project ID
+#' 		\item standard_formula string type of chemical studied
+#' 		\item adduct string adduct name
+#' 		\item list with items: 
+#' 		\itemize{
+#'			\item instrument
+#' 			\item resolution
+#' 			\item mz 
+#' 			\item index
+#' 		}
+#' 		\item ppm float ppm tolerance used
+#' 		\item mda float mda tolerance used
+#' 		\item peakwidth vector(float)[2] peakwidth
+#' 		\item retention_time vector (float)[2] retention time
+#' 		\item missing_scans integer missing scan parameter
+#' }
+record_standard_deconvolution_params <- function(db, params) {
+  query <- sprintf("insert into standard_deconvolution_param (project, standard_formula, adduct, 
+		instrument, resolution, resolution_mz, resolution_index, ppm, 
+		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
+		missing_scans) values %s", 
+      paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+        params$project, params$standard_formula, params$adduct, params$resolution$instrument, 
+        params$resolution$resolution, params$resolution$mz, 
+        params$resolution$index, params$ppm, params$mda, 
+        params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
+        params$retention_time[2],params$missing_scans), collapse = ",")
+  )
+  db_execute(db, query)
+  actualize$standard_deconvolution_params <<- runif(1)
+}
+
 #' @title Record features
 #' 
 #' @description 

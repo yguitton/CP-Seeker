@@ -1,0 +1,5 @@
+"chemical_ion","ion_formula","adduct","charge","standard"
+1,"C12D17Br6","M-H",-1,"C12D18Br6"
+2,"C12[2]H18Br6Cl1","M+Cl",-1,"C12D18Br6"
+3,"[13]C12H17Br6","M-H",-1,"[13]C12H18Br6"
+4,"[13]C12H18Br6Cl1","M+Cl",-1,"[13]C12H18Br6"
