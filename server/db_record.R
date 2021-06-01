@@ -226,3 +226,52 @@ record_features <- function(db, features) {
 			collapse = ", "))
 	db_execute(db, query)
 }
+
+#' @title Record standard features
+#' 
+#' @description 
+#' Record standard feature in database
+#'
+#' @param features dataframe with columns:
+#' \itemize{
+#' 		\item mz float m/z
+#' 		\item mzmin float born m/z min
+#' 		\item mzmax float born m/z max
+#' 		\item rt float rT
+#' 		\item rtmin float born rT min
+#' 		\item rtmax float born rT max
+#' 		\item into float area integrated
+#' 		\item intb float area above baseline integrated
+#' 		\item maxo float max intensity
+#' 		\item sn float signal/noise
+#' 		\item scale integer wave used for integration
+#' 		\item scpos integer center scan position
+#' 		\item scmin integer born scan min
+#' 		\item scmax integer born scan max
+#' 		\item lmin integer to ignore
+#' 		\item lmax integer to ignore
+#' 		\item iso string isotopologue annotation
+#' 		\item abundance float abundance
+#' 		\item score float isotopic pattern score
+#' 		\item deviation float m/z deviation
+#' 		\item standard_ion integer id of the standard ion
+#' 		\item intensities float standardized intensity
+#' 		\item weighted_deviation float weighted deviation
+#' 		\item project_sample id integer project_sample ID
+#' }
+record_standard_features <- function(db, features) {
+  features <- features[which(features$score > 0), ]
+  query <- sprintf("insert into standard_feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
+		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
+		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
+    paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+			\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
+      features$mzmax, features$rt, features$rtmin, features$rtmax, 
+      features$into, features$intb, features$maxo, features$sn, 
+      features$scale, features$scpos, features$scmin, features$scmax, 
+      features$iso, features$abundance, features$score, 
+      features$deviation, features$chemical_ion, features$intensities, 
+      features$weighted_deviation, features$project_sample), 
+      collapse = ", "))
+  db_execute(db, query)
+}

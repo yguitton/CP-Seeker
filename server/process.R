@@ -338,16 +338,24 @@ shiny::observeEvent(input$process_launch, {
   	shinyWidgets::updateProgressBar(session, id = 'pb', 
   		title = msg, value = 100)	
   	
-  	delete_features(db, params$project_samples)
-  	if(params$study == "chemical") delete_deconvolution_params(
-  	  db, params$project, params$adduct, params$chemical_type)
-  	else if(params$study == "standard") delete_standard_deconvolution_params(
-  	  db, params$project, params$adduct, params$standard_formula)
+  	if(params$study == "chemical") {
+  	  delete_features(db, params$project_samples, params$adduct, params$chemical_type)
+  	  delete_deconvolution_params(db, params$project, params$adduct, params$chemical_type)
+  	 }
+  	else if(params$study == "standard") {
+  	  delete_standard_features(db, params$project_samples, params$adduct, params$standard_formula)
+  	  delete_standard_deconvolution_params(db, params$project, params$adduct,
+  	    params$standard_formula)
+  	  }
   	
   	if (length(peaks) > 0) {
-  	  if(params$study == "chemical") record_deconvolution_params(db, params)
-  	  else if(params$study == "standard") record_standard_deconvolution_params(db, params)
-  		record_features(db, peaks)
+  	  if(params$study == "chemical") {
+  	    record_deconvolution_params(db, params)
+  	    record_features(db, peaks)
+  	  }
+  	  else if(params$study == "standard") {
+  	    record_standard_deconvolution_params(db, params)
+  	    record_standard_features(db, peaks)}
   	}
 
 		print('done')

@@ -337,7 +337,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
 #' 
 #' @return table with standard formula, adduct, area, score and deviation of the standard studied
 get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standard_formula = NULL){
-  query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+  query <- sprintf('select `into`, intb, score, weighted_deviation from standard_feature where
     iso == \"A\" and project_sample == %s and chemical_ion in (
       select chemical_ion from standard_ion where adduct == \"%s\" 
       and standard == \"%s\");', project_sample, adduct, standard_formula)

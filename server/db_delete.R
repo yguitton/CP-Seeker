@@ -122,9 +122,29 @@ delete_standard_deconvolution_params <- function(db, projects = NULL, adduct = N
 #' 
 #' @param db sqlite connection
 #' @param project_samples vector(integers) project_samples ids
-delete_features <- function(db, project_samples = NULL) {
+delete_features <- function(db, project_samples = NULL, adduct = NULL, chemical_type = NULL) {
 	if (length(project_samples) == 0) return()
-	query <- sprintf("delete from feature where project_sample in (%s);", 
-		paste(project_samples, collapse = ", "))
+	query <- sprintf("delete from feature where project_sample in (%s) and chemical_ion in (
+	  select chemical_ion from chemical_ion where adduct in (%s) and chemical_type in (%s));", 
+		paste(project_samples, collapse = ", "),
+		paste(sprintf("\"%s\"", adduct)),
+		paste(sprintf("\"%s\"", chemical_type)))
 	db_execute(db, query)
+}
+
+#' @title Delete standard features in db
+#'
+#' @description
+#' Delete standard features in db
+#' 
+#' @param db sqlite connection
+#' @param project_samples vector(integers) project_samples ids
+delete_standard_features <- function(db, project_samples = NULL, adduct = NULL, standard = NULL) {
+  if (length(project_samples) == 0) return()
+  query <- sprintf("delete from standard_feature where project_sample in (%s) and chemical_ion in (
+	  select chemical_ion from standard_ion where adduct in (%s) and standard in (%s));", 
+    paste(project_samples, collapse = ", "),
+    paste(sprintf("\"%s\"", adduct)),
+    paste(sprintf("\"%s\"", standard)))
+  db_execute(db, query)
 }
