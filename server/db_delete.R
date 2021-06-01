@@ -127,8 +127,8 @@ delete_features <- function(db, project_samples = NULL, adduct = NULL, chemical_
 	query <- sprintf("delete from feature where project_sample in (%s) and chemical_ion in (
 	  select chemical_ion from chemical_ion where adduct in (%s) and chemical_type in (%s));", 
 		paste(project_samples, collapse = ", "),
-		paste(sprintf("\"%s\"", adduct)),
-		paste(sprintf("\"%s\"", chemical_type)))
+		paste(sprintf("\"%s\"", adduct), collapse = ", "),
+		paste(sprintf("\"%s\"", chemical_type), collapse = ", "))
 	db_execute(db, query)
 }
 
@@ -144,7 +144,7 @@ delete_standard_features <- function(db, project_samples = NULL, adduct = NULL, 
   query <- sprintf("delete from standard_feature where project_sample in (%s) and chemical_ion in (
 	  select chemical_ion from standard_ion where adduct in (%s) and standard in (%s));", 
     paste(project_samples, collapse = ", "),
-    paste(sprintf("\"%s\"", adduct)),
-    paste(sprintf("\"%s\"", standard)))
+    paste(sprintf("\"%s\"", adduct), collapse = ", "),
+    paste(sprintf("\"%s\"", standard), collapse = ", "))
   db_execute(db, query)
 }

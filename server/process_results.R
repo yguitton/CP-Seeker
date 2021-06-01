@@ -135,7 +135,7 @@ observeEvent(input$process_results_profile_selected, {
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
-#' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 #' 
@@ -147,7 +147,7 @@ output$process_results_eic <- plotly::renderPlotly({
 	params <- list(
 		project_sample = input$process_results_file,
 		adduct = input$process_results_adduct, 
-		chemical_type = input$process_chemical_type, 
+		chemical_type = input$process_results_chemical_type, 
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
@@ -180,7 +180,7 @@ output$process_results_eic <- plotly::renderPlotly({
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
-#' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 #' 
@@ -192,7 +192,7 @@ output$process_results_ms <- plotly::renderPlotly({
 	params <- list(
 		project_sample = input$process_results_file,
 		adduct = input$process_results_adduct, 
-		chemical_type = input$process_chemical_type,
+		chemical_type = input$process_results_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
