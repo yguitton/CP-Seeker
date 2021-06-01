@@ -67,15 +67,7 @@ output$process_results_profile <- DT::renderDataTable({
 	})
 	if(params$study == "chemical"){
 	  shinyjs::show("process_results_selected_matrix")
-	  if(params$selected_matrix == "Scores"){
-  	  get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
-  	}
-  	else if (params$selected_matrix == "Standardized intensities"){
-  	  get_intensities_matrix(db, params$project_sample, params$adduct, params$chemical_type)
-  	}
-  	else if (params$selected_matrix == "Deviations"){
-  	  get_deviation_matrix(db, params$project_sample, params$adduct, params$chemical_type)
-  	}
+  	get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type, params$selected_matrix)
 	}
 	else if(params$study == "standard"){
 	  shinyjs::hide("process_results_selected_matrix")
@@ -230,7 +222,7 @@ output$process_results_ms <- plotly::renderPlotly({
 #' 
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_adduct string adduct name
-#' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_result_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
@@ -238,18 +230,13 @@ output$process_results_ms <- plotly::renderPlotly({
 output$process_results_download <- shiny::downloadHandler(
   filename = function() { paste("CPSeeker0.1_", input$process_results_selected_matrix, ".xlsx", sep = "") },
   content = function(file) {
-    if(input$process_results_selected_matrix == "Scores") {
-      matr <- get_profile_matrix(db, input$process_results_file, 
-        input$process_results_adduct, input$process_chemical_type)
-    }
-    else if(input$process_results_selected_matrix == "Standardized intensities"){
-      matr <- get_intensities_matrix(db, input$process_results_file,
-        input$process_results_adduct, input$process_chemical_type)
-    }
-    else if(input$process_results_selected_matrix == "Deviations"){
-      matr <- get_deviation_matrix(db, input$process_results_file, 
-        input$process_results_adduct, input$process_chemical_type)
-    }
+    params <- list(
+      file = input$process_results_file,
+      adduct = input$process_results_adduct,
+      chemical_type = input$process_results_chemical_type,
+      selected_matrix = input$process_results_selected_matrix)
+    matr <- get_profile_matrix(db, params$file, params$adduct, 
+      params$chemical_type, params$selected_matrix)
     first_col <- matrix(dimnames(matr)[[1]])
     matr <- cbind(first_col, matr)
     write.xlsx(matr, file)
