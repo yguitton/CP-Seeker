@@ -19,7 +19,7 @@ shinydashboard::tabItem(tabName = 'process',
     ),
 		shiny::tags$div(id = "process_chemical",
       bsplus::shinyInput_label_embed(
-  		  shiny::radioButtons("process_chemical_type",
+  		  shiny::checkboxGroupInput("process_chemical_type",
   		    "Type of chemical", choices = c("CPs", "COs", "CdiOs")),
   		  bsplus::bs_embed_tooltip(
   		    bsplus::shiny_iconlink(),

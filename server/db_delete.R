@@ -83,10 +83,10 @@ delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL, che
 	if (length(projects) == 0) return()
 	query <- if (length(adducts) > 0) sprintf(
 			"delete from deconvolution_param where 
-			project in (%s) and adduct in (%s) and chemical_type == \"%s\";", 
+			project in (%s) and adduct in (%s) and chemical_type in (%s);", 
 			paste(projects, collapse = ", "),  
-			paste('"', adducts, '"', sep = "", collapse = ", "),
-			chemical_type)
+			paste(sprintf("\"%s\"", adducts), collapse = ", "),
+			paste(sprintf("\"%s\"", chemical_type), collapse = ","))
 		else sprintf("delete from deconvolution_param where 
 			project == %s;", paste(projects, collapse = ", "))
 	db_execute(db, query)

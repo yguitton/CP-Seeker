@@ -339,16 +339,14 @@ shiny::observeEvent(input$process_launch, {
   		title = msg, value = 100)	
   	
   	delete_features(db, params$project_samples)
-  	params2 <- params
-  	if(params$study == "chemical") params2$adduct <- delete_deconvolution_params(
-  	  db, params$project, params2$adduct, params2$chemical_type)
-  	else if(params$study == "standard") params2$adduct <- delete_standard_deconvolution_params(
-  	  db, params$project, params2$adduct, params2$standard_formula)
+  	if(params$study == "chemical") delete_deconvolution_params(
+  	  db, params$project, params$adduct, params$chemical_type)
+  	else if(params$study == "standard") delete_standard_deconvolution_params(
+  	  db, params$project, params$adduct, params$standard_formula)
   	
   	if (length(peaks) > 0) {
-  	  params2 <- params
-  	  if(params$study == "chemical") params2 <- record_deconvolution_params(db, params2)
-  	  else if(params$study == "standard") params2 <- record_standard_deconvolution_params(db, params2)
+  	  if(params$study == "chemical") record_deconvolution_params(db, params)
+  	  else if(params$study == "standard") record_standard_deconvolution_params(db, params)
   		record_features(db, peaks)
   	}
 

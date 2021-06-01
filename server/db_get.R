@@ -120,9 +120,9 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
 	query <- sprintf("select chemical_ion, ion_formula, charge 
 		from chemical_ion where adduct in (%s)
-		and chemical_type == \"%s\";",
+		and chemical_type in (%s);",
 	  paste(sprintf("\"%s\"", adduct_name), collapse = ","), 
-	  chemical_type)
+	  paste(sprintf("\"%s\"", chemical_type), collapse = ","))
 	db_get_query(db, query)
 }
 
