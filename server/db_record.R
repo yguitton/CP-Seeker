@@ -95,7 +95,7 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 	query <- sprintf("insert into project_sample (project, sample, sample_id) 
 		values (%s, \"%s\", \"%s\");", project, sample_name, sample_id)
 	db_execute(db, query)
-	actualize$deconvolution_params <<- runif(1)
+	actualize$project_samples <<- runif(1)
 }
 
 #' @title Record deconvolution params
