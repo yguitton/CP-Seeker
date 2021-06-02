@@ -3,20 +3,20 @@ shinydashboard::tabItem(tabName = 'process_results',
 		shiny::tags$div(class = "params-inline", 
 			shiny::selectInput("process_results_file", "Select sample", 
 				choices = c(), multiple = FALSE, width = "40vw"),
-			shiny::selectInput("process_results_adduct", 
-				"Adduct", choices = c(), width = "40vw"),
 			shiny::selectInput("process_results_study",
 			  "Study", choices = c("chemical", "standard"), width = "40vw"),
 			shiny::tags$div(id = "process_results_chemical",
 			  shiny::selectInput("process_results_chemical_type",
-			    "Chemical", choices = c("CPs", "COs", "CdiOs"), width = "20vw")
+			    "Chemical", choices = c(), width = "20vw")
 			),
 			shinyjs::hidden(
 			  shiny::tags$div(id = "process_results_standard",
 			    shiny::selectInput("process_results_standard_formula",
-			      "Standard formula", choices = c("C12D18Br6", "[13]C12H18Br6"), width = "20vw")
+			      "Standard formula", choices = c(), width = "20vw")
 			  )
-			)
+			),
+			shiny::selectInput("process_results_adduct", 
+				"Adduct", choices = c(), width = "40vw")
 		)
 	),
 	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,

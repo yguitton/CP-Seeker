@@ -170,18 +170,65 @@ shiny::observeEvent(c(project_samples(), input$project), {
 #'}
 deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params, 
 	db_get_query(db, "select * from deconvolution_param;"))
-	
+
 #' @title deconvolution_params reactive value event
-#'
-#' @description
-#' update adduct list of when a deconvolution was made
-#'
+#' 
+#' @description update chemical list when a deconvolution was made
+#' 
 #' @param deconvolution_params reactive value deconvolution_param table database
+#' @param input$project integrer, project id
+shiny::observeEvent(c(deconvolution_params(), input$project), {
+  choices <- deconvolution_params()[which(deconvolution_params()[which(
+    deconvolution_params()$project == input$project), 
+    "chemical_type"] %in% c("CPs", "COs", "CdiOs")), "chemical_type"]
+  shiny::updateSelectInput(session, "process_results_chemical_type", 
+    "Chemical", choices = choices)
+})
+
+#' @title deconvolution_params reactive value event
+#' 
+#' @description update adduct list when a deconvolution was made
+#' 
+#' @param deconvolution_params reactive value deconvolution_param table database
+#' @param input$project integrer, project id
+#' @param input$process_results_chemical_type string, chemical type
+shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_chemical_type), {
+  choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project & 
+      deconvolution_params()$chemical_type == input$process_results_chemical_type), 
+    "adduct"]
+  shiny::updateSelectInput(session, "process_results_adduct", 
+    "Adduct", choices = choices)
+})
+
+#' @title deconvolution_params reactive value event
+#' 
+#' @description 
+#' update standard formula list when a deconvolution was made
+#' 
+#' @param deconvolution_params reactive value standard_deconvolution_param table database
 #' @param input$project integer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
-	choices <- deconvolution_params()[which(
-		deconvolution_params()$project == input$project), 
-		"adduct"]
-	shiny::updateSelectInput(session, "process_results_adduct", 
-		"Adduct", choices = choices)
+  choices <- deconvolution_params()[-which(deconvolution_params()[which(
+    deconvolution_params()$project == input$project), 
+    "chemical_type"] %in% c("CPs", "COs", "CdiOs")), "chemical_type"]
+  shiny::updateSelectInput(session, "process_results_standard_formula", 
+    "Standard formula", choices = choices)
+})
+
+#' @title deconvolution_params reactive value event
+#' 
+#' @description 
+#' update adduct list when a deconvolution was made
+#' 
+#' @param deconvolution_params reactive value standard_deconvolution_param table database
+#' @param input$project integrer, project id
+#' @param input$process_results_standard_formula string, standard formula
+shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_standard_formula), {
+  choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project & 
+      deconvolution_params()$chemical_type == input$process_results_standard_formula), 
+    "adduct"]
+  shiny::updateSelectInput(session, "process_results_adduct", 
+    "Adduct", choices = choices)
 })
