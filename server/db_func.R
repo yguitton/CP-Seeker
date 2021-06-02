@@ -22,8 +22,6 @@ export_lighted_database <- function(db, db_lighted_path) {
     RSQLite::dbWriteTable(db2, "chemical", tmp, overwrite = TRUE)
     tmp <- RSQLite::dbReadTable(db, "chemical_ion")
     RSQLite::dbWriteTable(db2, "chemical_ion", tmp, overwrite = TRUE)
-    tmp <- RSQLite::dbReadTable(db, "standard_ion")
-    RSQLite::dbWriteTable(db2, "standard_ion", tmp, overwrite = TRUE)
     tmp <- RSQLite::dbReadTable(db, "feature")
     RSQLite::dbWriteTable(db2, "feature", tmp, overwrite = TRUE)
     RSQLite::dbDisconnect(db2)

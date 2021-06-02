@@ -7,7 +7,6 @@
 "create_database": "data/create_database.min.sql",
 "chemical": "data/chemical.csv",
 "chemical_ion": "data/chemical_ion.csv",
-"standard_ion": "data/standard_ion.csv",
 "sqlite_path": "database.sqlite", 
 "sqlite_lighted_path": "database_lighted.sqlite"
 }

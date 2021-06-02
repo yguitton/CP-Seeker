@@ -172,13 +172,15 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_retention_time_min float, minimum in retention time (in min)
 #' @param input$process_retention_time_max float, minimum in retention time (in min)
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
+#' @param input$process_standard_formula string, standard formula
+#' @param input$process_retention_time float, standard retention time
+#' 
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
 	print('######################### PROCESS ##########################')
 	print('############################################################')
 	
 	if(input$process_chemical_standard == "chemical") params <- list(
-	  study = input$process_chemical_standard,
 		project = input$project, 
 		chemical_type = input$process_chemical_type,
 		adduct = input$process_adduct, 
@@ -197,8 +199,8 @@ shiny::observeEvent(input$process_launch, {
 	)
 	else if(input$process_chemical_standard == "standard") {
 	  params <- list(
-	  study = input$process_chemical_standard,
 	  project = input$project, 
+	  chemical_type = "standard",
 	  standard_formula = input$process_standard_formula,
 	  adduct = input$process_standard_adduct, 
 	  resolution = list(
@@ -296,9 +298,8 @@ shiny::observeEvent(input$process_launch, {
 		
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
-		if(params$study == "chemical") ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
-		else if(params$study == "standard") ion_forms <- get_standard_ion(db, params$adduct, params$standard_formula)
-    
+		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
+
   	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded 
   		with this adduct")	
   	
@@ -336,26 +337,18 @@ shiny::observeEvent(input$process_launch, {
   	msg <- "record peaks"
   	print(msg)
   	shinyWidgets::updateProgressBar(session, id = 'pb', 
-  		title = msg, value = 100)	
+  		title = msg, value = 100)
   	
-  	if(params$study == "chemical") {
-  	  delete_features(db, params$project_samples, params$adduct, params$chemical_type)
+  	delete_features(db, params$project_samples, params$adduct, params$chemical_type)
+    if(params$chemical_type == "standard") 
+      delete_deconvolution_params(db, params$project, params$adduct, params$standard_formula)
+  	else
   	  delete_deconvolution_params(db, params$project, params$adduct, params$chemical_type)
-  	 }
-  	else if(params$study == "standard") {
-  	  delete_standard_features(db, params$project_samples, params$adduct, params$standard_formula)
-  	  delete_standard_deconvolution_params(db, params$project, params$adduct,
-  	    params$standard_formula)
-  	  }
   	
   	if (length(peaks) > 0) {
-  	  if(params$study == "chemical") {
-  	    record_deconvolution_params(db, params)
-  	    record_features(db, peaks)
-  	  }
-  	  else if(params$study == "standard") {
-  	    record_standard_deconvolution_params(db, params)
-  	    record_standard_features(db, peaks)}
+  	  
+  	  record_deconvolution_params(db, params)
+  	  record_features(db, peaks)
   	}
 
 		print('done')

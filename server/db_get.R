@@ -143,36 +143,21 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
 #' 		\item ion_formula string ion formula
 #' 		\item charge integer charge of ion
 #' }
-get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0, Cl = 0) {
+get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-	query <- sprintf("select chemical_ion, ion_formula, charge 
+  if (chemical_type == "standard"){
+    query <- sprintf("select chemical_ion, ion_formula, charge 
+		from chemical_ion where adduct == \"%s\" and 
+		chemical == (select chemical from chemical
+    where formula == \"%s\") ;", adduct_name, formula)
+  }
+  else{
+   query <- sprintf("select chemical_ion, ion_formula, charge 
 		from chemical_ion where adduct == \"%s\" and 
 		chemical == (select chemical from chemical 
-		where C == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
+		where C == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type) 
+  }
 	db_get_query(db, query)
-}
-
-#' @title Get standard ion
-#' 
-#' @description
-#' Get standard ion given an adduct name and a standard formula
-#' 
-#' @param db sqlite connection
-#' @param adduct_name string adduct name
-#' @param standard_formula string formula of the standard
-#'
-#' @return dataframe with columns:
-#' \itemize{
-#' 		\item chemical_ion integer chemical_ion ID
-#' 		\item ion_formula string ion formula
-#' 		\item charge integer charge of ion
-#' }
-get_standard_ion <- function(db, adduct_name = NULL, standard_formula = NULL) {
-  if (is.null(adduct_name) | is.null(standard_formula)) return(data.frame())
-  query <- sprintf("select chemical_ion, ion_formula, charge 
-		from standard_ion where adduct == \"%s\" and 
-		standard == \"%s\" ;", adduct_name, standard_formula)
-  db_get_query(db, query)
 }
 
 #' @title Get all features
@@ -337,10 +322,11 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
 #' 
 #' @return table with standard formula, adduct, area, score and deviation of the standard studied
 get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standard_formula = NULL){
-  query <- sprintf('select `into`, intb, score, weighted_deviation from standard_feature where
+  query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
     iso == \"A\" and project_sample == %s and chemical_ion in (
-      select chemical_ion from standard_ion where adduct == \"%s\" 
-      and standard == \"%s\");', project_sample, adduct, standard_formula)
+      select chemical_ion from chemical_ion where adduct == \"%s\" 
+      and chemical == (select chemical from chemical where formula == \"%s\"));', 
+      project_sample, adduct, standard_formula)
   data <- db_get_query(db, query)
   if(nrow(data)==0){
     data <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)

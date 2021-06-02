@@ -27,8 +27,6 @@ for (i in 1:length(reg_paths)){
 			reg_paths$chemical, stringsAsFactors = FALSE))
 		RSQLite::dbWriteTable(db, "chemical_ion", read.csv(
 			reg_paths$chemical_ion, stringsAsFactors = FALSE))
-		RSQLite::dbWriteTable(db, "standard_ion", read.csv(
-		  reg_paths$standard_ion, stringsAsFactors = FALSE))
 		RSQLite::dbDisconnect(db)
     }
     else if(name == "r" | name == "sqlite_lighted_path") next

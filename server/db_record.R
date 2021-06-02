@@ -95,7 +95,7 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 	query <- sprintf("insert into project_sample (project, sample, sample_id) 
 		values (%s, \"%s\", \"%s\");", project, sample_name, sample_id)
 	db_execute(db, query)
-	actualize$deconvolution_params <<- runif(1)
+	actualize$project_samples <<- runif(1)
 }
 
 #' @title Record deconvolution params
@@ -123,59 +123,34 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' 		\item missing_scans integer missing scan parameter
 #' }
 record_deconvolution_params <- function(db, params) {
-	query <- sprintf("insert into deconvolution_param (project, chemical_type, adduct, 
-		instrument, resolution, resolution_mz, resolution_index, ppm, 
-		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
-		missing_scans) values %s", 
-	  paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-		params$project, params$chemical_type, params$adduct, params$resolution$instrument, 
-		params$resolution$resolution, params$resolution$mz, 
-		params$resolution$index, params$ppm, params$mda, 
-		params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
-		params$retention_time[2],params$missing_scans), collapse = ",")
+  if(params$chemical_type == "standard"){
+    query <- sprintf("insert into deconvolution_param (project, chemical_type, adduct, 
+  		instrument, resolution, resolution_mz, resolution_index, ppm, 
+  		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
+  		missing_scans) values %s", 
+      paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+      params$project, params$standard_formula, params$adduct, params$resolution$instrument, 
+      params$resolution$resolution, params$resolution$mz, 
+      params$resolution$index, params$ppm, params$mda, 
+      params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
+      params$retention_time[2],params$missing_scans), collapse = ",")
+    )
+  }
+	else {
+	  query <- sprintf("insert into deconvolution_param (project, chemical_type, adduct, 
+  		instrument, resolution, resolution_mz, resolution_index, ppm, 
+  		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
+  		missing_scans) values %s", 
+  	  paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
+  		params$project, params$chemical_type, params$adduct, params$resolution$instrument, 
+  		params$resolution$resolution, params$resolution$mz, 
+  		params$resolution$index, params$ppm, params$mda, 
+  		params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
+  		params$retention_time[2],params$missing_scans), collapse = ",")
 		)
+	}
 	db_execute(db, query)
 	actualize$deconvolution_params <<- runif(1)
-}
-
-#' @title Record standard deconvolution params
-#'
-#' @description
-#' Record standard deconvolution parameters
-#' 
-#' @param db sqlite connection
-#' @param params list with items:
-#' \itemize{
-#' 		\item project integer project ID
-#' 		\item standard_formula string type of chemical studied
-#' 		\item adduct string adduct name
-#' 		\item list with items: 
-#' 		\itemize{
-#'			\item instrument
-#' 			\item resolution
-#' 			\item mz 
-#' 			\item index
-#' 		}
-#' 		\item ppm float ppm tolerance used
-#' 		\item mda float mda tolerance used
-#' 		\item peakwidth vector(float)[2] peakwidth
-#' 		\item retention_time vector (float)[2] retention time
-#' 		\item missing_scans integer missing scan parameter
-#' }
-record_standard_deconvolution_params <- function(db, params) {
-  query <- sprintf("insert into standard_deconvolution_param (project, standard_formula, adduct, 
-		instrument, resolution, resolution_mz, resolution_index, ppm, 
-		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
-		missing_scans) values %s", 
-      paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-        params$project, params$standard_formula, params$adduct, params$resolution$instrument, 
-        params$resolution$resolution, params$resolution$mz, 
-        params$resolution$index, params$ppm, params$mda, 
-        params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
-        params$retention_time[2],params$missing_scans), collapse = ",")
-  )
-  db_execute(db, query)
-  actualize$standard_deconvolution_params <<- runif(1)
 }
 
 #' @title Record features
@@ -225,53 +200,4 @@ record_features <- function(db, features) {
 			features$weighted_deviation, features$project_sample), 
 			collapse = ", "))
 	db_execute(db, query)
-}
-
-#' @title Record standard features
-#' 
-#' @description 
-#' Record standard feature in database
-#'
-#' @param features dataframe with columns:
-#' \itemize{
-#' 		\item mz float m/z
-#' 		\item mzmin float born m/z min
-#' 		\item mzmax float born m/z max
-#' 		\item rt float rT
-#' 		\item rtmin float born rT min
-#' 		\item rtmax float born rT max
-#' 		\item into float area integrated
-#' 		\item intb float area above baseline integrated
-#' 		\item maxo float max intensity
-#' 		\item sn float signal/noise
-#' 		\item scale integer wave used for integration
-#' 		\item scpos integer center scan position
-#' 		\item scmin integer born scan min
-#' 		\item scmax integer born scan max
-#' 		\item lmin integer to ignore
-#' 		\item lmax integer to ignore
-#' 		\item iso string isotopologue annotation
-#' 		\item abundance float abundance
-#' 		\item score float isotopic pattern score
-#' 		\item deviation float m/z deviation
-#' 		\item standard_ion integer id of the standard ion
-#' 		\item intensities float standardized intensity
-#' 		\item weighted_deviation float weighted deviation
-#' 		\item project_sample id integer project_sample ID
-#' }
-record_standard_features <- function(db, features) {
-  features <- features[which(features$score > 0), ]
-  query <- sprintf("insert into standard_feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
-		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
-		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
-    paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
-      features$mzmax, features$rt, features$rtmin, features$rtmax, 
-      features$into, features$intb, features$maxo, features$sn, 
-      features$scale, features$scpos, features$scmin, features$scmax, 
-      features$iso, features$abundance, features$score, 
-      features$deviation, features$chemical_ion, features$intensities, 
-      features$weighted_deviation, features$project_sample), 
-      collapse = ", "))
-  db_execute(db, query)
 }

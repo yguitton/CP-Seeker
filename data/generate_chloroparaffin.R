@@ -67,7 +67,6 @@ for(i in 1:length(chemical_type)){
   forms <- rbind(forms, forms2)
 }
 forms <- cbind(chemical = seq(nrow(forms)), forms)
-write.csv(forms, "~/GitHub/CP-Seeker/data/chemical.csv", row.names = FALSE)
 
 ion_forms <- do.call(rbind, pbapply::pblapply(seq(nrow(adducts)), function(i) 
 	cbind.data.frame(
@@ -88,5 +87,57 @@ ion_forms <- do.call(rbind, pbapply::pblapply(seq(nrow(adducts)), function(i)
 		stringsAsFactors = FALSE
 	)
 ))
+
+standard_adduct_names <- c('M+Cl', 'M-H')
+standard <- c('C12D18Br6', '[13]C12H18Br6')
+
+data("isotopes", package = "enviPat")
+data("adducts", package = "enviPat")
+standard_adducts <- adducts[which(adducts[, "Name"] %in% standard_adduct_names), ]
+# order isotopes to have first carbons, then hydrogens, then elements in alphabetical order
+elts_CH <- unlist(lapply(c("C", "[12]C", "[13]C", "H", "D", "[1]H", "[2]H"), function(elt)
+  which(isotopes$element == elt)))
+isotopes_CH <- isotopes[elts_CH, ]
+isotopes_not_CH <- isotopes[-elts_CH, ]
+isotopes <- rbind(isotopes_CH, isotopes_not_CH[order(
+  isotopes_not_CH$element), ])
+
+forms <- forms[,-1]
+forms <- rbind(forms, do.call(rbind, lapply(1:length(standard), function(x) 
+  data.frame(C = 0, Cl = 0, H = 0, formula = standard[x], chemical_type = "standard")
+)))
+
+forms <- cbind(chemical = seq(nrow(forms)), forms)
+write.csv(forms, "~/GitHub/CP-Seeker/data/chemical.csv", row.names = FALSE)
+
+for(j in 1:length(standard)){
+  ion_forms2 <- do.call(rbind, pbapply::pblapply(seq(nrow(standard_adducts)), function(k)
+    if(standard_adducts[k, "Name"] != "M-H" | standard[j] != "C12D18Br6"){
+      cbind.data.frame(
+        ion_formula = subform(
+          mergeform(
+            enviPat::multiform(
+              standard[j], 
+              standard_adducts[k, "Multi"]
+            ), 
+            standard_adducts[k, "Formula_add"]
+          ), 
+          standard_adducts[k, "Formula_ded"]
+        ), 
+        adduct = standard_adducts[k, "Name"], 
+        charge = standard_adducts[k, "Charge"], 
+        chemical = forms[which(forms$formula == standard[j]), "chemical"],
+        chemical_type = "standard",
+        stringsAsFactors = FALSE
+      )
+    }
+    else{
+      data.frame(ion_formula = "C12[2]H17Br6", adduct = standard_adducts[k, "Name"], 
+        charge = standard_adducts[k, "Charge"], chemical = forms[which(forms$formula == standard[j]), "chemical"], chemical_type = "standard")
+    }
+  ))
+  ion_forms <- rbind(ion_forms, ion_forms2)
+}
+
 ion_forms <- cbind(chemical_ion = seq(nrow(ion_forms)), ion_forms)
 write.csv(ion_forms, "~/GitHub/CP-Seeker/data/chemical_ion.csv", row.names = FALSE)
