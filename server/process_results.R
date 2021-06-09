@@ -67,7 +67,7 @@ output$process_results_profile <- DT::renderDataTable({
 	})
 	if(params$study == "chemical"){
 	  shinyjs::show("process_results_selected_matrix")
-  	get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type, params$selected_matrix)
+  	get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
 	}
 	else if(params$study == "standard"){
 	  shinyjs::hide("process_results_selected_matrix")
@@ -80,7 +80,21 @@ options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE,
 scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
 	className = 'dt-body-center', targets = "_all")), 
 initComplete = htmlwidgets::JS("
-	Shiny.onInputChange('process_results_profile_selected', null);
+	function (settings, json) {
+	  Shiny.onInputChange('process_results_profile_selected', null);
+    var table = settings.oInstance.api();
+    var button = $('#process_results_selected_matrix .active').text(); 
+    var selected_button = button.includes('Scores') ? 0 : button.includes('Standardized intensities') ? 1 : 2;
+    table.cells().every(function() {
+      if(this.data() == 'NA/NA/NA'){
+        this.data('')
+      }
+      else if (this.data() != null){
+        var splitted_cell = table.cell(this.index().row, this.index().column).data().split('/');
+        this.data(splitted_cell[selected_button]);
+      }
+    });
+  }
 ")), callback = htmlwidgets::JS("
 	table.on('click', 'tbody td', function() {
 		if ($(this).hasClass('selected')) return(null);
@@ -236,7 +250,23 @@ output$process_results_download <- shiny::downloadHandler(
       chemical_type = input$process_results_chemical_type,
       selected_matrix = input$process_results_selected_matrix)
     matr <- get_profile_matrix(db, params$file, params$adduct, 
-      params$chemical_type, params$selected_matrix)
+      params$chemical_type)
+    selected <- if(params$selected_matrix == "Scores") 1 
+      else if (params$selected_matrix == "Standardized intensities") 2
+      else 3
+    for(rows in 1:nrow(matr)){
+      for(cols in 1:ncol(matr)){
+        cell = matr[rows,cols]
+        if(is.na(cell)) next
+        splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
+        if(splitted_cell == "NA"){
+          matr[rows,cols] = ""
+        }
+        else{
+          matr[rows,cols] = splitted_cell
+        }
+      }
+    }
     first_col <- matrix(dimnames(matr)[[1]])
     matr <- cbind(first_col, matr)
     write.xlsx(matr, file)

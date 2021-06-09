@@ -255,7 +255,7 @@ get_chemical_features <- function(db, project_sample = NULL,
 #' 
 #' @description
 #' Construct profile matrix consisting of rows representing carbons & cols chlore
-#' It cells will contain the isotopic score of the corresponding ion integrated
+#' It cells will contain the isotopic score, the intensity and the deviation of the corresponding ion integrated
 #'
 #' @param db sqlite connection
 #' @param project_sample integer project_sample ID
@@ -265,7 +265,7 @@ get_chemical_features <- function(db, project_sample = NULL,
 #' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore & 
 #'		each row represent a level of carbon
-get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemical_type = NULL, matrix_type = NULL) {
+get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemical_type = NULL) {
   query <- if (is.null(adduct)) "select C, Cl from chemical;" 
   else sprintf("select chemical_ion, C, Cl from chemical 
 		left join chemical_ion on 
@@ -278,20 +278,8 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
     dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
   
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
-  if(matrix_type == "Scores") query <- sprintf("select chemical_ion, 
-    round(score,0) as score from feature where 
-		iso == \"A\" and project_sample == %s and chemical_ion in (
-			select chemical_ion from chemical_ion
-			where adduct == \"%s\" and chemical_type == \"%s\");", 
-    project_sample, adduct, chemical_type)
-  else if(matrix_type == "Standardized intensities") query <- sprintf("select chemical_ion, 
-    intensities from feature where 
-		iso == \"A\" and project_sample == %s and chemical_ion in (
-			select chemical_ion from chemical_ion
-			where adduct == \"%s\" and chemical_type == \"%s\");", 
-    project_sample, adduct, chemical_type)
-  else if(matrix_type == "Deviations") query <- sprintf("select chemical_ion, 
-    weighted_deviation from feature where 
+  query <- sprintf("select chemical_ion, 
+    round(score,0) as score, intensities, weighted_deviation from feature where 
 		iso == \"A\" and project_sample == %s and chemical_ion in (
 			select chemical_ion from chemical_ion
 			where adduct == \"%s\" and chemical_type == \"%s\");", 
@@ -302,11 +290,9 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
     by = "chemical_ion", all.x = TRUE)
   for (row in seq(nrow(data))) profile_mat[
     data[row, "C"] - C[1] + 1, 
-    data[row, "Cl"] - Cl[1] + 1] <- if(matrix_type == "Scores") data[row, "score"]
-  else if(matrix_type == "Standardized intensities") scales::scientific(data[row, "intensities"], 
-    digits = 3, decimal.mark = ",")
-  else if(matrix_type == "Deviations") scales::scientific(data[row, "weighted_deviation"], 
-    digits = 3, decimal.mark = ",")
+    data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
+      scales::scientific(data[row, "intensities"], digits = 3, decimal.mark = ","), 
+      scales::scientific(data[row, "weighted_deviation"], digits = 3, decimal.mark = ","), sep = "/") 
   profile_mat
 }
 
