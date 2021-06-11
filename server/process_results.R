@@ -40,12 +40,12 @@ shiny::observeEvent(input$process_results_study, {
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
 	actualize$deconvolution_params # only to force it reloading after deconvolution
-	params <- list(
+  params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_adduct,
 		study = input$process_results_study,
 		chemical_type = input$process_results_chemical_type,
-		selected_matrix = input$process_results_selected_matrix,
+		selected_matrix = isolate(input$process_results_selected_matrix),
 		standard_formula = input$process_results_standard_formula
 	)
 	
@@ -67,7 +67,9 @@ output$process_results_profile <- DT::renderDataTable({
 	})
 	if(params$study == "chemical"){
 	  shinyjs::show("process_results_selected_matrix")
-  	get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	mat <- get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	session$sendCustomMessage("matrix", jsonlite::toJSON(mat))
+  	mat
 	}
 	else if(params$study == "standard"){
 	  shinyjs::hide("process_results_selected_matrix")
@@ -86,11 +88,14 @@ initComplete = htmlwidgets::JS("
     var button = $('#process_results_selected_matrix .active').text(); 
     var selected_button = button.includes('Scores') ? 0 : button.includes('Standardized intensities') ? 1 : 2;
     table.cells().every(function() {
-      if(this.data() == 'NA/NA/NA'){
+      if(this.index().column == 0) {
+        this.data(this.data());
+      }
+      else if(this.data() == 'NA/NA/NA'){
         this.data('')
       }
       else if (this.data() != null){
-        var splitted_cell = table.cell(this.index().row, this.index().column).data().split('/');
+        var splitted_cell = this.data().split('/');
         this.data(splitted_cell[selected_button]);
       }
     });
@@ -107,6 +112,28 @@ initComplete = htmlwidgets::JS("
 				get(0).textContent.match(/\\d+/g)[0];
 		Shiny.onInputChange('process_results_profile_selected', 
 			{C: C, Cl: Cl});
+	});
+	$('#process_results_selected_matrix').on('click', 'div button', function(){
+	  if ($(this).hasClass('active')) return(null);
+	  $('#process_results_selected_matrix button.active').removeClass('active');
+	  $(this).addClass('active');
+    var selected_button = $(this).text().includes('Scores') ? 0 : $(this).text().includes('Standardized intensities') ? 1 : 2;
+    var table = $('#process_results_profile').data('datatable');
+    table.cells().every(function() {
+      var row = this.index().row
+      var col = this.index().column - 1
+      if(this.index().column == 0) {
+        this.data(this.data());
+      }
+      else if(old_matrix[row][col] == 'NA/NA/NA'){
+        this.data('')
+      }
+      else if (old_matrix[row][col] != null){
+        var splitted_cell = old_matrix[row][col].split('/');
+        this.data(splitted_cell[selected_button]);
+      }
+    });
+    Shiny.setInputValue('process_results_profile', table.data());
 	});
 "))
 
