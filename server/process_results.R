@@ -99,6 +99,7 @@ initComplete = htmlwidgets::JS("
         this.data(splitted_cell[selected_button]);
       }
     });
+    table.columns.adjust()
   }
 ")), callback = htmlwidgets::JS("
 	table.on('click', 'tbody td', function() {
@@ -133,6 +134,7 @@ initComplete = htmlwidgets::JS("
         this.data(splitted_cell[selected_button]);
       }
     });
+    table.columns.adjust()
     Shiny.setInputValue('process_results_profile', table.data());
 	});
 "))
