@@ -705,7 +705,9 @@ get_ms_file_infos <- function(ms_file, thermo_file = NULL) {
 			"Maximum I(njection)?[[:space:]]?T(ime)?", thermo_file))][1], 
 		number_of_scan_range = thermo_file[which(grepl(
 			"Number of scan ranges", thermo_file))][1], 
-		scan_range = thermo_file[which(grepl("Scan [Rr]ange", thermo_file))][1]
+		scan_range = thermo_file[which(grepl("Scan [Rr]ange", thermo_file))][1],
+		mz_min =  range(MSnbase::mz(ms_file))[1],
+		mz_max =  range(MSnbase::mz(ms_file))[2]
 	)
 	
 	if (!is.null(infos$resolution)) infos$resolution <- stringr::str_extract(

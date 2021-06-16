@@ -18,7 +18,9 @@ CREATE TABLE `sample` (
 	`agc_target` TEXT, 
 	`maximum_it` TEXT, 
 	`number_of_scan_range` TEXT, 
-	`scan_range` TEXT
+	`scan_range` TEXT,
+	`mz_min` REAL,
+	`mz_max` REAL
 );
 CREATE TABLE `project_sample` ( 
 	`project_sample` INTEGER PRIMARY KEY AUTOINCREMENT, 

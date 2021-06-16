@@ -68,14 +68,15 @@ record_sample <- function(db, project, sample_name, sample_id, filepath,
 	query <- sprintf("insert into sample (sample, raw_data, raw_path, polarity, 
 		path, instrument_model, instrument_manufacturer, software_name, 
 		software_version, ion_source, analyzer, detector_type, resolution, 
-		agc_target, maximum_it, number_of_scan_range, scan_range) values 
+		agc_target, maximum_it, number_of_scan_range, scan_range, mz_min, mz_max) values 
 		(\"%s\", :a, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", 
-		\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\");", 
+		\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s);", 
 		sample_name, old_filepath, polarity, filepath, 
 		infos$instrument_model, infos$instrument_manufacturer, 
 		infos$software_name, infos$software_version, infos$ion_source, 
 		infos$analyzer, infos$detector_type, infos$resolution, infos$agc_target, 
-		infos$maximum_it, infos$number_of_scan_range, infos$scan_range)
+		infos$maximum_it, infos$number_of_scan_range, infos$scan_range, 
+		infos$mz_min, infos$mz_max)
 	db_execute(db, query, params = list(a = raw_data))
 	rm(raw_data)
 	gc()
@@ -189,15 +190,15 @@ record_features <- function(db, features) {
   features <- features[which(features$score > 0), ]
 	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
 		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
-		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
+		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample, troncate) values %s;", 
 		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
+			\"%s\", %s, %s, %s, %s, %s, %s, %s, \"%s\")", features$mz, features$mzmin, 
 			features$mzmax, features$rt, features$rtmin, features$rtmax, 
 			features$into, features$intb, features$maxo, features$sn, 
 			features$scale, features$scpos, features$scmin, features$scmax, 
 			features$iso, features$abundance, features$score, 
 			features$deviation, features$chemical_ion, features$intensities, 
-			features$weighted_deviation, features$project_sample), 
+			features$weighted_deviation, features$project_sample, features$troncate), 
 			collapse = ", "))
 	db_execute(db, query)
 }

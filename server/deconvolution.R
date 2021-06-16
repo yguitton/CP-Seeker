@@ -580,6 +580,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		scores <- c(theoric_patterns[[i]][1, "weight"])
 		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
 		weight <- c(theoric_patterns[[i]][1, "weight"])
+		troncate <- c(theoric_patterns[[i]][1, "troncate"])
 		continue_integration <- TRUE
 		k <- 2
 		while (k < length(traces) & continue_integration) {
@@ -601,6 +602,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 				deviations <- c(deviations, 
 					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
 				weight <- c(weight, theoric_patterns[[i]][k, "weight"])
+				troncate <- c(troncate, theoric_patterns[[i]][k, "troncate"])
 				peaks2 <- rbind(peaks2, peak)
 			} else continue_integration <- FALSE
 			k <- k + 1
@@ -612,7 +614,8 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
           intensities = length(traces)*sum(peaks2[,"maxo"])/k,
-          weighted_deviations = sum(deviations*weight)/sum(weight)
+          weighted_deviations = sum(deviations*weight)/sum(weight),
+					troncate = troncate
 			))
 		}
 		

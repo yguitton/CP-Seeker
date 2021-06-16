@@ -146,3 +146,9 @@ table td input {
 .params-inline div {
 	margin: 0 5px 0 5px;
 }
+.half {
+	background-color: #BBB;
+}
+.outside {
+	background-color: #888;
+}

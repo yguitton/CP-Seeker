@@ -91,12 +91,23 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
-      else if(this.data() == 'NA/NA/NA'){
-        this.data('')
+      else if (this.data() == null){
+        $(this.node()).addClass('outside');
       }
       else if (this.data() != null){
         var splitted_cell = this.data().split('/');
-        this.data(splitted_cell[selected_button]);
+        if(splitted_cell[selected_button] == 'NA'){
+          this.data('')
+        }
+        else{
+          this.data(splitted_cell[selected_button]);
+        }
+        if(splitted_cell[3] == 'outside'){
+          $(this.node()).addClass('outside');
+        }
+        else if(splitted_cell[3] == 'half'){
+          $(this.node()).addClass('half');
+        }
       }
     });
     table.columns.adjust()
@@ -126,12 +137,17 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
-      else if(old_matrix[row][col] == 'NA/NA/NA'){
-        this.data('')
+      else if(old_matrix[row][col] == 'NA/NA/NA/NA'){
+        
       }
       else if (old_matrix[row][col] != null){
         var splitted_cell = old_matrix[row][col].split('/');
-        this.data(splitted_cell[selected_button]);
+        if(splitted_cell[selected_button] == 'NA'){
+          this.data('')
+        }
+        else{
+          this.data(splitted_cell[selected_button]);
+        }
       }
     });
     table.columns.adjust()
