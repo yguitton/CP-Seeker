@@ -58,6 +58,23 @@ get_project_polarity <- function(db, project) {
 	db_get_query(db, query)$polarity
 }
 
+#' @title Get m/z range in project
+#' 
+#' @description 
+#' Get m/z range of files in project
+#' 
+#' @param db sqlite connection
+#' @param project_sample vector, project_sample id
+#' 
+#' @return vector, m/z range
+get_project_mz_range <- function(db, project_sample) {
+  query <- sprintf("select mz_min, mz_max from sample where sample in (
+    select sample from project_sample where project_sample in (%s))",
+    paste(sprintf("\"%s\"", project_sample), collapse = ",")
+    )
+  db_get_query(db, query)
+}
+  
 #' @title Get project name
 #'
 #' @description 
@@ -279,7 +296,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
   
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   query <- sprintf("select chemical_ion, 
-    round(score,0) as score, intensities, weighted_deviation, troncate from feature where 
+    round(score,0) as score, intensities, weighted_deviation from feature where 
 		iso == \"A\" and project_sample == %s and chemical_ion in (
 			select chemical_ion from chemical_ion
 			where adduct == \"%s\" and chemical_type == \"%s\");", 
@@ -288,50 +305,18 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
   if (nrow(data) == 0) return(profile_mat)
   data <- merge(chemicals, data, 
     by = "chemical_ion", all.x = TRUE)
-  for(i in seq(nrow(data))) {
-    data$color[i] <- if(is.na(data$troncate[i])) "inside"
-      else if(data$troncate[i] == "yes") "half"
-      else if(data$troncate[i] == "no") "inside"
-  }
-  query <- sprintf("select instrument, resolution_index as `index`, resolution, resolution_mz as mz  from deconvolution_param 
-    where chemical_type == \"%s\" and adduct == \"%s\";", chemical_type, adduct)
-  resolution <- db_get_query(db, query)
   ion_forms <- get_chemical_ions(db, adduct, chemical_type)
   theoric_patterns <- get_theoric(ion_forms$ion_formula, 
-    ion_forms$charge[1], resolution)
-  query <- sprintf("select mz_min, mz_max from sample 
-    where sample == (select sample from project_sample where project_sample == \"%s\")", project_sample)
-  mz_range <- db_get_query(db, query)
-  delete <- NULL
-  for (i in 1:length(theoric_patterns)){
-    theoric_mz_range <- range(theoric_patterns[[i]]["mz"])
-    if(theoric_mz_range[2] < mz_range[,1] | theoric_mz_range[1] > mz_range[,2]){
-      delete <- c(delete, i)
-    }
-    else if(theoric_mz_range[1] < mz_range[,1] | theoric_mz_range[2] > mz_range[,2]){
-      outside_indexes <- which(theoric_patterns[[i]]$mz < mz_range[,1] | theoric_patterns[[i]]$mz > mz_range[,2])
-      outside <- theoric_patterns[[i]][outside_indexes,"iso"]
-      if("A" %in% outside | "A-2" %in% outside | "A+2" %in% outside){
-        delete <- c(delete, i)
-      }
-    }
-  }
-  delete_patterns <- names(theoric_patterns[delete])
-  for(i in 1:length(delete_patterns)){
-    query <- sprintf("select C, Cl from chemical 
-      where chemical == (select chemical from chemical_ion 
-        where ion_formula == \"%s\" and chemical_type == \"%s\");",
-      delete_patterns[i], chemical_type)
-    mol <- db_get_query(db, query)
-    data[data$C==mol[,1] & data$Cl==mol[,2], "color"] = "outside"
-  }
-  
+    ion_forms$charge[1])
+  mz_range <- get_project_mz_range(db, project_sample)
+  status <- get_patterns_status(theoric_patterns, mz_range)
+
   for (row in seq(nrow(data))) profile_mat[
     data[row, "C"] - C[1] + 1, 
     data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
       scales::scientific(data[row, "intensities"], digits = 3, decimal.mark = ","), 
       scales::scientific(data[row, "weighted_deviation"], digits = 3, decimal.mark = ","),
-      data[row, "color"], sep = "/") 
+      status[row], sep = "/") 
   profile_mat
 }
 

@@ -94,11 +94,12 @@ getR <- function(masses, resmass, nknots = 13, spar = 0.1) {
 #'
 #' @example
 #' \dontrun{get_theoric("C12H17Br6", -1, 78223.47)}
-get_theoric <- function(formulas, charge, resolution) {
+get_theoric <- function(formulas, charge, resolution = NULL) {
 	pattern <- enviPat::isopattern(isotopes, formulas, threshold = 1, 
 		charge = charge, emass = .00054858, plotit = FALSE, algo = 2, verbose = FALSE)
 	masses <- sapply(pattern, function(x) x[1, 1])
-	resolution_masses <- if (!is.na(resolution$index)) getR(masses, 
+	if(!is.null(resolution)){
+	  resolution_masses <- if (!is.na(resolution$index)) getR(masses, 
 			resmass = resolution_list[[resolution$index]], 
 			nknots = 6, spar = .2)
 		else resolution$resolution * sqrt(1 / masses) / sqrt(1 / resolution$mz)
@@ -106,6 +107,8 @@ get_theoric <- function(formulas, charge, resolution) {
 		env = "Gaussian", resolution = resolution_masses, plotit = FALSE, verbose = FALSE)
 	centroid <- enviPat::vdetect(profiles, detect = "centroid", plotit = FALSE, verbose = FALSE)
 	lapply(centroid, get_isotope_annot)
+	}
+	else lapply(pattern, get_isotope_annot)
 }
 
 #' @title Give isotope annotation
@@ -134,6 +137,29 @@ get_isotope_annot <- function(isotopic_pattern) {
 		abundance = isotopic_pattern[, 2], weight = weights, iso = isos, 
 		stringsAsFactors = FALSE)
 	isotopic_pattern[order(isotopic_pattern$abundance, decreasing = TRUE), ]
+}
+
+#' @title Get patterns status
+#' 
+#' @description 
+#' Get status of patterns according to the m/z range
+#' 
+#' @param patterns list, patterns
+#' @param mz_range vector, mz_range
+#' 
+#' @return vector, status for each pattern : inside, outside, half
+get_patterns_status <- function(patterns, mz_range){
+  delete <- sapply(1:length(patterns), function(i){
+    reducted_pattern <- patterns[[i]][(which(patterns[[i]]["iso"] == "A" | patterns[[i]]["iso"] == "A+2" | patterns[[i]]["iso"] == "A-2")),]
+    status <- if(max(patterns[[i]]["mz"]) < mz_range[1] | min(patterns[[i]]["mz"]) > mz_range[2]) "outside"
+    else if (min(patterns[[i]]["mz"]) < mz_range[1] | max(patterns[[i]]["mz"]) > mz_range[2]){
+      if(min(reducted_pattern["mz"]) < mz_range[1] | max(reducted_pattern["mz"]) > mz_range[2]) "outside"
+      else if(min(reducted_pattern["mz"]) > mz_range[1] | max(reducted_pattern["mz"]) < mz_range[2]) "half"
+    }
+    else "inside"
+    status
+  })
+  delete
 }
 
 #' @title Get TIC

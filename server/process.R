@@ -234,6 +234,7 @@ shiny::observeEvent(input$process_launch, {
 		params$sample_ids <- project_samples()[which(
 			project_samples()$project == params$project), "sample_id"]
 		params$polarity <- get_project_polarity(db, params$project)
+		params$mz_range <- get_project_mz_range(db, params$project_sample)
 		print(params[c("samples", "project_samples", "sample_ids", "polarity")])
 	
 		inputs <- c("process_resolution", "process_resolution_mz", 
@@ -311,31 +312,6 @@ shiny::observeEvent(input$process_launch, {
 		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
   	peaks <- NULL
   	for (i in 1:length(params$samples)) {
-  	  query <- sprintf("select mz_min, mz_max from sample where sample = \"%s\"", params$samples)
-		  mz_range <- db_get_query(db, query)
-  	  delete <- NULL
-  	  for (j in 1:length(theoric_patterns)){
-		    theoric_mz_range <- range(theoric_patterns[[j]]["mz"])
-		    if(theoric_mz_range[2] < mz_range[,1] | theoric_mz_range[1] > mz_range[,2]){
-		      delete <- c(delete, j)
-		    }
-		    else if(theoric_mz_range[1] < mz_range[,1] | theoric_mz_range[2] > mz_range[,2]){
-		      outside_indexes <- which(theoric_patterns[[j]]$mz < mz_range[,1] | theoric_patterns[[j]]$mz > mz_range[,2])
-		      outside <- theoric_patterns[[j]][outside_indexes,"iso"]
-		      if("A" %in% outside | "A-2" %in% outside | "A+2" %in% outside){
-		        delete <- c(delete, j)
-		      }
-		      else if(!("A" %in% outside) | !("A-2" %in% outside) | !("A+2" %in% outside)){
-		        theoric_patterns[[j]] <- theoric_patterns[[j]][-outside_indexes,]
-  	        theoric_patterns[[j]]["troncate"] <- "yes"
-		      }
-		    }
-  	    else if(theoric_mz_range[1] > mz_range[,1] | theoric_mz_range[2] < mz_range[,2]){
-  	      theoric_patterns[[j]]["troncate"] <- "no"
-  	    }
-  	  }
-  	  theoric_patterns <- theoric_patterns[-delete]
-  	  ion_forms <- ion_forms[-delete,]
   		shinyWidgets::updateProgressBar(session, id = "pb2", 
   			value = 0, title = "")
   		msg <- sprintf("load data of %s", params$sample_ids[i])
@@ -349,10 +325,15 @@ shiny::observeEvent(input$process_launch, {
   		shinyWidgets::updateProgressBar(session, id = 'pb', 
   			title = msg, value = (i - 1) * 100 / pb_max)
   		
+  		status <- get_patterns_status(theoric_patterns, params$mz_range)
+  		deleted <- which(status == "outside")
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
-  		peaks2 <- deconvolution(ms_file, theoric_patterns, 
-  			ion_forms$chemical_ion, scalerange, params$retention_time, 
+  		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, theoric_patterns[-deleted], 
+  			ion_forms[-deleted,]$chemical_ion, scalerange, params$retention_time, 
   		  params$missing_scans, pb = "pb2")
+  		  else deconvolution(ms_file, theoric_patterns, 
+  		    ion_forms$chemical_ion, scalerange, params$retention_time, 
+  		    params$missing_scans, pb = "pb2")
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
   			project_sample = params$project_samples[i], 
   			peaks2))
