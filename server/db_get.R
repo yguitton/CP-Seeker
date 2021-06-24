@@ -314,8 +314,8 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
   for (row in seq(nrow(data))) profile_mat[
     data[row, "C"] - C[1] + 1, 
     data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
-      scales::scientific(data[row, "intensities"], digits = 3, decimal.mark = ","), 
-      scales::scientific(data[row, "weighted_deviation"], digits = 3, decimal.mark = ","),
+      round(data[row, "intensities"]/10**6, digits = 1),
+      round(data[row, "weighted_deviation"]*10**4, digits = 1),
       status[row], sep = "/") 
   profile_mat
 }
@@ -344,10 +344,10 @@ get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standar
     return(data)
   }
   data <- cbind(formula = standard_formula, adduct = adduct, data)
-  data$into <- round(data$into, digits = 2)
-  data$intb <- round(data$intb, digits = 2)
+  data$into <- formatC(data$into, format = 'f', big.mark = " ", digits = 2)
+  data$intb <- formatC(data$intb, format = 'f', big.mark = " ", digits = 2)
   data$score <- round(data$score, digits = 0)
-  data$weighted_deviation <- scales::scientific(data$weighted_deviation, digits = 3, decimal.mark = ",")
-  data.table::setnames(data, c("into", "intb"), c("total area", "area above baseline"))
+  data$weighted_deviation <- round(data$weighted_deviation*10**4, digits = 1)
+  data.table::setnames(data, c("into", "intb", "weighted_deviation"), c("total area", "area above baseline", "deviation (mDa, xE-4)"))
   data
 }

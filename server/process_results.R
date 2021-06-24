@@ -10,11 +10,15 @@ shiny::observeEvent(input$process_results_study, {
   if (params$choice == "chemical") {
     shinyjs::show("process_results_chemical")
     shinyjs::hide("process_results_standard")
+    shinyjs::show("process_results_adduct")
+    shinyjs::hide("process_results_adduct2")
     shinyjs::show("process_results_download")
   }
   else if (params$choice == "standard") {
     shinyjs::hide("process_results_chemical")
     shinyjs::show("process_results_standard")
+    shinyjs::hide("process_results_adduct")
+    shinyjs::show("process_results_adduct2")
     shinyjs::hide("process_results_download")
   }
 })
@@ -30,11 +34,11 @@ shiny::observeEvent(input$process_results_study, {
 #'
 #' @param db sqlite connection
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_study string type of study
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_selected_matrix string type of matrix selected, 
-#'   can be "Scores", "Standardized intensities", "Deviations"
+#'   can be "Scores", "Normalized intensities", "Deviations"
 #' @param input$process_results_standard_formula string standard formula
 #' 
 #' DataTable instance with the profile matrix
@@ -42,7 +46,8 @@ output$process_results_profile <- DT::renderDataTable({
 	actualize$deconvolution_params # only to force it reloading after deconvolution
   params <- list(
 		project_sample = input$process_results_file, 
-		adduct = input$process_results_adduct,
+		chemical_adduct = input$process_results_chemical_adduct,
+		standard_adduct = input$process_results_standard_adduct,
 		study = input$process_results_study,
 		chemical_type = input$process_results_chemical_type,
 		selected_matrix = isolate(input$process_results_selected_matrix),
@@ -67,13 +72,13 @@ output$process_results_profile <- DT::renderDataTable({
 	})
 	if(params$study == "chemical"){
 	  shinyjs::show("process_results_selected_matrix")
-  	mat <- get_profile_matrix(db, params$project_sample, params$adduct, params$chemical_type)
+  	mat <- get_profile_matrix(db, params$project_sample, params$chemical_adduct, params$chemical_type)
   	session$sendCustomMessage("matrix", jsonlite::toJSON(mat))
   	mat
 	}
 	else if(params$study == "standard"){
 	  shinyjs::hide("process_results_selected_matrix")
-	  get_standard_table(db, params$project_sample, params$adduct, params$standard_formula)
+	  get_standard_table(db, params$project_sample, params$standard_adduct, params$standard_formula)
 	}
     
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
@@ -86,7 +91,7 @@ initComplete = htmlwidgets::JS("
 	  Shiny.onInputChange('process_results_profile_selected', null);
     var table = settings.oInstance.api();
     var button = $('#process_results_selected_matrix .active').text(); 
-    var selected_button = button.includes('Scores') ? 0 : button.includes('Standardized intensities') ? 1 : 2;
+    var selected_button = button.includes('Scores') ? 0 : button.includes('Normalized intensities') ? 1 : 2;
     table.cells().every(function() {
       if(this.index().column == 0) {
         this.data(this.data());
@@ -129,7 +134,7 @@ initComplete = htmlwidgets::JS("
 	  if ($(this).hasClass('active')) return(null);
 	  $('#process_results_selected_matrix button.active').removeClass('active');
 	  $(this).addClass('active');
-    var selected_button = $(this).text().includes('Scores') ? 0 : $(this).text().includes('Standardized intensities') ? 1 : 2;
+    var selected_button = $(this).text().includes('Scores') ? 0 : $(this).text().includes('Normalized intensities') ? 1 : 2;
     var table = $('#process_results_profile').data('datatable');
     table.cells().every(function() {
       var row = this.index().row
@@ -161,7 +166,7 @@ initComplete = htmlwidgets::JS("
 #' Event when a cell is selected, it only serve to print what happened in the trace log
 #'
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
@@ -172,7 +177,7 @@ observeEvent(input$process_results_profile_selected, {
 	print('######################### PROFILE CELL SELECTED ##########################')
 	params <- list(
 		project_sample = input$process_results_file, 
-		adduct = input$process_results_adduct, 
+		adduct = input$process_results_chemical_adduct, 
 		chemical_type = input$process_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
@@ -193,7 +198,7 @@ observeEvent(input$process_results_profile_selected, {
 #' It trace the raw data with area colored where the deconvolution process integrate something
 #'
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
@@ -205,7 +210,7 @@ output$process_results_eic <- plotly::renderPlotly({
 		"invalid", "no cell selected")
 	params <- list(
 		project_sample = input$process_results_file,
-		adduct = input$process_results_adduct, 
+		adduct = input$process_results_chemical_adduct, 
 		chemical_type = input$process_results_chemical_type, 
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
@@ -238,7 +243,7 @@ output$process_results_eic <- plotly::renderPlotly({
 #' 		below the theoretical isotopic pattern
 #'
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
@@ -250,7 +255,7 @@ output$process_results_ms <- plotly::renderPlotly({
 		"invalid", "no cell selected")
 	params <- list(
 		project_sample = input$process_results_file,
-		adduct = input$process_results_adduct, 
+		adduct = input$process_results_chemical_adduct, 
 		chemical_type = input$process_results_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
@@ -280,7 +285,7 @@ output$process_results_ms <- plotly::renderPlotly({
 #' Download the selected matrix at the xlsx format
 #' 
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_result_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
@@ -291,7 +296,7 @@ output$process_results_download <- shiny::downloadHandler(
   content = function(file) {
     params <- list(
       file = input$process_results_file,
-      adduct = input$process_results_adduct,
+      adduct = input$process_results_chemical_adduct,
       chemical_type = input$process_results_chemical_type,
       selected_matrix = input$process_results_selected_matrix)
     matr <- get_profile_matrix(db, params$file, params$adduct, 

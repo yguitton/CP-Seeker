@@ -1,23 +1,27 @@
-#' @title Event when switch between deconvolution and standard study
+#' @title Event when switch between parameters
 #' 
 #' @description
-#' If deconvolution is choose, will display the choice of the type of chemical
+#' If general is choose, will display generals parameters
+#' Else if deconvolution is choose, will display the choice of the type of chemical
 #' Else if standard is choose, will display the choice of the standard formula
 #' 
 #' @param input$process_chemical_standard string, choice 
 shiny::observeEvent(input$process_chemical_standard, {
   params <- list(choice = input$process_chemical_standard)
-  if (params$choice == "chemical") {
+  if (params$choice == "general"){
+    shinyjs::show("process_general")
+    shinyjs::hide("process_chemical")
+    shinyjs::hide("process_standard")
+  }
+  else if (params$choice == "target analyte") {
+    shinyjs::hide("process_general")
     shinyjs::show("process_chemical")
     shinyjs::hide("process_standard")
-    shinyjs::show("process_retention_time_max")
-    shinyjs::show("process_retention_time_min")
   }
   else if (params$choice == "standard") {
+    shinyjs::hide("process_general")
     shinyjs::hide("process_chemical")
     shinyjs::show("process_standard")
-    shinyjs::hide("process_retention_time_max")
-    shinyjs::hide("process_retention_time_min")
   }
 })
 

@@ -2,12 +2,12 @@ shinydashboard::tabItem(tabName = 'process_results',
 	shinydashboard::box(width = 12, 
 		shiny::tags$div(class = "params-inline", 
 			shiny::selectInput("process_results_file", "Select sample", 
-				choices = c(), multiple = FALSE, width = "40vw"),
+				choices = c(), multiple = FALSE, width = "20vw"),
 			shiny::selectInput("process_results_study",
-			  "Study", choices = c("chemical", "standard"), width = "40vw"),
+			  "Type", choices = c("chemical", "standard"), width = "20vw"),
 			shiny::tags$div(id = "process_results_chemical",
 			  shiny::selectInput("process_results_chemical_type",
-			    "Chemical", choices = c(), width = "20vw")
+			    "Family", choices = c(), width = "20vw")
 			),
 			shinyjs::hidden(
 			  shiny::tags$div(id = "process_results_standard",
@@ -15,12 +15,20 @@ shinydashboard::tabItem(tabName = 'process_results',
 			      "Standard formula", choices = c(), width = "20vw")
 			  )
 			),
-			shiny::selectInput("process_results_adduct", 
-				"Adduct", choices = c(), width = "40vw")
+			shiny::tags$div(id = "process_results_adduct",
+			  shiny::selectInput("process_results_chemical_adduct", 
+				  "Adduct", choices = c(), width = "20vw")
+			),
+			shinyjs::hidden(
+			  shiny::tags$div(id = "process_results_adduct2",
+			    shiny::selectInput("process_results_standard_adduct",
+			      "Adduct", choices = c(), width = "20vw")
+			  )
+      )
 		)
 	),
 	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
-	  choices = c('Scores', 'Standardized intensities', 'Deviations'), 
+	  choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-4)'), 
 	  checkIcon = list(
 	  yes = shiny::tags$i(
 	    class = "fa fa-circle", 
@@ -32,8 +40,9 @@ shinydashboard::tabItem(tabName = 'process_results',
 	  )
 	)),
 	shinydashboard::box(width = 9,
-	  shiny::downloadButton('process_results_download', 'Download matrix'
-	),
+	  shiny::column(width = 9, style = "margin-bottom: 5px;",
+  	  shiny::downloadButton('process_results_download', 'Export matrix')
+	  ),
 		shinycssloaders::withSpinner(
 			DT::dataTableOutput('process_results_profile')
 		)
