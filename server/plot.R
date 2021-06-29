@@ -216,7 +216,7 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' 
 #' @return plotly object
 plot_chemical_EIC <- function(db, project_sample = NULL, 
-		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL) {
+		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL, retention_time = NULL) {
 	p <- plot_empty_chromato("EIC")
 	
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl)
@@ -265,6 +265,8 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 		fill = "tozeroy", 
 		showlegend = FALSE
 	)
+	p <- plotly::layout(p,
+	  xaxis = list(range = retention_time))
 	plotly::toWebGL(p)
 }
 

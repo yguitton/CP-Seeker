@@ -226,7 +226,9 @@ output$process_results_eic <- plotly::renderPlotly({
 		deconvolution_param$mda, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
-			index = deconvolution_param$resolution_index))
+			index = deconvolution_param$resolution_index), 
+	  retention_time = c(deconvolution_param$retention_time_min, 
+	    deconvolution_param$retention_time_max))
 	}, invalid = function(i) plot_empty_chromato()
 	, error = function(e) {
 		print("ERR process_results_eic")
