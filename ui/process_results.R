@@ -24,6 +24,9 @@ shinydashboard::tabItem(tabName = 'process_results',
 			    shiny::selectInput("process_results_standard_adduct",
 			      "Adduct", choices = c(), width = "20vw")
 			  )
+			),
+			shinyWidgets::actionBttn("process_results_matrix", "Show matrix", 
+			  style = "minimal", color = "primary"
       )
 		)
 	),
@@ -40,10 +43,11 @@ shinydashboard::tabItem(tabName = 'process_results',
 	  )
 	)),
 	shinydashboard::box(width = 9,
-	  shiny::column(width = 9, style = "margin-bottom: 5px;",
-  	  shiny::downloadButton('process_results_download', 'Export matrix')
-	  ),
-		shinycssloaders::withSpinner(
+    shiny::downloadButton('process_results_download', 'Export matrix'),
+    shiny::numericInput('process_results_score_min', 'score min', value = 0),
+    shiny::numericInput('process_results_score_max', 'score max', value = 100),
+    shiny::actionButton("process_results_apply", "apply"),
+	  shinycssloaders::withSpinner(
 			DT::dataTableOutput('process_results_profile')
 		)
 	), 

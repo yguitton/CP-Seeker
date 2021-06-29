@@ -105,7 +105,12 @@ initComplete = htmlwidgets::JS("
           this.data('')
         }
         else{
-          this.data(splitted_cell[selected_button]);
+          if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
+            this.data('')
+          }
+          else{
+            this.data(splitted_cell[selected_button]);
+          }
         }
         if(splitted_cell[3] == 'outside'){
           $(this.node()).addClass('outside');
@@ -151,7 +156,13 @@ initComplete = htmlwidgets::JS("
           this.data('')
         }
         else{
-          this.data(splitted_cell[selected_button]);
+          debugger;
+          if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
+            this.data('');
+          }
+          else{
+            this.data(splitted_cell[selected_button]);
+          }
         }
       }
     });
