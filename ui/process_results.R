@@ -46,7 +46,7 @@ shinydashboard::tabItem(tabName = 'process_results',
     shiny::downloadButton('process_results_download', 'Export matrix'),
     shiny::numericInput('process_results_score_min', 'score min', value = 0),
     shiny::numericInput('process_results_score_max', 'score max', value = 100),
-    shiny::actionButton("process_results_apply", "apply"),
+    shiny::actionButton('process_results_apply', 'apply'),
 	  shinycssloaders::withSpinner(
 			DT::dataTableOutput('process_results_profile')
 		)

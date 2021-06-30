@@ -34,7 +34,8 @@ shiny::observeEvent(input$process_results_study, {
 #'
 #' @param db sqlite connection
 #' @param input$process_results_file integer project_sample ID
-#' @param input$process_results_chemical_adduct string adduct name
+#' @param input$process_results_chemical_adduct string adduct name for chemical
+#' @param input$process_results_standard_adduct string adduct name for standard
 #' @param input$process_results_study string type of study
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_selected_matrix string type of matrix selected, 
@@ -147,22 +148,41 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
-      else if(old_matrix[row][col] == 'NA/NA/NA/NA'){
-        
-      }
       else if (old_matrix[row][col] != null){
         var splitted_cell = old_matrix[row][col].split('/');
         if(splitted_cell[selected_button] == 'NA'){
           this.data('')
         }
         else{
-          debugger;
           if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
             this.data('');
           }
           else{
             this.data(splitted_cell[selected_button]);
           }
+        }
+      }
+    });
+    table.columns.adjust()
+    Shiny.setInputValue('process_results_profile', table.data());
+	});
+	$('#process_results_apply').on('click', function(){
+  	var table = $('#process_results_profile').data('datatable');
+  	var mat = $('#process_results_selected_matrix button.active').text()
+  	var selected_button = mat.includes('Scores') ? 0 : mat.includes('Normalized intensities') ? 1 : 2;
+	  table.cells().every(function() {
+	    var row = this.index().row
+      var col = this.index().column - 1
+      if(this.index().column == 0) {
+        this.data(this.data());
+      }
+      if(old_matrix[row][col] != null){
+        var splitted_cell = old_matrix[row][col].split('/');
+        if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
+          this.data('');
+        }
+        else if(splitted_cell[selected_button] != 'NA'){
+          this.data(splitted_cell[selected_button])
         }
       }
     });
