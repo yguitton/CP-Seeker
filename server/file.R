@@ -653,7 +653,7 @@ importation <- function(db, project, sample_name, sample_id, filepath, old_filep
 #'
 #' @return string path of the file created
 cut_ms_file <- function(ms_file, polarity) {
-	print(paste('cut', ms_file))
+	print('Cut ms file')
 	spectras <- if(polarity == 1) which(MSnbase::polarity(ms_file) >= polarity)
 		else which(MSnbase::polarity(ms_file) <= polarity)
 	out_filepath <- file.path(tempdir(), basename(MSnbase::fileNames(ms_file)))
