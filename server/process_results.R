@@ -198,7 +198,7 @@ initComplete = htmlwidgets::JS("
 #'
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_chemical_adduct string adduct name
-#' @param input$process_chemical_type string type of chemical studied
+#' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 observeEvent(input$process_results_profile_selected, {
@@ -209,7 +209,7 @@ observeEvent(input$process_results_profile_selected, {
 	params <- list(
 		project_sample = input$process_results_file, 
 		adduct = input$process_results_chemical_adduct, 
-		chemical_type = input$process_chemical_type,
+		chemical_type = input$process_results_chemical_type,
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
@@ -236,6 +236,7 @@ observeEvent(input$process_results_profile_selected, {
 #' 
 #' @return plotly object
 output$process_results_eic <- plotly::renderPlotly({
+  actualize$results_eic
 	tryCatch({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
@@ -252,7 +253,7 @@ output$process_results_eic <- plotly::renderPlotly({
 		deconvolution_params()$project == params$project & 
 		deconvolution_params()$adduct == params$adduct &
 		deconvolution_params()$chemical_type == params$chemical_type), ])
-	plot_chemical_EIC(db, params$project_sample, params$adduct, 
+	p <- plot_chemical_EIC(db, params$project_sample, params$adduct, 
 		params$chemical_type, params$C, params$Cl, deconvolution_param$ppm, 
 		deconvolution_param$mda, resolution = list(
 			resolution = deconvolution_param$resolution, 
@@ -260,6 +261,16 @@ output$process_results_eic <- plotly::renderPlotly({
 			index = deconvolution_param$resolution_index), 
 	  retention_time = c(deconvolution_param$retention_time_min, 
 	    deconvolution_param$retention_time_max))
+	htmlwidgets::onRender(p, 
+  	"function(el, x) {
+      el.on('plotly_selected', function(d) {
+        var min = d.range.x[0]
+        var max = d.range.x[1]
+        Shiny.setInputValue('rtmin', min);
+        Shiny.setInputValue('rtmax', max);
+      })
+    }"
+  )
 	}, invalid = function(i) plot_empty_chromato()
 	, error = function(e) {
 		print("ERR process_results_eic")
@@ -283,6 +294,7 @@ output$process_results_eic <- plotly::renderPlotly({
 #' 
 #' @return plotly object
 output$process_results_ms <- plotly::renderPlotly({
+  actualize$results_ms
 	tryCatch({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
@@ -353,4 +365,100 @@ output$process_results_download <- shiny::downloadHandler(
     first_col <- matrix(dimnames(matr)[[1]])
     matr <- cbind(first_col, matr)
     write.xlsx(matr, file)
+})
+
+#' @title Launch reintegration
+#' 
+#' @decription 
+#' Launch reintegration of a chloroparaffin
+#' 
+#' @param db sqlite connection
+#' @param input$project integer, project ID
+#' @param input$process_results_file string, file studied
+#' @param input$process_results_chemical_type string, type of chemical studied
+#' @param input$process_results_chemical_adduct string, adduct name
+#' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
+#' 		correspond to the rowname and colname of the cell selected
+shiny::observeEvent(input$process_results_reintegration, {
+  print('############################################################')
+  print('###################### REINTEGRATION #######################')
+  print('############################################################')
+  
+  params <- list(
+    project = input$project,
+    project_sample = input$process_results_file,
+    chemical_type = input$process_results_chemical_type,
+    adduct = input$process_results_chemical_adduct,
+    retention_time = c(input$rtmin, input$rtmax),
+    C = input$process_results_profile_selected$C,
+    Cl = input$process_results_profile_selected$Cl
+  )
+  deconvolution_params <- get_deconvolution_params(db, params$project, 
+    params$chemical_type, params$adduct)
+  params2 <- list(
+    resolution = list(
+      instrument = deconvolution_params$instrument, 
+      index = as.numeric(deconvolution_params$resolution_index), 
+      resolution = deconvolution_params$resolution, 
+      mz = deconvolution_params$resolution_mz
+    ), 
+    ppm = deconvolution_params$ppm, mda = deconvolution_params$mda, 
+    peakwidth = c(deconvolution_params$peakwidth_min, deconvolution_params$peakwidth_max),
+    missing_scans = deconvolution_params$missing_scans
+  )
+  params <- append(params, params2)
+  params$sample <- project_samples()[which(
+    project_samples()$project == params$project), "sample"]
+  
+  tryCatch({
+    ion_form <- get_chemical_ion(db, params$adduct, params$chemical_type, 
+      params$C, params$Cl)
+    if (nrow(ion_form) == 0) custom_stop("minor_error", "no chemical founded 
+      with this adduct")
+    theoric_pattern <- get_theoric(ion_form$ion_formula, 
+      ion_form$charge, params$resolution)
+    theoric_pattern <- lapply(theoric_pattern, function(x) 
+      cbind(x, get_mass_range(x[, "mz"], deconvolution_params$ppm, deconvolution_params$mda)))
+    ms_file <- load_ms_file(db, params$sample)
+    scalerange <- round((params$peakwidth  / mean(diff(ms_file@scantime))) /2)
+    peak <- deconvolution(ms_file, theoric_pattern, ion_form$chemical_ion, scalerange, 
+      params$retention_time, params$missing_scans, pb = "pb2")
+    if(is.null(peak)) custom_stop("minor_error", "no chemical founded 
+      with this adduct")
+    peak$project_sample <- params$project
+    query <- sprintf("delete from feature where chemical_ion == %s", peak$chemical_ion[1])
+    db_execute(db, query)
+    record_features(db, peak)
+    val <- paste(round(peak$score[1]), 
+      round(peak$intensities[1]/10**6, digits = 1), 
+      round(peak$weighted_deviations[1]*10**4, digits = 1), sep = "/")
+    session$sendCustomMessage("values", jsonlite::toJSON(val))
+    shinyjs::runjs("
+      var values = new_values[0];
+      var table = $('#process_results_profile').data('datatable');
+      var cell_index = table.cell(table.$('td.selected')).index();
+      var C = cell_index.row;
+      var Cl = cell_index.column;
+      old_matrix[C][Cl-1] = values + '/' + old_matrix[C][Cl-1].split('/')[3]; 
+      var mat = $('#process_results_selected_matrix button.active').text();
+    	var selected_button = mat.includes('Scores') ? 0 : mat.includes('Normalized intensities') ? 1 : 2;
+    	var splitted_cell = values.split('/');
+    	table.cell(C, Cl).data(splitted_cell[selected_button]);
+    ")
+    actualize$results_eic <<- runif(1)
+    actualize$results_ms <<- runif(1)
+  }, invalid = function(i) NULL
+  , minor_error = function(e) {
+    print(e)
+    shinyWidgets::closeSweetAlert(session)
+    toastr_error(e$message)
+  }, error = function(e) {
+    print(e)
+    shinyWidgets::closeSweetAlert(session)
+    sweet_alert_error(e$message)
+  })
+  
+  print('############################################################')
+  print('#################### END REINTEGRATION #####################')
+  print('############################################################')
 })

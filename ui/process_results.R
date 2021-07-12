@@ -55,7 +55,8 @@ shinydashboard::tabItem(tabName = 'process_results',
 		shinydashboard::box(width = 12, 
 			shinycssloaders::withSpinner(
 				plotly::plotlyOutput("process_results_eic")
-			)
+			),
+			shiny::actionButton('process_results_reintegration', 'reintegration')
 		), 
 		shinydashboard::box(width = 12, 
 			shinycssloaders::withSpinner(

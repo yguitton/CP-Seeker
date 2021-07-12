@@ -76,6 +76,7 @@ plot_empty_chromato <- function(title = "Extracted Ion Chromatogram(s)") {
 		hoverlabel = list(
 			namelength = -1
 		),
+		dragmode = 'select',
 		selectdirection = "h", 
 		annotations = list(list(
 			xref = 'paper', 

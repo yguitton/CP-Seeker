@@ -268,6 +268,22 @@ get_chemical_features <- function(db, project_sample = NULL,
 	db_get_query(db, query)
 }
 
+#' @title Get deconvolution parameters
+#' 
+#' @description 
+#' Get deconvolution parameters whith a given project, chemical end adduct
+#' 
+#' @param db sqlite connection
+#' @param project integrer project id
+#' @param chemical_type string type of chemical
+#' @param adduct string adduct name
+get_deconvolution_params <- function(db, project, chemical_type, adduct){
+  query <- sprintf("select * from deconvolution_param 
+    where project == %s and chemical_type == \"%s\" and adduct == \"%s\"", 
+    project, chemical_type, adduct)
+  db_get_query(db, query)
+}
+
 #' @title Get profile matrix
 #' 
 #' @description

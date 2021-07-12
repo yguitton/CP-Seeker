@@ -1,7 +1,11 @@
 var old_matrix;
 Shiny.addCustomMessageHandler('matrix', function(mat){
-	    old_matrix = mat;
-	  });
+	old_matrix = mat;
+});
+var new_values;
+Shiny.addCustomMessageHandler('values', function(val){
+	new_values = val;
+});
  $(document).on("shiny:connected", function(e) {
 	$("body").addClass("sidebar-mini");
 	$('.dropdown-menu').css('width', window.innerWidth/4.8);
