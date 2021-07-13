@@ -10,7 +10,8 @@ actualize <- shiny::reactiveValues(
 	project_samples = 0, 
 	deconvolution_params = 0,
 	results_eic = 0,
-	results_ms = 0
+	results_ms = 0,
+	results_matrix = 0
 )
 
 share_vars <- shiny::reactiveValues()

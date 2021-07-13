@@ -45,14 +45,15 @@ shiny::observeEvent(input$process_results_study, {
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
 	actualize$deconvolution_params # only to force it reloading after deconvolution
+  actualize$results_matrix
   params <- list(
-		project_sample = input$process_results_file, 
-		chemical_adduct = input$process_results_chemical_adduct,
-		standard_adduct = input$process_results_standard_adduct,
-		study = input$process_results_study,
-		chemical_type = input$process_results_chemical_type,
+		project_sample = isolate(input$process_results_file), 
+		chemical_adduct = isolate(input$process_results_chemical_adduct),
+		standard_adduct = isolate(input$process_results_standard_adduct),
+		study = isolate(input$process_results_study),
+		chemical_type = isolate(input$process_results_chemical_type),
 		selected_matrix = isolate(input$process_results_selected_matrix),
-		standard_formula = input$process_results_standard_formula
+		standard_formula = isolate(input$process_results_standard_formula)
 	)
 	
 	tryCatch({
@@ -190,6 +191,14 @@ initComplete = htmlwidgets::JS("
     Shiny.setInputValue('process_results_profile', table.data());
 	});
 "))
+
+#' @title Update profile matrix
+#' 
+#' @description 
+#' When process_results_matrix is clicked, will update profile matrix according to parameters
+observeEvent(input$process_results_matrix, {
+  actualize$results_matrix <<- runif(1)
+})
 
 #' @title Event when a cell is selected
 #' 
@@ -364,6 +373,7 @@ output$process_results_download <- shiny::downloadHandler(
     }
     first_col <- matrix(dimnames(matr)[[1]])
     matr <- cbind(first_col, matr)
+    colnames(matr)[1] <- " "
     write.xlsx(matr, file)
 })
 

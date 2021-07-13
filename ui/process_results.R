@@ -43,13 +43,23 @@ shinydashboard::tabItem(tabName = 'process_results',
 	  )
 	)),
 	shinydashboard::box(width = 9,
-    shiny::downloadButton('process_results_download', 'Export matrix'),
-    shiny::numericInput('process_results_score_min', 'score min', value = 0),
-    shiny::numericInput('process_results_score_max', 'score max', value = 100),
-    shiny::actionButton('process_results_apply', 'apply'),
-	  shinycssloaders::withSpinner(
-			DT::dataTableOutput('process_results_profile')
-		)
+	  shiny::column(width = 7, style = 'margin-top: 20px; margin-bottom: 20px;',
+	    shiny::downloadButton('process_results_download', 'Export matrix')
+	  ),
+    shiny::column(width = 2,
+      shiny::numericInput('process_results_score_min', 'score min', value = 0)
+    ),
+	  shiny::column(width = 2,
+	    shiny::numericInput('process_results_score_max', 'score max', value = 100)
+	  ),
+	  shiny::column(width = 1, style = 'margin-top: 20px; margin-bottom: 20px;',
+	    shiny::actionButton('process_results_apply', 'apply')
+	  ),
+    shiny::column(width = 12, 
+      shinycssloaders::withSpinner(
+    			DT::dataTableOutput('process_results_profile')
+    	)
+    )
 	), 
 	shiny::column(width = 3, 
 		shinydashboard::box(width = 12, 
