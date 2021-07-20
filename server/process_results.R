@@ -431,9 +431,11 @@ shiny::observeEvent(input$process_results_reintegration, {
       cbind(x, get_mass_range(x[, "mz"], deconvolution_params$ppm, deconvolution_params$mda)))
     ms_file <- load_ms_file(db, params$sample)
     scalerange <- round((params$peakwidth  / mean(diff(ms_file@scantime))) /2)
-    peak <- deconvolution(ms_file, theoric_pattern, ion_form$chemical_ion, scalerange, 
-      params$retention_time, params$missing_scans, pb = "pb2")
+    peak <- deconvolution(ms_file, theoric_pattern, ion_form$chemical_ion, c(1, scalerange[2]), 
+      params$retention_time, params$missing_scans, pb = "pb2", reintegration = TRUE)
     if(is.null(peak)) custom_stop("minor_error", "no chemical founded 
+      with this adduct")
+    if(peak$score[1] < 0) custom_stop("minor_error", "no chemical founded 
       with this adduct")
     peak$project_sample <- params$project
     query <- sprintf("delete from feature where chemical_ion == %s", peak$chemical_ion[1])
