@@ -553,33 +553,38 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 	for (i in seq(theoric_patterns)) {
 		time_begin <- Sys.time()
 		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-		roi <- if(reintegration) range(which(traces$eic[, "int"] > 0 & 
-		  traces$eic[, "rt"] > scanrange[1]*60 & traces$eic[, "rt"] < scanrange[2]*60))
-		else get_rois(traces$eic[, "int"], scalerange[1])
+		roi <- get_rois(traces$eic[, "int"], scalerange[1])
 		if (length(roi) == 0) next
-		if (roi[1] == Inf) next
 		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
 			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
 		# xcms define noiserange as 1.5x peakwidth_max
 		baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(x$eic) / 3, 
 		  endrule = "constant", algorithm = "Turlach"))
 		noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))
-		# extend roi for better integration
-		if(!reintegration) roi <- range(
-		  (if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
-		  (if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
-	  )
-		if(reintegration) lm <- c(roi[1] - traces[[1]]$eic[roi[1], "scan"] + 1, roi[2] - traces[[1]]$eic[roi[1], "scan"] + 1)
-	  basepeaks <- if(reintegration) integrate2(traces[[1]]$eic[roi[1]:roi[2], ], lm, 
+		if(reintegration){
+		  roi <- range(which(traces[[1]]$eic[, "int"] > 0 & 
+		    traces[[1]]$eic[, "rt"] > scanrange[1]*60 & traces[[1]]$eic[, "rt"] < scanrange[2]*60))
+		  if (roi[1] == Inf) next
+		  lm <- c(roi[1] - traces[[1]]$eic[roi[1], "scan"] + 1, roi[2] - traces[[1]]$eic[roi[1], "scan"] + 1)
+		  basepeaks <- integrate2(traces[[1]]$eic[roi[1]:roi[2], ], lm, 
 		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
 		  traces[[1]]$mzmat[which(
 		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
 	    , , drop = FALSE])
-		else integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
-		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
-		  traces[[1]]$mzmat[which(
-		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
-		  , , drop = FALSE])
+		}
+		else{
+		  # extend roi for better integration
+  		roi <- range(
+  		  (if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
+  		  (if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
+  	  )
+  	  basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
+  		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
+  		  traces[[1]]$mzmat[which(
+  		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+  		  , , drop = FALSE])
+		}
+		
 	  if (length(basepeaks) == 0) next
 	  basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
 		if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
