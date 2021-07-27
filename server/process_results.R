@@ -250,9 +250,9 @@ output$process_results_eic <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
-		project_sample = input$process_results_file,
-		adduct = input$process_results_chemical_adduct, 
-		chemical_type = input$process_results_chemical_type, 
+		project_sample = isolate(input$process_results_file),
+		adduct = isolate(input$process_results_chemical_adduct), 
+		chemical_type = isolate(input$process_results_chemical_type), 
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)
@@ -308,9 +308,9 @@ output$process_results_ms <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
-		project_sample = input$process_results_file,
-		adduct = input$process_results_chemical_adduct, 
-		chemical_type = input$process_results_chemical_type,
+		project_sample = isolate(input$process_results_file),
+		adduct = isolate(input$process_results_chemical_adduct), 
+		chemical_type = isolate(input$process_results_chemical_type),
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl)
 	)

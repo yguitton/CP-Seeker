@@ -31,7 +31,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 		)
 	),
 	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
-	  choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-4)'), 
+	  choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-3)'), 
 	  checkIcon = list(
 	  yes = shiny::tags$i(
 	    class = "fa fa-circle", 

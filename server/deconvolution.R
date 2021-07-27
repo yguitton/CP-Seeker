@@ -548,7 +548,6 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		missing_scans = 1, pb = NULL, reintegration = FALSE) {
   peaks <- NULL
 	pb_max <- length(theoric_patterns)
-	elapsed <- 0
 	extend_range <- ceiling(scalerange[2] * 1.5)
 	for (i in seq(theoric_patterns)) {
 		time_begin <- Sys.time()
@@ -630,9 +629,6 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 			))
 		}
 		
-		elapsed <- elapsed + (Sys.time() - time_begin)
-		remaining <- (pb_max - i)* elapsed / i
-		if (as.double(remaining) > 60) units(remaining) <- "mins"
 		shinyWidgets::updateProgressBar(session, id = pb, 
 			value = i * 100 / pb_max,  
 			title = "")

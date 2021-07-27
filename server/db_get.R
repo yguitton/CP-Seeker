@@ -330,8 +330,8 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
   for (row in seq(nrow(data))) profile_mat[
     data[row, "C"] - C[1] + 1, 
     data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
-      round(data[row, "intensities"]/10**6, digits = 1),
-      round(data[row, "weighted_deviation"]*10**4, digits = 1),
+      round(data[row, "intensities"]/10**6, digits = 0),
+      round(data[row, "weighted_deviation"]*10**3, digits = 1),
       status[row], sep = "/") 
   profile_mat
 }
@@ -360,10 +360,10 @@ get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standar
     return(data)
   }
   data <- cbind(formula = standard_formula, adduct = adduct, data)
-  data$into <- formatC(data$into, format = 'f', big.mark = " ", digits = 2)
-  data$intb <- formatC(data$intb, format = 'f', big.mark = " ", digits = 2)
+  data$into <- formatC(data$into, format = 'f', big.mark = " ", digits = 1)
+  data$intb <- formatC(data$intb, format = 'f', big.mark = " ", digits = 1)
   data$score <- round(data$score, digits = 0)
-  data$weighted_deviation <- round(data$weighted_deviation*10**4, digits = 1)
+  data$weighted_deviation <- round(data$weighted_deviation*10**3, digits = 2)
   data.table::setnames(data, c("into", "intb", "weighted_deviation"), c("total area", "area above baseline", "deviation (mDa, xE-4)"))
   data
 }
