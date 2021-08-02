@@ -181,9 +181,9 @@ deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params,
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
-  choices <- deconvolution_params()[which(deconvolution_params()[which(
-    deconvolution_params()$project == input$project), 
-    "chemical_type"] %in% c("CPs", "COs", "CdiOs")), "chemical_type"]
+  choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"]
+  choices <- choices[which(choices %in% c("CPs", "COs", "CdiOs"))]
   shiny::updateSelectInput(session, "process_results_chemical_type", 
     "Family", choices = choices)
 })
@@ -212,9 +212,9 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 #' @param deconvolution_params reactive value standard_deconvolution_param table database
 #' @param input$project integer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
-  choices <- deconvolution_params()[-which(deconvolution_params()[which(
-    deconvolution_params()$project == input$project), 
-    "chemical_type"] %in% c("CPs", "COs", "CdiOs")), "chemical_type"]
+  choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"]
+  choices <- choices[-which(choices %in% c("CPs", "COs", "CdiOs"))]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
 })
