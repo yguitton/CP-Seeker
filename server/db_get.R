@@ -347,23 +347,40 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
 #' @param standard_formula
 #' 
 #' @return table with standard formula, adduct, area, score and deviation of the standard studied
-get_standard_table <- function(db, project_sample = NULL, adduct = NULL, standard_formula = NULL){
-  query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
-    iso == \"A\" and project_sample == %s and chemical_ion in (
-      select chemical_ion from chemical_ion where adduct == \"%s\" 
-      and chemical == (select chemical from chemical where formula == \"%s\"));', 
-      project_sample, adduct, standard_formula)
-  data <- db_get_query(db, query)
-  if(nrow(data)==0){
-    data <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
-    data <- cbind(formula = standard_formula, adduct = adduct, data)
-    return(data)
+get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formula = NULL){
+  sample <- get_samples(db, project)
+  table <- NULL
+  for(i in 1:length(sample$project_sample)){
+    data <- do.call(rbind,
+      lapply(standard_formula, function(y){
+        do.call(rbind, 
+          lapply(adduct, function(x){
+            query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+              iso == \"A\" and project_sample in (select project_sample from project_sample where 
+              project == %s) and chemical_ion in (
+                select chemical_ion from chemical_ion where adduct == \"%s\"
+                and chemical == (select chemical from chemical where formula == \"%s\"));', 
+              project, x, y)
+            data2 <- db_get_query(db, query)
+            if(nrow(data2) == 0){
+              data2 <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
+            }
+            data2 <- cbind(sample_id = sample$sample_id[i], formula = y, adduct = x, data2)
+          })
+        )
+      })
+    )
+    table <- rbind(table, data)
   }
-  data <- cbind(formula = standard_formula, adduct = adduct, data)
-  data$into <- formatC(data$into, format = 'f', big.mark = " ", digits = 1)
-  data$intb <- formatC(data$intb, format = 'f', big.mark = " ", digits = 1)
-  data$score <- round(data$score, digits = 0)
-  data$weighted_deviation <- round(data$weighted_deviation*10**3, digits = 2)
-  data.table::setnames(data, c("into", "intb", "weighted_deviation"), c("total area", "area above baseline", "deviation (mDa, xE-4)"))
-  data
+  table$into[which(!is.na(table$into))] <- formatC(
+    as.numeric(table$into[which(!is.na(table$into))]), format = 'f', big.mark = " ", digits = 0)
+  table$intb[which(!is.na(table$intb))] <- formatC(
+    as.numeric(table$intb[which(!is.na(table$intb))]), format = 'f', big.mark = " ", digits = 0)
+  table$score[which(!is.na(table$score))] <- round(
+    table$score[which(!is.na(table$score))], digits = 0)
+  table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
+    table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
+  data.table::setnames(table, c("into", "intb", "weighted_deviation"), 
+    c("total area", "area above baseline", "deviation (mDa, xE-3)"))
+  table
 }

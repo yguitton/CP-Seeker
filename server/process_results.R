@@ -100,7 +100,12 @@ output$process_results_profile <- DT::renderDataTable({
 	}
 	else if(params$study == "standard"){
 	  shinyjs::hide("process_results_selected_matrix")
-	  get_standard_table(db, params$project_sample, params$standard_adduct, params$standard_formula)
+	  table_params <- list(
+	    standard = c('C12D18Br6', '[13]C12H18Br6'),
+	    adduct = c("M-H", "M+Cl")
+	  )
+	  table <- get_standard_table(db, params$project, table_params$adduct, table_params$standard)
+	  table
 	}
     
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
