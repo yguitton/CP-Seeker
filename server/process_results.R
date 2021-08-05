@@ -329,6 +329,7 @@ output$process_results_eic <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
+	  project = input$project,
 		project_sample = isolate(input$process_results_file),
 		adduct = isolate(input$process_results_chemical_adduct), 
 		chemical_type = isolate(input$process_results_chemical_type), 
@@ -387,6 +388,7 @@ output$process_results_ms <- plotly::renderPlotly({
 	if (is.null(input$process_results_profile_selected)) custom_stop(
 		"invalid", "no cell selected")
 	params <- list(
+	  project = input$project,
 		project_sample = isolate(input$process_results_file),
 		adduct = isolate(input$process_results_chemical_adduct), 
 		chemical_type = isolate(input$process_results_chemical_type),
@@ -513,13 +515,15 @@ shiny::observeEvent(input$process_results_reintegration, {
   )
   params <- append(params, params2)
   params$sample <- project_samples()[which(
-    project_samples()$project == params$project), "sample"]
+    project_samples()$project == params$project & 
+      project_samples()$project_sample == params$project_sample), "sample"]
   
   tryCatch({
     ion_form <- get_chemical_ion(db, params$adduct, params$chemical_type, 
       params$C, params$Cl)
     if (nrow(ion_form) == 0) custom_stop("minor_error", "no chemical founded 
       with this adduct")
+    
     theoric_pattern <- get_theoric(ion_form$ion_formula, 
       ion_form$charge, params$resolution)
     theoric_pattern <- lapply(theoric_pattern, function(x) 
@@ -537,8 +541,8 @@ shiny::observeEvent(input$process_results_reintegration, {
     db_execute(db, query)
     record_features(db, peak)
     val <- paste(round(peak$score[1]), 
-      round(peak$intensities[1]/10**6, digits = 1), 
-      round(peak$weighted_deviations[1]*10**4, digits = 1), sep = "/")
+      round(peak$intensities[1]/10**6, digits = 0), 
+      round(peak$weighted_deviations[1]*10**3, digits = 1), sep = "/")
     session$sendCustomMessage("values", jsonlite::toJSON(val))
     shinyjs::runjs("
       var values = new_values[0];
@@ -546,7 +550,10 @@ shiny::observeEvent(input$process_results_reintegration, {
       var cell_index = table.cell(table.$('td.selected')).index();
       var C = cell_index.row;
       var Cl = cell_index.column;
-      old_matrix[C][Cl-1] = values + '/' + old_matrix[C][Cl-1].split('/')[3]; 
+      var project = $('#process_results_file').text();
+    	var chemical = $('#process_results_chemical_type').text();
+    	var adduct = $('#process_results_chemical_adduct').text();
+      old_matrix[project][chemical][adduct][C][Cl-1] = values + '/' + old_matrix[project][chemical][adduct][C][Cl-1].split('/')[3]; 
       var mat = $('#process_results_selected_matrix button.active').text();
     	var selected_button = mat.includes('Scores') ? 0 : mat.includes('Normalized intensities') ? 1 : 2;
     	var splitted_cell = values.split('/');
