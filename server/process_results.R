@@ -425,35 +425,51 @@ output$process_results_ms <- plotly::renderPlotly({
 #' 
 #' @return xlsx file
 output$process_results_download <- shiny::downloadHandler(
-  filename = function() { paste("CPSeeker0.1_", input$process_results_selected_matrix, ".xlsx", sep = "") },
+  filename = function() { paste("CPSeeker0.1_", input$project, ".xlsx", sep = "") },
   content = function(file) {
     params <- list(
+      project = input$project,
       file = input$process_results_file,
-      adduct = input$process_results_chemical_adduct,
-      chemical_type = input$process_results_chemical_type,
-      selected_matrix = input$process_results_selected_matrix)
-    matr <- get_profile_matrix(db, params$file, params$adduct, 
-      params$chemical_type)
-    selected <- if(params$selected_matrix == "Scores") 1 
-      else if (params$selected_matrix == "Standardized intensities") 2
-      else 3
-    for(rows in 1:nrow(matr)){
-      for(cols in 1:ncol(matr)){
-        cell = matr[rows,cols]
-        if(is.na(cell)) next
-        splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
-        if(splitted_cell == "NA"){
-          matr[rows,cols] = ""
-        }
-        else{
-          matr[rows,cols] = splitted_cell
-        }
-      }
+      adduct = c('M-H', 'M+Cl', 'M+Hac-H'),
+      chemical_type = c('CPs', 'COs', 'CdiOs'),
+      matrix_type = c('Score', 'Intensities', 'Deviations')
+    )
+    samples <- get_samples(db, params$project)
+    mat <- list()
+    for(i in 1:length(samples$sample_id)){
+      mat2 <- sapply(samples$sample_id[i], function(project){
+        sapply(params$chemical_type, function(chemical){
+          sapply(params$adduct, function(adduct){
+            matr <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical)
+            sapply(1:3, function(selected){
+              matrice <- matr
+              for(rows in 1:nrow(matrice)){
+                for(cols in 1:ncol(matrice)){
+                  cell = matrice[rows,cols]
+                  if(is.na(cell)) next
+                  splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
+                  if(splitted_cell == "NA"){
+                    matrice[rows,cols] = ""
+                  }
+                  else{
+                    matrice[rows,cols] = splitted_cell
+                  }
+                }
+              }
+              first_col <- matrix(dimnames(matrice)[[1]])
+              matrice <- cbind(first_col, matrice)
+              first_row <- t(matrix(dimnames(matrice)[[2]]))
+              matrice <- rbind(first_row, matrice)
+              matrice_title = paste(samples$sample_id[i], chemical, adduct, params$matrix_type[selected], sep = ' - ')
+              matrice[1,1] <- matrice_title
+              matrice
+            }, simplify = FALSE, USE.NAMES = TRUE)
+          }, simplify = FALSE, USE.NAMES = TRUE)
+        }, simplify = FALSE, USE.NAMES = TRUE)
+      }, simplify = FALSE, USE.NAMES = TRUE)
+      mat <- append(mat, mat2)
     }
-    first_col <- matrix(dimnames(matr)[[1]])
-    matr <- cbind(first_col, matr)
-    colnames(matr)[1] <- " "
-    write.xlsx(matr, file)
+    openxlsx::write.xlsx(unlist(unlist(mat, recursive = FALSE), recursive = FALSE), file)
 })
 
 #' @title Launch reintegration
