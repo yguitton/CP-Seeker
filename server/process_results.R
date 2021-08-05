@@ -442,7 +442,7 @@ output$process_results_download <- shiny::downloadHandler(
       mat2 <- sapply(samples$sample_id[i], function(project){
         sapply(params$chemical_type, function(chemical){
           sapply(params$adduct, function(adduct){
-            matr <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical)
+            matr <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
             sapply(1:3, function(selected){
               matrice <- matr
               for(rows in 1:nrow(matrice)){

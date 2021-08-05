@@ -298,7 +298,8 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore & 
 #'		each row represent a level of carbon
-get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemical_type = NULL) {
+get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
+  chemical_type = NULL, simplify = TRUE) {
   query <- if (is.null(adduct)) "select C, Cl from chemical;" 
   else sprintf("select chemical_ion, C, Cl from chemical 
 		left join chemical_ion on 
@@ -326,13 +327,23 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL, chemica
     ion_forms$charge[1])
   mz_range <- get_project_mz_range(db, project_sample)
   status <- get_patterns_status(theoric_patterns, mz_range)
-
-  for (row in seq(nrow(data))) profile_mat[
-    data[row, "C"] - C[1] + 1, 
-    data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
-      round(data[row, "intensities"]/10**6, digits = 0),
-      round(data[row, "weighted_deviation"]*10**3, digits = 1),
-      status[row], sep = "/") 
+  
+  if(simplify){
+    for (row in seq(nrow(data))) profile_mat[
+      data[row, "C"] - C[1] + 1, 
+      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
+        round(data[row, "intensities"]/10**6, digits = 0),
+        round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        status[row], sep = "/")
+  }
+  else {
+    for (row in seq(nrow(data))) profile_mat[
+      data[row, "C"] - C[1] + 1, 
+      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"], 
+        data[row, "intensities"],
+        data[row, "weighted_deviation"],
+        status[row], sep = "/")
+  }
   profile_mat
 }
 
