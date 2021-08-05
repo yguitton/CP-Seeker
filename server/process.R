@@ -356,7 +356,7 @@ shiny::observeEvent(input$process_launch, {
   		shinyWidgets::updateProgressBar(session, id = 'pb', 
   			title = msg, value = (i - 1) * 100 / pb_max)
   		
-  		status <- get_patterns_status(theoric_patterns, params$mz_range)
+  		status <- get_patterns_status(theoric_patterns, params$mz_range[i,])
   		deleted <- which(status == "outside")
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
   		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, theoric_patterns[-deleted], 
