@@ -59,7 +59,10 @@ shinydashboard::tabItem(tabName = 'process_results',
       shinycssloaders::withSpinner(
     			DT::dataTableOutput('process_results_profile')
     	)
-    )
+    ),
+	  shiny::column(width = 12, 
+	    DT::dataTableOutput('process_results_standard_table')
+	  ) 
 	), 
 	shiny::column(width = 3, 
 		shinydashboard::box(width = 12, 
