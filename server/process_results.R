@@ -480,11 +480,15 @@ output$process_results_download <- shiny::downloadHandler(
       matrix_type = c('Score', 'Intensities', 'Deviations')
     )
     samples <- get_samples(db, params$project)
+    query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+      chemical_type in (select chemical_type from chemical where chemical_type != "standard");',
+      params$project)
+    chemicals <- db_get_query(db, query)
     mat <- list()
     for(i in 1:length(samples$sample_id)){
       mat2 <- sapply(samples$sample_id[i], function(project){
-        sapply(params$chemical_type, function(chemical){
-          sapply(params$adduct, function(adduct){
+        sapply(unique(chemicals$chemical_type), function(chemical){
+          sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
             matr <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
             sapply(1:3, function(selected){
               matrice <- matr
