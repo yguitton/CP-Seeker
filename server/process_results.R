@@ -177,6 +177,9 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
+      else if (old_table[row][col] == null){
+        this.data('');
+      }
       else if (old_table[row][col] != null){
         var splitted_cell = old_table[row][col].split('/');
         if(splitted_cell[selected_button] == 'NA'){
@@ -222,6 +225,9 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
+      else if (old_table[row][col] == null){
+        this.data('');
+      }
       else if (old_table[row][col] != null){
         var splitted_cell = old_table[row][col].split('/');
         if(splitted_cell[selected_button] == 'NA'){
@@ -253,6 +259,9 @@ initComplete = htmlwidgets::JS("
       var col = this.index().column - 1
       if(this.index().column == 0) {
         this.data(this.data());
+      }
+      else if (old_table[row][col] == null){
+        this.data('');
       }
       if(old_table[row][col] != null){
         var splitted_cell = old_table[row][col].split('/');
