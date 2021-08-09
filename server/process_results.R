@@ -583,8 +583,9 @@ shiny::observeEvent(input$process_results_reintegration, {
       with this adduct")
     if(peak$score[1] < 0) custom_stop("minor_error", "no chemical founded 
       with this adduct")
-    peak$project_sample <- params$project
-    query <- sprintf("delete from feature where chemical_ion == %s", peak$chemical_ion[1])
+    peak$project_sample <- params$project_sample
+    query <- sprintf("delete from feature where chemical_ion == %s and 
+      project_sample == %s", peak$chemical_ion[1], params$project_sample)
     db_execute(db, query)
     record_features(db, peak)
     val <- paste(round(peak$score[1]), 
