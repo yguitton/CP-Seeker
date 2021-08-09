@@ -470,7 +470,12 @@ output$process_results_ms <- plotly::renderPlotly({
 #' 
 #' @return xlsx file
 output$process_results_download <- shiny::downloadHandler(
-  filename = function() { paste("CPSeeker0.1_", input$project, ".xlsx", sep = "") },
+  filename = function() { 
+    params <- list(
+      project = input$project
+    )
+    name <- get_project_name(db, params$project)
+    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },
   content = function(file) {
     params <- list(
       project = input$project,
@@ -484,8 +489,18 @@ output$process_results_download <- shiny::downloadHandler(
       chemical_type in (select chemical_type from chemical where chemical_type != "standard");',
       params$project)
     chemicals <- db_get_query(db, query)
+    
+    pb_max <- length(samples$project_sample)
+    shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
+      value = 0, display_pct = TRUE)
+    
     mat <- list()
     for(i in 1:length(samples$sample_id)){
+      msg <- sprintf("%s", samples$sample_id[i])
+      print(msg)
+      shinyWidgets::updateProgressBar(session, id = 'pb', 
+        title = msg, value = (i - 1) * 100 / pb_max)
+      
       mat2 <- sapply(samples$sample_id[i], function(project){
         sapply(unique(chemicals$chemical_type), function(chemical){
           sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
@@ -518,6 +533,13 @@ output$process_results_download <- shiny::downloadHandler(
       }, simplify = FALSE, USE.NAMES = TRUE)
       mat <- append(mat, mat2)
     }
+    msg <- "record peaks"
+    print(msg)
+    shinyWidgets::updateProgressBar(session, id = 'pb', title = msg, value = 100)
+    print('done')
+    shiny::updateTabsetPanel(session, "tabs", "process_results")
+    shinyWidgets::closeSweetAlert(session)
+    
     openxlsx::write.xlsx(unlist(unlist(mat, recursive = FALSE), recursive = FALSE), file)
 })
 
