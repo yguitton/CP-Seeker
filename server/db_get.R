@@ -133,9 +133,15 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 #' 		\item ion_formula string ion formula
 #' 		\item charge integer charge of ion
 #' }
-get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL) {
+get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL, formula = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-	query <- sprintf("select chemical_ion, ion_formula, charge 
+  if(chemical_type == "standard") query <- sprintf(
+    "select chemical_ion, ion_formula, charge 
+		from chemical_ion where adduct in (%s)
+		and chemical in (select chemical from chemical where formula in (%s));",
+    paste(sprintf("\"%s\"", adduct_name), collapse = ","), 
+    paste(sprintf("\"%s\"", formula), collapse = ","))
+	else query <- sprintf("select chemical_ion, ion_formula, charge 
 		from chemical_ion where adduct in (%s)
 		and chemical_type in (%s);",
 	  paste(sprintf("\"%s\"", adduct_name), collapse = ","), 

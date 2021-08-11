@@ -154,14 +154,15 @@ shinydashboard::tabItem(tabName = 'process',
             )
           ),
           bsplus::shinyInput_label_embed(
-            shiny::numericInput("process_standard_retention_time", "Retention time +/- 2 (min)",
+            shiny::numericInput("process_standard_retention_time_1", "Retention time +/- 2 (min)",
               value = NA),
             bsplus::bs_embed_tooltip(
               bsplus::shiny_iconlink(),
               placement = 'top',
               title = "Retention time to use for the standard study"
             )
-          )
+          ),
+          shiny::uiOutput("process_standard_rt")
         )
       )
     )

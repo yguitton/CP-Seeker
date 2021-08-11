@@ -125,13 +125,13 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' }
 record_deconvolution_params <- function(db, params) {
   if(params$chemical_type == "standard"){
-    data <- paste(sapply(1:length(params$adduct), function(i){
+    data <- paste(sapply(1:length(params$standard_formula), function(i){
       paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
-        params$project, params$standard_formula, params$adduct[i], params$resolution$instrument, 
+        params$project, params$standard_formula[i], params$adduct, params$resolution$instrument, 
         params$resolution$resolution, params$resolution$mz, 
         params$resolution$index, params$ppm, params$mda, 
-        params$peakwidth[1], params$peakwidth[2], params$retention_time[1], 
-        params$retention_time[2],params$missing_scans), collapse = ",")
+        params$peakwidth[1], params$peakwidth[2], params$retention_time[[i]][1], 
+        params$retention_time[[i]][2],params$missing_scans), collapse = ",")
     }), collapse = ",")
     query <- sprintf("insert into deconvolution_param (project, chemical_type, adduct, 
   		instrument, resolution, resolution_mz, resolution_index, ppm, 

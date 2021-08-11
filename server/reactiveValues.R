@@ -1,3 +1,12 @@
+#' @title standard reactive value
+#' 
+#' @description 
+#' 
+#' @param input$process_standard_formula string, standard formula
+standard_number <- reactive({
+  length(input$process_standard_formula)
+}) 
+
 #' @title Force reactualization of reactive values
 #'
 #' @description

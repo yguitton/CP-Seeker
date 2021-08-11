@@ -73,6 +73,28 @@ shiny::observeEvent(input$process_standard_study, {
   }
 })
 
+#' @title Event when multiple standards are selected
+#' 
+#' @description 
+#' When more than one standard are choosen, will display a retention time input 
+#' for each standard
+output$process_standard_rt <- renderUI({
+  standard <- standard_number()
+  print(standard)
+  ids <- sapply(1:standard, function(i){
+    paste("process_standard_retention_time_", i, sep = "")
+  })
+  print(ids)
+  output <- tagList()
+  if(standard > 1){
+    for(i in 2:standard){
+      output[[i]] <- tagList()
+      output[[i]][[1]] <- numericInput(ids[i], "Retention time", value = NA)
+    }
+  }
+  output
+})
+
 #' @title Display TICs
 #'
 #' @description
@@ -236,10 +258,12 @@ shiny::observeEvent(input$process_launch, {
       mz_tol_unit = input$process_mz_tol_unit, 
       ppm = 0, mda = 0, 
       peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
-      retention_time = c(input$process_standard_retention_time - 2, input$process_standard_retention_time + 2),
+      retention_time = lapply(1:length(input$process_standard_formula), function(i){
+        rt <- eval(parse(text = paste("input$process_standard_retention_time_", i, sep = "")))
+        if(rt - 2 > 0) c(rt - 2, rt + 2) else c(0, rt + 2)
+      }),
       missing_scans = input$process_missing_scans
     )
-	  if(is.na(params_standard$retention_time[1]) == FALSE & params_standard$retention_time[1] < 0) params_standard$retention_time[1] <- 0
 	  params_standard$adduct[which(params_standard$adduct == "M-H (or M-D)")] = "M-H"
 	  print(params_standard)
 	}
@@ -324,23 +348,36 @@ shiny::observeEvent(input$process_launch, {
 		if (params$mz_tol_unit) params$ppm <- params$mz_tol
 		else params$mda <- params$mz_tol
 		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
-		if(param$standard_study != FALSE) ion_forms_standard <- get_chemical_ions(
-		  db, params_standard$adduct, params_standard$chemical_type)
-
+		if(param$standard_study != FALSE) ion_forms_standard <- lapply(
+		  params_standard$standard_formula, function(x){
+		    do.call(rbind, lapply(params_standard$adduct, function(adduct){
+		        get_chemical_ions(db, adduct, params_standard$chemical_type, 
+		          formula = x)
+		    }))
+		})
+		
   	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded 
   		with this adduct")	
   	
 		theoric_patterns <- get_theoric(ion_forms$ion_formula, 
 		  ion_forms$charge[1], params$resolution)
-		if(param$standard_study != FALSE) theoric_patterns_standard <- get_theoric(
-		  ion_forms_standard$ion_formula, ion_forms_standard$charge[1], params$resolution)
-
+		if(param$standard_study != FALSE) theoric_patterns_standard <- 
+		  lapply(1:length(ion_forms_standard), function(i){
+		    get_theoric(ion_forms_standard[[i]]$ion_formula, 
+		      ion_forms_standard[[i]]$charge[1], params$resolution)
+		  })
+		    
   	# for each theoric pattern compute m/z borns
 		theoric_patterns <- lapply(theoric_patterns,
 		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
-		if(param$standard_study != FALSE) theoric_patterns_standard <- lapply(theoric_patterns_standard,
-		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
-  	peaks <- NULL
+		if(param$standard_study != FALSE) theoric_patterns_standard <- lapply(
+		  theoric_patterns_standard, function(x){
+		    lapply(x, function(y){
+		        cbind(y, get_mass_range(y[, "mz"], params$ppm, params$mda))
+		      })
+		  })
+		      
+		peaks <- NULL
   	peaks_standard <- NULL
   	for (i in 1:length(params$samples)) {
   		shinyWidgets::updateProgressBar(session, id = "pb2", 
@@ -372,9 +409,11 @@ shiny::observeEvent(input$process_launch, {
   			in %s", params$samples[i]))
   		
   		if(param$standard_study != FALSE){
-  		  peaks2_standard <- deconvolution(ms_file, theoric_patterns_standard, 
-  		  ion_forms_standard$chemical_ion, scalerange, params_standard$retention_time, 
-  		  params$missing_scans, pb = "pb2")
+  		  peaks2_standard <- do.call(rbind, lapply(1:length(theoric_patterns_standard), function(i){
+  		    deconvolution(ms_file, theoric_patterns_standard[[i]], 
+  		      ion_forms_standard[[i]]$chemical_ion, scalerange, params_standard$retention_time[[i]], 
+  		      params$missing_scans, pb = "pb2")
+  		  }))
   		  if (length(peaks2_standard) > 0) peaks_standard <- rbind(peaks_standard, cbind(
   		    project_sample = params$project_samples[i], 
   		    peaks2_standard))
@@ -394,7 +433,7 @@ shiny::observeEvent(input$process_launch, {
     
     if(param$standard_study != FALSE){
       delete_features(db, params$project_samples, params_standard$adduct, params_standard$chemical_type)
-  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$chemical_type)
+  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$formula)
       if (length(peaks_standard) > 0) {
     	  record_deconvolution_params(db, params_standard)
     	  record_features(db, peaks_standard)
