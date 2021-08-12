@@ -374,10 +374,10 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
           lapply(adduct, function(x){
             query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
               iso == \"A\" and project_sample in (select project_sample from project_sample where 
-              project == %s) and chemical_ion in (
+              project == %s and sample_id == \"%s\") and chemical_ion in (
                 select chemical_ion from chemical_ion where adduct == \"%s\"
                 and chemical == (select chemical from chemical where formula == \"%s\"));', 
-              project, x, y)
+              project, sample$sample_id[i], x, y)
             data2 <- db_get_query(db, query)
             if(nrow(data2) == 0){
               data2 <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
