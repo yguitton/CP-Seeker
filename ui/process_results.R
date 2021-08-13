@@ -44,7 +44,8 @@ shinydashboard::tabItem(tabName = 'process_results',
 	)),
 	shinydashboard::box(width = 9,
 	  shiny::column(width = 7, style = 'margin-top: 20px; margin-bottom: 20px;',
-	    shiny::downloadButton('process_results_download', 'Export matrix')
+	    shiny::actionButton('process_results_download', 'Export matrix', 
+	      icon = shiny::icon("download"))
 	  ),
     shiny::column(width = 2,
       shiny::numericInput('process_results_score_min', 'score min', value = 0)

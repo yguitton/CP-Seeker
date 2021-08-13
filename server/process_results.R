@@ -466,19 +466,44 @@ output$process_results_ms <- plotly::renderPlotly({
 	})
 })
 
+#' @title File selection for matrix downloading
+#' 
+#' @description 
+#' Will display a modal dialog for the selection of files to download
+#' 
+#' @param input$project integer, project id
+observeEvent(input$process_results_download, {
+  choices <- split(project_samples(), project_samples()$project)
+  choices <- lapply(choices, function(x) 
+    setNames(x$project_sample, x$sample_id))
+  selected <- project_samples()[which(
+    project_samples()$project == input$project), "project_sample"]
+  names(choices) <- projects()[which(projects()$project %in% 
+    unique(project_samples()$project)), "name"]
+  choices <- project_samples()[which(project_samples()$project == input$project), 
+     c("sample_id", "project_sample")]
+  shiny::showModal(modalDialog(
+    shiny::checkboxGroupInput('process_results_download_file', 'Which file(s) ?', 
+      choices = c(setNames(choices$project_sample, choices$sample_id)), 
+      selected = c(setNames(choices$project_sample, choices$sample_id))),
+    shiny::downloadButton('process_results_export', 'Export matrix'),
+    easyClose = TRUE
+  ))
+})
+
 #' @title Download matrix
 #' 
 #' @description 
 #' Download the selected matrix at the xlsx format
 #' 
-#' @param input$process_results_file integer project_sample ID
+#' @param input$process_results_download_file integer project_sample ID
 #' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_result_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
 #' @return xlsx file
-output$process_results_download <- shiny::downloadHandler(
+output$process_results_export <- shiny::downloadHandler(
   filename = function() { 
     params <- list(
       project = input$project
@@ -488,12 +513,13 @@ output$process_results_download <- shiny::downloadHandler(
   content = function(file) {
     params <- list(
       project = input$project,
-      file = input$process_results_file,
+      file = input$process_results_download_file,
       adduct = c('M-H', 'M+Cl', 'M+Hac-H'),
       chemical_type = c('CPs', 'COs', 'CdiOs'),
       matrix_type = c('Score', 'Intensities', 'Deviations')
     )
     samples <- get_samples(db, params$project)
+    samples <- samples[which(samples$project_sample == params$file),]
     query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
       chemical_type in (select chemical_type from chemical where chemical_type != "standard");',
       params$project)
