@@ -57,11 +57,12 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
 			shinydashboard::menuSubItem("Database tables", icon = shiny::icon('database'), tabName = 'manage')
 		),
 		shinydashboard::menuItem("Deconvolution", icon = shiny::icon("cog"), 
-			shinydashboard::menuSubItem("Process", icon = shiny::icon("cog"), tabName = "process"), 
-			shinydashboard::menuSubItem("Results", icon = shiny::icon("table"), tabName = "process_results")
+			shinydashboard::menuSubItem("Process", icon = shiny::icon("cog"), tabName = "process")
 		),
 		shinydashboard::menuItem('Explore data', icon = shiny::icon('bar-chart-o'), 
-			shinydashboard::menuSubItem("TIC/EIC & MS", icon = shiny::icon("bar-chart-o"), tabName = "EIC")
+			shinydashboard::menuSubItem("Results", icon = shiny::icon("table"), tabName = "process_results"), 
+			shinydashboard::menuSubItem("TIC/EIC & MS", icon = shiny::icon("bar-chart-o"), tabName = "EIC"), 
+			shinydashboard::menuSubItem("Graphics", icon = shiny::icon("bar-chart-o"), tabName = "graphics")
 		)		
 	)
 )
@@ -76,7 +77,8 @@ body <- shinydashboard::dashboardBody(
 					source(file.path('ui', 'manage.R'), local = TRUE)$value,
 					source(file.path('ui', 'process.R'), local = TRUE)$value,
 					source(file.path('ui', 'process_results.R'), local = TRUE)$value,
-					source(file.path("ui", "EIC.R"), local = TRUE)$value
+					source(file.path("ui", "EIC.R"), local = TRUE)$value,
+					source(file.path("ui", "graphics.R"), local = TRUE)$value
 				)
 			)
 		)

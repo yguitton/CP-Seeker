@@ -20,7 +20,11 @@ actualize <- shiny::reactiveValues(
 	deconvolution_params = 0,
 	results_eic = 0,
 	results_ms = 0,
-	results_matrix = 0
+	results_matrix = 0,
+	graphics_bubble = 0,
+	graphics_pic = 0,
+	graphics_contours = 0,
+	graphics_histogram = 0
 )
 
 share_vars <- shiny::reactiveValues()
@@ -153,8 +157,11 @@ shiny::observeEvent(c(project_samples(), input$project), {
 	shinyjs::runjs("Shiny.onInputChange('process_TIC_rt', 0);")
 	shinyjs::runjs("Shiny.onInputChange('eic_rt', 0);")
 	shiny::updateSelectInput(session, "process_results_file", 
-		label = "Select sample(s)", choices = setNames(
+		label = "Select sample", choices = setNames(
 			choices$project_sample, choices$sample_id))
+	shiny::updateSelectInput(session, "graphics_file",
+	  label = "Select sample", choices = setNames(
+	    choices$project_sample, choices$sample_id))
 })
 
 #' @title deconvolution_params reactive value
@@ -195,6 +202,8 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- choices[which(choices %in% c("CPs", "COs", "CdiOs"))]
   shiny::updateSelectInput(session, "process_results_chemical_type", 
     "Family", choices = choices)
+  shiny::updateSelectInput(session, "graphics_chemical",
+    "Family", choices = choices)
 })
 
 #' @title deconvolution_params reactive value event
@@ -210,6 +219,8 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
       deconvolution_params()$chemical_type == input$process_results_chemical_type), 
     "adduct"]
   shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    "Adduct", choices = choices)
+  shiny::updateSelectInput(session, "graphics_adduct",
     "Adduct", choices = choices)
 })
 
