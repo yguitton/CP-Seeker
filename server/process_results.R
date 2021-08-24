@@ -472,14 +472,7 @@ output$process_results_ms <- plotly::renderPlotly({
 #' Will display a modal dialog for the selection of files to download
 #' 
 #' @param input$project integer, project id
-observeEvent(input$process_results_download, {
-  choices <- split(project_samples(), project_samples()$project)
-  choices <- lapply(choices, function(x) 
-    setNames(x$project_sample, x$sample_id))
-  selected <- project_samples()[which(
-    project_samples()$project == input$project), "project_sample"]
-  names(choices) <- projects()[which(projects()$project %in% 
-    unique(project_samples()$project)), "name"]
+shiny::observeEvent(input$process_results_download, {
   choices <- project_samples()[which(project_samples()$project == input$project), 
      c("sample_id", "project_sample")]
   shiny::showModal(modalDialog(
@@ -496,10 +489,8 @@ observeEvent(input$process_results_download, {
 #' @description 
 #' Download the selected matrix at the xlsx format
 #' 
+#' @param input$project integer project ID
 #' @param input$process_results_download_file integer project_sample ID
-#' @param input$process_results_chemical_adduct string adduct name
-#' @param input$process_results_chemical_type string type of chemical studied
-#' @param input$process_result_selected_matrix string type of matrix selected, 
 #'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
 #' @return xlsx file
@@ -514,8 +505,6 @@ output$process_results_export <- shiny::downloadHandler(
     params <- list(
       project = input$project,
       file = input$process_results_download_file,
-      adduct = c('M-H', 'M+Cl', 'M+Hac-H'),
-      chemical_type = c('CPs', 'COs', 'CdiOs'),
       matrix_type = c('Score', 'Intensities', 'Deviations')
     )
     samples <- get_samples(db, params$project)
@@ -529,53 +518,54 @@ output$process_results_export <- shiny::downloadHandler(
     shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
       value = 0, display_pct = TRUE)
     
-    mat <- list()
+    wb <- openxlsx::createWorkbook()
     for(i in 1:length(samples$sample_id)){
       msg <- sprintf("%s", samples$sample_id[i])
       print(msg)
       shinyWidgets::updateProgressBar(session, id = 'pb', 
         title = msg, value = (i - 1) * 100 / pb_max)
       
-      mat2 <- sapply(samples$sample_id[i], function(project){
-        sapply(unique(chemicals$chemical_type), function(chemical){
-          sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
-            matr <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
-            sapply(1:3, function(selected){
-              matrice <- matr
-              for(rows in 1:nrow(matrice)){
-                for(cols in 1:ncol(matrice)){
-                  cell = matrice[rows,cols]
-                  if(is.na(cell)) next
-                  splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
-                  if(splitted_cell == "NA"){
-                    matrice[rows,cols] = ""
-                  }
-                  else{
-                    matrice[rows,cols] = splitted_cell
-                  }
+      l <- 1
+      addWorksheet(wb, samples$sample_id[i])
+      for(chemical in unique(chemicals$chemical_type)){
+        adducts <- unique(chemicals$adduct[which(chemicals$chemical_type == chemical)])
+        for(adduct in adducts){
+          mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
+          mat2 <- sapply(1:3, function(selected){
+            for(rows in 1:nrow(mat)){
+              for(cols in 1:ncol(mat)){
+                cell = mat[rows,cols]
+                if(is.na(cell)) next
+                splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
+                if(splitted_cell == "NA"){
+                  mat[rows,cols] = ""
+                }
+                else{
+                  mat[rows,cols] = splitted_cell
                 }
               }
-              first_col <- matrix(dimnames(matrice)[[1]])
-              matrice <- cbind(first_col, matrice)
-              first_row <- t(matrix(dimnames(matrice)[[2]]))
-              matrice <- rbind(first_row, matrice)
-              matrice_title = paste(samples$sample_id[i], chemical, adduct, params$matrix_type[selected], sep = ' - ')
-              matrice[1,1] <- matrice_title
-              matrice
-            }, simplify = FALSE, USE.NAMES = TRUE)
+            }
+            first_col <- matrix(dimnames(mat)[[1]])
+            mat <- cbind(first_col, mat)
+            first_row <- t(matrix(dimnames(mat)[[2]]))
+            mat <- rbind(first_row, mat)
+            mat_title = params$matrix_type[selected]
+            mat[1,1] <- mat_title
+            mat
           }, simplify = FALSE, USE.NAMES = TRUE)
-        }, simplify = FALSE, USE.NAMES = TRUE)
-      }, simplify = FALSE, USE.NAMES = TRUE)
-      mat <- append(mat, mat2)
+          openxlsx::writeData(wb, samples$sample_id[i], paste(chemical, adduct, sep = " - "),
+            startRow = l)
+          openxlsx::writeData(wb, samples$sample_id[i], mat2, startRow = l + 1)
+          l <- l + nrow(mat) + 3
+        }
+      }
     }
-    msg <- "record peaks"
-    print(msg)
-    shinyWidgets::updateProgressBar(session, id = 'pb', title = msg, value = 100)
+    shinyWidgets::updateProgressBar(session, id = 'pb', value = 100)
     print('done')
     shiny::updateTabsetPanel(session, "tabs", "process_results")
     shinyWidgets::closeSweetAlert(session)
     
-    openxlsx::write.xlsx(unlist(unlist(mat, recursive = FALSE), recursive = FALSE), file)
+    openxlsx::saveWorkbook(wb, file)  
 })
 
 #' @title Launch reintegration
