@@ -363,9 +363,10 @@ shiny::observeEvent(input$process_launch, {
 		  }))
 		  check_inputs(inputs, conditions, messages)
 		}
-		params_standard$retention_time <- lapply(params_standard$retention_time, function(rt){
-		  if(rt - 2 > 0) c(rt - 2, rt + 2) else c(0, rt + 2)
-		})
+		if(param$standard_study) params_standard$retention_time <- lapply(
+		  params_standard$retention_time, function(rt){
+	      if(rt - 2 > 0) c(rt - 2, rt + 2) else c(0, rt + 2)
+	    })
 
 		pb_max <- length(params$samples)
 		shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
