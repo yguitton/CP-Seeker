@@ -126,6 +126,7 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 #' @param db sqlite connection
 #' @param adduct_name string adduct name
 #' @param chemical_type string type of chemical studied
+#' @param formula string standard formula
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -159,6 +160,7 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL, form
 #' @param chemical_type string type of chemical studied
 #' @param C integer number of carbon
 #' @param Cl integer number of chlore
+#' @param formula string standard formula
 #'
 #' @return dataframe with columns:
 #' \itemize{
@@ -300,6 +302,7 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #' @param project_sample integer project_sample ID
 #' @param adduct string adduct name use for deconvolution
 #' @param chemical_type string type of chemical studied
+#' @param simplify boolean if TRUE will round deviation and intensities
 #' 
 #' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore & 

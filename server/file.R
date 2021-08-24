@@ -685,6 +685,8 @@ cut_ms_file <- function(ms_file, polarity) {
 #'	   \item maximum_it
 #'	   \item number_of_scan_range
 #'	   \item scan_range
+#'	   \item mz_min
+#'	   \item mz_max
 #'}
 get_ms_file_infos <- function(ms_file, thermo_file = NULL) {
 	ms_file_infos <- ms_file@experimentData

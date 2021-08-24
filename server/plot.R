@@ -162,6 +162,7 @@ plot_TIC <- function(db, project = NULL, project_samples = NULL,
 #' Will plot all EICs of files in a project if given or only files according the `project_samples` parameter
 #'
 #' @param db sqlite connection
+#' @param project integer, project ID
 #' @param project_samples vector of integers, project_sample IDs
 #' @param mz float, m/z
 #' @param mda float, m/z tolerance in mDa
@@ -213,6 +214,7 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' 		\item resolution float, resolution of instrument if Orbitrap
 #' 		\item mz float, resolution@mz if Orbitrap
 #'		\item index integer, index of the instrument in the enviPat resolution_list
+#' @param retention_time vector float retention time
 #' }
 #' 
 #' @return plotly object

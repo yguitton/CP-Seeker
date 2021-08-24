@@ -45,6 +45,7 @@ shiny::observeEvent(input$process_results_study, {
 #' 		with the number of Carbon & Chlore retrieve in the rownames & colnames of the table
 #'
 #' @param db sqlite connection
+#' @param input$project integer project ID
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_chemical_adduct string adduct name for chemical
 #' @param input$process_results_chemical_type string type of chemical studied
@@ -72,6 +73,10 @@ output$process_results_profile <- DT::renderDataTable({
 			adduct selected")
 		else if (params$chemical_adduct == "") custom_stop("invalid", "no 
 			adduct selected")
+	  else if (length(params$chemical_type) == 0) custom_stop("invalid", "no
+	    chemical selected")
+	  else if (params$chemical_type == "") custom_stop("invalid", "no
+	    chemical selected")
 	}, invalid = function(i) get_profile_matrix(db)
 	, error = function(e) {
 		print("ERR process_results_table")
@@ -284,9 +289,9 @@ initComplete = htmlwidgets::JS("
 #' Display the standard table
 #'
 #' @param db sqlite connection
-#' @param input$process_results_project integer project ID
+#' @param input$project integer project ID
 #' 
-#' DataTable instance with the profile matrix
+#' DataTable instance with the standard table
 output$process_results_standard_table <- DT::renderDataTable({
   actualize$deconvolution_params # only to force it reloading after deconvolution
   actualize$results_matrix
@@ -296,6 +301,8 @@ output$process_results_standard_table <- DT::renderDataTable({
   tryCatch({
     if (length(params$project_sample) == 0) custom_stop("invalid", "no 
 			file selected")
+    else if(params$project_sample == "") custom_stop("invalid", "no
+      file selected")
   }, invalid = function(i) get_profile_matrix(db)
   , error = function(e) {
     print("ERR process_results_table")
@@ -368,6 +375,7 @@ observeEvent(input$process_results_profile_selected, {
 #' Plot all isotopologue traces for a chemical according the cell selected
 #' It trace the raw data with area colored where the deconvolution process integrate something
 #'
+#' @param input$project integer project ID
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
@@ -407,8 +415,8 @@ output$process_results_eic <- plotly::renderPlotly({
       el.on('plotly_selected', function(d) {
         var min = d.range.x[0]
         var max = d.range.x[1]
-        Shiny.setInputValue('rtmin', min);
-        Shiny.setInputValue('rtmax', max);
+        Shiny.setInputValue('process_results_reintegration_rt_min', min);
+        Shiny.setInputValue('process_results_reintegration_rt_max', max);
       })
     }"
   )
@@ -427,6 +435,7 @@ output$process_results_eic <- plotly::renderPlotly({
 #' Plot a MS in mirror mode: above the observed corresponding of the chemical integrated
 #' 		below the theoretical isotopic pattern
 #'
+#' @param input$project integer project ID
 #' @param input$process_results_file integer project_sample ID
 #' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
@@ -491,7 +500,6 @@ shiny::observeEvent(input$process_results_download, {
 #' 
 #' @param input$project integer project ID
 #' @param input$process_results_download_file integer project_sample ID
-#'   can be "Scores", "Standardized intensities", "Deviations"
 #' 
 #' @return xlsx file
 output$process_results_export <- shiny::downloadHandler(
@@ -578,6 +586,8 @@ output$process_results_export <- shiny::downloadHandler(
 #' @param input$process_results_file string, file studied
 #' @param input$process_results_chemical_type string, type of chemical studied
 #' @param input$process_results_chemical_adduct string, adduct name
+#' @param input$process_results_reintegration_rt_min float retention time min
+#' @param input$process_results_reintegration_rt_max float retention time max
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
 shiny::observeEvent(input$process_results_reintegration, {
@@ -590,7 +600,8 @@ shiny::observeEvent(input$process_results_reintegration, {
     project_sample = input$process_results_file,
     chemical_type = input$process_results_chemical_type,
     adduct = input$process_results_chemical_adduct,
-    retention_time = c(input$rtmin, input$rtmax),
+    retention_time = c(input$process_results_reintegration_rt_min,
+      input$process_results_reintegration_rt_max),
     C = input$process_results_profile_selected$C,
     Cl = input$process_results_profile_selected$Cl
   )

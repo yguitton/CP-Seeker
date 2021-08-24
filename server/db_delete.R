@@ -100,6 +100,8 @@ delete_deconvolution_params <- function(db, projects = NULL, adducts = NULL, che
 #' 
 #' @param db sqlite connection
 #' @param project_samples vector(integers) project_samples ids
+#' @param adduct vector(string) adduct names
+#' @param chemical_type string type of chemical
 delete_features <- function(db, project_samples = NULL, adduct = NULL, chemical_type = NULL) {
 	if (length(project_samples) == 0) return()
 	query <- sprintf("delete from feature where project_sample in (%s) and chemical_ion in (

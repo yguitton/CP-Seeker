@@ -517,6 +517,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' @param scanrange vector(float)[2] vector with 2 float representing the scan range in seconds
 #' @param missing_scans integer number of scan between two of them to consider them consecutive
 #' @param pb progressbar progressbar used to print the progress like...all existing progressbar... (optional)
+#' @param reintegration boolean TRUE if it's a reintegration
 #' 
 #' @return dataframe with columns:
 #' \itemize{

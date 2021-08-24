@@ -76,8 +76,10 @@ shiny::observeEvent(input$process_standard_study, {
 #' @title Event when multiple standards are selected
 #' 
 #' @description 
-#' When more than one standard are choosen, will display a retention time input 
+#' When more than one standard are chosen, will display a retention time input 
 #' for each standard
+#' 
+#' @param standard_number reactive value number of standard chosen
 output$process_standard_rt <- renderUI({
   standard <- standard_number()
   print(standard)
@@ -216,6 +218,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_retention_time_max float, minimum in retention time (in min)
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
 #' @param input$process_standard_formula string, standard formula
+#' @param input$process_standard_adduct string adduct name for standard
 #' @param input$process_retention_time float, standard retention time
 #' 
 shiny::observeEvent(input$process_launch, {
@@ -260,7 +263,6 @@ shiny::observeEvent(input$process_launch, {
       peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
       retention_time = lapply(1:length(input$process_standard_formula), function(i){
         rt <- eval(parse(text = paste("input$process_standard_retention_time_", i, sep = "")))
-        if(rt - 2 > 0) c(rt - 2, rt + 2) else c(0, rt + 2)
       }),
       missing_scans = input$process_missing_scans
     )
@@ -322,10 +324,10 @@ shiny::observeEvent(input$process_launch, {
 			"Peakwidth min (s) must be over 0", "Peakwidth max (s) must be over 0", 
 			"Retention time min (min) must be a positive number or 0", "Retention time max (min) must be over 0", 
 			"missing scans must be a positive number or 0")
-		check_inputs(inputs, conditions, msgs)
+		check_inputs(inputs, conditions, messages)
 			
-		inputs <- c("process_peakwidth_min", "process_peakwidth_max", "process_retention_time_min", 
-		            "process_retention_time_max", "missing_scans")
+		inputs <- c("process_peakwidth_min", "process_peakwidth_max", 
+		  "process_retention_time_min", "process_retention_time_max", "missing_scans")
 		conditions <- c(params$peakwidth[1] <= params$peakwidth[2], 
 			params$peakwidth[1] <= params$peakwidth[2],
 			params$retention_time[1] <= params$retention_time[2], 
@@ -336,8 +338,35 @@ shiny::observeEvent(input$process_launch, {
 			"Retention time min (min) must be lower than Retention time max (min)",
 			"Retention time min (min) must be lower than Retention time max (min)",
 			"Missing scan must be an integer")
-		check_inputs(inputs, conditions, msgs)
+		check_inputs(inputs, conditions, messages)
 		
+		inputs <- c("process_chemical_type", "process_adduct")
+		conditions <- c(length(params$chemical_type > 0), length(params$adduct > 0))
+		messages <- c("A chemical must be chosen", "An adduct for chemical must be chosen")
+		check_inputs(inputs, conditions, messages)
+		
+		if(param$standard_study){
+		  inputs <- c("process_standard_formula", "process_standard_adduct")
+		  conditions <- c(length(params_standard$standard_formula) > 0, 
+		    length(params_standard$adduct) > 0)
+		  messages <- c("A standard must be chosen", "An adduct for standard must be chosen")
+		  check_inputs(inputs, conditions, messages)
+		  
+		  inputs <- sapply(1:length(params_standard$standard_formula), function(i){
+		    paste("process_standard_retention_time_", i, sep = "")
+		  })
+		  conditions <- sapply(1:length(inputs), function(i){
+		    !is.na(params_standard$retention_time[i]) & params_standard$retention_time[i] >= 0
+		  })
+		  messages <- c(sapply(1:length(inputs), function(i){
+		    "retention time must be a positive number or 0"
+		  }))
+		  check_inputs(inputs, conditions, messages)
+		}
+		params_standard$retention_time <- lapply(params_standard$retention_time, function(rt){
+		  if(rt - 2 > 0) c(rt - 2, rt + 2) else c(0, rt + 2)
+		})
+
 		pb_max <- length(params$samples)
 		shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
 			value = 0, display_pct = TRUE)
