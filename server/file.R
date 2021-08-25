@@ -96,7 +96,8 @@ shiny::observeEvent(input$file_associate, {
 			footer = shiny::div(
 				shinyWidgets::actionBttn('file_associate_cancel', 'Cancel', style = 'minimal', color = 'primary'),
 				shinyWidgets::actionBttn('file_associate_valid', 'Valid', style = 'minimal', color = 'primary')
-			)
+			),
+			size = "l"
 		))
 	} else {
 		print('############################################################')
@@ -289,7 +290,8 @@ shiny::observeEvent(input$file_import, {
 			footer = shiny::div(
 				shinyWidgets::actionBttn('file_import_cancel', 'Cancel', style = 'minimal', color = 'primary'),
 				shinyWidgets::actionBttn('file_import_valid', 'Valid', style = 'minimal', color = 'primary')
-			)
+			),
+			size = 'l'
 		))
 		if (!is.na(project_polarity)) shinyjs::disable("file_polarity")
 	}, invalid = function(i) {
@@ -476,7 +478,8 @@ shiny::observeEvent(input$file_import_valid2, {
 		shinyWidgets::closeSweetAlert(session)
 		shiny::showModal(shiny::modalDialog(title = 'Result of import', easyClose = TRUE,
 			DT::dataTableOutput("file_import_success"),
-			footer = modalButton('Close')
+			footer = modalButton('Close'),
+			size = "l"
 		))
 	}, invalid = function(i){
 		print(i)

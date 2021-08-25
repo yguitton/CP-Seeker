@@ -4,6 +4,7 @@
 }
 .modal-lg {
 	width: 100%;
+	min-width: 600px
 } 
 .modal-sm {
 	width: 50%;
@@ -102,10 +103,6 @@
 .table-collapsed td {
 	vertical-align: bottom;
 	text-align: center;
-}
-.modal-dialog {
-	width: 100%;
-	min-width: 600px
 }
 .table-params {
 	width: 100%;
