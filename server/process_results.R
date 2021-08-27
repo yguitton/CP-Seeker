@@ -540,26 +540,14 @@ output$process_results_export <- shiny::downloadHandler(
         for(adduct in adducts){
           mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
           mat2 <- sapply(1:3, function(selected){
-            for(rows in 1:nrow(mat)){
-              for(cols in 1:ncol(mat)){
-                cell = mat[rows,cols]
-                if(is.na(cell)) next
-                splitted_cell = unlist(stringr::str_split(cell, "/"))[selected]
-                if(splitted_cell == "NA"){
-                  mat[rows,cols] = ""
-                }
-                else{
-                  mat[rows,cols] = splitted_cell
-                }
-              }
-            }
-            first_col <- matrix(dimnames(mat)[[1]])
-            mat <- cbind(first_col, mat)
-            first_row <- t(matrix(dimnames(mat)[[2]]))
-            mat <- rbind(first_row, mat)
+            mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
+            first_col <- matrix(dimnames(mat3)[[1]])
+            mat3 <- cbind(first_col, mat3)
+            first_row <- t(matrix(dimnames(mat3)[[2]]))
+            mat3 <- rbind(first_row, mat3)
             mat_title = params$matrix_type[selected]
-            mat[1,1] <- mat_title
-            mat
+            mat3[1,1] <- mat_title
+            mat3
           }, simplify = FALSE, USE.NAMES = TRUE)
           openxlsx::writeData(wb, samples$sample_id[i], paste(chemical, adduct, sep = " - "),
             startRow = l)

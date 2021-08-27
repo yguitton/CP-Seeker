@@ -303,12 +303,13 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #' @param adduct string adduct name use for deconvolution
 #' @param chemical_type string type of chemical studied
 #' @param simplify boolean if TRUE will round deviation and intensities
+#' @param table boolean if TRUE will return the data table, else the matrix
 #' 
 #' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore & 
 #'		each row represent a level of carbon
 get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
-  chemical_type = NULL, simplify = TRUE) {
+  chemical_type = NULL, simplify = TRUE, table = FALSE) {
   query <- if (is.null(adduct)) "select C, Cl from chemical;" 
   else sprintf("select chemical_ion, C, Cl from chemical 
 		left join chemical_ion on 
@@ -331,6 +332,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   if (nrow(data) == 0) return(profile_mat)
   data <- merge(chemicals, data, 
     by = "chemical_ion", all.x = TRUE)
+  if(table) return(data)
   ion_forms <- get_chemical_ions(db, adduct, chemical_type)
   theoric_patterns <- get_theoric(ion_forms$ion_formula, 
     ion_forms$charge[1])

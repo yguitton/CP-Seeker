@@ -476,30 +476,8 @@ plot_empty_plot <- function(title = 'Bubble plot', z = 'Intensity'){
 #' 
 #' @return plotly object
 plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL, 
-                             chemical = NULL, reference = NULL){
-  query <- if (is.null(adduct)) "select C, Cl from chemical;" 
-  else sprintf("select chemical_ion, C, Cl from chemical 
-		left join chemical_ion on 
-		chemical.chemical = chemical_ion.chemical 
-		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical)
-  chemicals <- db_get_query(db, query)
-  C <- range(chemicals$C)
-  Cl <- range(chemicals$Cl)
-  profile_mat <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1, 
-                        dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
-  
-  if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
-  query <- sprintf("select chemical_ion, 
-    round(score,0) as score, intensities, weighted_deviation from feature where 
-		iso == \"A\" and project_sample == %s and chemical_ion in (
-			select chemical_ion from chemical_ion
-			where adduct == \"%s\" and chemical_type == \"%s\");", 
-                   project_sample, adduct, chemical)
-  data <- db_get_query(db, query)
-  if (nrow(data) == 0) return(profile_mat)
-  data <- merge(chemicals, data, 
-                by = "chemical_ion", all.x = TRUE)
-  
+  chemical = NULL, reference = NULL){
+  data <- get_profile_matrix(db, project_sample, adduct, chemical, table = TRUE)
   data2 <- data[-which(is.na(data$intensities)),]
   if(reference == "Total intensity"){
     intensities <- data2$intensities
@@ -510,7 +488,7 @@ plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL,
     data2$percent <- data2$intensities*25/apex
   }
   fig <- plotly::plot_ly(data2, x = ~C, y = ~Cl, text = ~intensities, type = 'scatter', mode = 'markers',
-                         marker = list(size = ~percent, opacity = 0.5))
+    marker = list(size = ~percent, opacity = 0.5))
   fig
 }
 
@@ -521,29 +499,8 @@ plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL,
 #' 
 #' @return plotly object
 plot_contour_plot <- function(db, project_sample = NULL, adduct = NULL, 
-                              chemical = NULL, reference = NULL, value = NULL){
-  query <- if (is.null(adduct)) "select C, Cl from chemical;" 
-  else sprintf("select chemical_ion, C, Cl from chemical 
-		left join chemical_ion on 
-		chemical.chemical = chemical_ion.chemical 
-		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical)
-  chemicals <- db_get_query(db, query)
-  C <- range(chemicals$C)
-  Cl <- range(chemicals$Cl)
-  profile_mat <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1, 
-                        dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
-  if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
-  query <- sprintf("select chemical_ion, 
-    round(score,0) as score, intensities, weighted_deviation from feature where 
-		iso == \"A\" and project_sample == %s and chemical_ion in (
-			select chemical_ion from chemical_ion
-			where adduct == \"%s\" and chemical_type == \"%s\");", 
-                   project_sample, adduct, chemical)
-  data <- db_get_query(db, query)
-  if (nrow(data) == 0) return(profile_mat)
-  data <- merge(chemicals, data, 
-                by = "chemical_ion", all.x = TRUE)
-  
+  chemical = NULL, reference = NULL, value = NULL){
+  data <- get_profile_matrix(db, project_sample, adduct, chemical, table = TRUE)
   data2 <- data[-which(is.na(data$intensities)),]
   if(reference == "Total intensity"){
     intensities <- sum(data2$intensities)
@@ -557,22 +514,14 @@ plot_contour_plot <- function(db, project_sample = NULL, adduct = NULL,
     limite <- value*10**6
   }
   profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical)
-  mat <- matrix(0, nrow = nrow(profile_mat), ncol = ncol(profile_mat), 
-                dimnames = list(row.names(profile_mat), colnames(profile_mat)))
-  for(i in 1:nrow(profile_mat)){
-    for(j in 1:ncol(profile_mat)){
-      val <- unlist(str_split(profile_mat[i,j], "/"))[2]
-      if(!is.na(val) & val != "NA") mat[i,j] <- as.numeric(val)*10**6
-      else if(is.na(val) | val == "NA") mat[i,j] <- 0
-    }
-  }
+  mat <- reduce_matrix(profile_mat, 2)
   mat2 <- mat 
   mat2[which(mat < limite)] <- 0
   C <- row.names(mat2)
   Cl <- colnames(mat2)
   Intensity <- as.matrix(t(mat2))
   fig <- plot_ly(x = ~C, y = ~Cl, z = ~Intensity, type = "contour", 
-                 colorscale = list(c(0, 0.5, 1), c('#fff', '#00f', '000')))
+    colorscale = list(c(0, 0.5, 1), c('#fff', '#00f', '000')))
   fig
 }
 
@@ -593,21 +542,13 @@ plot_empty_3d_plot <- function(title = '3D histogram', z = 'Intensity'){
 #' 
 #' @return plotly object
 plot_pic_plot <- function(db, project_sample = NULL, adduct = NULL, chemical = NULL){
-  profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical)
-  mat <- matrix(0, nrow = nrow(profile_mat), ncol = ncol(profile_mat), 
-                dimnames = list(row.names(profile_mat), colnames(profile_mat)))
-  for(i in 1:nrow(profile_mat)){
-    for(j in 1:ncol(profile_mat)){
-      val <- unlist(str_split(profile_mat[i,j], "/"))[2]
-      if(!is.na(val) & val != "NA") mat[i,j] <- as.numeric(val)*10**6
-      else if(is.na(val) | val == "NA") mat[i,j] <- 0
-    }
-  }
+  profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical, simplify = FALSE)
+  mat <- reduce_matrix(profile_mat, 2)
   C <- row.names(mat)
   Cl <- colnames(mat)
   Intensity <- as.matrix(t(mat))
   fig <- plotly::plot_ly(x = ~C, y = ~Cl, z = ~Intensity, 
-                         colorscale = list(c(0, 0.5, 1), c('#fff', '#00f', '000'))) %>% add_surface()
+    colorscale = list(c(0, 0.5, 1), c('#fff', '#00f', '000'))) %>% add_surface()
   fig
 }
 
@@ -618,16 +559,8 @@ plot_pic_plot <- function(db, project_sample = NULL, adduct = NULL, chemical = N
 #' 
 #' @return plotly object
 plot_3d_histogram <- function(db, project_sample = NULL, adduct = NULL, chemical = NULL){
-  profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical)
-  mat <- matrix(0, nrow = nrow(profile_mat), ncol = ncol(profile_mat), 
-                dimnames = list(row.names(profile_mat), colnames(profile_mat)))
-  for(i in 1:nrow(profile_mat)){
-    for(j in 1:ncol(profile_mat)){
-      val <- unlist(str_split(profile_mat[i,j], "/"))[2]
-      if(!is.na(val) & val != "NA") mat[i,j] <- as.numeric(val)*10**6
-      else if(is.na(val) | val == "NA") mat[i,j] <- 0
-    }
-  }
+  profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical, simplify = FALSE)
+  mat <- reduce_matrix(profile_mat, 2)
   #function to create the 3d bar for the histogram
   add_3Dbar <- function(p, x, y, z, width = 0.2) {
     w <- width

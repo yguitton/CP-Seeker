@@ -34,18 +34,7 @@ shiny::observeEvent(input$graphics_contours, {
 #' 
 #' @description 
 #' Will plot selected graphics when show graphics button is clicked
-#' 
-#' @param input$graphics_bubble boolean, choice
-#' @param input$graphics_pics boolean, choice
-#' @param input$graphics_contours boolean, choice
-#' @param input$graphics_histogram boolean, choice
 shiny::observeEvent(input$graphics_draw, {
-#  params <- list(
-#    bubble = input$graphics_bubble,
-#    pic = input$graphics_pics,
-#    contours = input$graphics_contours,
-#    histogram = input$graphics_histogram
-#  )
   actualize$graphics_bubble <<- runif(1)
   actualize$graphics_pic <<- runif(1)
   actualize$graphics_contours <<- runif(1)

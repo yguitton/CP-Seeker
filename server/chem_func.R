@@ -162,6 +162,32 @@ get_patterns_status <- function(patterns, mz_range){
   delete
 }
 
+#' @title Reduce matrix
+#' 
+#' @description 
+#' Reduce matrix to keep only one value instead of 3
+#' 
+#' @param mat matrix, profile matrix
+#' @param val integer, value to keep. Can be 1, 2 or 3 for scores, intensities or deviations
+#' @param na_empty boolean if TRUE, na will be replaced by "" else by 0
+#' 
+#' @return matrix, reduced matrix
+reduce_matrix <- function(mat, val, na_empty = FALSE){
+  reducted_mat <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), 
+    dimnames = list(row.names(mat), colnames(mat)))
+  for(i in 1:nrow(mat)){
+    for(j in 1:ncol(mat)){
+      splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
+      if(!is.na(splitted_cell) & splitted_cell != "NA") reducted_mat[i,j] <- as.numeric(splitted_cell)
+      else if(is.na(splitted_cell) | splitted_cell == "NA"){
+        if(na_empty) reducted_mat[i,j] <- ""
+        else reducted_mat[i,j] <- 0
+      }
+    }
+  }
+  return(reducted_mat)
+}
+
 #' @title Get TIC
 #'
 #' @description
