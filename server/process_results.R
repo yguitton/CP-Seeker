@@ -118,6 +118,7 @@ scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
 initComplete = htmlwidgets::JS("
 	function (settings, json) {
 	  Shiny.onInputChange('process_results_profile_selected', null);
+	  Shiny.onInputChange('process_results_standard_selected', null);
     var table = settings.oInstance.api();
     var button = $('#process_results_selected_matrix .active').text(); 
     var selected_button = button.includes('Scores') ? 0 : button.includes('Normalized intensities') ? 1 : 2;
@@ -313,7 +314,7 @@ output$process_results_standard_table <- DT::renderDataTable({
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select formula from chemical where chemical_type == "standard");',
-                   params$project)
+      params$project)
   standard <- db_get_query(db, query)
   table_params <- list(
     standard = unique(standard$chemical_type),
@@ -327,16 +328,22 @@ output$process_results_standard_table <- DT::renderDataTable({
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
   scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
-    className = 'dt-body-center', targets = "_all"))
-))
-
-#' @title Update profile matrix
-#' 
-#' @description 
-#' When process_results_matrix is clicked, will update profile matrix according to parameters
-observeEvent(input$process_results_matrix, {
-  if(input$process_results_study == "standard") actualize$results_matrix <<- runif(1)
-})
+    className = 'dt-body-center', targets = "_all")),
+initComplete = htmlwidgets::JS("
+  Shiny.onInputChange('process_results_profile_selected', null);
+	Shiny.onInputChange('process_results_standard_selected', null);
+")), callback = htmlwidgets::JS("
+	table.on('click', 'tbody tr', function() {
+		if ($(this).hasClass('selected')) return(null);
+		table.$('tr.selected').removeClass('selected');
+		$(this).addClass('selected');
+		var row = table.row(this).index();
+		var formula = table.cell(row, 1).data();
+		var adduct = table.cell(row, 2).data();
+		Shiny.onInputChange('process_results_standard_selected', formula);
+		Shiny.onInputChange('process_results_adduct_selected', adduct);
+	});
+"))
 
 #' @title Event when a cell is selected
 #' 
@@ -369,6 +376,36 @@ observeEvent(input$process_results_profile_selected, {
 	})
 })
 
+#' @title Event when a standard is selected
+#' 
+#' @description
+#' Event when a standard is selected, it only serve to print what happened in the trace log
+#'
+#' @param input$process_results_file integer project_sample ID
+#' @param input$process_results_chemical_adduct string adduct name
+#' @param input$process_results_chemical_type string type of chemical studied
+#' @param input$process_results_standard_selected vector(integer)[2] contains number of Carbon & Chlore, 
+#' 		correspond to the rowname and colname of the cell selected
+observeEvent(input$process_results_standard_selected, {
+  tryCatch({
+  if (is.null(input$process_results_standard_selected)) custom_stop(
+    "invalid", "no standard selected")
+  print('####################### PROFILE STANDARD SELECTED ########################')
+  params <- list(
+    project_sample = input$process_results_file, 
+    adduct = input$process_results_adduct_selected, 
+    chemical_type = input$process_results_chemical_type,
+    formula = input$process_results_standard_selected
+  )
+  print(params)
+  }, invalid = function(i) NULL
+  , error  = function(e) {
+    print("ERR process_results_standard_selected")
+    print(e)
+    sweet_alert_error(e$message)
+  })
+})
+
 #' @title EIC plot for a chemical
 #'
 #' @description
@@ -377,33 +414,45 @@ observeEvent(input$process_results_profile_selected, {
 #'
 #' @param input$project integer project ID
 #' @param input$process_results_file integer project_sample ID
+#' @param input$process_results_study string type of study, chemical or standard
 #' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
+#' @param input$process_results_standard_seleceted string, formula of standard selected
+#' @param input$process_results_adduct_selected string, adduct selected
 #' 
 #' @return plotly object
 output$process_results_eic <- plotly::renderPlotly({
   actualize$results_eic
 	tryCatch({
-	if (is.null(input$process_results_profile_selected)) custom_stop(
+	if (is.null(input$process_results_profile_selected) & 
+	  is.null(input$process_results_standard_selected)) custom_stop(
 		"invalid", "no cell selected")
+	study <- isolate(input$process_results_study)
 	params <- list(
 	  project = input$project,
 		project_sample = isolate(input$process_results_file),
-		adduct = isolate(input$process_results_chemical_adduct), 
-		chemical_type = isolate(input$process_results_chemical_type), 
+		adduct = if(study == "chemical") isolate(input$process_results_chemical_adduct) 
+	    else input$process_results_adduct_selected, 
+		chemical_type = if(study == "chemical") isolate(input$process_results_chemical_type) 
+		  else study, 
 		C = as.numeric(input$process_results_profile_selected$C), 
-		Cl = as.numeric(input$process_results_profile_selected$Cl)
+		Cl = as.numeric(input$process_results_profile_selected$Cl),
+		formula = input$process_results_standard_selected
 	)
 	# retrieve the parameters used for the deconvolution to trace EICs with same parameters
 	# same reasoning for the resolution parameter to simulate isotopic pattern
-	deconvolution_param <- as.list(deconvolution_params()[which(
+	deconvolution_param <- if(study == "chemical") as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
 		deconvolution_params()$adduct == params$adduct &
 		deconvolution_params()$chemical_type == params$chemical_type), ])
+	else as.list(deconvolution_params()[which(
+	  deconvolution_params()$project == params$project & 
+	    deconvolution_params()$adduct == params$adduct &
+	    deconvolution_params()$chemical_type == params$formula), ])
 	p <- plot_chemical_EIC(db, params$project_sample, params$adduct, 
-		params$chemical_type, params$C, params$Cl, deconvolution_param$ppm, 
+		params$chemical_type, params$C, params$Cl, params$formula, deconvolution_param$ppm, 
 		deconvolution_param$mda, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
@@ -437,32 +486,44 @@ output$process_results_eic <- plotly::renderPlotly({
 #'
 #' @param input$project integer project ID
 #' @param input$process_results_file integer project_sample ID
+#' @param input$process_results_study string type of study, chemical or standard
 #' @param input$process_results_chemical_adduct string adduct name
 #' @param input$process_results_chemical_type string type of chemical studied
 #' @param input$process_results_profile_selected vector(integer)[2] contains number of Carbon & Chlore, 
 #' 		correspond to the rowname and colname of the cell selected
+#' @param input$process_results_standard_seleceted string, formula of standard selected
+#' @param input$process_results_adduct_selected string, adduct selected
 #' 
 #' @return plotly object
 output$process_results_ms <- plotly::renderPlotly({
   actualize$results_ms
 	tryCatch({
-	if (is.null(input$process_results_profile_selected)) custom_stop(
+	if (is.null(input$process_results_profile_selected) & 
+	  is.null(input$process_results_standard_selected)) custom_stop(
 		"invalid", "no cell selected")
-	params <- list(
-	  project = input$project,
-		project_sample = isolate(input$process_results_file),
-		adduct = isolate(input$process_results_chemical_adduct), 
-		chemical_type = isolate(input$process_results_chemical_type),
-		C = as.numeric(input$process_results_profile_selected$C), 
-		Cl = as.numeric(input$process_results_profile_selected$Cl)
-	)
+  study <- isolate(input$process_results_study)
+  params <- list(
+    project = input$project,
+    project_sample = isolate(input$process_results_file),
+    adduct = if(study == "chemical") isolate(input$process_results_chemical_adduct) 
+    else input$process_results_adduct_selected, 
+    chemical_type = if(study == "chemical") input$process_results_chemical_type 
+    else study, 
+    C = as.numeric(input$process_results_profile_selected$C), 
+    Cl = as.numeric(input$process_results_profile_selected$Cl),
+    formula = input$process_results_standard_selected
+  )
 	# retrieve the resolution parameter to simulate isotopic pattern
-	deconvolution_param <- as.list(deconvolution_params()[which(
-		deconvolution_params()$project == params$project & 
-		deconvolution_params()$adduct == params$adduct & 
-		deconvolution_params()$chemical_type == params$chemical_type), ])
+  deconvolution_param <- if(study == "chemical") as.list(deconvolution_params()[which(
+    deconvolution_params()$project == params$project & 
+    deconvolution_params()$adduct == params$adduct &
+    deconvolution_params()$chemical_type == params$chemical_type), ])
+  else as.list(deconvolution_params()[which(
+    deconvolution_params()$project == params$project & 
+    deconvolution_params()$adduct == params$adduct &
+    deconvolution_params()$chemical_type == params$formula), ])
 	plot_chemical_MS(db, params$project_sample, params$adduct, 
-		params$chemical_type, params$C, params$Cl, resolution = list(
+		params$chemical_type, params$C, params$Cl, params$formula, resolution = list(
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
 			index = deconvolution_param$resolution_index))

@@ -219,10 +219,11 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 #' 
 #' @return plotly object
 plot_chemical_EIC <- function(db, project_sample = NULL, 
-		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, ppm = 0, mda = 0, resolution = NULL, retention_time = NULL) {
+		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL, ppm = 0, 
+    mda = 0, resolution = NULL, retention_time = NULL) {
 	p <- plot_empty_chromato("EIC")
 	
-	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl)
+	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
 	
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
@@ -415,9 +416,9 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 #' 
 #' @return plotly object
 plot_chemical_MS <- function(db, project_sample = NULL, 
-		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, resolution = NULL) {
+		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL, resolution = NULL) {
 	p <- plot_empty_MS(yTitle = "Abundance")
-	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl)
+	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
 	
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
