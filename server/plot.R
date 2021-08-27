@@ -477,18 +477,24 @@ plot_empty_plot <- function(title = 'Bubble plot', z = 'Intensity'){
 #' 
 #' @return plotly object
 plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL, 
-  chemical = NULL, reference = NULL){
+  chemical = NULL, reference = NULL, data_studied = NULL){
+  data_studied <- if(data_studied == "Intensities") 'intensities'
+  else if (data_studied == "Scores") 'score'
+  else 'weighted_deviation'
   data <- get_profile_matrix(db, project_sample, adduct, chemical, table = TRUE)
-  data2 <- data[-which(is.na(data$intensities)),]
+  studied <- data[data_studied]
+  colnames(studied) <- "studied"
+  data <- cbind(data[,1:3], studied)
+  data2 <- data[-which(is.na(data$studied)),]
   if(reference == "Total intensity"){
-    intensities <- data2$intensities
-    data2$percent <- (data2$intensities*100/sum(intensities))
+    studied <- data2$studied
+    data2$percent <- (data2$studied*100/sum(studied))
   }
   else if(reference == "Maximum intensity"){
-    apex <- data2$intensities[which.max(data2$intensities)]
-    data2$percent <- data2$intensities*25/apex
+    apex <- data2$studied[which.max(data2$studied)]
+    data2$percent <- data2$studied*25/apex
   }
-  fig <- plotly::plot_ly(data2, x = ~C, y = ~Cl, text = ~intensities, type = 'scatter', mode = 'markers',
+  fig <- plotly::plot_ly(data2, x = ~C, y = ~Cl, text = ~studied, type = 'scatter', mode = 'markers',
     marker = list(size = ~percent, opacity = 0.5))
   fig
 }
@@ -500,22 +506,33 @@ plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL,
 #' 
 #' @return plotly object
 plot_contour_plot <- function(db, project_sample = NULL, adduct = NULL, 
-  chemical = NULL, reference = NULL, value = NULL){
+  chemical = NULL, reference = NULL, value = NULL, data_studied = NULL){
+  data_studied1 <- if(data_studied == "Intensities") 'intensities'
+  else if (data_studied == "Scores") 'score'
+  else 'weighted_deviation'
   data <- get_profile_matrix(db, project_sample, adduct, chemical, table = TRUE)
-  data2 <- data[-which(is.na(data$intensities)),]
+  studied <- data[data_studied1]
+  colnames(studied) <- "studied"
+  data <- cbind(data[,1:3], studied)
+  data2 <- data[-which(is.na(data$studied)),]
   if(reference == "Total intensity"){
-    intensities <- sum(data2$intensities)
-    limite <- intensities*value/100
+    studied <- sum(data2$studied)
+    limite <- studied*value/100
   }
   else if(reference == "Maximum intensity"){
-    apex <- data2$intensities[which.max(data2$intensities)]
+    apex <- data2$studied[which.max(data2$studied)]
     limite <- apex*value/100
   }
   else if(reference == "Intensity"){
-    limite <- value*10**6
+    if(data_studied1 == 'intensities') limite <- value*10**6
+    else if(data_studied1 == 'weighted_deviation') limite <- value*10**(-3)
+    else limite <- value
   }
+  data_studied1 <- if(data_studied == "Intensities") 2
+  else if (data_studied == "Scores") 1
+  else 3
   profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical)
-  mat <- reduce_matrix(profile_mat, 2)
+  mat <- reduce_matrix(profile_mat, data_studied1)
   mat2 <- mat 
   mat2[which(mat < limite)] <- 0
   C <- row.names(mat2)
@@ -536,15 +553,19 @@ plot_empty_3d_plot <- function(title = '3D histogram', z = 'Intensity'){
   p <- plot_ly(type = 'mesh3d')
 }
 
-#' @title Construct pic plot
+#' @title Construct surface plot
 #' 
 #' @description 
-#' Construct pic plot
+#' Construct surface plot
 #' 
 #' @return plotly object
-plot_pic_plot <- function(db, project_sample = NULL, adduct = NULL, chemical = NULL){
+plot_surface_plot <- function(db, project_sample = NULL, adduct = NULL, 
+    chemical = NULL, data_studied = NULL){
+  data_studied <- if(data_studied == "Intensities") 2
+  else if (data_studied == "Scores") 1
+  else 3
   profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical, simplify = FALSE)
-  mat <- reduce_matrix(profile_mat, 2)
+  mat <- reduce_matrix(profile_mat, data_studied)
   C <- row.names(mat)
   Cl <- colnames(mat)
   Intensity <- as.matrix(t(mat))
@@ -559,9 +580,13 @@ plot_pic_plot <- function(db, project_sample = NULL, adduct = NULL, chemical = N
 #' Construct 3D histogram
 #' 
 #' @return plotly object
-plot_3d_histogram <- function(db, project_sample = NULL, adduct = NULL, chemical = NULL){
+plot_3d_histogram <- function(db, project_sample = NULL, adduct = NULL, 
+    chemical = NULL, data_studied = NULL){
+  data_studied <- if(data_studied == "Intensities") 2
+  else if (data_studied == "Scores") 1
+  else 3
   profile_mat <- get_profile_matrix(db, project_sample, adduct, chemical, simplify = FALSE)
-  mat <- reduce_matrix(profile_mat, 2)
+  mat <- reduce_matrix(profile_mat, data_studied)
   #function to create the 3d bar for the histogram
   add_3Dbar <- function(p, x, y, z, width = 0.2) {
     w <- width

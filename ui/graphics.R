@@ -1,12 +1,14 @@
 shinydashboard::tabItem(tabName='graphics',
   shinydashboard::box(width = 3, id = "graphics_params", 
-    shiny::selectInput("graphics_file", "Select sample" , choices = c(), 
+    shiny::radioButtons("graphics_data", "", choices = c("Intensities", "Scores", "Deviations"),
+      inline = TRUE),
+    shiny::selectInput("graphics_file", "Sample" , choices = c(), 
       multiple = FALSE),
     shiny::selectizeInput("graphics_chemical", "Family", choices = c()),
     shiny::selectizeInput("graphics_adduct", "Adduct", choices = c()),
-    shiny::checkboxInput("graphics_histogram", "3D histogram"),
-    shiny::checkboxInput("graphics_pics", "Pics"),
-    shiny::checkboxInput("graphics_bubble", "Bubble chart"),
+    shiny::checkboxInput("graphics_histogram", "3D histogram", value = TRUE),
+    shiny::checkboxInput("graphics_surface", "Surface plot", value = TRUE),
+    shiny::checkboxInput("graphics_bubble", "Bubble chart", value = TRUE),
     shinyjs::hidden(
       shiny::tags$div(id = 'graphics_bubble_params', style = "margin-left: 20px",
         bsplus::shinyInput_label_embed(
@@ -20,7 +22,7 @@ shinydashboard::tabItem(tabName='graphics',
         )
       )
     ),
-    shiny::checkboxInput("graphics_contours", "Contour plot"),
+    shiny::checkboxInput("graphics_contours", "Contour plot", value = TRUE),
     shinyjs::hidden(
       shiny::tags$div(id = 'graphics_contours_params', style = "margin-left: 20px",
         bsplus::shinyInput_label_embed(
@@ -43,7 +45,7 @@ shinydashboard::tabItem(tabName='graphics',
       )
     ),
     shiny::column(width = 12, style = "margin-bottom: 20px; text-align: center;", 
-      shinyWidgets::actionBttn('graphics_draw', 'Draw graphic(s)', 
+      shinyWidgets::actionBttn('graphics_draw', 'Draw figure(s)', 
         style = 'minimal', color = 'primary')
     )
   ),
@@ -59,7 +61,7 @@ shinydashboard::tabItem(tabName='graphics',
     ),
     shiny::column(width = 6,
       shinycssloaders::withSpinner(
-        plotly::plotlyOutput('graphics_pics_plot')
+        plotly::plotlyOutput('graphics_surface_plot')
       ),
       tags$hr(),
       shinycssloaders::withSpinner(

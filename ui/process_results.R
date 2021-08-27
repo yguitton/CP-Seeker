@@ -30,18 +30,6 @@ shinydashboard::tabItem(tabName = 'process_results',
       )
 		)
 	),
-	shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
-	  choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-3)'), 
-	  checkIcon = list(
-	  yes = shiny::tags$i(
-	    class = "fa fa-circle", 
-	    style = "color: steelblue"
-	  ), 
-	  no = shiny::tags$i(
-	    class = "fa fa-circle-o", 
-	    style = "color: steelblue"
-	  )
-	)),
 	shinydashboard::box(width = 9,
 	  shiny::column(width = 7, style = 'margin-top: 20px; margin-bottom: 20px;',
 	    shiny::actionButton('process_results_download', 'Export matrix', 
@@ -56,6 +44,18 @@ shinydashboard::tabItem(tabName = 'process_results',
 	  shiny::column(width = 1, style = 'margin-top: 20px; margin-bottom: 20px;',
 	    shiny::actionButton('process_results_apply', 'apply')
 	  ),
+	  shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
+	    choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-3)'), 
+	    checkIcon = list(
+	      yes = shiny::tags$i(
+	        class = "fa fa-circle", 
+	        style = "color: steelblue"
+	      ), 
+	      no = shiny::tags$i(
+	        class = "fa fa-circle-o", 
+	        style = "color: steelblue"
+	      )
+	  )),
     shiny::column(width = 12, 
       shinycssloaders::withSpinner(
     			DT::dataTableOutput('process_results_profile')

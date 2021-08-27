@@ -22,7 +22,7 @@ actualize <- shiny::reactiveValues(
 	results_ms = 0,
 	results_matrix = 0,
 	graphics_bubble = 0,
-	graphics_pic = 0,
+	graphics_surface_plot = 0,
 	graphics_contours = 0,
 	graphics_histogram = 0
 )
@@ -152,15 +152,15 @@ shiny::observeEvent(c(project_samples(), input$project), {
 	choices <- project_samples()[which(project_samples()$project == input$project), 
 		c("sample_id", "project_sample")]
 	shiny::updateSelectizeInput(session, "eic_files", 
-		label = "Select sample(s)", choices = setNames(
+		label = "Sample(s)", choices = setNames(
 			choices$project_sample, choices$sample_id))
 	shinyjs::runjs("Shiny.onInputChange('process_TIC_rt', 0);")
 	shinyjs::runjs("Shiny.onInputChange('eic_rt', 0);")
 	shiny::updateSelectInput(session, "process_results_file", 
-		label = "Select sample", choices = setNames(
+		label = "Sample", choices = setNames(
 			choices$project_sample, choices$sample_id))
 	shiny::updateSelectInput(session, "graphics_file",
-	  label = "Select sample", choices = setNames(
+	  label = "Sample", choices = setNames(
 	    choices$project_sample, choices$sample_id))
 })
 
