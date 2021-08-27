@@ -375,8 +375,14 @@ shiny::observeEvent(input$process_launch, {
 			ui = shinyWidgets::progressBar("pb2", title = "", value = 0, display_pct = TRUE), 
 			immediate = TRUE, session = session)
 		
-		if (params$mz_tol_unit) params$ppm <- params$mz_tol
-		else params$mda <- params$mz_tol
+		if (params$mz_tol_unit) {
+		  params$ppm <- params$mz_tol
+		  params_standard$ppm <- params_standard$mz_tol
+		}
+		else {
+		  params$mda <- params$mz_tol
+		  params_standard$mda <- params_standard$mz_tol
+		}
 		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
 		if(param$standard_study != FALSE) ion_forms_standard <- lapply(
 		  params_standard$standard_formula, function(x){
@@ -463,7 +469,7 @@ shiny::observeEvent(input$process_launch, {
     
     if(param$standard_study != FALSE){
       delete_features(db, params$project_samples, params_standard$adduct, params_standard$chemical_type)
-  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$formula)
+  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$standard_formula)
       if (length(peaks_standard) > 0) {
     	  record_deconvolution_params(db, params_standard)
     	  record_features(db, peaks_standard)
