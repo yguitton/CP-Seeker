@@ -40,7 +40,7 @@ shinydashboard::tabItem('regression',
   shinydashboard::box(width = 9, id = 'regression_results',
     shiny::downloadButton('regression_export', 'Export regression matrix'),
     shinyWidgets::radioGroupButtons('regression_matrix_choice', '', justified = TRUE,
-      choices = c('Observed', 'Theoretical'),
+      choices = c('Observed (xE^3)', 'Theoretical (xE^3)'),
       checkIcon = list(
         yes = shiny::tags$i(
           class = "fa fa-circle",
