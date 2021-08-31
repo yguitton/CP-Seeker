@@ -102,7 +102,7 @@ shiny::observeEvent(input$regression_launch, {
   res <- solution$resid.norm
   
   # reconstruction of pattern & theoretic matrix
-  theoretic_pattern <- t(factor_vector * t(theoretic))
+  theoretic_pattern <- t(factor_vector * t(theoretic_norm))
   theoretic_mat <- matrix(0, nrow = nrow(theoretic_pattern))
   for(i in 1:nrow(theoretic_pattern)){
     theoretic_mat[i,] <- sum(theoretic_pattern[i,])
@@ -112,8 +112,13 @@ shiny::observeEvent(input$regression_launch, {
   finale_matrix <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1, 
     dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
   for(row in seq(nrow(theoretic_mat))) {
-    data <- if(theoretic_mat[row] != 0) paste(round(mat_observed[row, "intensities"]/10**6, digits = 2),
-      round(theoretic_mat[row]/10**6, digits = 2), sep = '/')
+    data <- if(theoretic_mat[row] != 0 & observed_norm[row] != 0) 
+      paste(round(observed_norm[row]*10**3, digits = 3),
+        round(theoretic_mat[row]*10**3, digits = 3), sep = '/')
+    else if(theoretic_mat[row] != 0) paste("NA",
+      round(theoretic_mat[row]*10**3, digits = 3), sep = '/')
+    else if(observed_norm[row] != 0) paste(round(
+      observed_norm[row]*10**3, digits = 3), "NA", sep = '/')
     else paste("NA", "NA", sep = '/')
     finale_matrix[mat_observed[row, "C"] - C[1] + 1, 
       mat_observed[row, "Cl"] - Cl[1] + 1] <- data 
@@ -259,19 +264,30 @@ output$regression_export <- shiny::downloadHandler(
   },
   content = function(file){
     mat <- share_vars$regression_values$matrix
-    for(row in 1:nrow(mat)){
-      for(col in 1 :ncol(mat)){
-        cell = mat[row,col]
-        if(is.na(cell)) next
-        splitted_cell = unlist(stringr::str_split(cell, "/"))[2]
-        if(splitted_cell == "NA"){
-          mat[row,col] = ""
+    mat_name <- c("Observed", "Theoretic")
+    wb <- openxlsx::createWorkbook()
+    
+    for(i in 1:2){
+      mat2 <- mat
+      addWorksheet(wb, mat_name[i])
+      for(row in 1:nrow(mat)){
+        for(col in 1:ncol(mat)){
+          cell = mat[row,col]
+          if(is.na(cell) | is.null(cell) | cell == '') next
+          splitted_cell = unlist(stringr::str_split(cell, "/"))[i]
+          if(splitted_cell == "NA"){
+            mat2[row,col] = " "
+          }
+          else{
+            mat2[row,col] = splitted_cell
+          } 
         }
-        else{
-          mat[row,col] = splitted_cell
-        } 
       }
+      first_col <- matrix(dimnames(mat)[[1]])
+      mat2 <- cbind(first_col, mat2)
+      colnames(mat2)[1] <- " "
+      openxlsx::writeData(wb, mat_name[i], mat2)
     }
-    openxlsx::write.xlsx(mat, file)
+    openxlsx::saveWorkbook(wb, file)
   }
 )
