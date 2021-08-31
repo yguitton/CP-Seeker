@@ -90,6 +90,8 @@ source(file.path('server', 'process_results.R'), local = TRUE)$value
 
 source(file.path('server', 'graphics.R'), local = TRUE)$value
 
+source(file.path('server', 'regression.R'), local = TRUE)$value
+
 # hide loader & show app div
 shinyjs::hide(id='loader', anim=TRUE, animType='fade')
 shinyjs::show("app-content")

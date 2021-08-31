@@ -6,6 +6,10 @@ var new_values;
 Shiny.addCustomMessageHandler('values', function(val){
 	new_values = val;
 });
+var regression_mat;
+Shiny.addCustomMessageHandler('regression', function(reg){
+	regression_mat = reg;
+});
  $(document).on("shiny:connected", function(e) {
 	$("body").addClass("sidebar-mini");
 	$('.dropdown-menu').css('width', window.innerWidth/4.8);

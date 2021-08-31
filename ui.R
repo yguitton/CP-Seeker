@@ -57,7 +57,8 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
 			shinydashboard::menuSubItem("Database tables", icon = shiny::icon('database'), tabName = 'manage')
 		),
 		shinydashboard::menuItem("Deconvolution", icon = shiny::icon("cog"), 
-			shinydashboard::menuSubItem("Integration", icon = shiny::icon("cog"), tabName = "process")
+			shinydashboard::menuSubItem("Integration", icon = shiny::icon("cog"), tabName = "process"),
+			shinydashboard::menuSubItem("Linear regression", icon = shiny::icon("table"), tabName = "regression")
 		),
 		shinydashboard::menuItem('Explore data', icon = shiny::icon('bar-chart-o'), 
 			shinydashboard::menuSubItem("Results", icon = shiny::icon("table"), tabName = "process_results"), 
@@ -78,7 +79,8 @@ body <- shinydashboard::dashboardBody(
 					source(file.path('ui', 'process.R'), local = TRUE)$value,
 					source(file.path('ui', 'process_results.R'), local = TRUE)$value,
 					source(file.path("ui", "EIC.R"), local = TRUE)$value,
-					source(file.path("ui", "graphics.R"), local = TRUE)$value
+					source(file.path("ui", "graphics.R"), local = TRUE)$value,
+					source(file.path("ui", "regression.R"), local = TRUE)$value
 				)
 			)
 		)

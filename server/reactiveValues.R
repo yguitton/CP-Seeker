@@ -149,6 +149,8 @@ shiny::observeEvent(c(project_samples(), input$project), {
 		# choices = choices, selected = selected)
 	shiny::updateSelectInput(session, "files_from_db", label = NULL, 
 		choices = choices, selected = selected)
+	shiny::updateSelectInput(session, "regression_theoretic_files", label = "Samples", 
+	  choices = choices)
 	choices <- project_samples()[which(project_samples()$project == input$project), 
 		c("sample_id", "project_sample")]
 	shiny::updateSelectizeInput(session, "eic_files", 
@@ -160,6 +162,9 @@ shiny::observeEvent(c(project_samples(), input$project), {
 		label = "Sample", choices = setNames(
 			choices$project_sample, choices$sample_id))
 	shiny::updateSelectInput(session, "graphics_file",
+	  label = "Sample", choices = setNames(
+	    choices$project_sample, choices$sample_id))
+	shiny::updateSelectInput(session, "regression_observed_file", 
 	  label = "Sample", choices = setNames(
 	    choices$project_sample, choices$sample_id))
 })
@@ -204,6 +209,10 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
     "Family", choices = choices)
   shiny::updateSelectInput(session, "graphics_chemical",
     "Family", choices = choices)
+  shiny::updateSelectInput(session, "regression_observed_family", 
+    "Family", choices = choices)
+  shiny::updateSelectInput(session, "regression_theoretic_family",
+    "Family", choices = choices)
 })
 
 #' @title deconvolution_params reactive value event
@@ -221,6 +230,10 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
   shiny::updateSelectInput(session, "process_results_chemical_adduct", 
     "Adduct", choices = choices)
   shiny::updateSelectInput(session, "graphics_adduct",
+    "Adduct", choices = choices)
+  shiny::updateSelectInput(session, "regression_observed_adduct",
+    "Adduct", choices = choices)
+  shiny::updateSelectInput(session, "regression_theoretic_adduct",
     "Adduct", choices = choices)
 })
 

@@ -324,7 +324,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   query <- sprintf("select chemical_ion, 
     round(score,0) as score, intensities, weighted_deviation from feature where 
-		iso == \"A\" and project_sample == %s and chemical_ion in (
+		abundance == 100 and project_sample == %s and chemical_ion in (
 			select chemical_ion from chemical_ion
 			where adduct == \"%s\" and chemical_type == \"%s\");", 
     project_sample, adduct, chemical_type)
