@@ -2,7 +2,7 @@ min_C <- 7
 max_C <- 36
 min_Cl <- 3
 max_Cl <- 30
-adduct_names <- c('M+Cl', 'M-H', 'M+Hac-H')
+adduct_names <- c('M+Cl', 'M-H', 'M+Hac-H', 'M-Cl', 'M-HCl')
 chemical_type <- c('CPs', 'COs', 'CdiOs')
 
 #' @title Merge two formulas
@@ -42,6 +42,18 @@ subform <- function(forms, form) {
 
 data("isotopes", package = "enviPat")
 data("adducts", package = "enviPat")
+# add adducts asked by Manue
+adducts <- rbind(adducts, data.frame(
+	Name = c("M-Cl", "M-HCl"), 
+	calc = c("M-34.9694", "M-35.97723"), 
+	Charge = c(-1, -1), 
+	Mult = c(1, 1), 
+	Mass = c(-34.9694, -35.97723), 
+	Ion_mode = c("negative", "negative"), 
+	Formula_add = c("FALSE", "FALSE"), 
+	Formula_ded = c("Cl1", "H1Cl1"), 
+	Multi = c(1, 1)
+))
 adducts <- adducts[which(adducts[, "Name"] %in% adduct_names), ]
 # order isotopes to have first carbons, then hydrogens, then elements in alphabetical order
 elts_CH <- unlist(lapply(c("C", "[12]C", "[13]C", "H", "D", "[1]H", "[2]H"), function(elt)
@@ -88,19 +100,10 @@ ion_forms <- do.call(rbind, pbapply::pblapply(seq(nrow(adducts)), function(i)
 	)
 ))
 
+data("adducts", package = "enviPat")
 standard_adduct_names <- c('M+Cl', 'M-H')
 standard <- c('C12D18Br6', '[13]C12H18Br6')
-
-data("isotopes", package = "enviPat")
-data("adducts", package = "enviPat")
 standard_adducts <- adducts[which(adducts[, "Name"] %in% standard_adduct_names), ]
-# order isotopes to have first carbons, then hydrogens, then elements in alphabetical order
-elts_CH <- unlist(lapply(c("C", "[12]C", "[13]C", "H", "D", "[1]H", "[2]H"), function(elt)
-  which(isotopes$element == elt)))
-isotopes_CH <- isotopes[elts_CH, ]
-isotopes_not_CH <- isotopes[-elts_CH, ]
-isotopes <- rbind(isotopes_CH, isotopes_not_CH[order(
-  isotopes_not_CH$element), ])
 
 forms <- forms[,-1]
 forms <- rbind(forms, do.call(rbind, lapply(1:length(standard), function(x) 
