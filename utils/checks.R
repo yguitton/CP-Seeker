@@ -18,7 +18,13 @@ for (i in 1:length(reg_paths)){
 	path <- gsub('\\\\', '/', path)
     test <- file.exists(path)
     # keep dirOutput as a relative path for recording files
-	if(!test & (name == "sqlite_path")) {
+	if (!test & (name == "chemical")) {
+        utils::setWinProgressBar(pb, 0, label = "Generate chloroparaffin...")
+        source("data/generate_chloroparaffin.R")
+    } else if (!test & (name == "chemical_ion")) {
+        utils::setWinProgressBar(pb, 0, label = "Generate chloroparaffin ions...")
+        source("data/generate_chloroparaffin_ions.R")
+    } else if(!test & (name == "sqlite_path")) {
 		utils::setWinProgressBar(pb, 0, label = "Creating database file...")  
         db <- RSQLite::dbConnect(RSQLite::SQLite(), path)
         queries <- readLines(reg_paths$create_database)
@@ -28,10 +34,11 @@ for (i in 1:length(reg_paths)){
 		RSQLite::dbWriteTable(db, "chemical_ion", read.csv(
 			reg_paths$chemical_ion, stringsAsFactors = FALSE))
 		RSQLite::dbDisconnect(db)
+    } else if(name == "r" | name == "sqlite_lighted_path") {
+        next
+    } else if (!test) {
+        stop(sprintf('%s not found at %s', name, tools::file_path_as_absolute(path)))
     }
-    else if(name == "r" | name == "sqlite_lighted_path") next
-    else if (!test) stop(sprintf('%s not found at %s', name, 
-		tools::file_path_as_absolute(path)))
 	reg_paths[[i]] <- tools::file_path_as_absolute(reg_paths[[i]])
 }
 

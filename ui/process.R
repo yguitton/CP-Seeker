@@ -1,45 +1,45 @@
 shinydashboard::tabItem(tabName = 'process',
-  shinydashboard::box(width = 3, 
-    shiny::column(width = 12, style = "margin-bottom: 20px; text-align: center;", 
-      shinyWidgets::actionBttn('process_launch', 'Launch deconvolution process', 
+  shinydashboard::box(width = 3,
+    shiny::column(width = 12, style = "margin-bottom: 20px; text-align: center;",
+      shinyWidgets::actionBttn('process_launch', 'Launch deconvolution process',
         style = 'minimal', color = 'primary')
     ),
     shinyWidgets::radioGroupButtons('process_chemical_standard', '', justified = TRUE,
       choices = c('general', 'target analyte', 'standard'),
       checkIcon = list(
         yes = shiny::tags$i(
-          class = "fa fa-circle", 
+          class = "fa fa-circle",
           style = "color: steelblue"
-        ), 
+        ),
         no = shiny::tags$i(
-          class = "fa fa-circle-o", 
+          class = "fa fa-circle-o",
           style = "color: steelblue"
         )
       )
     ),
     shiny::tags$div(id = "process_general",
-      shiny::tags$div(style = "display: flex; align-items: center;", 
-        shiny::tags$div(style = "margin-right: 0px;", 
+      shiny::tags$div(style = "display: flex; align-items: center;",
+        shiny::tags$div(style = "margin-right: 0px;",
           shiny::numericInput("process_mz_tol", "mass tolerance", value = 5)
-        ), 
-        shiny::tags$div(style = "margin-left: 0px;", 
-          shiny::tags$br(), 
-          shinyWidgets::switchInput("process_mz_tol_unit", "", 
+        ),
+        shiny::tags$div(style = "margin-left: 0px;",
+          shiny::tags$br(),
+          shinyWidgets::switchInput("process_mz_tol_unit", "",
             value = TRUE, onLabel = "ppm", offLabel = "mDa", offStatus = "primary")
         )
-      ), 		
-      shiny::selectInput('process_instrument', 'Instrument', 
-        choices = c("Orbitrap", "QTOF_XevoG2-S", "Sciex_TripleTOF5600", 
+      ),
+      shiny::selectInput('process_instrument', 'Instrument',
+        choices = c("Orbitrap", "QTOF_XevoG2-S", "Sciex_TripleTOF5600",
           "Sciex_TripleTOF6600", "Sciex_QTOFX500R", "Agilent_QTOF6550")
       ),
-      shiny::tags$div(id = "process_orbitrap", 
-        shiny::tags$label(class = "control-label", "Resolution"), 
-        shiny::tags$table(style = "text-align: center; white-space: nowrap; margi-top: -20px;", 
+      shiny::tags$div(id = "process_orbitrap",
+        shiny::tags$label(class = "control-label", "Resolution"),
+        shiny::tags$table(style = "text-align: center; white-space: nowrap; margi-top: -20px;",
           shiny::tags$tr(
             shiny::tags$td(
               shiny::numericInput('process_resolution', '', value = 140)
-            ), 
-            shiny::tags$td(style = "padding-left: 5px; padding-right: 5px;", 
+            ),
+            shiny::tags$td(style = "padding-left: 5px; padding-right: 5px;",
               shiny::tags$h4(tags$b('k @'))
             ),
             shiny::tags$td(
@@ -49,34 +49,34 @@ shinydashboard::tabItem(tabName = 'process',
         )
       ),
       shinyjs::hidden(
-        shiny::selectInput('process_resolution_index', 
+        shiny::selectInput('process_resolution_index',
            'Resolution', choices = setNames(25, "25k@200"))
-      ), 
-      shiny::column(width = 6, 
+      ),
+      shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
-          shiny::numericInput('process_peakwidth_min', 
+          shiny::numericInput('process_peakwidth_min',
             'Peakwidth min (s)', value = 5),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
-            placement = 'top', 
-            title = 'Expected approximate peak width in chromatographic space'
-          )
-        )
-      ),
-      shiny::column(width = 6, 
-        bsplus::shinyInput_label_embed(
-          shiny::numericInput('process_peakwidth_max', 
-            'Peakwidth max (s)', value = 240),
-          bsplus::bs_embed_tooltip(
-            bsplus::shiny_iconlink(),
-            placement = 'top', 
+            placement = 'top',
             title = 'Expected approximate peak width in chromatographic space'
           )
         )
       ),
       shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
-          shiny::numericInput("process_retention_time_min", "Retention time min (min)", 
+          shiny::numericInput('process_peakwidth_max',
+            'Peakwidth max (s)', value = 240),
+          bsplus::bs_embed_tooltip(
+            bsplus::shiny_iconlink(),
+            placement = 'top',
+            title = 'Expected approximate peak width in chromatographic space'
+          )
+        )
+      ),
+      shiny::column(width = 6,
+        bsplus::shinyInput_label_embed(
+          shiny::numericInput("process_retention_time_min", "Retention time min (min)",
             value = 0),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
@@ -85,9 +85,9 @@ shinydashboard::tabItem(tabName = 'process',
           )
         )
       ),
-      shiny::column(width = 6,              
+      shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
-          shiny::numericInput("process_retention_time_max", "Retention time max (min)", 
+          shiny::numericInput("process_retention_time_max", "Retention time max (min)",
             value = 20),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
@@ -96,13 +96,13 @@ shinydashboard::tabItem(tabName = 'process',
           )
         )
       ),
-      shiny::column(width = 6, 
+      shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
-          shiny::numericInput("process_missing_scans", "missing scans", 
-            value = 2), 
+          shiny::numericInput("process_missing_scans", "missing scans",
+            value = 2),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
-            placement = 'top', 
+            placement = 'top',
             title = 'Maximim number of scans to consider them consecutive.'
           )
         )
@@ -110,21 +110,13 @@ shinydashboard::tabItem(tabName = 'process',
     ),
     shinyjs::hidden(
   		shiny::tags$div(id = "process_chemical",
-        bsplus::shinyInput_label_embed(
-    		  shiny::checkboxGroupInput("process_chemical_type",
-    		    "Family", choices = c("CPs", "COs", "CdiOs")),
-    		  bsplus::bs_embed_tooltip(
-    		    bsplus::shiny_iconlink(),
-    		    placement = 'top',
-    		    title = 'Type of chemical to study'
-    		  )
-    		),
+            shiny::uiOutput("ui_process_chemical_type"),
     		bsplus::shinyInput_label_embed(
-    			shiny::selectInput("process_adduct", 
+    			shiny::selectInput("process_adduct",
     				"Adduct(s)", choices = available_adducts, multiple = TRUE),
     			bsplus::bs_embed_tooltip(
     				bsplus::shiny_iconlink(),
-    				placement = 'top', 
+    				placement = 'top',
     				title = 'Adducts to use for ion formula generation'
     			)
     		)
@@ -136,7 +128,7 @@ shinydashboard::tabItem(tabName = 'process',
           value = FALSE, onLabel = "yes", offLabel = "no"),
         shiny::tags$div(id = "process_standard_params",
           bsplus::shinyInput_label_embed(
-            shiny::selectInput("process_standard_formula", "Standard formula", 
+            shiny::selectInput("process_standard_formula", "Standard formula",
               choices = c("C12D18Br6", "[13]C12H18Br6"), multiple = TRUE),
             bsplus::bs_embed_tooltip(
               bsplus::shiny_iconlink(),
@@ -166,9 +158,9 @@ shinydashboard::tabItem(tabName = 'process',
         )
       )
     )
-	), 
-  
-	shinydashboard::box(width = 9, 
+	),
+
+	shinydashboard::box(width = 9,
 		shinycssloaders::withSpinner(plotly::plotlyOutput('process_TIC')),
 		tags$hr(),
 		shinycssloaders::withSpinner(plotly::plotlyOutput('process_MS'))
