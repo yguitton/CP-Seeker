@@ -129,7 +129,7 @@ shinydashboard::tabItem(tabName = 'process',
         shiny::tags$div(id = "process_standard_params",
           bsplus::shinyInput_label_embed(
             shiny::selectInput("process_standard_formula", "Standard formula",
-              choices = c("C12D18Br6", "[13]C12H18Br6"), multiple = TRUE),
+              choices = c("C12[2]H18Br6", "[13]C12H18Br6"), multiple = TRUE),
             bsplus::bs_embed_tooltip(
               bsplus::shiny_iconlink(),
               placement = 'top',
