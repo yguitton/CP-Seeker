@@ -57,7 +57,7 @@ get_mzmat_eic <- function(xr, mz_range) {
 #'
 #' @return vector with 2 integer: min & max born of ROI
 get_rois <- function(ints, min_width, missing_scans = 1) {
-	baseline <- runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach")
+	baseline <- suppressWarnings(runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach"))
 	rois <- which(ints - baseline > 0)
 	if (length(rois) == 0) return(NULL)
 	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
@@ -558,8 +558,8 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
 			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
 		# xcms define noiserange as 1.5x peakwidth_max
-		baselines <- lapply(traces, function(x) runmed(x$eic[, "int"], nrow(x$eic) / 3, 
-		  endrule = "constant", algorithm = "Turlach"))
+		baselines <- lapply(traces, function(x) 
+            suppressWarnings(runmed(x$eic[, "int"], nrow(x$eic) / 3, endrule = "constant", algorithm = "Turlach")))
 		noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))
 		if(reintegration){
 		  roi <- range(which(traces[[1]]$eic[, "int"] > 0 & 
