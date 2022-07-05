@@ -7,7 +7,7 @@ shinydashboard::tabItem(tabName = 'project_files',
 				color = 'primary')
 		)
 	)),
-	shiny::column(id = "project_box", width = 4, shinydashboard::box(width = 12, title = "New project", 
+	shiny::column(id = "project_box", width = 4, shinydashboard::box(width = 12, title = "New sequence", 
 		shiny::fluidRow(
 			shiny::column(width = 6, 
 				shiny::textInput('project_name', 'Name', 
