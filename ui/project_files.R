@@ -15,7 +15,7 @@ shinydashboard::tabItem(tabName = 'project_files',
 			),
 			shiny::column(width = 6, 
 				shiny::textInput('project_comment', 'Comment', 
-					placeholder = '(facultative)')
+					placeholder = '(optional)')
 			)
 		),
 		shiny::fluidRow(
