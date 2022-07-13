@@ -114,7 +114,7 @@ output$process_results_profile <- DT::renderDataTable({
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
 scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
-	className = 'dt-body-justify', targets = "_all")), 
+	className = 'dt-body-center', targets = "_all")), 
 initComplete = htmlwidgets::JS("
 	function (settings, json) {
 	  Shiny.onInputChange('process_results_profile_selected', null);

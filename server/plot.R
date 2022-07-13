@@ -33,7 +33,7 @@ plot_ly <- function(...) {
 #' Construct an empty chromatogram
 #'
 #' @return plotly object
-plot_empty_chromato <- function(title = "Extracted Ion Chromatogram(s)") {
+plot_empty_chromato <- function(title = "EIC(s)") {
 	p <- plot_ly(
 		type='scatter', 
 		mode='markers'
@@ -280,7 +280,9 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 #' Construct an empty MS
 #'
 #' @return plotly object
-plot_empty_MS <- function(title = "Mass Spectra", yTitle = 'Intensity') {
+  
+ #chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
+plot_empty_MS <- function(title = "Isotopic pattern", yTitle = "C10H16Cl6/[M+Cl]-" ) {
 	p <- plot_ly(
 		type = 'scatter', 
 		mode='markers'
