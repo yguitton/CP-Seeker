@@ -184,7 +184,7 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 		marker = list(
 			opacity = 1, 
 			size = 1*10**-9
-		)),
+		),
 		line = list(
 			color = 'rgb(0,0,0)', 
 			width = 1, 
