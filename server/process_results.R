@@ -7,7 +7,7 @@
 #' @param input$process_results_study string, choice
 shiny::observeEvent(input$process_results_study, {
   params <- list(choice = input$process_results_study)
-  if (params$choice == "chemical") {
+  if (params$choice == "Chemical") {
     shinyjs::show("process_results_chemical")
     shinyjs::hide("process_results_standard")
     shinyjs::show("process_results_adduct")
@@ -20,7 +20,7 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::show("process_results_profile")
     shinyjs::hide("process_results_standard_table")
   }
-  else if (params$choice == "standard") {
+  else if (params$choice == "Standard") {
     shinyjs::hide("process_results_chemical")
     shinyjs::show("process_results_standard")
     shinyjs::hide("process_results_adduct")
@@ -114,14 +114,14 @@ output$process_results_profile <- DT::renderDataTable({
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
 scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
-	className = 'dt-body-center', targets = "_all")), 
+	className = 'dt-body-justify', targets = "_all")), 
 initComplete = htmlwidgets::JS("
 	function (settings, json) {
 	  Shiny.onInputChange('process_results_profile_selected', null);
 	  Shiny.onInputChange('process_results_standard_selected', null);
     var table = settings.oInstance.api();
     var button = $('#process_results_selected_matrix .active').text(); 
-    var selected_button = button.includes('Scores') ? 0 : button.includes('Normalized intensities') ? 1 : 2;
+    var selected_button = button.includes('Score(%)') ? 0 : button.includes('Normalized intensity (xE6)') ? 1 : 2;
     table.cells().every(function() {
       if(this.index().column == 0) {
         this.data(this.data());
@@ -176,7 +176,7 @@ initComplete = htmlwidgets::JS("
   	var table = $('#process_results_profile').data('datatable');
   	var old_table = old_matrix[project][chemical][adduct];
   	var button = $('#process_results_selected_matrix .active').text(); 
-    var selected_button = button.includes('Scores') ? 0 : button.includes('Normalized intensities') ? 1 : 2;
+    var selected_button = button.includes('Score(%)') ? 0 : button.includes('Normalized intensity (xE6)') ? 1 : 2;
     table.cells().every(function() {
       var row = this.index().row
       var col = this.index().column - 1
@@ -223,7 +223,7 @@ initComplete = htmlwidgets::JS("
   	var chemical = $('#process_results_chemical_type').text();
   	var adduct = $('#process_results_chemical_adduct').text();
   	var old_table = old_matrix[project][chemical][adduct]; 
-    var selected_button = $(this).text().includes('Scores') ? 0 : $(this).text().includes('Normalized intensities') ? 1 : 2;
+    var selected_button = $(this).text().includes('Score (%)') ? 0 : $(this).text().includes('Normalized intensity (xE6)') ? 1 : 2;
     var table = $('#process_results_profile').data('datatable');
     table.cells().every(function() {
       var row = this.index().row
@@ -259,7 +259,7 @@ initComplete = htmlwidgets::JS("
   	var old_table = old_matrix[project][chemical][adduct]; 
   	var table = $('#process_results_profile').data('datatable');
   	var mat = $('#process_results_selected_matrix button.active').text()
-  	var selected_button = mat.includes('Scores') ? 0 : mat.includes('Normalized intensities') ? 1 : 2;
+  	var selected_button = mat.includes('Score') ? 0 : mat.includes('Normalized intensity (xE6)') ? 1 : 2;
 	  table.cells().every(function() {
 	    var row = this.index().row
       var col = this.index().column - 1
@@ -328,7 +328,7 @@ output$process_results_standard_table <- DT::renderDataTable({
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
   scrollX = TRUE, bFilter = FALSE, ordering = FALSE, columnDefs = list(list(
-    className = 'dt-body-center', targets = "_all")),
+    className = 'dt-body-justify', targets = "_all")),
 initComplete = htmlwidgets::JS("
   Shiny.onInputChange('process_results_profile_selected', null);
 	Shiny.onInputChange('process_results_standard_selected', null);
@@ -433,9 +433,9 @@ output$process_results_eic <- plotly::renderPlotly({
 	params <- list(
 	  project = input$project,
 		project_sample = isolate(input$process_results_file),
-		adduct = if(study == "chemical") isolate(input$process_results_chemical_adduct) 
+		adduct = if(study == "Chemical") isolate(input$process_results_chemical_adduct) 
 	    else input$process_results_adduct_selected, 
-		chemical_type = if(study == "chemical") isolate(input$process_results_chemical_type) 
+		chemical_type = if(study == "Chemical") isolate(input$process_results_chemical_type) 
 		  else study, 
 		C = as.numeric(input$process_results_profile_selected$C), 
 		Cl = as.numeric(input$process_results_profile_selected$Cl),
@@ -443,7 +443,7 @@ output$process_results_eic <- plotly::renderPlotly({
 	)
 	# retrieve the parameters used for the deconvolution to trace EICs with same parameters
 	# same reasoning for the resolution parameter to simulate isotopic pattern
-	deconvolution_param <- if(study == "chemical") as.list(deconvolution_params()[which(
+	deconvolution_param <- if(study == "Chemical") as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
 		deconvolution_params()$adduct == params$adduct &
 		deconvolution_params()$chemical_type == params$chemical_type), ])
@@ -505,16 +505,16 @@ output$process_results_ms <- plotly::renderPlotly({
   params <- list(
     project = input$project,
     project_sample = isolate(input$process_results_file),
-    adduct = if(study == "chemical") isolate(input$process_results_chemical_adduct) 
+    adduct = if(study == "Chemical") isolate(input$process_results_chemical_adduct) 
     else input$process_results_adduct_selected, 
-    chemical_type = if(study == "chemical") input$process_results_chemical_type 
+    chemical_type = if(study == "Chemical") input$process_results_chemical_type 
     else study, 
     C = as.numeric(input$process_results_profile_selected$C), 
     Cl = as.numeric(input$process_results_profile_selected$Cl),
     formula = input$process_results_standard_selected
   )
 	# retrieve the resolution parameter to simulate isotopic pattern
-  deconvolution_param <- if(study == "chemical") as.list(deconvolution_params()[which(
+  deconvolution_param <- if(study == "Chemical") as.list(deconvolution_params()[which(
     deconvolution_params()$project == params$project & 
     deconvolution_params()$adduct == params$adduct &
     deconvolution_params()$chemical_type == params$chemical_type), ])
@@ -544,7 +544,7 @@ output$process_results_ms <- plotly::renderPlotly({
 #' @param input$project integer, project id
 shiny::observeEvent(input$process_results_download, {
   choices <- project_samples()[which(project_samples()$project == input$project), 
-     c("sample_id", "project_sample")]
+     c("sample_ID", "project_sample")]
   shiny::showModal(modalDialog(
     shiny::checkboxGroupInput('process_results_download_file', 'Which file(s) ?', 
       choices = c(setNames(choices$project_sample, choices$sample_id)), 
@@ -569,12 +569,12 @@ output$process_results_export <- shiny::downloadHandler(
       project = input$project
     )
     name <- get_project_name(db, params$project)
-    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },
+    paste("CP-Seeker_Dev_August2022_", name, ".xlsx", sep = "") },
   content = function(file) {
     params <- list(
       project = input$project,
       file = input$process_results_download_file,
-      matrix_type = c('Score', 'Intensities', 'Deviations')
+      matrix_type = c('Score (%)', 'Intensity (xE6)', 'Deviation (mDa)')
     )
     samples <- get_samples(db, params$project)
     samples <- samples[which(samples$project_sample == params$file),]
@@ -710,7 +710,7 @@ shiny::observeEvent(input$process_results_reintegration, {
     	var adduct = $('#process_results_chemical_adduct').text();
       old_matrix[project][chemical][adduct][C][Cl-1] = values + '/' + old_matrix[project][chemical][adduct][C][Cl-1].split('/')[3]; 
       var mat = $('#process_results_selected_matrix button.active').text();
-    	var selected_button = mat.includes('Scores') ? 0 : mat.includes('Normalized intensities') ? 1 : 2;
+    	var selected_button = mat.includes('Score(%)') ? 0 : mat.includes('Normalized intensity (xE6)') ? 1 : 2;
     	var splitted_cell = values.split('/');
     	table.cell(C, Cl).data(splitted_cell[selected_button]);
     ")

@@ -4,7 +4,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 			shiny::selectInput("process_results_file", "Select sample", 
 				choices = c(), multiple = FALSE, width = "20vw"),
 			shiny::selectInput("process_results_study",
-			  "Type", choices = c("chemical", "standard"), width = "20vw"),
+			  "Type", choices = c("Chemical", "Standard"), width = "20vw"),
 			shiny::tags$div(id = "process_results_chemical",
 			  shiny::selectInput("process_results_chemical_type",
 			    "Family", choices = c(), width = "20vw")
@@ -45,7 +45,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 	    shiny::actionButton('process_results_apply', 'apply')
 	  ),
 	  shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
-	    choices = c('Normalized intensities (xE6)', 'Scores', 'Deviations (mDa, xE-3)'), 
+	    choices = c('Normalized intensity (xE6)', 'Score (%)', 'Deviation (mDa)'), 
 	    checkIcon = list(
 	      yes = shiny::tags$i(
 	        class = "fa fa-circle", 

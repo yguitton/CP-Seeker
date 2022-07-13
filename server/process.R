@@ -8,17 +8,17 @@
 #' @param input$process_chemical_standard string, choice
 shiny::observeEvent(input$process_chemical_standard, {
   params <- list(choice = input$process_chemical_standard)
-  if (params$choice == "general"){
+  if (params$choice == "General"){
     shinyjs::show("process_general")
     shinyjs::hide("process_chemical")
     shinyjs::hide("process_standard")
   }
-  else if (params$choice == "target analyte") {
+  else if (params$choice == "Target analyte") {
     shinyjs::hide("process_general")
     shinyjs::show("process_chemical")
     shinyjs::hide("process_standard")
   }
-  else if (params$choice == "standard") {
+  else if (params$choice == "Standard") {
     shinyjs::hide("process_general")
     shinyjs::hide("process_chemical")
     shinyjs::show("process_standard")

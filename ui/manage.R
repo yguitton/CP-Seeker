@@ -1,7 +1,7 @@
 shinydashboard::tabItem(tabName = 'manage',
 	shinydashboard::box(id = 'manage_db', title = 'Database', width = 12, 
 		shinyWidgets::radioGroupButtons('manage_select', 'Select table', justified = TRUE,
-			choices = c('Project', 'Sample'), 
+			choices = c('Sequence', 'Sample'), 
 			checkIcon = list(
 				yes = shiny::tags$i(
 					class = "fa fa-circle", 
@@ -17,7 +17,7 @@ shinydashboard::tabItem(tabName = 'manage',
 				style = "bordered", color = "primary")
 		),
 		shiny::tags$div(style = "float:right;", 
-			shinyWidgets::actionBttn("manage_delete", "Delete entries", 
+			shinyWidgets::actionBttn("manage_delete", "Delete entry(ies)", 
 				style = "bordered", color="danger")
 		),
 		shiny::tags$br(), 

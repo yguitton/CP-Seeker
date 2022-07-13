@@ -5,7 +5,7 @@ shinydashboard::tabItem(tabName = 'process',
         style = 'minimal', color = 'primary')
     ),
     shinyWidgets::radioGroupButtons('process_chemical_standard', '', justified = TRUE,
-      choices = c('general', 'target analyte', 'standard'),
+      choices = c('General', 'Target analyte', 'Standard'),
       checkIcon = list(
         yes = shiny::tags$i(
           class = "fa fa-circle",
@@ -20,7 +20,7 @@ shinydashboard::tabItem(tabName = 'process',
     shiny::tags$div(id = "process_general",
       shiny::tags$div(style = "display: flex; align-items: center;",
         shiny::tags$div(style = "margin-right: 0px;",
-          shiny::numericInput("process_mz_tol", "mass tolerance", value = 5)
+          shiny::numericInput("process_mz_tol", "Mass tolerance", value = 3)
         ),
         shiny::tags$div(style = "margin-left: 0px;",
           shiny::tags$br(),
@@ -66,7 +66,7 @@ shinydashboard::tabItem(tabName = 'process',
       shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
           shiny::numericInput('process_peakwidth_max',
-            'Peakwidth max (s)', value = 240),
+            'Peakwidth max (s)', value = 300),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
             placement = 'top',
@@ -98,8 +98,8 @@ shinydashboard::tabItem(tabName = 'process',
       ),
       shiny::column(width = 6,
         bsplus::shinyInput_label_embed(
-          shiny::numericInput("process_missing_scans", "missing scans",
-            value = 2),
+          shiny::numericInput("process_missing_scans", "Missing scans",
+            value = 10),
           bsplus::bs_embed_tooltip(
             bsplus::shiny_iconlink(),
             placement = 'top',

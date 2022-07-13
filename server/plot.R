@@ -174,7 +174,7 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 	p <- plot_empty_chromato("EIC")
 	if (nrow(datas) == 0) return(p)
 	
-	p <- plotly::add_trace(p, 
+	p <-plotly::add_trace(p, 
 		mode = "lines+markers", 
 		data = datas, 
 		x = ~rt, 
@@ -184,7 +184,7 @@ plot_EIC <- function(db, project = NULL, project_samples = NULL,
 		marker = list(
 			opacity = 1, 
 			size = 1*10**-9
-		),
+		)),
 		line = list(
 			color = 'rgb(0,0,0)', 
 			width = 1, 
@@ -478,8 +478,8 @@ plot_empty_plot <- function(title = 'Bubble plot', z = 'Intensity'){
 #' @return plotly object
 plot_bubble_plot <- function(db, project_sample = NULL, adduct = NULL, 
   chemical = NULL, reference = NULL, data_studied = NULL){
-  data_studied <- if(data_studied == "Intensities") 'intensities'
-  else if (data_studied == "Scores") 'score'
+  data_studied <- if(data_studied == "Intensity (xE6)") 'intensities'
+  else if (data_studied == "Score(%)") 'score'
   else 'weighted_deviation'
   data <- get_profile_matrix(db, project_sample, adduct, chemical, table = TRUE)
   studied <- data[data_studied]
