@@ -544,7 +544,7 @@ output$process_results_ms <- plotly::renderPlotly({
 #' @param input$project integer, project id
 shiny::observeEvent(input$process_results_download, {
   choices <- project_samples()[which(project_samples()$project == input$project), 
-     c("sample_ID", "project_sample")]
+     c("sample_id", "project_sample")]
   shiny::showModal(modalDialog(
     shiny::checkboxGroupInput('process_results_download_file', 'Which file(s) ?', 
       choices = c(setNames(choices$project_sample, choices$sample_id)), 
