@@ -417,9 +417,9 @@ get_ms <- function(db, sample, rt) {
 get_chloropara_form <- function(adduct_names, chemical_type, min_C = 7, max_C = 36, 
 		min_Cl = 3, max_Cl = 30) {
 	forms <- expand.grid(min_C:max_C, min_Cl:max_Cl)
-	if(chemical_type == "CPs") forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
-	else if(chemical_type == "COs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - forms[, 2])
-	else if(chemical_type == "CdiOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - 2 - forms[, 2])
+	if(chemical_type == "PCAs") forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
+	else if(chemical_type == "PCOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - forms[, 2])
+	else if(chemical_type == "PCdiOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - 2 - forms[, 2])
 	forms <- forms[which(forms[, 3] > 0), ]
 	forms <- cbind(forms, Var4 = paste("C", forms[, 1], "Cl", forms[, 2], 
 		"H", forms[, 3], sep = ""))
