@@ -569,12 +569,12 @@ output$process_results_export <- shiny::downloadHandler(
       project = input$project
     )
     name <- get_project_name(db, params$project)
-    paste("CP-Seeker_Dev_August2022_", name, ".xlsx", sep = "") },
+    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },
   content = function(file) {
     params <- list(
       project = input$project,
       file = input$process_results_download_file,
-      matrix_type = c('Score (%)', 'Intensity (xE6)', 'Deviation (mDa)')
+      matrix_type = c('Score', 'Intensity', 'Deviation')
     )
     samples <- get_samples(db, params$project)
     samples <- samples[which(samples$project_sample == params$file),]

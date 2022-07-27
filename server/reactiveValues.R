@@ -204,7 +204,7 @@ deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params,
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[which(choices %in% c("CPs", "COs", "CdiOs"))]
+  choices <- choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
   shiny::updateSelectInput(session, "process_results_chemical_type", 
     "Family", choices = choices)
   shiny::updateSelectInput(session, "graphics_chemical",
@@ -247,7 +247,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("CPs", "COs", "CdiOs"))]
+  choices <- choices[-which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
 })

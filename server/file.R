@@ -137,7 +137,7 @@ output$file_associate_table <- DT::renderDataTable({
 	)
 	
 	data.frame(
-		File = params$sample_names,  
+		File = params$sample_names, #c'est ici que je dois changer la taille pour le nom usuel du fichier ) 
 		Label = paste('<input type=\"text\" value=\"', 
 				params$sample_ids, 
 			'\" maxlength=30 width=\"100%\" required>', sep=''
