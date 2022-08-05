@@ -171,13 +171,13 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL, form
 get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
   if (chemical_type == "standard"){
-    query <- sprintf("select chemical_ion, ion_formula, charge
+    query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
     where formula == \"%s\") ;", adduct_name, formula)
   }
   else{
-   query <- sprintf("select chemical_ion, ion_formula, charge
+   query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
 		where C == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)

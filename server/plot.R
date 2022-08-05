@@ -33,7 +33,7 @@ plot_ly <- function(...) {
 #' Construct an empty chromatogram
 #'
 #' @return plotly object
-plot_empty_chromato <- function(title = "EIC(s)") {
+plot_empty_chromato <- function(title = "EIC(s)",yTitle = "Intensity") {
 	p <- plot_ly(
 		type='scatter', 
 		mode='markers'
@@ -57,7 +57,7 @@ plot_empty_chromato <- function(title = "EIC(s)") {
 			title = 'Retention time', 
 			titlefont = list(
 				family = '"Open Sans",verdana,arial,sans-serif', 
-				size = 18
+				size = 12
 			), 
 			showspikes = TRUE, 
 			spikemode = "across", 
@@ -85,11 +85,11 @@ plot_empty_chromato <- function(title = "EIC(s)") {
 			y = 1, 
 			xanchor = 'left', 
 			yanchor = 'bottom', 
-			text = 'Intensity', 
+			text = yTitle, 
 			showarrow = FALSE, 
 			font = list(
 				family = '"Open Sans",verdana,arial,sans-serif', 
-				size = 18
+				size = 12
 			)
 		))
 	)
@@ -225,10 +225,14 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 	
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
-	
+	formula_name <-  as.character(chemical_ion$ion_formula)
+	adduct_name <- as.character(chemical_ion$adduct)
+	form_adduct <- paste(formula_name,adduct_name ,sep="/")
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
 		chemical_ion$charge, resolution)[[1]]
 	if (nrow(theoric_pattern) == 0) return(p)
+	#p <- plot_empty_chromato(yaxis = list(text = adduct_name))
+	p <- plot_empty_chromato(yTitle = form_adduct)
 	# now get eic data
 	datas <- get_eics(db, project = NULL, project_sample,  
 		theoric_pattern[, "mz"], ppm, mda)
@@ -278,11 +282,11 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 #'
 #' @description
 #' Construct an empty MS
-#'
+
 #' @return plotly object
   
  #chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
-plot_empty_MS <- function(title = "Isotopic pattern", yTitle = "C10H16Cl6/[M+Cl]-" ) {
+plot_empty_MS <- function(title = "Isotopic pattern",yTitle = "Intensity" ) {
 	p <- plot_ly(
 		type = 'scatter', 
 		mode='markers'
@@ -306,7 +310,7 @@ plot_empty_MS <- function(title = "Isotopic pattern", yTitle = "C10H16Cl6/[M+Cl]
 			title = 'm/z', 
 			titlefont = list(
 				family = '"Open Sans",verdana,arial,sans-serif', 
-				size = 18
+				size = 12
 			), 
 			showspikes = FALSE, 
 			showticksuffix = "all",
@@ -331,7 +335,7 @@ plot_empty_MS <- function(title = "Isotopic pattern", yTitle = "C10H16Cl6/[M+Cl]
 			showarrow = FALSE, 
 			font = list(
 				family = '"Open Sans",verdana,arial,sans-serif', 
-				size = 18
+				size = 12
 			)
 		))
 	)
@@ -419,20 +423,24 @@ plot_MS <- function(db, project = NULL, project_samples = NULL, rt) {
 #' @return plotly object
 plot_chemical_MS <- function(db, project_sample = NULL, 
 		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL, resolution = NULL) {
-	p <- plot_empty_MS(yTitle = "Abundance")
+	p <- plot_empty_MS() #yTitle = "Abundance") 
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
-	
+	formula_name <-  as.character(chemical_ion$ion_formula)
+	adduct_name <- as.character(chemical_ion$adduct)
+	form_adduct <- paste(formula_name,adduct_name ,sep="/")
+	#adduct_name <- as.character(chemical_ion$ion_formula)
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
 		chemical_ion$charge, resolution)[[1]]
 	if (nrow(theoric_pattern) == 0) return(p)
 	theoric_pattern$abundance <- -theoric_pattern$abundance
+	p <- plot_empty_MS(yTitle = form_adduct)
 	p <- plotly::add_segments(p, 
 		data = theoric_pattern, 
 		x = ~mz, 
 		xend = ~mz, 
-		y = 0, 
-		yend = ~abundance, 
+		y = ~abundance, 
+		yend = 0, 
 		name = "theoric", 
 		color = I("red"),
 		showlegend = FALSE
@@ -443,7 +451,9 @@ plot_chemical_MS <- function(db, project_sample = NULL,
 				min(theoric_pattern$mz) - 1, 
 				max(theoric_pattern$mz) + 1
 			)
+		
 		)
+		
 	)
 	
 	# now get the features integrated
