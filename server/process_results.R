@@ -126,9 +126,7 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
-      else if (this.data() == null){
-        $(this.node()).addClass('outside');
-      }
+      
       else if (this.data() != null){
         var splitted_cell = this.data().split('/');
         if(splitted_cell[selected_button] == 'NA'){
@@ -142,16 +140,7 @@ initComplete = htmlwidgets::JS("
             this.data(splitted_cell[selected_button]);
           }
         }
-        if(splitted_cell[3] == 'outside'){
-          $(this.node()).addClass('outside');
-        }
-        else if(splitted_cell[3] == 'half'){
-          $(this.node()).addClass('half');
-        }
-        else if(splitted_cell[3] == 'inside'){
-          $(this.node()).removeClass('outside')
-          $(this.node()).removeClass('half')
-        }
+		
       }
     });
     table.columns.adjust()
@@ -199,18 +188,7 @@ initComplete = htmlwidgets::JS("
             this.data(splitted_cell[selected_button]);
           }
         }
-        if(splitted_cell[3] == 'outside'){
-          $(this.node()).addClass('outside');
-          $(this.node()).removeClass('half');
-        }
-        else if(splitted_cell[3] == 'half'){
-          $(this.node()).addClass('half');
-          $(this.node()).removeClass('outside');
-        }
-        else if(splitted_cell[3] == 'inside'){
-          $(this.node()).removeClass('outside');
-          $(this.node()).removeClass('half');
-        }
+        
       }
     });
     Shiny.setInputValue('process_results_profile', old_matrix);
