@@ -76,7 +76,7 @@ plot_empty_chromato <- function(title = "EIC(s)",yTitle = "Intensity") {
 		hoverlabel = list(
 			namelength = -1
 		),
-		dragmode = 'select',
+		dragmode = 'event',#'select',
 		selectdirection = "h", 
 		annotations = list(list(
 			xref = 'paper', 
