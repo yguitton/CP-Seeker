@@ -75,7 +75,7 @@ output$manage_table <- DT::renderDataTable({
 	)
 
 	tryCatch(
-	if (params$table_selected == "Project") {
+	if (params$table_selected == "Sequence") {
 		data <- projects()
 		data <- data[order(data$project, decreasing = TRUE), 
 			c("project", "name", "comments", "creation", "modified")]
@@ -174,7 +174,7 @@ shiny::observeEvent(input$manage_table_rename, {
 	print(params)
 	
 	tryCatch({
-		if (params$table == "Project") rename_project(db, params$id, params$name)
+		if (params$table == "Sequence") rename_project(db, params$id, params$name)
 		else if (params$table == "Sample") rename_project_sample(db, 
 			params$id, params$name)
 		toastr_success(sprintf('renamed to %s', params$name))

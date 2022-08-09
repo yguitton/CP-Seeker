@@ -275,16 +275,9 @@ output$process_results_standard_table <- DT::renderDataTable({
   actualize$deconvolution_params # only to force it reloading after deconvolution
   actualize$results_matrix
   params <- list(
-    project = input$project,
-	project_sample = isolate(input$process_results_file)
+    project = input$project
   )
-  #params <- list(
-    #project = input$project,
-		#project_sample = isolate(input$process_results_file), 
-		#chemical_adduct = isolate(input$process_results_chemical_adduct),
-		#chemical_type = isolate(input$process_results_chemical_type),
-		#selected_matrix = isolate(input$process_results_selected_matrix)
-	#)
+  
   tryCatch({
     if (length(params$project_sample) == 0) custom_stop("invalid", "no 
 			file selected")
