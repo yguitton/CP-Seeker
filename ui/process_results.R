@@ -36,13 +36,13 @@ shinydashboard::tabItem(tabName = 'process_results',
 	      icon = shiny::icon("download"))
 	  ),
     shiny::column(width = 2,
-      shiny::numericInput('process_results_score_min', 'score min', value = 0)
+      shiny::numericInput('process_results_score_min', 'Score min', value = 0)
     ),
 	  shiny::column(width = 2,
-	    shiny::numericInput('process_results_score_max', 'score max', value = 100)
+	    shiny::numericInput('process_results_score_max', 'Score max', value = 100)
 	  ),
 	  shiny::column(width = 1, style = 'margin-top: 20px; margin-bottom: 20px;',
-	    shiny::actionButton('process_results_apply', 'apply')
+	    shiny::actionButton('process_results_apply', 'Apply')
 	  ),
 	  shinyWidgets::radioGroupButtons('process_results_selected_matrix', '', justified = TRUE,
 	    choices = c('Normalized intensity (xE6)', 'Score (%)', 'Deviation (mDa)'), 

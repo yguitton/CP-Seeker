@@ -145,8 +145,8 @@ shiny::observeEvent(c(project_samples(), input$project), {
 		project_samples()$project == input$project), "project_sample"]
 	names(choices) <- projects()[which(projects()$project %in% 
 		unique(project_samples()$project)), "name"]
-	# shinyWidgets::updatePickerInput(session, "files_in_db", label = NULL, 
-		# choices = choices, selected = selected)
+	shinyWidgets::updatePickerInput(session, "files_in_db", label = NULL, 
+		 choices = choices, selected = selected)
 	shiny::updateSelectInput(session, "files_from_db", label = NULL, 
 		choices = choices, selected = selected)
 	shiny::updateSelectInput(session, "regression_theoretic_files", label = "Samples", 

@@ -75,7 +75,7 @@ output$manage_table <- DT::renderDataTable({
 	)
 
 	tryCatch(
-	if (params$table_selected == "Sequence") {
+	if (params$table_selected == "Project") {
 		data <- projects()
 		data <- data[order(data$project, decreasing = TRUE), 
 			c("project", "name", "comments", "creation", "modified")]
