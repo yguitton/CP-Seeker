@@ -317,10 +317,10 @@ initComplete = htmlwidgets::JS("
 		table.$('tr.selected').removeClass('selected');
 		$(this).addClass('selected');
 		var row = table.row(this).index();
-		var Formula = table.cell(row, 1).data();
-		var Adduct = table.cell(row, 2).data();
-		Shiny.onInputChange('process_results_standard_selected', Formula);
-		Shiny.onInputChange('process_results_adduct_selected', Adduct);
+		var formula = table.cell(row, 1).data();
+		var adduct = table.cell(row, 2).data();
+		Shiny.onInputChange('process_results_standard_selected', formula);
+		Shiny.onInputChange('process_results_adduct_selected', adduct);
 	});
 "))
 

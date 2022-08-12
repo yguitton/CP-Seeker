@@ -149,7 +149,7 @@ shiny::observeEvent(c(project_samples(), input$project), {
 		 choices = choices, selected = selected)
 	shiny::updateSelectInput(session, "files_from_db", label = NULL, 
 		choices = choices, selected = selected)
-	shiny::updateSelectInput(session, "regression_theoretic_files", label = "Samples", 
+	shiny::updateSelectInput(session,"regression_theoretic_files", label = "Samples", 
 	  choices = choices)
 	choices <- project_samples()[which(project_samples()$project == input$project), 
 		c("sample_id", "project_sample")]
@@ -249,7 +249,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
     deconvolution_params()$project == input$project), "chemical_type"]
   choices <- choices[-which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
-    "Standard formula", choices = choices)
+    "Standard Formula", choices = choices)
 })
 
 #' @title deconvolution_params reactive value event
@@ -268,3 +268,37 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
   shiny::updateSelectInput(session, "process_results_standard_adduct", 
     "Adduct", choices = choices)
 })
+
+
+
+#' @title adduct reactive value
+#'
+#' @description
+#' projects reactive value update each time actualize is modified
+#' represent the projects table in database
+#'
+#' @return datafram with columns:
+#' \itemize{
+#'      \item project integer, project id
+#'      \item name string, project name
+#'      \item comments string, project comments
+#'      \item creation date, date of creation
+#'      \item modified date, last date of project modification
+#'      \item param_xcms integer, param_xcms ID
+#'      \item param_pairing integer, param_pairing ID
+#'      \item param_alignment integer, param_alignment ID
+#'      \item param_camera integer, param_camera ID 
+#'}
+#adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db, 
+	#"select distinct adduct, chemical_ion_familly from chemical_ion;"))
+
+#' @title Projects reactive value event
+#'
+#' @description
+#' update picker list of projects when projects reactive value change
+#'
+#' @param projects reactive value, projects table database
+#' @param last_project integer, last project id used
+#shiny::observeEvent(adducts(), shinyWidgets::updatePickerInput(session, 'process_chemical', 
+	#label = NULL, choices = isolate(setNames(adducts()$adduct, adducts()$chemical_ion_familly)), 
+	#selected = last_project))

@@ -41,7 +41,9 @@ output$ui_process_chemical_type <- shiny::renderUI({
         )
     )
 })
-
+output$ui_result <- shiny::renderUI({
+      paste("You chose", input$process_adduct)
+    })
 #' @title Event when choosing instrument
 #'
 #' @description
@@ -265,7 +267,7 @@ shiny::observeEvent(input$process_launch, {
 	if(param$standard_study) {
 	  params_standard <- list(
       project = input$project,
-      chemical_type = "standard",
+      chemical_type = "Standard",
       standard_formula = input$process_standard_formula,
       adduct = input$process_standard_adduct,
       resolution = list(

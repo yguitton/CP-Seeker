@@ -53,6 +53,8 @@ RSQLite::dbExecute(db, 'pragma journal_mode = wal;')
 RSQLite::dbExecute(db, 'pragma auto_vacuum = FULL;')
 
 available_adducts <- RSQLite::dbGetQuery(db, "select distinct adduct from chemical_ion;")
+#ecni_adducts <- RSQLite::dbGetQuery(db, "select distinct adduct from chemical_ion where chemical_ion_familly = "ECNI";")
+#esiapci_adducts <- RSQLite::dbGetQuery(db, "select distinct adduct from chemical_ion where chemical_ion_familly = "ESI/APCI";")
 #available_adducts <- RSQLite::dbGetQuery(db, "Select DISTINCT  ' [ '  || adduct ||' ] '  || '-' as adduct from chemical_ion;")
 utils::setWinProgressBar(pb, 1.00, label = "Starting app")  
 close(pb)

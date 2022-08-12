@@ -385,9 +385,9 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
               project, sample$sample_id[i], x, y)
             data2 <- db_get_query(db, query)
             if(nrow(data2) == 0){
-              data2 <- data.frame(into = NA, intb = NA, Score = NA, weighted_deviation = NA)
+              data2 <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
             }
-            data2 <- cbind(Sample_id = sample$sample_id[i], Formula = y, Adduct = x, data2)
+            data2 <- cbind(sample_id = sample$sample_id[i], formula = y, adduct = x, data2)
           })
         )
       })
@@ -398,12 +398,12 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
     as.numeric(table$into[which(!is.na(table$into))]), format = 'f', big.mark = " ", digits = 0)
   table$intb[which(!is.na(table$intb))] <- formatC(
     as.numeric(table$intb[which(!is.na(table$intb))]), format = 'f', big.mark = " ", digits = 0)
-  table$Score[which(!is.na(table$Score))] <- round(
-    table$Score[which(!is.na(table$Score))], digits = 0)
+  table$score[which(!is.na(table$score))] <- round(
+    table$score[which(!is.na(table$score))], digits = 0)
   table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
     table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
   data.table::setnames(table, c("into", "intb", "weighted_deviation"),
-    c("Total area", "Area Above Baseline", "Deviation (mDa)"))
+    c("Total Area", "Area Above Baseline", "Deviation(mDa)"))
   table
 }
 

@@ -12,7 +12,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 			shinyjs::hidden(
 			  shiny::tags$div(id = "process_results_standard",
 			    shiny::selectInput("process_results_standard_formula",
-			      "Standard formula", choices = c(), width = "20vw")
+			      "Standard Formula", choices = c(), width = "20vw")
 			  )
 			),
 			shiny::tags$div(id = "process_results_adduct",
@@ -70,7 +70,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 			shinycssloaders::withSpinner(
 				plotly::plotlyOutput("process_results_eic")
 			),
-			shiny::actionButton('process_results_reintegration', 'reintegration')
+			#shiny::actionButton('process_results_reintegration', 'reintegration')
 		), 
 		shinydashboard::box(width = 12, 
 			shinycssloaders::withSpinner(
