@@ -109,58 +109,66 @@ shinydashboard::tabItem(tabName = 'process',
       )
     ),
 	#essaie pour faire des choice par opgroup
-	shinyjs::hidden(
-	shiny::tags$div(id = "process_chemical",	
-		 shiny::column(id = "adduct", width = 12, shinydashboard::box(width = 12, title = 'Add adduct(s)',
-			shiny::column(width = 12, 
-				shiny::tags$label('adducts'),
-				shiny::fluidRow(
-					shiny::column(width = 12, 
-						shiny::selectizeInput('files_from_db', label = NULL, 
-							list(#"Unknown coast 1", "Unknown coast 2:"),
-							 'ECNI' = c("M-Cl", "M-HCl", "M-Br","M-HBr"),
-							'ESI/APCI' = c("M-H", "M+Br", "M+Cl","M+Ac-H")), #multiple = TRUE,
-							#choices = c(setNames(choices$project_sample, choices$sample_id)), 
-							#selected = c(setNames(choices$project_sample, choices$sample_id)))
-							#choices = c(setNames(ecni_adducts()$adduct), #list(ecni_adducts), #c("NY", "NJ", "CT"),
-							#choices = c(setnames(esiapci_adducts()$adduct)),multiple = TRUE,##list(esiapci_adducts),#c("WA", "OR", "CA")), multiple = TRUE,
-							#choices = c(),
-							multiple = TRUE, 
-							options = list(searchField = c("text", "optgroup"))
-						)	#options = list(searchField = c("text", "optgroup"))
-					)
-				),
-				#shiny::fluidRow(
-					#shiny::column(width = 12, style = "text-align: center", 
-					#	shinyWidgets::actionBttn('file_associate', 'Valid', 
-					#		style = 'minimal', color = 'primary')
-					#)
+	#shinyjs::hidden(
+		#shiny::tags$div(id = "process_chemical",
+			#shiny::uiOutput("ui_process_adduct")
+		#	 shiny::column(id = "Adduct", width = 12, shinydashboard::box(width = 12, title = 'Add adduct(s)',
+		#		shiny::column(width = 12, 
+		#			shiny::tags$label('adducts'),
+		#			shiny::fluidRow(
+		#				shiny::column(width = 12, 
+		#					shiny::selectInput('adduct', label = NULL, 
+		#					choices = ""
+								#("Unknown coast 1", "Unknown coast 2:",
+								#'ECNI'= 
+								#choices = c(setnames(esiapci_adducts$adduct)),#"M-Cl", "M-HCl", "M-Br","M-HBr"),
+								#'ESI/APCI' = esiapci_adducts),#c("M-H", "M+Br", "M+Cl","M+Ac-H")), #multiple = TRUE,
+								#choices = c(setNames(choices$project_sample, choices$sample_id)), 
+								#selected = c(setNames(choices$project_sample, choices$sample_id)))
+								#choices = c(setNames(ecni_adducts()$adduct), #list(ecni_adducts), #c("NY", "NJ", "CT"),
+								#choices = c(setnames(esiapci_adducts()$adduct)),multiple = TRUE,##list(esiapci_adducts),#c("WA", "OR", "CA")), multiple = TRUE,
+								
+								#options = list(searchField = c("text", "optgroup"))
+				#			multiple = TRUE,	
+							#options = list(searchField = c("text", "optgroup"))
+								#options = list(searchField = c("text", "optgroup"))
+							#),
+							#shiny::uiOutput("ui_process_adduct")
+						#)
+				#	),
+					#shiny::fluidRow(
+						#shiny::column(width = 12, style = "text-align: center", 
+						#	shinyWidgets::actionBttn('file_associate', 'Valid', 
+						#		style = 'minimal', color = 'primary')
+						#)
+						#	)
 				#)
-			)
-		)
-	)
-	)
-	),
+			#)
+		#)
+	
+	#),
 	#code original de l'application avec les commentaires en # comme ceux de sebastien
-    #shinyjs::hidden(
-  		#shiny::tags$div(id = "process_chemical",
-            #shiny::uiOutput("ui_process_chemical_type"),
-    		#bsplus::shinyInput_label_embed(
-    			#shiny::selectInput("process_adduct",
-    				#"Adduct(s)", list("Unknown coast 1", "Unknown coast 2:",
+    shinyjs::hidden(
+  		shiny::tags$div(id = "process_chemical",
+       shiny::uiOutput("ui_process_chemical_type"),
+    	bsplus::shinyInput_label_embed(
+    			shiny::selectInput("process_adduct",
+    				"Adduct(s)", #list("Unknown coast 1", "Unknown coast 2:",
                          #'East Coast' = c("NY", "NJ", "CT"),
                          #'West Coast' = c("WA", "OR", "CA")
-						 #), #multiple = TRUE),   #choices = available_adducts, multiple = TRUE),
-    			#bsplus::bs_embed_tooltip(
-    				#bsplus::shiny_iconlink(),
-    				#placement = 'top',
-    				#title = 'Adducts to use for ion formula generation'
-					#),
+						# ), multiple = TRUE,
+						 #options = list(searchField = c("text", "optgroup"))),
+						 choices = available_adducts, multiple = TRUE),
+    			bsplus::bs_embed_tooltip(
+    				bsplus::shiny_iconlink(),
+    				placement = 'top',
+    				title = 'Adducts to use for ion formula generation'
+					)
 			#shiny::uiOutput("ui_result")
-				#)
-    		#)
-  		#)
-    
+				
+    		)
+  		)
+	),
     shinyjs::hidden(
       shiny::tags$div(id = "process_standard",
         shinyWidgets::switchInput("process_standard_study", "standard study",

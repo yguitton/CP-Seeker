@@ -24,7 +24,47 @@ shiny::observeEvent(input$process_chemical_standard, {
     shinyjs::show("process_standard")
   }
 })
+#shinyServer(function(input, output, session) {
 
+  #updateSelectizeInput(session, 'x2', choices = list(
+    #Eastern = c(`Rhode Island` = 'RI', `New Jersey` = 'NJ'),
+    #Western = c(`Oregon` = 'OR', `Washington` = 'WA'),
+    #Middle = list(Iowa = 'IA')
+ # ), selected = 'IA')
+
+  #output$values <- renderPrint({
+   # list(x1 = input$x1, x2 = input$x2, x3 = input$x3, x4 = input$x4)
+  #})
+#})
+#output$ui_process_adduct <- shiny::renderUI({
+#shiny::column(id = "Adduct", width = 12, shinydashboard::box(width = 12, title = 'Add adduct(s)',
+#			shiny::column(width = 12, 
+#				shiny::tags$label('adducts'),
+#				shiny::fluidRow(
+#					shiny::column(width = 12, 
+	#shiny::selectInput('adduct', label = NULL, choices = get_chemical_families(db), multiple = TRUE	
+						#options = list(searchField = c("text", "optgroup"))
+							#options = list(searchField = c("text", "optgroup"))
+						#)
+						
+					#)
+				#),
+				
+				#)
+			#)
+		#)
+	#params <- list ( 	
+	#			ecni_adducts <- get_chemical_ecni_adduct(db),
+	#			esiapci_adducts <- get_chemical_esi_adduct(db)
+	#)
+	#print(params)
+	#shiny::updateSelectizeInput(session, 'Adduct', 
+			#choices = list(
+						#	Ecni = params$ecni_adducts,
+						#	Esi = params$esiapci_adducts),
+		#	 multiple = TRUE,
+		#	 options = list(`live-search` = TRUE)
+#})
 output$ui_process_chemical_type <- shiny::renderUI({
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(

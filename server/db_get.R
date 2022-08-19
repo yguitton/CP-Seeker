@@ -410,3 +410,9 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
 get_chemical_families <- function(db) {
     db_get_query(db, "SELECT DISTINCT(chemical_type) FROM chemical;")[, 1]
 }
+#get_ecni_adduct <- function(db) {
+#    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_familly = "ECNI";')
+#}
+#get_esi_adduct <- function(db) {
+#    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_familly = "ESI/APCI";')
+#}
