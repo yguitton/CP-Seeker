@@ -65,12 +65,24 @@ shiny::observeEvent(input$process_chemical_standard, {
 		#	 multiple = TRUE,
 		#	 options = list(`live-search` = TRUE)
 #})
+#ecni_adducts <- get_ecni_adduct(db)
+
 output$ui_process_chemical_type <- shiny::renderUI({
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(
             "process_chemical_type",
             "Family",
-            choices = get_chemical_families(db),
+			 list(#"Unknown coast 1", "Unknown coast 2:",
+                         'Chlorinated parafins' = c("PCAs"= "PCAs"),
+                         'Chlorinated olefins' = c("PCOs", "PCdiOs", "PCtriOs"),
+						 'Mixed parafins'= c("C6-PXAs","C7-PXAs","C8-PXAs","C9-PXAs","C10-PXAs","C11-PXAs","C12-PXAs","C13-PXAs","C14-PXAs","C15-PXAs",
+											"C16-PXAs","C17-PXAs","C18-PXAs","C19-PXAs","C20-PXAs","C21-PXAs","C22-PXAs","C23-PXAs","C24-PXAs","C25-PXAs",
+											"C26-PXAs","C27-PXAs","C28-PXAs","C29-PXAs","C30-PXAs","C31-PXAs","C32-PXAs","C33-PXAs","C34-PXAs","C35-PXAs","C36-PXAs"),
+						 'Brominated parafins'= c("PBAS" = "PBAs"),
+						 'Phase I metabolites'= c("oxo-PCAs","COOH-PCAs"),
+						 'Phase I metabolites'= c("GSH-OH-PCAs","SCys-OH-PCAs","Mercapturic-OH-PCAs")
+							), 
+            #choices = get_chemical_families(db),
             multiple = TRUE,
             options = list(`live-search` = TRUE)
         ),

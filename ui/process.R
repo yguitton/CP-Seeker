@@ -153,12 +153,12 @@ shinydashboard::tabItem(tabName = 'process',
        shiny::uiOutput("ui_process_chemical_type"),
     	bsplus::shinyInput_label_embed(
     			shiny::selectInput("process_adduct",
-    				"Adduct(s)", #list("Unknown coast 1", "Unknown coast 2:",
-                         #'East Coast' = c("NY", "NJ", "CT"),
-                         #'West Coast' = c("WA", "OR", "CA")
-						# ), multiple = TRUE,
+    				"Adduct(s)", list(#"Unknown coast 1", "Unknown coast 2:",
+                         'ECNI' = c("M-Cl", "M-HCl", "M-Br","M-HBr"),
+                         'ESI/APCI' = c("M-H", "M+Br", "M+Cl","M+Ac-H")
+							), multiple = TRUE),
 						 #options = list(searchField = c("text", "optgroup"))),
-						 choices = available_adducts, multiple = TRUE),
+						 #choices = available_adducts, multiple = TRUE),
     			bsplus::bs_embed_tooltip(
     				bsplus::shiny_iconlink(),
     				placement = 'top',
