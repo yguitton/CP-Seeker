@@ -24,63 +24,25 @@ shiny::observeEvent(input$process_chemical_standard, {
     shinyjs::show("process_standard")
   }
 })
-#shinyServer(function(input, output, session) {
 
-  #updateSelectizeInput(session, 'x2', choices = list(
-    #Eastern = c(`Rhode Island` = 'RI', `New Jersey` = 'NJ'),
-    #Western = c(`Oregon` = 'OR', `Washington` = 'WA'),
-    #Middle = list(Iowa = 'IA')
- # ), selected = 'IA')
-
-  #output$values <- renderPrint({
-   # list(x1 = input$x1, x2 = input$x2, x3 = input$x3, x4 = input$x4)
-  #})
-#})
-#output$ui_process_adduct <- shiny::renderUI({
-#shiny::column(id = "Adduct", width = 12, shinydashboard::box(width = 12, title = 'Add adduct(s)',
-#			shiny::column(width = 12, 
-#				shiny::tags$label('adducts'),
-#				shiny::fluidRow(
-#					shiny::column(width = 12, 
-	#shiny::selectInput('adduct', label = NULL, choices = get_chemical_families(db), multiple = TRUE	
-						#options = list(searchField = c("text", "optgroup"))
-							#options = list(searchField = c("text", "optgroup"))
-						#)
-						
-					#)
-				#),
-				
-				#)
-			#)
-		#)
-	#params <- list ( 	
-	#			ecni_adducts <- get_chemical_ecni_adduct(db),
-	#			esiapci_adducts <- get_chemical_esi_adduct(db)
-	#)
-	#print(params)
-	#shiny::updateSelectizeInput(session, 'Adduct', 
-			#choices = list(
-						#	Ecni = params$ecni_adducts,
-						#	Esi = params$esiapci_adducts),
-		#	 multiple = TRUE,
-		#	 options = list(`live-search` = TRUE)
-#})
-#ecni_adducts <- get_ecni_adduct(db)
-
+#javais souhaité faire de la programation dynamique qui permet de recupérer directement les vaiables adduct et chemical type avec leurs familles respectives dans la base de données
+#malheureusement je n'ai pas pule faire. néanmoins jai créer deux fonction get_ecni_adduct et get_esi_adduct qui permettent de recuppérer les adduits de chaque famille dans la base de donées.
+# J'ai également  créer les variables ecni_adduct et esi_apci_adduct dans le fichier manager.r  afin les  inclure dans la liste deroulante qui categorise les adduits de faço,n dynamique. 
+#Cependant cela n'a pas fonctionner car le serveur ne prend pas en comte ces variables  en compte.
 output$ui_process_chemical_type <- shiny::renderUI({
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(
             "process_chemical_type",
             "Family",
-			 list(#"Unknown coast 1", "Unknown coast 2:",
+				list(
                          'Chlorinated parafins' = c("PCAs"= "PCAs"),
                          'Chlorinated olefins' = c("PCOs", "PCdiOs", "PCtriOs"),
 						 'Mixed parafins'= c("C6-PXAs","C7-PXAs","C8-PXAs","C9-PXAs","C10-PXAs","C11-PXAs","C12-PXAs","C13-PXAs","C14-PXAs","C15-PXAs",
 											"C16-PXAs","C17-PXAs","C18-PXAs","C19-PXAs","C20-PXAs","C21-PXAs","C22-PXAs","C23-PXAs","C24-PXAs","C25-PXAs",
 											"C26-PXAs","C27-PXAs","C28-PXAs","C29-PXAs","C30-PXAs","C31-PXAs","C32-PXAs","C33-PXAs","C34-PXAs","C35-PXAs","C36-PXAs"),
-						 'Brominated parafins'= c("PBAS" = "PBAs"),
-						 'Phase I metabolites'= c("oxo-PCAs","COOH-PCAs"),
-						 'Phase I metabolites'= c("GSH-OH-PCAs","SCys-OH-PCAs","Mercapturic-OH-PCAs")
+						 'Brominated parafins'= c("PBAs" = "PBAs"),
+						 'Phase I metabolites'= c("OH-PCAs","oxo-PCAs","COOH-PCAs"),
+						 'Phase II metabolites'= c("GSH-OH-PCAs","SCys-OH-PCAs","Mercapturic-OH-PCAs")
 							), 
             #choices = get_chemical_families(db),
             multiple = TRUE,
@@ -94,7 +56,7 @@ output$ui_process_chemical_type <- shiny::renderUI({
     )
 })
 output$ui_result <- shiny::renderUI({
-      paste("You chose", input$process_adduct)
+      paste("You chose",input$process_adduct)
     })
 #' @title Event when choosing instrument
 #'

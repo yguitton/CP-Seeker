@@ -153,7 +153,7 @@ shinydashboard::tabItem(tabName = 'process',
        shiny::uiOutput("ui_process_chemical_type"),
     	bsplus::shinyInput_label_embed(
     			shiny::selectInput("process_adduct",
-    				"Adduct(s)", list(#"Unknown coast 1", "Unknown coast 2:",
+    				"Adduct(s)", list(
                          'ECNI' = c("M-Cl", "M-HCl", "M-Br","M-HBr"),
                          'ESI/APCI' = c("M-H", "M+Br", "M+Cl","M+Ac-H")
 							), multiple = TRUE),

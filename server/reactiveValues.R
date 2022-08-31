@@ -249,7 +249,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
     deconvolution_params()$project == input$project), "chemical_type"]
   choices <- choices[-which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
-    "Standard Formula", choices = choices)
+    "Standard formula", choices = choices)
 })
 
 #' @title deconvolution_params reactive value event

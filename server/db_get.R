@@ -172,9 +172,9 @@ get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0
 	if (is.null(adduct_name)) return(data.frame())
   if (chemical_type == "Standard"){
     query <- sprintf("select adduct, chemical_ion, ion_formula, charge
-		from chemical_ion where adduct == \"%s\" and
+		from chemical_ion,chemical where adduct == \"%s\" and
 		chemical == (select chemical from chemical
-    where formula == \"%s\") ;", adduct_name, formula)
+    where formula == \"%s\");", adduct_name, formula)
   }
   else{
    query <- sprintf("select adduct, chemical_ion, ion_formula, charge
@@ -403,7 +403,7 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
   table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
     table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
   data.table::setnames(table, c("into", "intb", "weighted_deviation"),
-    c("Total Area", "Area Above Baseline", "Deviation(mDa)"))
+    c("total area", "area above baseline", "deviation(mDa)"))
   table
 }
 
@@ -413,6 +413,6 @@ get_chemical_families <- function(db) {
 get_ecni_adduct <- function(db) {
     db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_familly = "ECNI";')
 }
-#get_esi_adduct <- function(db) {
-#    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_familly = "ESI/APCI";')
-#}
+get_esi_adduct <- function(db) {
+   db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_familly = "ESI/APCI";')
+}

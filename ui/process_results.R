@@ -12,7 +12,7 @@ shinydashboard::tabItem(tabName = 'process_results',
 			shinyjs::hidden(
 			  shiny::tags$div(id = "process_results_standard",
 			    shiny::selectInput("process_results_standard_formula",
-			      "Standard Formula", choices = c(), width = "20vw")
+			      "Standard formula", choices = c(), width = "20vw")
 			  )
 			),
 			shiny::tags$div(id = "process_results_adduct",

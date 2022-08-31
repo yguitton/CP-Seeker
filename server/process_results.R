@@ -277,19 +277,23 @@ output$process_results_standard_table <- DT::renderDataTable({
   params <- list(
     project = input$project
   )
-  
+  #print (params$project)
+  #error <- print(params$project_sample)
+  #sweet_alert_error(error)
   tryCatch({
-    if (length(params$project_sample) == 0) custom_stop("invalid", "no 
+   if (length(params$project_sample) == 0)  custom_stop ("invalid", "no 
 			file selected")
-    else if(params$project_sample == "") custom_stop("invalid", "no
+    else 
+	if(params$project_sample == "") custom_stop("invalid", "no
       file selected")
   }, invalid = function(i) get_profile_matrix(db)
   , error = function(e) {
-    print("ERR process_results_table")
-    print(e)
-    sweet_alert_error(e$message)
-    get_profile_matrix(db)
+	print("ERR process_results_table")
+	print(e)
+	sweet_alert_error(e$message)
+	get_profile_matrix(db)
   })
+
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select formula from chemical where chemical_type == "standard");',
@@ -382,6 +386,7 @@ observeEvent(input$process_results_standard_selected, {
     print("ERR process_results_standard_selected")
     print(e)
     sweet_alert_error(e$message)
+  
   })
 })
 
@@ -527,7 +532,8 @@ shiny::observeEvent(input$process_results_download, {
   shiny::showModal(modalDialog(
     shiny::checkboxGroupInput('process_results_download_file', 'Which file(s) ?', 
       choices = c(setNames(choices$project_sample, choices$sample_id)), 
-      selected = c(setNames(choices$project_sample, choices$sample_id))),
+      selected = c(setNames(choices$project_sample, choices$sample_id))
+	),
     shiny::downloadButton('process_results_export', 'Export matrix'),
     easyClose = TRUE
   ))
@@ -548,7 +554,7 @@ output$process_results_export <- shiny::downloadHandler(
       project = input$project
     )
     name <- get_project_name(db, params$project)
-    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },
+    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },#".xlsx"
   content = function(file) {
     params <- list(
       project = input$project,
@@ -564,44 +570,93 @@ output$process_results_export <- shiny::downloadHandler(
     
     pb_max <- length(samples$project_sample)
     shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
-      value = 0, display_pct = TRUE)
+     value = 0, display_pct = TRUE)
     
     wb <- openxlsx::createWorkbook()
-    for(i in 1:length(samples$sample_id)){
-      msg <- sprintf("%s", samples$sample_id[i])
-      print(msg)
-      shinyWidgets::updateProgressBar(session, id = 'pb', 
-        title = msg, value = (i - 1) * 100 / pb_max)
-      
-      l <- 1
-      addWorksheet(wb, samples$sample_id[i])
-      for(chemical in unique(chemicals$chemical_type)){
-        adducts <- unique(chemicals$adduct[which(chemicals$chemical_type == chemical)])
-        for(adduct in adducts){
-          mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
-          mat2 <- sapply(1:3, function(selected){
-            mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
-            first_col <- matrix(dimnames(mat3)[[1]])
-            mat3 <- cbind(first_col, mat3)
-            first_row <- t(matrix(dimnames(mat3)[[2]]))
-            mat3 <- rbind(first_row, mat3)
-            mat_title = params$matrix_type[selected]
-            mat3[1,1] <- mat_title
-            mat3
-          }, simplify = FALSE, USE.NAMES = TRUE)
-          openxlsx::writeData(wb, samples$sample_id[i], paste(chemical, adduct, sep = " - "),
-            startRow = l)
-          openxlsx::writeData(wb, samples$sample_id[i], mat2, startRow = l + 1)
-          l <- l + nrow(mat) + 3
-        }
-      }
-    }
+		for(i in 1:length(samples$sample_id)){
+		  msg <- sprintf("%s", samples$sample_id[i])
+		  print(msg)
+		 shinyWidgets::updateProgressBar(session, id = 'pb', 
+			title = msg, value = (i - 1) * 100 / pb_max)
+		  
+		  #l <- 1
+		  #addWorksheet(wb, "Sequence")#samples$sample_id[i])
+		  addWorksheet(wb=wb, sheetName='Sequence', gridLines=FALSE)
+		  addWorksheet(wb=wb, sheetName='Parameters', gridLines=FALSE)
+		  addWorksheet(wb=wb, sheetName='Standard', gridLines=FALSE)
+		  addWorksheet(wb=wb, sheetName='Label', gridLines=FALSE)
+		  for(chemical in unique(chemicals$chemical_type)){
+			adducts <- unique(chemicals$adduct[which(chemicals$chemical_type == chemical)])
+			for(adduct in adducts){
+			 #first_col <- params$project
+			  #mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
+			  #mat2 <- sapply(1:3, function(selected){ #changement de sapply (1:3) en sapply (1:1) pour afficher uniquement une seule table dans le csv
+				#mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
+				#first_col <- matrix(dimnames(mat3)[[1]])
+				#mat3 <- cbind(first_col, mat3)
+				#first_row <- t(matrix(dimnames(mat3)[[2]]))
+				#mat3 <- rbind(first_row, mat3)
+				#mat_title = params$matrix_type[selected]
+				#mat3[1,1] <- mat_title
+				#mat3
+			  #}, simplify = FALSE, USE.NAMES = TRUE)
+			  name <- get_project_name(db, params$project)
+			  openxlsx::writeData(wb, 1, paste("CP-Seeker"), startRow = 1)#, chemical, adduct, sep = " - "),samples$sample_id[i]
+			  openxlsx::writeData(wb,1 , paste(name),startRow = 2)#, chemical, adduct, sep = " - "),samples$sample_id[i]
+			  openxlsx::writeData(wb,1 , paste("User"),startRow = 4)
+			  openxlsx::writeData(wb, 1, paste("Sequence"),startRow = 5)
+			  openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6)
+			  openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7)
+			  openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8)
+			  
+			  openxlsx::writeData(wb, 1, paste("Sequence"),startRow = 5, startCol = 3)
+			  openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 3)
+			  openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 3)
+			  openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 3)
+			  #openxlsx::writeData(wb, 1 , paste("User"),startRow = 9)
+			  #openxlsx::writeData(wb, samples$sample_id[i], mat2, startRow = l + 1)
+			  
+			  #name <- get_project_name(db, params$project)
+			 openxlsx::writeData(wb, 2, paste("CP-Seeker"), startRow = 1)
+			 openxlsx::writeData(wb, 2, paste(name),startRow = 2)
+			 openxlsx::writeData(wb, 2, paste("User"),startRow = 4)
+			 openxlsx::writeData(wb, 2, paste("Sequence"),startRow = 5)
+			 openxlsx::writeData(wb, 2, paste("Comments"),startRow = 6)
+			 openxlsx::writeData(wb, 2, paste("Creation date"),startRow = 7)
+			 openxlsx::writeData(wb, 2, paste("Last modified"),startRow = 8)
+			 openxlsx::writeData(wb, 2, paste("Sequence"),startRow = 5, startCol = 3)
+			 openxlsx::writeData(wb, 2, paste("Comments"),startRow = 6, startCol = 3)
+			 openxlsx::writeData(wb, 2, paste("Creation date"),startRow = 7, startCol = 3)
+			 openxlsx::writeData(wb, 2, paste("Last modified"),startRow = 8, startCol = 3)   
+			#first_col <- params$project
+			  l <- 1
+			  mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
+			  mat2 <- sapply(c(2,1,3), function(selected){ 
+				mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
+				first_col <- matrix(dimnames(mat3)[[1]])
+				mat3 <- cbind(first_col, mat3)
+				first_row <- t(matrix(dimnames(mat3)[[2]]))
+				mat3 <- rbind(first_row, mat3)
+				mat_title = params$matrix_type[selected]
+				mat3[1,1] <- mat_title
+				mat3
+			  }, simplify = FALSE, USE.NAMES = TRUE)
+			  openxlsx::writeData(wb, 4 , paste("CP-Seeker"),startRow = 1)
+			  openxlsx::writeData(wb, 4, paste(samples$sample_id),startRow = 2)
+			  openxlsx::writeData(wb, 4, paste(chemical, adduct, sep = " - "),startRow = 3)
+			 openxlsx::writeData(wb, 4, mat2, startRow = l + 4)
+			 l <- l + nrow(mat) + 3
+			}
+		  }
+		}
     shinyWidgets::updateProgressBar(session, id = 'pb', value = 100)
     print('done')
     shiny::updateTabsetPanel(session, "tabs", "process_results")
     shinyWidgets::closeSweetAlert(session)
-    
-    openxlsx::saveWorkbook(wb, file)  
+    openxlsx::saveWorkbook(wb, file) 
+	
+	
+
 })
 
 #' @title Launch reintegration
