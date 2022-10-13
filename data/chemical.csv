@@ -22949,5 +22949,5 @@ chemical,C,Cl,H,formula,chemical_type,chemical_familly
 22948,35,1,42,C35H42Br29Cl1,Br29-PXAs,Mixed paraffins
 22949,36,0,45,C36H45Br29,Br29-PXAs,Mixed paraffins
 22950,36,1,44,C36H44Br29Cl1,Br29-PXAs,Mixed paraffins
-22951,0,0,0,C12[2]H18Br6,standard,standard
-22952,0,0,0,[13]C12H18Br6,standard,standard
+22951,0,0,0,C12[2]H18Br6,Standard,Standard
+22952,0,0,0,[13]C12H18Br6,Standard,Standard

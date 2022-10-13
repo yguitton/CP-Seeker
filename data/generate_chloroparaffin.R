@@ -31,7 +31,7 @@ forms <- rbind(
         Cl = 0,
         H = 0,
         formula = c('C12[2]H18Br6', '[13]C12H18Br6'),
-        chemical_type = "standard"
+        chemical_type = "Standard"
     )
 )
 

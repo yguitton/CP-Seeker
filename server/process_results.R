@@ -35,7 +35,7 @@ shiny::observeEvent(input$process_results_study, {
   }
 })
 
-#' @title Profile matix table
+#' @title Profile matrix table
 #'
 #' @description
 #' Display the profile, intensities or deviation matrix of a sample 
@@ -87,7 +87,7 @@ output$process_results_profile <- DT::renderDataTable({
   samples <- get_samples(db, params$project)
   
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_type != "standard");',
+    chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
     params$project)
   chemicals <- db_get_query(db, query)
 
@@ -296,7 +296,7 @@ output$process_results_standard_table <- DT::renderDataTable({
 
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select formula from chemical where chemical_type == "standard");',
+    chemical_type in (select formula from chemical where chemical_type == "Standard");',
       params$project)
   standard <- db_get_query(db, query)
   table_params <- list(
@@ -304,7 +304,7 @@ output$process_results_standard_table <- DT::renderDataTable({
     adduct = unique(standard$adduct)
   )
   table <- get_standard_table(db, params$project, table_params$adduct, table_params$standard)
-  session$sendCustomMessage("standard", jsonlite::toJSON(as.matrix(table)))
+  session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
   as.matrix(table)
   
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
@@ -564,7 +564,7 @@ output$process_results_export <- shiny::downloadHandler(
     samples <- get_samples(db, params$project)
     samples <- samples[which(samples$project_sample == params$file),]
     query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-      chemical_type in (select chemical_type from chemical where chemical_type != "standard");',
+      chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
       params$project)
     chemicals <- db_get_query(db, query)
     
