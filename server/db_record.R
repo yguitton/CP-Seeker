@@ -124,7 +124,6 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 #' 		\item missing_scans integer missing scan parameter
 #' }
 record_deconvolution_params <- function(db, params) {
-  browser()
   if(params$chemical_type == "Standard"){
     data <- paste(sapply(1:length(params$standard_formula), function(i){
       paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
