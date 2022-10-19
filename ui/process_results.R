@@ -1,30 +1,28 @@
 shinydashboard::tabItem(tabName = 'process_results',
 	shinydashboard::box(width = 12, 
 		shiny::tags$div(class = "params-inline", 
-			shiny::selectInput("process_results_file", "Select sample", 
-				choices = c(), multiple = FALSE, width = "20vw"),
 			shiny::selectInput("process_results_study",
-			  "Type", choices = c("Chemical", "Standard"), width = "20vw"),
-			shiny::tags$div(id = "process_results_chemical",
-			  shiny::selectInput("process_results_chemical_type",
-			    "Family", choices = c(), width = "20vw")
-			),
+				"Type", choices = c(), width = "20vw"),
 			shinyjs::hidden(
-			  shiny::tags$div(id = "process_results_standard",
+				# To show when standard choose
+				shiny::tags$div(id = "process_results_standard",
 			    shiny::selectInput("process_results_standard_formula",
 			      "Standard formula", choices = c(), width = "20vw")
-			  )
-			),
-			shiny::tags$div(id = "process_results_adduct",
-			  shiny::selectInput("process_results_chemical_adduct", 
-				  "Adduct", choices = c(), width = "20vw")
-			),
-			shinyjs::hidden(
+			  ),
 			  shiny::tags$div(id = "process_results_adduct2",
 			    shiny::selectInput("process_results_standard_adduct",
 			      "Adduct", choices = c(), width = "20vw")
-			  )
-			),
+			  ),
+			  # To show when chemical family choose
+			  shiny::tags$div(id = "process_result_sample",
+			  	shiny::selectInput("process_results_file", "Select sample", 
+						choices = c(), multiple = FALSE, width = "20vw")
+			  ),
+			  shiny::tags$div(id = "process_results_adduct",
+			  	shiny::selectInput("process_results_chemical_adduct", 
+				  	"Adduct", choices = c(), width = "20vw")
+				)
+			),		
 			shinyWidgets::actionBttn("process_results_matrix", "Show matrix", 
 			  style = "minimal", color = "primary"
       )
@@ -55,15 +53,19 @@ shinydashboard::tabItem(tabName = 'process_results',
 	        class = "fa fa-circle-o", 
 	        style = "color: steelblue"
 	      )
-	  )),
+	  )), 
     shiny::column(width = 12, 
-      shinycssloaders::withSpinner(
-    			DT::dataTableOutput('process_results_profile')
-    	)
+      shinyjs::hidden(
+        shiny::tags$div(id = "process_results_profile_div",
+      	  shinycssloaders::withSpinner(
+    			  DT::dataTableOutput('process_results_profile')
+    		  )
+    	  )
+      )
     ),
 	  shiny::column(width = 12, 
 	    DT::dataTableOutput('process_results_standard_table')
-	  ) 
+	  )
 	), 
 	shiny::column(width = 3, 
 		shinydashboard::box(width = 12, 

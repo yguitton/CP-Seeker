@@ -197,16 +197,29 @@ deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params,
 
 #' @title deconvolution_params reactive value event
 #' 
-#' @description update chemical list when a deconvolution was made
+#' @description update molecule type list when a deconvolution was made
+#' 
+#' @param deconvolution_params reactive value deconvolution_param table database
+#' @param input$project integrer, project id
+shiny::observeEvent(c(deconvolution_params(), input$project), {
+	std <- db_get_query(db, "select formula from chemical where chemical_familly == 'Standard'")$formula
+	choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"]
+	choices <- c(choices[-which(choices %in% std)], "Standard")
+	shiny::updateSelectInput(session, "process_results_study", 
+		"Type", choices = choices, selected = "Standard")
+})
+
+#' @title deconvolution_params reactive value event
+#' 
+#' @description update type list when a deconvolution was made
 #' 
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
-  shiny::updateSelectInput(session, "process_results_chemical_type", 
-    "Family", choices = choices)
+  choices <- c(choices[grep("PXA", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))])
   shiny::updateSelectInput(session, "graphics_chemical",
     "Family", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_family", 
@@ -221,11 +234,11 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 #' 
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
-#' @param input$process_results_chemical_type string, chemical type
-shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_chemical_type), {
+#' @param input$process_results_study string, chemical type
+shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_study), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project & 
-      deconvolution_params()$chemical_type == input$process_results_chemical_type), 
+      deconvolution_params()$chemical_type == input$process_results_study), 
     "adduct"]
   shiny::updateSelectInput(session, "process_results_chemical_adduct", 
     "Adduct", choices = choices)
@@ -248,6 +261,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
   choices <- choices[-which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
+  choices <- choices[-grep("PXAs", choices)]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
 })
