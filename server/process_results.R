@@ -54,7 +54,6 @@ shiny::observeEvent(input$process_results_study, {
 #' 
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
-  browser()
   actualize$deconvolution_params # only to force it reloading after deconvolution
   actualize$results_matrix
   params <- list(
@@ -293,15 +292,14 @@ output$process_results_standard_table <- DT::renderDataTable({
 	sweet_alert_error(e$message)
 	get_profile_matrix(db)
   })
-
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select formula from chemical where chemical_type == "Standard");',
       params$project)
   standard <- db_get_query(db, query)
   table_params <- list(
-    standard = unique(standard$chemical_type),
-    adduct = unique(standard$adduct)
+    standard = unique(standard$chemical_type)[which(unique(standard$chemical_type) == input$process_results_standard_formula)],
+    adduct = unique(standard$adduct)[which(unique(standard$adduct) == input$process_results_standard_adduct)]
   )
   table <- get_standard_table(db, params$project, table_params$adduct, table_params$standard)
   session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
