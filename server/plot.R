@@ -222,7 +222,6 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 		adduct = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL, ppm = 0, 
     mda = 0, resolution = NULL, retention_time = NULL) {
 	p <- plot_empty_chromato("EIC")
-	
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
 	formula_name <-  as.character(chemical_ion$ion_formula)

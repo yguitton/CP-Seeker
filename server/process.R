@@ -30,21 +30,20 @@ shiny::observeEvent(input$process_chemical_standard, {
 # J'ai également  créer les variables ecni_adduct et esi_apci_adduct dans le fichier manager.r  afin les  inclure dans la liste deroulante qui categorise les adduits de faço,n dynamique. 
 #Cependant cela n'a pas fonctionner car le serveur ne prend pas en comte ces variables  en compte.
 output$ui_process_chemical_type <- shiny::renderUI({
+    table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+    splitTable <- split(table$chemical_type, table$chemical_familly)
+    splitTable <- splitTable[splitTable != "Standard"]
+    # Correction to have a family and the name of the chemical even if it is alone in its family
+    for(x in names(splitTable)){
+    	if(length(splitTable[[x]]) < 2){
+    		names(splitTable[[x]]) <- splitTable[[x]]
+    	}
+    }
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(
             "process_chemical_type",
             "Family",
-				list(
-                         'Chlorinated parafins' = c("PCAs"= "PCAs"),
-                         'Chlorinated olefins' = c("PCOs", "PCdiOs", "PCtriOs"),
-						 'Mixed parafins'= c("C6-PXAs","C7-PXAs","C8-PXAs","C9-PXAs","C10-PXAs","C11-PXAs","C12-PXAs","C13-PXAs","C14-PXAs","C15-PXAs",
-											"C16-PXAs","C17-PXAs","C18-PXAs","C19-PXAs","C20-PXAs","C21-PXAs","C22-PXAs","C23-PXAs","C24-PXAs","C25-PXAs",
-											"C26-PXAs","C27-PXAs","C28-PXAs","C29-PXAs","C30-PXAs","C31-PXAs","C32-PXAs","C33-PXAs","C34-PXAs","C35-PXAs","C36-PXAs"),
-						 'Brominated parafins'= c("PBAs" = "PBAs"),
-						 'Phase I metabolites'= c("OH-PCAs","oxo-PCAs","COOH-PCAs"),
-						 'Phase II metabolites'= c("GSH-OH-PCAs","SCys-OH-PCAs","Mercapturic-OH-PCAs")
-							), 
-            #choices = get_chemical_families(db),
+            choices = splitTable,
             multiple = TRUE,
             options = list(`live-search` = TRUE)
         ),
