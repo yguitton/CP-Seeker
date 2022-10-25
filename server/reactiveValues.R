@@ -294,14 +294,14 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 #' @return datafram with columns:
 #' \itemize{
 #'      \item adduct string, adduct name
-#'      \item chemical_ion_familly string, adduct familly name
+#'      \item chemical_ion_family string, adduct familly name
 
 #'}
 #adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db, 
 	#"select distinct adduct from chemical_ion;")
-#ecni_adduct <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as ecni from chemical_ion where chemical_ion_familly = "ECNI";')
+#ecni_adduct <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as ecni from chemical_ion where chemical_ion_family = "ECNI";')
 
-#esiapci_adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as esiapci from chemical_ion where chemical_ion_familly = "ESI/APCI";')
+#esiapci_adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as esiapci from chemical_ion where chemical_ion_family = "ESI/APCI";')
 #' @title adducts reactive value event
 #'
 #' @description
@@ -310,7 +310,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 #' @param adducts reactive value, adducts in database
 #' @param adduct_selected string, adduct selected
 #shiny::observeEvent(adducts(), shinyWidgets::updatePickerInput(session, 'process_chemical', 
-	#label = NULL, choices = isolate(setNames(adducts()$adduct, adducts()$chemical_ion_familly))
+	#label = NULL, choices = isolate(setNames(adducts()$adduct, adducts()$chemical_ion_family))
 	#)
 	#shiny::updateSelectInput(session, "process_chemical", 
     #Adduct", choices = choices)
