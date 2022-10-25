@@ -1,10 +1,13 @@
+# Script to create the chemical_ions file from chemical file
+# Be careful chemical file needs to be in CSV with "," separating columns !!
+
 forms <- read.csv("data/chemical.csv")
 adduct_names <- c('M+Cl', 'M-H', 'M+Hac-H', 'M+Br', 'M-Cl', 'M-HCl', 'M-Br',
                   'M-HBr')
 standard_adduct_names <- c('M+Cl', 'M-H', 'M-D')
 
 get_ions <- function(forms, adduct) {
-    default_df <- data.frame(matrix(, nrow = 0, ncol = 4, dimnames = list(c(),
+  default_df <- data.frame(matrix(, nrow = 0, ncol = 4, dimnames = list(c(),
         c("formula", "adduct", "ion_formula", "charge"))))
     ion_forms <- forms
     if (adduct$Mult > 1) {
@@ -61,9 +64,10 @@ isotopes <- rbind(isotopes_CH, isotopes_not_CH[order(
 
 standard <- forms[which(forms$chemical_type == "Standard"), ]
 forms <- forms[which(forms$chemical_type != "Standard"), ]
-ion_forms <- do.call(rbind, lapply(seq(nrow(adducts)), function(i)
-	get_ions(unique(forms$formula), adducts[i, ])
-))
+ion_forms <- do.call(rbind, lapply(seq(nrow(adducts)), function(i){
+	print(adducts[i,"Name"]);
+  get_ions(unique(forms$formula), adducts[i, ])
+}))
 ion_forms <- merge(forms, ion_forms, by = "formula", all.x = TRUE)
 ion_forms <- ion_forms[, c("ion_formula", "adduct", "charge", "chemical",
                            "chemical_type")]
