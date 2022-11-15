@@ -181,7 +181,7 @@ reduce_matrix <- function(mat, val, na_empty = FALSE){
       if(!is.na(splitted_cell) & splitted_cell != "NA") reducted_mat[i,j] <- as.numeric(splitted_cell)
       else if(is.na(splitted_cell) | splitted_cell == "NA"){
         if(na_empty) reducted_mat[i,j] <- ""
-        else reducted_mat[i,j] <- 0
+        else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
       }
     }
   }
