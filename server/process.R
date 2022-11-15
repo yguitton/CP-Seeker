@@ -251,7 +251,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
 #' @param input$process_standard_formula string, standard formula
 #' @param input$process_standard_adduct string adduct name for standard
-#' @param input$process_retention_time float, standard retention time
+#' @param input$process_standard_retention_time float, standard retention time
 #'
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
