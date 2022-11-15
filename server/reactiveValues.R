@@ -27,6 +27,72 @@ actualize <- shiny::reactiveValues(
 	graphics_histogram = 0
 )
 
+#' @title Matrix reactive value
+#'
+#' @description
+#' matrix reactive value to show results
+#' update when user changes the actual project
+#'
+#' @return list of matrix
+mat <- reactive({  
+  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+    chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
+    input$project)
+  chemicals <- db_get_query(db, query)
+  samples <- get_samples(db, input$project)
+  mat <- list()
+  for(i in 1:length(samples$sample_id)){
+    mat2 <- sapply(samples$sample_id[i], function(project){
+      sapply(unique(chemicals$chemical_type), function(chemical){
+        sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
+          get_profile_matrix(db, samples$project_sample[i], adduct, chemical)
+        }, simplify = FALSE, USE.NAMES = TRUE)
+      }, simplify = FALSE, USE.NAMES = TRUE)
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    mat <- append(mat, mat2)
+  }
+  return(mat)
+})
+
+#' @title Matrix with filters reactive value
+#'
+#' @description
+#' matrix with filters reactive value update each time
+#' "apply" button is actualize
+#'
+#' @return list of matrix
+filter_mat <- reactive({
+	input$process_results_apply # To reload when new value
+	chemicals <- data.frame()
+	for(chem in 1:length(names(mat()[[names(mat())[1]]]))){
+		add <- data.frame(chemical_type = rep(names(mat()[[names(mat())[1]]])[chem], length(names(mat()[[names(mat())[1]]][[chem]]))), adduct = names(mat()[[names(mat())[1]]][[chem]]))
+		chemicals <- rbind(chemicals, add)
+	}
+	temp <- mat()
+	filter_mat <- list()
+	nameForRename <- list()
+	for(i in 1:length(names(temp))){
+		temp2 <- sapply(names(temp)[i], function(project){
+      sapply(unique(chemicals$chemical_type), function(chemical){
+        sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
+          cellToFilter <- which(reduce_matrix(temp[[project]][[chemical]][[adduct]],1) < isolate(input$process_results_score_min), arr.ind=TRUE)
+        	if(nrow(cellToFilter) > 0){
+        		for(c in 1:nrow(cellToFilter)){
+        			keep <- strsplit(temp[[project]][[chemical]][[adduct]][cellToFilter[c,1], cellToFilter[c,2]], "/")[[1]][4]
+        			temp[[project]][[chemical]][[adduct]][cellToFilter[c,1], cellToFilter[c,2]] <- paste0("NA/NA/NA/",keep)
+        		}
+        	}
+        	return(temp[[project]][[chemical]][[adduct]])
+        }, simplify = FALSE, USE.NAMES = TRUE) 
+      }, simplify = FALSE, USE.NAMES = TRUE)
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    filter_mat[[i]] <- temp2[[names(temp)[i]]]
+    nameForRename <- c(nameForRename,names(temp)[i])
+	}
+	names(filter_mat) <- nameForRename
+	return(filter_mat)
+})
+
 share_vars <- shiny::reactiveValues()
 
 #' @title Users reactive value
@@ -260,7 +326,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("PCAs", "PCOs", "PCdiOs"))]
+  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs"))]
   choices <- choices[-grep("PXAs", choices)]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)

@@ -30,9 +30,28 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::show("process_results_score_max")
     shinyjs::show("process_results_apply")
     shinyjs::show("process_results_profile_div")
-    print("show !")
     shinyjs::hide("process_results_standard_table")
   }
+})
+
+# Filter variable to keep filters matrix when one filter was applied
+filters_apply <- reactiveValues(f=FALSE)
+
+# Reactive final matrix to show resultats according to project, file, chemical type, adduct and results selections
+final_mat <- reactive({
+  samples <- get_samples(db, input$project)
+  file <- samples$sample_id[which(samples$project_sample == input$process_results_file)]
+  if(length(file) == 0) file <- samples$sample_id[1]
+  if(input$process_results_selected_matrix == "Normalized intensity (xE6)"){
+    select_choice <- 2
+  }else if(input$process_results_selected_matrix == "Score (%)"){
+    select_choice <- 1
+  }else if(input$process_results_selected_matrix == "Deviation (mDa)"){
+    select_choice <- 3
+  }else{
+    print("ERROR !!")
+  }
+  reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice)
 })
 
 #' @title Profile matrix table
@@ -54,61 +73,12 @@ shiny::observeEvent(input$process_results_study, {
 #' 
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
-  actualize$deconvolution_params # only to force it reloading after deconvolution
   actualize$results_matrix
-  params <- list(
-    project = input$project,
-		project_sample = isolate(input$process_results_file), 
-		chemical_adduct = isolate(input$process_results_chemical_adduct),
-		chemical_type = isolate(input$process_results_study),
-		selected_matrix = isolate(input$process_results_selected_matrix)
-	)
-	tryCatch({
-		if (length(params$project_sample) == 0) custom_stop("invalid", "no 
-			file selected")
-		else if (params$project_sample == "") custom_stop("invalid", "no 
-			file selected")
-		else if (length(params$chemical_adduct) == 0) custom_stop("invalid", "no 
-			adduct selected")
-		else if (params$chemical_adduct == "") custom_stop("invalid", "no 
-			adduct selected")
-	  else if (length(params$chemical_type) == 0) custom_stop("invalid", "no
-	    chemical selected")
-	  else if (params$chemical_type == "") custom_stop("invalid", "no
-	    chemical selected")
-	}, invalid = function(i) get_profile_matrix(db)
-	, error = function(e) {
-		print("ERR process_results_table")
-		print(e)
-		sweet_alert_error(e$message)
-		get_profile_matrix(db)
-	})
-  samples <- get_samples(db, params$project)
-  
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
-    params$project)
-  chemicals <- db_get_query(db, query)
-
-  mat_params <- list(
-    sample_id = samples$sample_id,
-    project_sample = samples$project_sample
-  )
-  mat <- list()
-  for(i in 1:length(mat_params$sample_id)){
-    mat2 <- sapply(mat_params$sample_id[i], function(project){
-	    sapply(unique(chemicals$chemical_type), function(chemical){
-	      sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
-	        get_profile_matrix(db, mat_params$project_sample[i], adduct, chemical)
-	      }, simplify = FALSE, USE.NAMES = TRUE)
-	    }, simplify = FALSE, USE.NAMES = TRUE)
-	  }, simplify = FALSE, USE.NAMES = TRUE)
-    mat <- append(mat, mat2)
-  }
-  session$sendCustomMessage("matrix", jsonlite::toJSON(mat))
-  file <- mat_params$sample_id[which(mat_params$project_sample == params$project_sample)]
-  if(length(file) == 0) file <- mat_params$sample_id[1]
-  mat[[file]][[params$chemical_type]][[params$chemical_adduct]]
+  if(filters_apply$f == FALSE){
+    final_mat()
+  }else{
+    final_filter_mat()
+  } 
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
@@ -125,9 +95,8 @@ initComplete = htmlwidgets::JS("
       if(this.index().column == 0) {
         this.data(this.data());
       }
-      
       else if (this.data() != null){
-        var splitted_cell = this.data().split('/');
+        var splitted_cell = this.data();
         if(splitted_cell[selected_button] == 'NA'){
           this.data('')
         }
@@ -157,109 +126,34 @@ initComplete = htmlwidgets::JS("
 		Shiny.onInputChange('process_results_profile_selected', 
 			{C: C, Cl: Cl});
 	});
-	$('#process_results_matrix').on('click', function(){
-	  var project = $('#process_results_file').text();
-  	var chemical = $('#process_results_study').text();
-  	var adduct = $('#process_results_chemical_adduct').text();
-  	var table = $('#process_results_profile').data('datatable');
-  	var old_table = old_matrix[project][chemical][adduct];
-  	var button = $('#process_results_selected_matrix .active').text(); 
-    var selected_button = button.includes('Score(%)') ? 0 : button.includes('Normalized intensity (xE6)') ? 1 : 2;
-    table.cells().every(function() {
-      var row = this.index().row
-      var col = this.index().column - 1
-      if(this.index().column == 0) {
-        this.data(this.data());
-      }
-      else if (old_table[row][col] == null){
-        this.data('');
-      }
-      else if (old_table[row][col] != null){
-        var splitted_cell = old_table[row][col].split('/');
-        if(splitted_cell[selected_button] == 'NA'){
-          this.data('')
-        }
-        else{
-         if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
-            this.data('');
-          }
-          else{
-            this.data(splitted_cell[selected_button]);
-          }
-        }
-        
-      }
-    });
-    Shiny.setInputValue('process_results_profile', old_matrix);
-	});
-	$('#process_results_selected_matrix').on('click', 'div button', function(){
-	  if ($(this).hasClass('active')) return(null);
-	  $('#process_results_selected_matrix button.active').removeClass('active');
-	  $(this).addClass('active');
-	  var project = $('#process_results_file').text();
-  	var chemical = $('#process_results_study').text();
-  	var adduct = $('#process_results_chemical_adduct').text();
-  	var old_table = old_matrix[project][chemical][adduct]; 
-    var selected_button = $(this).text().includes('Score (%)') ? 0 : $(this).text().includes('Normalized intensity (xE6)') ? 1 : 2;
-    var table = $('#process_results_profile').data('datatable');
-    table.cells().every(function() {
-      var row = this.index().row
-      var col = this.index().column - 1
-      if(this.index().column == 0) {
-        this.data(this.data());
-      }
-      else if (old_table[row][col] == null){
-        this.data('');
-      }
-      else if (old_table[row][col] != null){
-        var splitted_cell = old_table[row][col].split('/');
-        if(splitted_cell[selected_button] == 'NA'){
-          this.data('')
-        }
-        else{
-          if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
-            this.data('');
-          }
-          else{
-            this.data(splitted_cell[selected_button]);
-          }
-        }
-      }
-    });
-    table.columns.adjust()
-    Shiny.setInputValue('process_results_profile', table.data());
-	});
-	$('#process_results_apply').on('click', function(){
-		var project = $('#process_results_file').text();
-  	var chemical = $('#process_results_study').text();
-  	var adduct = $('#process_results_chemical_adduct').text();
-  	var old_table = old_matrix[project][chemical][adduct]; 
-  	var table = $('#process_results_profile').data('datatable');
-  	var mat = $('#process_results_selected_matrix button.active').text()
-  	var selected_button = mat.includes('Score') ? 0 : mat.includes('Normalized intensity (xE6)') ? 1 : 2;
-	  table.cells().every(function() {
-	    var row = this.index().row
-      var col = this.index().column - 1
-      if(this.index().column == 0) {
-        this.data(this.data());
-      }
-      else if (old_table[row][col] == null){
-        this.data('');
-      }
-      if(old_table[row][col] != null){
-        var splitted_cell = old_table[row][col].split('/');
-        if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
-          this.data('');
-        }
-        else if(splitted_cell[selected_button] != 'NA'){
-          this.data(splitted_cell[selected_button])
-        }
-      }
-    });
-    table.columns.adjust()
-    Shiny.setInputValue('process_results_profile', table.data());
-	});
 "))
+
+# Observe event to change the filter checked variable to TRUE when "apply" button clicked
+observeEvent(input$process_results_apply, {
+  print(paste0("Apply filter on score : min = ",input$process_results_score_min," and max = ",input$process_results_score_max))
+  filters_apply$f <- TRUE
+})
+
+# Reactive final matrix to show resultats according to project, file, chemical type, adduct and results selections
+# When a filter has been applied
+final_filter_mat <- reactive({
+  if(filters_apply$f == TRUE){
+    samples <- get_samples(db, input$project)
+    file <- samples$sample_id[which(samples$project_sample == input$process_results_file)]
+    if(length(file) == 0) file <- samples$sample_id[1]
+    if(input$process_results_selected_matrix == "Normalized intensity (xE6)"){
+      select_choice <- 2
+    }else if(input$process_results_selected_matrix == "Score (%)"){
+      select_choice <- 1
+    }else if(input$process_results_selected_matrix == "Deviation (mDa)"){
+      select_choice <- 3
+    }else{
+      print("ERROR !!")
+    }
+  }
+  reduce_matrix(filter_mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice)
+})
+
 
 #' @title Standard table
 #'
@@ -525,16 +419,30 @@ output$process_results_ms <- plotly::renderPlotly({
 #' 
 #' @param input$project integer, project id
 shiny::observeEvent(input$process_results_download, {
-  choices <- project_samples()[which(project_samples()$project == input$project), 
-     c("sample_id", "project_sample")]
-  shiny::showModal(modalDialog(
-    shiny::checkboxGroupInput('process_results_download_file', 'Which file(s) ?', 
-      choices = c(setNames(choices$project_sample, choices$sample_id)), 
-      selected = c(setNames(choices$project_sample, choices$sample_id))
-	),
-    shiny::downloadButton('process_results_export', 'Export matrix'),
-    easyClose = TRUE
-  ))
+  files <- project_samples()[which(
+    project_samples()$project == input$project), "sample_id"]
+  chem_type <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"]
+  std_adduct <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "adduct"]
+  actual_user <- input$user
+  actual_project_informations <- projects()[which(
+    projects()$project == input$project),]
+  for(f in files){
+    cat(paste0("Running for file ",f,"\n"))
+    if("PCAs" %in% chem_type || "PBAs" %in% chem_type){
+      print("There is PCA or PBAs")
+      export_PCA(actual_user, actual_project_informations, file = f)
+    }
+    if(length(grep("PCOs", chem_type)) > 0){
+      print("There is PCOs")
+      export_PCO(actual_user, actual_project_informations, file = f)
+    }
+    if(length(grep("PXA",chem_type)) > 0){
+      print("There is PXAs")
+      export_PXA(actual_user, actual_project_informations, file = f)
+    }
+  }
 })
 
 #' @title Download matrix
@@ -546,7 +454,8 @@ shiny::observeEvent(input$process_results_download, {
 #' @param input$process_results_download_file integer project_sample ID
 #' 
 #' @return xlsx file
-output$process_results_export <- shiny::downloadHandler(
+output$process_results_download <- shiny::downloadHandler(
+  
   filename = function() { 
     params <- list(
       project = input$project
