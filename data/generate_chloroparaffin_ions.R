@@ -2,9 +2,15 @@
 # Be careful chemical file needs to be in CSV with "," separating columns !!
 
 forms <- read.csv("data/chemical.csv")
+# List of wanted adducts
 adduct_names <- c('M+Cl', 'M-H', 'M+Hac-H', 'M+Br', 'M-Cl', 'M-HCl', 'M-Br',
                   'M-HBr')
 standard_adduct_names <- c('M+Cl', 'M-H', 'M-D')
+# List of ECNI or ESI/APCI
+# Please add all adducts from adduct_names and standard_adduct_names here
+ecni_list <- c('M-Cl', 'M-HCl', 'M-Br', 'M-HBr')
+esi_list <- c('M+Cl', 'M-H', 'M+Hac-H', 'M+Br', 'M-D')
+
 
 get_ions <- function(forms, adduct) {
   default_df <- data.frame(matrix(, nrow = 0, ncol = 4, dimnames = list(c(),
@@ -83,4 +89,9 @@ ion_standard <- ion_standard[, c("ion_formula", "adduct", "charge", "chemical",
 ion_forms <- rbind(ion_forms, ion_standard)
 
 ion_forms <- cbind(chemical_ion = seq(nrow(ion_forms)), ion_forms)
+
+ion_family <- rep("", nrow(ion_forms))
+ion_family[which(ion_forms$adduct %in% ecni_list)] <- "ECNI"
+ion_family[which(ion_forms$adduct %in% esi_list)] <- "ESI/APCI"
+ion_forms <- cbind(ion_forms, chemical_ion_family = ion_family)
 write.csv(ion_forms, "data/chemical_ion.csv", row.names = FALSE)
