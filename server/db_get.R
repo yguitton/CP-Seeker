@@ -310,7 +310,6 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #'		each row represent a level of carbon
 get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   chemical_type = NULL, simplify = TRUE, table = FALSE) {
-  browser()
   if(is.null(adduct)){
   	print("adduct null")
   	query <- "select C, Cl from chemical;"
