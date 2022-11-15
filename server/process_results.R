@@ -173,19 +173,6 @@ output$process_results_standard_table <- DT::renderDataTable({
   #print (params$project)
   #error <- print(params$project_sample)
   #sweet_alert_error(error)
-  tryCatch({
-   if (length(params$project_sample) == 0)  custom_stop ("invalid", "no 
-			file selected")
-    else 
-	if(params$project_sample == "") custom_stop("invalid", "no
-      file selected")
-  }, invalid = function(i) get_profile_matrix(db)
-  , error = function(e) {
-	print("ERR process_results_table")
-	print(e)
-	sweet_alert_error(e$message)
-	get_profile_matrix(db)
-  })
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select formula from chemical where chemical_type == "Standard");',

@@ -310,16 +310,72 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #'		each row represent a level of carbon
 get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   chemical_type = NULL, simplify = TRUE, table = FALSE) {
-  query <- if (is.null(adduct)) "select C, Cl from chemical;"
-  else sprintf("select chemical_ion, C, Cl from chemical
+  browser()
+  if(is.null(adduct)){
+  	print("adduct null")
+  	query <- "select C, Cl from chemical;"
+  	chemicals <- db_get_query(db, query)
+  	colY <- range(chemicals[,1])
+  	colX <- range(chemicals[,2])
+  	profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+    	dimnames = list(paste0(colnames(chemicals)[1], colY[1]:colY[2]), paste0(colnames(chemicals)[2], colX[1]:colX[2])))
+  	if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
+  	query <- sprintf("select chemical_ion,
+    	round(score,0) as score, intensities, weighted_deviation from feature where
+			abundance == 100 and project_sample == %s and chemical_ion in (
+				select chemical_ion from chemical_ion
+				where adduct == \"%s\" and chemical_type == \"%s\");",
+    	project_sample, adduct, chemical_type)
+  	data <- db_get_query(db, query)
+  	if (nrow(data) == 0) return(profile_mat)
+  	data <- merge(chemicals, data,
+    	by = "chemical_ion", all.x = TRUE)
+  	if(table) return(data)
+  	ion_forms <- get_chemical_ions(db, adduct, chemical_type)
+  	theoric_patterns <- get_theoric(ion_forms$ion_formula,
+    	ion_forms$charge[1])
+  	mz_range <- get_project_mz_range(db, project_sample)
+  	status <- get_patterns_status(theoric_patterns, mz_range)
+  	if(simplify){
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[1]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[2]] - colX[1] + 1] <- paste(data[row, "score"],
+        	round(data[row, "intensities"]/10**6, digits = 0),
+        	round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        	status[row], sep = "/")
+  	}else{
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[1]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[2]] - colX[1] + 1] <- paste(data[row, "score"],
+        	data[row, "intensities"],
+        	data[row, "weighted_deviation"],
+        	status[row], sep = "/")
+  	}
+  	return(profile_mat)
+  }else if(length(grep("PXAs", chemical_type)) > 0){
+  	print("PXAs find")
+  	query <- sprintf("select chemical_ion, Br, Cl from chemical
 		left join chemical_ion on
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }else if(chemical_type == "PBAs"){
+  	print("PBAs find")
+  	query <- sprintf("select chemical_ion, C, Br from chemical
+		left join chemical_ion on
+		chemical.chemical = chemical_ion.chemical
+		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }else{
+  	print("autres")
+  	query <- sprintf("select chemical_ion, C, Cl from chemical
+		left join chemical_ion on
+		chemical.chemical = chemical_ion.chemical
+		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }
   chemicals <- db_get_query(db, query)
-  C <- range(chemicals$C)
-  Cl <- range(chemicals$Cl)
-  profile_mat <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1,
-    dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
+  colY <- range(chemicals[,2])
+  colX <- range(chemicals[,3])
+  profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+    dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
 
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   query <- sprintf("select chemical_ion,
@@ -341,16 +397,16 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 
   if(simplify){
     for (row in seq(nrow(data))) profile_mat[
-      data[row, "C"] - C[1] + 1,
-      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"],
+      data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
         round(data[row, "intensities"]/10**6, digits = 0),
         round(data[row, "weighted_deviation"]*10**3, digits = 1),
         status[row], sep = "/")
   }
   else {
     for (row in seq(nrow(data))) profile_mat[
-      data[row, "C"] - C[1] + 1,
-      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"],
+      data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
         data[row, "intensities"],
         data[row, "weighted_deviation"],
         status[row], sep = "/")
