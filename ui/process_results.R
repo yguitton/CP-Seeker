@@ -2,30 +2,27 @@ shinydashboard::tabItem(tabName = 'process_results',
 	shinydashboard::box(width = 12, 
 		shiny::tags$div(class = "params-inline", 
 			shiny::selectInput("process_results_study",
-				"Type", choices = c(), width = "20vw"),
+				"Type", choices = c(), width = "30vw"),
 			shinyjs::hidden(
 				# To show when standard choose
 				shiny::tags$div(id = "process_results_standard",
 			    shiny::selectInput("process_results_standard_formula",
-			      "Standard formula", choices = c(), width = "20vw")
+			      "Standard formula", choices = c(), width = "30vw")
 			  ),
 			  shiny::tags$div(id = "process_results_adduct2",
 			    shiny::selectInput("process_results_standard_adduct",
-			      "Adduct", choices = c(), width = "20vw")
+			      "Adduct", choices = c(), width = "30vw")
 			  ),
 			  # To show when chemical family choose
 			  shiny::tags$div(id = "process_result_sample",
 			  	shiny::selectInput("process_results_file", "Select sample", 
-						choices = c(), multiple = FALSE, width = "20vw")
+						choices = c(), multiple = FALSE, width = "30vw")
 			  ),
 			  shiny::tags$div(id = "process_results_adduct",
 			  	shiny::selectInput("process_results_chemical_adduct", 
-				  	"Adduct", choices = c(), width = "20vw")
+				  	"Adduct", choices = c(), width = "30vw")
 				)
-			),		
-			shinyWidgets::actionBttn("process_results_matrix", "Show matrix", 
-			  style = "minimal", color = "primary"
-      )
+			)
 		)
 	),
 	shinydashboard::box(width = 9,
