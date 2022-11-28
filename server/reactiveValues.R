@@ -306,8 +306,14 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
     deconvolution_params()$project == input$project & 
       deconvolution_params()$chemical_type == input$process_results_study), 
     "adduct"]
-  shiny::updateSelectInput(session, "process_results_chemical_adduct", 
-    "Adduct", choices = choices)
+  # That if loop to be able to keep the selected adduct when travel between chemical type
+  if(input$process_results_chemical_adduct != ""){
+  	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    	"Adduct", choices = as.factor(choices), selected = input$process_results_chemical_adduct)
+  }else{
+  	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    	"Adduct", choices = as.factor(choices))
+  }
   shiny::updateSelectInput(session, "graphics_adduct",
     "Adduct", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_adduct",
