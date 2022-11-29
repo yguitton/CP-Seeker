@@ -33,9 +33,6 @@ shinydashboard::tabItem(tabName = 'process_results',
     shiny::column(width = 2,
       shiny::numericInput('process_results_score_min', 'Score min', value = 0)
     ),
-	  shiny::column(width = 2,
-	    shiny::numericInput('process_results_score_max', 'Score max', value = 100)
-	  ),
 	  shiny::column(width = 1, style = 'margin-top: 20px; margin-bottom: 20px;',
 	    shiny::actionButton('process_results_apply', 'Apply')
 	  ),
