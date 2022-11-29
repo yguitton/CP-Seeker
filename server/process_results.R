@@ -15,7 +15,6 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::hide("process_results_selected_matrix")
     shinyjs::hide("process_results_download")
     shinyjs::hide("process_results_score_min")
-    shinyjs::hide("process_results_score_max")
     shinyjs::hide("process_results_apply")
     shinyjs::hide("process_results_profile_div")
     shinyjs::show("process_results_standard_table")
@@ -27,7 +26,6 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::show("process_results_selected_matrix")
     shinyjs::show("process_results_download")
     shinyjs::show("process_results_score_min")
-    shinyjs::show("process_results_score_max")
     shinyjs::show("process_results_apply")
     shinyjs::show("process_results_profile_div")
     shinyjs::hide("process_results_standard_table")
@@ -74,6 +72,7 @@ final_mat <- reactive({
 #' DataTable instance with the profile matrix
 output$process_results_profile <- DT::renderDataTable({
   actualize$results_matrix
+  actualize$deconvolution_params
   if(filters_apply$f == FALSE){
     final_mat()
   }else{
@@ -101,7 +100,7 @@ initComplete = htmlwidgets::JS("
           this.data('')
         }
         else{
-          if(splitted_cell[0] < parseInt(process_results_score_min.value) | splitted_cell[0] > parseInt(process_results_score_max.value)){
+          if(splitted_cell[0] < parseInt(process_results_score_min.value)){
             this.data('')
           }
           else{
@@ -130,7 +129,7 @@ initComplete = htmlwidgets::JS("
 
 # Observe event to change the filter checked variable to TRUE when "apply" button clicked
 observeEvent(input$process_results_apply, {
-  print(paste0("Apply filter on score : min = ",input$process_results_score_min," and max = ",input$process_results_score_max))
+  print(paste0("Apply filter on score : min = ",input$process_results_score_min," and max = 100"))
   filters_apply$f <- TRUE
 })
 
@@ -408,150 +407,44 @@ output$process_results_ms <- plotly::renderPlotly({
 shiny::observeEvent(input$process_results_download, {
   files <- project_samples()[which(
     project_samples()$project == input$project), "sample_id"]
-  chem_type <- deconvolution_params()[which(
-    deconvolution_params()$project == input$project), "chemical_type"]
-  std_adduct <- deconvolution_params()[which(
-    deconvolution_params()$project == input$project), "adduct"]
+  allDeconv <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project),]
+  chem_type <- unique(deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"])
   actual_user <- input$user
   actual_project_informations <- projects()[which(
     projects()$project == input$project),]
-  for(f in files){
-    cat(paste0("Running for file ",f,"\n"))
-    if("PCAs" %in% chem_type || "PBAs" %in% chem_type){
-      print("There is PCA or PBAs")
-      export_PCA(actual_user, actual_project_informations, file = f)
-    }
-    if(length(grep("PCOs", chem_type)) > 0){
-      print("There is PCOs")
-      export_PCO(actual_user, actual_project_informations, file = f)
-    }
-    if(length(grep("PXA",chem_type)) > 0){
-      print("There is PXAs")
-      export_PXA(actual_user, actual_project_informations, file = f)
-    }
+  # total_export <- 0
+  # total_export <- total_export + 
+  #   length(allDeconv[c(grep("PCAs",allDeconv$chemical_type), grep("PBAs",allDeconv$chemical_type)),"adduct"]) +
+  #   length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"])) +
+  #   length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
+  pbValue <- 0
+  shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
+  if(length(c(grep("PCAs",chem_type), grep("PBAs",chem_type))) > 0){
+    adducts <- unique(deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))]), "adduct"])
+    export_PCA(actual_user, chem_type = chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))], 
+      adducts = adducts, actual_project_informations, pbValue)
+    pbValue <- pbValue + length(allDeconv[c(grep("PCAs",allDeconv$chemical_type), grep("PBAs",allDeconv$chemical_type)),"adduct"])
   }
+  if(length(grep("P.*Os", chem_type)) > 0){
+    adducts <- unique(deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[grep("PCOs",chem_type)]), "adduct"])
+    export_PCO(actual_user, chem_type = chem_type[grep("PCOs",chem_type)], 
+      adducts = adducts, actual_project_informations, pbValue)
+    pbValue <- pbValue + length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"]))
+  }
+  if(length(grep("PXAs",chem_type)) > 0){
+    adducts <- unique(deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[grep("PXAs",chem_type)]), "adduct"])
+    export_PXA(actual_user, chem_type = chem_type[grep("PXAs",chem_type)], 
+      adducts = adducts, actual_project_informations, pbValue)
+    pbValue <- pbValue + length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
+  }
+  shinyWidgets::closeSweetAlert(session)
 })
 
-#' @title Download matrix
-#' 
-#' @description 
-#' Download the selected matrix at the xlsx format
-#' 
-#' @param input$project integer project ID
-#' @param input$process_results_download_file integer project_sample ID
-#' 
-#' @return xlsx file
-output$process_results_download <- shiny::downloadHandler(
-  
-  filename = function() { 
-    params <- list(
-      project = input$project
-    )
-    name <- get_project_name(db, params$project)
-    paste("CPSeeker0.1_", name, ".xlsx", sep = "") },#".xlsx"
-  content = function(file) {
-    params <- list(
-      project = input$project,
-      file = input$process_results_download_file,
-      matrix_type = c('Score', 'Intensity', 'Deviation')
-    )
-    samples <- get_samples(db, params$project)
-    samples <- samples[which(samples$project_sample == params$file),]
-    query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-      chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
-      params$project)
-    chemicals <- db_get_query(db, query)
-    
-    pb_max <- length(samples$project_sample)
-    shinyWidgets::progressSweetAlert(session, 'pb', title = 'Initialisation',
-     value = 0, display_pct = TRUE)
-    
-    wb <- openxlsx::createWorkbook()
-		for(i in 1:length(samples$sample_id)){
-		  msg <- sprintf("%s", samples$sample_id[i])
-		  print(msg)
-		 shinyWidgets::updateProgressBar(session, id = 'pb', 
-			title = msg, value = (i - 1) * 100 / pb_max)
-		  
-		  #l <- 1
-		  #addWorksheet(wb, "Sequence")#samples$sample_id[i])
-		  addWorksheet(wb=wb, sheetName='Sequence', gridLines=FALSE)
-		  addWorksheet(wb=wb, sheetName='Parameters', gridLines=FALSE)
-		  addWorksheet(wb=wb, sheetName='Standard', gridLines=FALSE)
-		  addWorksheet(wb=wb, sheetName='Label', gridLines=FALSE)
-		  for(chemical in unique(chemicals$chemical_type)){
-			adducts <- unique(chemicals$adduct[which(chemicals$chemical_type == chemical)])
-			for(adduct in adducts){
-			 #first_col <- params$project
-			  #mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
-			  #mat2 <- sapply(1:3, function(selected){ #changement de sapply (1:3) en sapply (1:1) pour afficher uniquement une seule table dans le csv
-				#mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
-				#first_col <- matrix(dimnames(mat3)[[1]])
-				#mat3 <- cbind(first_col, mat3)
-				#first_row <- t(matrix(dimnames(mat3)[[2]]))
-				#mat3 <- rbind(first_row, mat3)
-				#mat_title = params$matrix_type[selected]
-				#mat3[1,1] <- mat_title
-				#mat3
-			  #}, simplify = FALSE, USE.NAMES = TRUE)
-			  name <- get_project_name(db, params$project)
-			  openxlsx::writeData(wb, 1, paste("CP-Seeker"), startRow = 1)#, chemical, adduct, sep = " - "),samples$sample_id[i]
-			  openxlsx::writeData(wb,1 , paste(name),startRow = 2)#, chemical, adduct, sep = " - "),samples$sample_id[i]
-			  openxlsx::writeData(wb,1 , paste("User"),startRow = 4)
-			  openxlsx::writeData(wb, 1, paste("Sequence"),startRow = 5)
-			  openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6)
-			  openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7)
-			  openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8)
-			  
-			  openxlsx::writeData(wb, 1, paste("Sequence"),startRow = 5, startCol = 3)
-			  openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 3)
-			  openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 3)
-			  openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 3)
-			  #openxlsx::writeData(wb, 1 , paste("User"),startRow = 9)
-			  #openxlsx::writeData(wb, samples$sample_id[i], mat2, startRow = l + 1)
-			  
-			  #name <- get_project_name(db, params$project)
-			 openxlsx::writeData(wb, 2, paste("CP-Seeker"), startRow = 1)
-			 openxlsx::writeData(wb, 2, paste(name),startRow = 2)
-			 openxlsx::writeData(wb, 2, paste("User"),startRow = 4)
-			 openxlsx::writeData(wb, 2, paste("Sequence"),startRow = 5)
-			 openxlsx::writeData(wb, 2, paste("Comments"),startRow = 6)
-			 openxlsx::writeData(wb, 2, paste("Creation date"),startRow = 7)
-			 openxlsx::writeData(wb, 2, paste("Last modified"),startRow = 8)
-			 openxlsx::writeData(wb, 2, paste("Sequence"),startRow = 5, startCol = 3)
-			 openxlsx::writeData(wb, 2, paste("Comments"),startRow = 6, startCol = 3)
-			 openxlsx::writeData(wb, 2, paste("Creation date"),startRow = 7, startCol = 3)
-			 openxlsx::writeData(wb, 2, paste("Last modified"),startRow = 8, startCol = 3)   
-			#first_col <- params$project
-			  l <- 1
-			  mat <- get_profile_matrix(db, samples$project_sample[i], adduct, chemical, simplify = FALSE)
-			  mat2 <- sapply(c(2,1,3), function(selected){ 
-				mat3 <- reduce_matrix(mat, selected, na_empty = TRUE)
-				first_col <- matrix(dimnames(mat3)[[1]])
-				mat3 <- cbind(first_col, mat3)
-				first_row <- t(matrix(dimnames(mat3)[[2]]))
-				mat3 <- rbind(first_row, mat3)
-				mat_title = params$matrix_type[selected]
-				mat3[1,1] <- mat_title
-				mat3
-			  }, simplify = FALSE, USE.NAMES = TRUE)
-			  openxlsx::writeData(wb, 4 , paste("CP-Seeker"),startRow = 1)
-			  openxlsx::writeData(wb, 4, paste(samples$sample_id),startRow = 2)
-			  openxlsx::writeData(wb, 4, paste(chemical, adduct, sep = " - "),startRow = 3)
-			 openxlsx::writeData(wb, 4, mat2, startRow = l + 4)
-			 l <- l + nrow(mat) + 3
-			}
-		  }
-		}
-    shinyWidgets::updateProgressBar(session, id = 'pb', value = 100)
-    print('done')
-    shiny::updateTabsetPanel(session, "tabs", "process_results")
-    shinyWidgets::closeSweetAlert(session)
-    openxlsx::saveWorkbook(wb, file) 
-	
-	
-
-})
 
 #' @title Launch reintegration
 #' 
