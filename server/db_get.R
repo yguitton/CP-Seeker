@@ -175,8 +175,17 @@ get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0
 		from chemical_ion,chemical where adduct == \"%s\" and
 		chemical == (select chemical from chemical
     where formula == \"%s\");", adduct_name, formula)
-  }
-  else{
+  }else if(length(grep("PXA",chemical_type)) > 0){
+  	query <- sprintf("select adduct, chemical_ion, ion_formula, charge
+		from chemical_ion where adduct == \"%s\" and
+		chemical == (select chemical from chemical
+		where Br == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
+  }else if(length(grep("PBA",chemical_type)) > 0){
+  	query <- sprintf("select adduct, chemical_ion, ion_formula, charge
+		from chemical_ion where adduct == \"%s\" and
+		chemical == (select chemical from chemical
+		where C == %s and Br == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
+  }else{
    query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
