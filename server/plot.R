@@ -224,7 +224,7 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 	p <- plot_empty_chromato("EIC")
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
-	formula_name <-  as.character(chemical_ion$ion_formula)
+	formula_name <-  as.character(get_ion_without_adduct(db, chemical_ion$adduct, chemical_ion$ion_formula))
 	adduct_name <- as.character(chemical_ion$adduct)
 	form_adduct <- paste(formula_name,adduct_name ,sep="/")
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
@@ -425,7 +425,7 @@ plot_chemical_MS <- function(db, project_sample = NULL,
 	p <- plot_empty_MS() #yTitle = "Abundance") 
 	chemical_ion <- get_chemical_ion(db, adduct, chemical_type, C, Cl, formula)
 	if (nrow(chemical_ion) == 0) return(p)
-	formula_name <-  as.character(chemical_ion$ion_formula)
+	formula_name <-  as.character(get_ion_without_adduct(db, chemical_ion$adduct, chemical_ion$ion_formula))
 	adduct_name <- as.character(chemical_ion$adduct)
 	form_adduct <- paste(formula_name,adduct_name ,sep="/")
 	#adduct_name <- as.character(chemical_ion$ion_formula)

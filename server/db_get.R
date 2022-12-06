@@ -194,6 +194,31 @@ get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0
 	db_get_query(db, query)
 }
 
+get_ion_without_adduct <- function(db, adduct_name = NULL, ion_formula = NULL){
+	if(is.null(adduct_name)) return(ion_formula)
+	if(is.null(ion_formula)) return("")
+	adduct <- strsplit(adduct_name, "")[[1]]
+	sign <- adduct[2]
+	compound <- paste(adduct[3:length(adduct)], collapse = "")
+	data(isotopes)
+	compound_checked <- check_chemform(isotopes, compound)
+	if(compound_checked$warning == FALSE) compound <- compound_checked$new_formula
+	if(check_ded(compound, ion_formula)){ # check if compound in ion formula
+		if(sign == "+"){
+			print("Retirer le compound")
+			result_compound <- subform(ion_formula, compound)
+		}else if(sign == "-"){
+			print("Ajouter le compound")
+			result_compound <- mergeform(ion_formula, compound)
+		}else{
+			print("Error compound")
+		}
+	}else{
+		print("Compound not in ion_formula")
+	}
+	return(result_compound)
+}
+
 #' @title Get all features
 #'
 #' @descriptition
