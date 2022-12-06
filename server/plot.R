@@ -226,7 +226,7 @@ plot_chemical_EIC <- function(db, project_sample = NULL,
 	if (nrow(chemical_ion) == 0) return(p)
 	formula_name <-  as.character(get_ion_without_adduct(db, chemical_ion$adduct, chemical_ion$ion_formula))
 	adduct_name <- as.character(chemical_ion$adduct)
-	form_adduct <- paste(formula_name,adduct_name ,sep="/")
+	form_adduct <- paste0(formula_name, "_[", adduct_name, "]")
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
 		chemical_ion$charge, resolution)[[1]]
 	if (nrow(theoric_pattern) == 0) return(p)
@@ -427,7 +427,7 @@ plot_chemical_MS <- function(db, project_sample = NULL,
 	if (nrow(chemical_ion) == 0) return(p)
 	formula_name <-  as.character(get_ion_without_adduct(db, chemical_ion$adduct, chemical_ion$ion_formula))
 	adduct_name <- as.character(chemical_ion$adduct)
-	form_adduct <- paste(formula_name,adduct_name ,sep="/")
+	form_adduct <- paste0(formula_name, "_[", adduct_name, "]")
 	#adduct_name <- as.character(chemical_ion$ion_formula)
 	theoric_pattern <- get_theoric(chemical_ion$ion_formula, 
 		chemical_ion$charge, resolution)[[1]]

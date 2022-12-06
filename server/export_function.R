@@ -125,9 +125,9 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         # Mass tolerance
         decParams <- deconvolution_params()[which(chem %in% deconvolution_params()$chemical_type),]
         if(decParams$ppm > 0){
-          openxlsx::writeData(wb, 2, paste0("\u00b1", decParams$ppm," ppm"), startCol = 3, startRow = 5)
+          openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$ppm," ppm"), startCol = 3, startRow = 5)
         }else if(decParams$mda > 0){
-          openxlsx::writeData(wb, 2, paste0("\u00b1", decParams$mda," mDa"), startCol = 3, startRow = 5)
+          openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$mda," mDa"), startCol = 3, startRow = 5)
         }
         if(decParams$instrument == "Orbitrap"){
           openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution/1000,"k@",decParams$resolution_mz), startCol = 3, startRow = 6)
@@ -580,9 +580,9 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
       decParams <- decParams[which(decParams$adduct == adduct),]
       if(unique(decParams$ppm) > 0){
-        openxlsx::writeData(wb, 2, paste0("\u00b1", decParams$ppm," ppm"), startCol = 3, startRow = 5)
+        openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$ppm," ppm"), startCol = 3, startRow = 5)
       }else if(decParams$mda > 0){
-        openxlsx::writeData(wb, 2, paste0("\u00b1", decParams$mda," mDa"), startCol = 3, startRow = 5)
+        openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$mda," mDa"), startCol = 3, startRow = 5)
       }
       if(decParams$instrument == "Orbitrap"){
         openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution/1000,"k@",decParams$resolution_mz), startCol = 3, startRow = 6)
@@ -1203,9 +1203,9 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
       decParams <- decParams[which(decParams$adduct == adduct),]
       if(decParams$ppm > 0){
-        openxlsx::writeData(wb, 2, paste0("\u00b1", unique(decParams$ppm)," ppm"), startCol = 3, startRow = 5)
+        openxlsx::writeData(wb, 2, paste0("\u00b1 ", unique(decParams$ppm)," ppm"), startCol = 3, startRow = 5)
       }else if(decParams$mda > 0){
-        openxlsx::writeData(wb, 2, paste0("\u00b1", unique(decParams$mda)," mDa"), startCol = 3, startRow = 5)
+        openxlsx::writeData(wb, 2, paste0("\u00b1 ", unique(decParams$mda)," mDa"), startCol = 3, startRow = 5)
       }
       if(decParams$instrument == "Orbitrap"){
         openxlsx::writeData(wb, 2, paste0(unique(decParams$instrument)," ",unique(decParams$resolution)/1000,"k@",unique(decParams$resolution_mz)), startCol = 3, startRow = 6)
