@@ -146,9 +146,9 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         allFiles <- project_samples()[which(project_samples()$project == input$project),]
         allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
         if(unique(allSamples$polarity == "negative")){
-          openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]-"), startCol = 3, startRow = 13)
+          openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
         }else if(unique(allSamples$polarity == "positive")){
-          openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]+"), startCol = 3, startRow = 13)
+          openxlsx::writeData(wb, 2, paste0("[",adduct,"]+"), startCol = 3, startRow = 13)
         }else{
           openxlsx::writeData(wb, 2, paste0("Polarity problem"), startCol = 3, startRow = 13)
         }
@@ -208,8 +208,8 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
         openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
         openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
-        openxlsx::writeData(wb, 2, "score of threshold", startCol = 3, startRow = 29) # pas compris
-        openxlsx::writeData(wb, 2, "tolerance in deviation", startCol = 3, startRow = 30) # pas compris
+        openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
+        openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
         setColWidths(wb, 2, cols = 3, widths = 50)
         addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
         addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
@@ -339,7 +339,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
           addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
           openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
-          openxlsx::writeData(wb, sheet, paste("Label"), startRow = 2) # cest quoi le file label ?
+          openxlsx::writeData(wb, sheet, file, startRow = 2) # cest quoi le file label ?
           mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
           if(unique(mySample$polarity == "negative")){
             openxlsx::writeData(wb, sheet, paste0("[",adduct,"]-"), startRow = 3)
@@ -601,9 +601,9 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       allFiles <- project_samples()[which(project_samples()$project == input$project),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
-        openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]-"), startCol = 3, startRow = 13)
+        openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
       }else if(unique(allSamples$polarity == "positive")){
-        openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]+"), startCol = 3, startRow = 13)
+        openxlsx::writeData(wb, 2, paste0("[",adduct,"]+"), startCol = 3, startRow = 13)
       }else{
         openxlsx::writeData(wb, 2, paste0("Polarity problem"), startCol = 3, startRow = 13)
       }
@@ -663,8 +663,8 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
       openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, "score of threshold", startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, "tolerance in deviation", startCol = 3, startRow = 30) # pas compris
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 50)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
@@ -795,7 +795,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
         openxlsx::writeData(wb, sheet, paste("CP-Seeker Version"), startRow = 1)
-        openxlsx::writeData(wb, sheet, paste("Label"), startRow = 2)
+        openxlsx::writeData(wb, sheet, file, startRow = 2)
         mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
         if(unique(mySample$polarity == "negative")){
           openxlsx::writeData(wb, sheet, paste0("[",adduct,"]-"), startRow = 3)
@@ -1247,9 +1247,9 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       allFiles <- project_samples()[which(project_samples()$project == input$project),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
-        openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]-"), startCol = 3, startRow = 13)
+        openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
       }else if(unique(allSamples$polarity == "positive")){
-        openxlsx::writeData(wb, 2, paste0("[ ",adduct," ]+"), startCol = 3, startRow = 13)
+        openxlsx::writeData(wb, 2, paste0("[",adduct,"]+"), startCol = 3, startRow = 13)
       }else{
         openxlsx::writeData(wb, 2, paste0("Polarity problem"), startCol = 3, startRow = 13)
       }
@@ -1309,8 +1309,8 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
       openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, "score of threshold", startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, "tolerance in deviation", startCol = 3, startRow = 30) # pas compris
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 50)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
@@ -1442,7 +1442,7 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
         openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
-        openxlsx::writeData(wb, sheet, paste("Label"), startRow = 2)
+        openxlsx::writeData(wb, sheet, file, startRow = 2)
         mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
         if(unique(mySample$polarity == "negative")){
           openxlsx::writeData(wb, sheet, paste0("[",adduct,"]-"), startRow = 3)
