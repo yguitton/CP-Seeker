@@ -194,7 +194,7 @@ shinydashboard::tabItem(tabName = 'process',
           ),
           bsplus::shinyInput_label_embed(
             shiny::numericInput("process_standard_retention_time_1", "Retention time +/- 2 (min)",
-              value = NA),
+              value = ""),
             bsplus::bs_embed_tooltip(
               bsplus::shiny_iconlink(),
               placement = 'top',
