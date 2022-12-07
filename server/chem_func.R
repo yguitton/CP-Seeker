@@ -172,17 +172,31 @@ get_patterns_status <- function(patterns, mz_range){
 #' @param na_empty boolean if TRUE, na will be replaced by "" else by 0
 #' 
 #' @return matrix, reduced matrix
-reduce_matrix <- function(mat, val, na_empty = FALSE){
+reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE){
   reducted_mat <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), 
     dimnames = list(row.names(mat), colnames(mat)))
   for(i in 1:nrow(mat)){
-    for(j in 1:ncol(mat)){
-      splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
-      if(!is.na(splitted_cell) & splitted_cell != "NA") reducted_mat[i,j] <- as.numeric(splitted_cell)
-      else if(is.na(splitted_cell) | splitted_cell == "NA"){
-        if(na_empty) reducted_mat[i,j] <- ""
-        else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
-      }
+   	for(j in 1:ncol(mat)){
+     	splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
+     	if(!is.na(splitted_cell) & splitted_cell != "NA"){
+     		reducted_mat[i,j] <- as.numeric(splitted_cell)
+     	}else if(is.na(splitted_cell) | splitted_cell == "NA"){
+       	if(na_empty) reducted_mat[i,j] <- ""
+       	else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
+     	}
+   	}
+  }
+  if(greycells){
+  	for(i in 1:nrow(mat)){
+   		for(j in 1:ncol(mat)){
+   			splitted_cell <- unlist(str_split(mat[i,j], "/"))[4]
+   			if(!is.na(splitted_cell) & splitted_cell != "NA"){
+     			reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", splitted_cell)
+     		}else if(is.na(splitted_cell) | splitted_cell == "NA"){
+       		if(na_empty) reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", "")
+       		else reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", NA) # change to NA to not have 0 everywhere
+     		}
+     	}
     }
   }
   return(reducted_mat)

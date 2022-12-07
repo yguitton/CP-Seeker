@@ -49,7 +49,7 @@ final_mat <- reactive({
   }else{
     print("ERROR !!")
   }
-  reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice)
+  reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
 })
 
 #' @title Profile matrix table
@@ -77,7 +77,7 @@ output$process_results_profile <- DT::renderDataTable({
     final_mat()
   }else{
     final_filter_mat()
-  } 
+  }
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
@@ -88,26 +88,26 @@ initComplete = htmlwidgets::JS("
 	  Shiny.onInputChange('process_results_profile_selected', null);
 	  Shiny.onInputChange('process_results_standard_selected', null);
     var table = settings.oInstance.api();
-    var button = $('#process_results_selected_matrix .active').text(); 
-    var selected_button = button.includes('Score(%)') ? 0 : button.includes('Normalized intensity (xE6)') ? 1 : 2;
     table.cells().every(function() {
       if(this.index().column == 0) {
         this.data(this.data());
-      }
-      else if (this.data() != null){
-        var splitted_cell = this.data();
-        if(splitted_cell[selected_button] == 'NA'){
+      }else if (this.data() == null){
+        $(this.node()).addClass('outside');
+      }else if (this.data() != null){
+        var splitted_cell = this.data().split('/');
+        if(splitted_cell[0] == 'NA'){
           this.data('')
+        }else{
+          this.data(splitted_cell[0]);
         }
-        else{
-          if(splitted_cell[0] < parseInt(process_results_score_min.value)){
-            this.data('')
-          }
-          else{
-            this.data(splitted_cell[selected_button]);
-          }
+        if(splitted_cell[1] == 'outside'){
+          $(this.node()).addClass('outside');
+        }else if(splitted_cell[1] == 'half'){
+          $(this.node()).addClass('half');
+        }else if(splitted_cell[1] == 'inside'){
+          $(this.node()).removeClass('outside');
+          $(this.node()).removeClass('half');
         }
-		
       }
     });
     table.columns.adjust()
@@ -150,7 +150,7 @@ final_filter_mat <- reactive({
       print("ERROR !!")
     }
   }
-  reduce_matrix(filter_mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice)
+  reduce_matrix(filter_mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
 })
 
 
