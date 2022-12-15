@@ -427,7 +427,6 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     ion_forms$charge[1])
   mz_range <- get_project_mz_range(db, project_sample)
   status <- get_patterns_status(theoric_patterns, mz_range)
-
   if(simplify){
     for (row in seq(nrow(data))) profile_mat[
       data[row, colnames(chemicals)[2]] - colY[1] + 1,
@@ -444,6 +443,10 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
         data[row, "weighted_deviation"],
         status[row], sep = "/")
   }
+  # It stay NA cells where there is no compounds
+  # Set them by default to NA/NA/NA/inside because next function will switch it to outside
+  profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/inside"
+  profile_mat <- get_type_pattern(colX, colY, chemical_type, profile_mat)
   profile_mat
 }
 

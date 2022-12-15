@@ -162,6 +162,75 @@ get_patterns_status <- function(patterns, mz_range){
   delete
 }
 
+#' @title Get patterns status for each chemical type
+#' 
+#' @description 
+#' Get status of patterns according to the rule for halogen : nb halogen < nb carbon + 3
+#' 
+#' @param colX list, number of compound on X axis
+#' @param colY list, number of compound on Y axis
+#' @param chemical_type character, chemical type 
+#' @param profile_mat datatable, datatable made of each intensities score deviation and status 
+#' 
+#' @return vector, status for each pattern : inside, outside, half
+get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
+	if(length(c(grep("PCAs",chemical_type), grep("PBAs",chemical_type))) > 0){
+    for(col in colX[1]:colX[2]){ # c for each Cl/Br
+    	for(row in colY[1]:colY[2]){ # r for each C
+    		if(col > (row+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  if(length(grep("P.*Os", chemical_type)) > 0){
+    for(col in colX[1]:colX[2]){ # c for each Cl/Br
+    	for(row in colY[1]:colY[2]){ # r for each C
+    		if(col > (row+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  if(length(grep("PXAs",chemical_type)) > 0){
+    carbonNb <- strsplit(chemical_type, "-")[[1]][1]
+    nbC <- as.numeric(strsplit(carbonNb,"C")[[1]][2])
+    print(nbC)
+    for(col in colX[1]:colX[2]){ # c for each Cl
+    	for(row in colY[1]:colY[2]){ # r for each Br
+    		if((col+row) > (nbC+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  profile_mat
+}
+
 #' @title Reduce matrix
 #' 
 #' @description 
