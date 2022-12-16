@@ -162,6 +162,75 @@ get_patterns_status <- function(patterns, mz_range){
   delete
 }
 
+#' @title Get patterns status for each chemical type
+#' 
+#' @description 
+#' Get status of patterns according to the rule for halogen : nb halogen < nb carbon + 3
+#' 
+#' @param colX list, number of compound on X axis
+#' @param colY list, number of compound on Y axis
+#' @param chemical_type character, chemical type 
+#' @param profile_mat datatable, datatable made of each intensities score deviation and status 
+#' 
+#' @return vector, status for each pattern : inside, outside, half
+get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
+	if(length(c(grep("PCAs",chemical_type), grep("PBAs",chemical_type))) > 0){
+    for(col in colX[1]:colX[2]){ # c for each Cl/Br
+    	for(row in colY[1]:colY[2]){ # r for each C
+    		if(col > (row+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  if(length(grep("P.*Os", chemical_type)) > 0){
+    for(col in colX[1]:colX[2]){ # c for each Cl/Br
+    	for(row in colY[1]:colY[2]){ # r for each C
+    		if(col > (row+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  if(length(grep("PXAs",chemical_type)) > 0){
+    carbonNb <- strsplit(chemical_type, "-")[[1]][1]
+    nbC <- as.numeric(strsplit(carbonNb,"C")[[1]][2])
+    print(nbC)
+    for(col in colX[1]:colX[2]){ # c for each Cl
+    	for(row in colY[1]:colY[2]){ # r for each Br
+    		if((col+row) > (nbC+3)){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
+    	}
+    }
+  }
+  profile_mat
+}
+
 #' @title Reduce matrix
 #' 
 #' @description 
@@ -172,17 +241,31 @@ get_patterns_status <- function(patterns, mz_range){
 #' @param na_empty boolean if TRUE, na will be replaced by "" else by 0
 #' 
 #' @return matrix, reduced matrix
-reduce_matrix <- function(mat, val, na_empty = FALSE){
+reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE){
   reducted_mat <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), 
     dimnames = list(row.names(mat), colnames(mat)))
   for(i in 1:nrow(mat)){
-    for(j in 1:ncol(mat)){
-      splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
-      if(!is.na(splitted_cell) & splitted_cell != "NA") reducted_mat[i,j] <- as.numeric(splitted_cell)
-      else if(is.na(splitted_cell) | splitted_cell == "NA"){
-        if(na_empty) reducted_mat[i,j] <- ""
-        else reducted_mat[i,j] <- 0
-      }
+   	for(j in 1:ncol(mat)){
+     	splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
+     	if(!is.na(splitted_cell) & splitted_cell != "NA"){
+     		reducted_mat[i,j] <- as.numeric(splitted_cell)
+     	}else if(is.na(splitted_cell) | splitted_cell == "NA"){
+       	if(na_empty) reducted_mat[i,j] <- ""
+       	else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
+     	}
+   	}
+  }
+  if(greycells){
+  	for(i in 1:nrow(mat)){
+   		for(j in 1:ncol(mat)){
+   			splitted_cell <- unlist(str_split(mat[i,j], "/"))[4]
+   			if(!is.na(splitted_cell) & splitted_cell != "NA"){
+     			reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", splitted_cell)
+     		}else if(is.na(splitted_cell) | splitted_cell == "NA"){
+       		if(na_empty) reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", "")
+       		else reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", NA) # change to NA to not have 0 everywhere
+     		}
+     	}
     }
   }
   return(reducted_mat)
@@ -417,9 +500,9 @@ get_ms <- function(db, sample, rt) {
 get_chloropara_form <- function(adduct_names, chemical_type, min_C = 7, max_C = 36, 
 		min_Cl = 3, max_Cl = 30) {
 	forms <- expand.grid(min_C:max_C, min_Cl:max_Cl)
-	if(chemical_type == "CPs") forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
-	else if(chemical_type == "COs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - forms[, 2])
-	else if(chemical_type == "CdiOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - 2 - forms[, 2])
+	if(chemical_type == "PCAs") forms <- cbind(forms, Var3 = 2 * forms[, 1] + 2 - forms[, 2])
+	else if(chemical_type == "PCOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - forms[, 2])
+	else if(chemical_type == "PCdiOs") forms <- cbind(forms, Var3 = 2 * forms[, 1] - 2 - forms[, 2])
 	forms <- forms[which(forms[, 3] > 0), ]
 	forms <- cbind(forms, Var4 = paste("C", forms[, 1], "Cl", forms[, 2], 
 		"H", forms[, 3], sep = ""))

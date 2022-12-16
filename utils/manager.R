@@ -52,8 +52,11 @@ RSQLite::dbExecute(db, 'pragma cache_size = 1000000;')
 RSQLite::dbExecute(db, 'pragma journal_mode = wal;')
 RSQLite::dbExecute(db, 'pragma auto_vacuum = FULL;')
 
-available_adducts <- RSQLite::dbGetQuery(db, "select distinct adduct from chemical_ion;")
+available_adducts <- RSQLite::dbGetQuery(db, "select distinct adduct from chemical_ion ;")
+ecni_adduct <- RSQLite::dbGetQuery(db, 'select distinct adduct as ecni from chemical_ion where chemical_ion_family = "ECNI";')
 
+#esiapci_adducts <- RSQLite::dbGetQuery(db, 'select distinct adduct as esiapci from chemical_ion where chemical_ion_family = "ESI/APCI";')
+#available_adducts <- RSQLite::dbGetQuery(db, "Select DISTINCT  ' [ '  || adduct ||' ] '  || '-' as adduct from chemical_ion;")
 utils::setWinProgressBar(pb, 1.00, label = "Starting app")  
 close(pb)
 
@@ -71,4 +74,5 @@ print("application terminated normally")
 if (!is.null(db)) DBI::dbDisconnect(db)
 rm(list = ls())
 gc()
+source( "data/update.R")
 # q("no")

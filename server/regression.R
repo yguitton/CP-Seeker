@@ -31,7 +31,7 @@ shiny::observeEvent(input$regression_files_params, {
 #' @param input$regression_theoretic_adduct vector, adduct chosen for theoretic files
 shiny::observeEvent(input$regression_launch, {
   params <- list(
-    project = input$project
+    project = input$Sequence
   )
   params_observed <- list(
     file = input$regression_observed_file,
@@ -260,7 +260,7 @@ output$regression_export <- shiny::downloadHandler(
       project = input$project
     )
     name <- get_project_name(db, params$project)
-    paste("CPSeeker0.1_", name, "_regression.xlsx", sep = "")
+    paste("CP-Seeker_Dev_August2022", name, "_regression.xlsx", sep = "")
   },
   content = function(file){
     mat <- share_vars$regression_values$matrix

@@ -27,6 +27,72 @@ actualize <- shiny::reactiveValues(
 	graphics_histogram = 0
 )
 
+#' @title Matrix reactive value
+#'
+#' @description
+#' matrix reactive value to show results
+#' update when user changes the actual project
+#'
+#' @return list of matrix
+mat <- reactive({  
+  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+    chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
+    input$project)
+  chemicals <- db_get_query(db, query)
+  samples <- get_samples(db, input$project)
+  mat <- list()
+  for(i in 1:length(samples$sample_id)){
+    mat2 <- sapply(samples$sample_id[i], function(project){
+      sapply(unique(chemicals$chemical_type), function(chemical){
+        sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
+          get_profile_matrix(db, samples$project_sample[i], adduct, chemical)
+        }, simplify = FALSE, USE.NAMES = TRUE)
+      }, simplify = FALSE, USE.NAMES = TRUE)
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    mat <- append(mat, mat2)
+  }
+  return(mat)
+})
+
+#' @title Matrix with filters reactive value
+#'
+#' @description
+#' matrix with filters reactive value update each time
+#' "apply" button is actualize
+#'
+#' @return list of matrix
+filter_mat <- reactive({
+	input$process_results_apply # To reload when new value
+	chemicals <- data.frame()
+	for(chem in 1:length(names(mat()[[names(mat())[1]]]))){
+		add <- data.frame(chemical_type = rep(names(mat()[[names(mat())[1]]])[chem], length(names(mat()[[names(mat())[1]]][[chem]]))), adduct = names(mat()[[names(mat())[1]]][[chem]]))
+		chemicals <- rbind(chemicals, add)
+	}
+	temp <- mat()
+	filter_mat <- list()
+	nameForRename <- list()
+	for(i in 1:length(names(temp))){
+		temp2 <- sapply(names(temp)[i], function(project){
+      sapply(unique(chemicals$chemical_type), function(chemical){
+        sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
+          cellToFilter <- which(reduce_matrix(temp[[project]][[chemical]][[adduct]],1) < isolate(input$process_results_score_min), arr.ind=TRUE)
+        	if(nrow(cellToFilter) > 0){
+        		for(c in 1:nrow(cellToFilter)){
+        			keep <- strsplit(temp[[project]][[chemical]][[adduct]][cellToFilter[c,1], cellToFilter[c,2]], "/")[[1]][4]
+        			temp[[project]][[chemical]][[adduct]][cellToFilter[c,1], cellToFilter[c,2]] <- paste0("NA/NA/NA/",keep)
+        		}
+        	}
+        	return(temp[[project]][[chemical]][[adduct]])
+        }, simplify = FALSE, USE.NAMES = TRUE) 
+      }, simplify = FALSE, USE.NAMES = TRUE)
+    }, simplify = FALSE, USE.NAMES = TRUE)
+    filter_mat[[i]] <- temp2[[names(temp)[i]]]
+    nameForRename <- c(nameForRename,names(temp)[i])
+	}
+	names(filter_mat) <- nameForRename
+	return(filter_mat)
+})
+
 share_vars <- shiny::reactiveValues()
 
 #' @title Users reactive value
@@ -145,11 +211,11 @@ shiny::observeEvent(c(project_samples(), input$project), {
 		project_samples()$project == input$project), "project_sample"]
 	names(choices) <- projects()[which(projects()$project %in% 
 		unique(project_samples()$project)), "name"]
-	# shinyWidgets::updatePickerInput(session, "files_in_db", label = NULL, 
-		# choices = choices, selected = selected)
+	shinyWidgets::updatePickerInput(session, "files_in_db", label = NULL, 
+		 choices = choices, selected = selected)
 	shiny::updateSelectInput(session, "files_from_db", label = NULL, 
 		choices = choices, selected = selected)
-	shiny::updateSelectInput(session, "regression_theoretic_files", label = "Samples", 
+	shiny::updateSelectInput(session,"regression_theoretic_files", label = "Samples", 
 	  choices = choices)
 	choices <- project_samples()[which(project_samples()$project == input$project), 
 		c("sample_id", "project_sample")]
@@ -197,16 +263,29 @@ deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params,
 
 #' @title deconvolution_params reactive value event
 #' 
-#' @description update chemical list when a deconvolution was made
+#' @description update molecule type list when a deconvolution was made
+#' 
+#' @param deconvolution_params reactive value deconvolution_param table database
+#' @param input$project integrer, project id
+shiny::observeEvent(c(deconvolution_params(), input$project), {
+	std <- db_get_query(db, "select formula from chemical where chemical_familly == 'Standard'")$formula
+	choices <- deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"]
+	choices <- c(choices[-which(choices %in% std)], "Standard")
+	shiny::updateSelectInput(session, "process_results_study", 
+		"Type", choices = choices, selected = "Standard")
+})
+
+#' @title deconvolution_params reactive value event
+#' 
+#' @description update type list when a deconvolution was made
 #' 
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[which(choices %in% c("CPs", "COs", "CdiOs"))]
-  shiny::updateSelectInput(session, "process_results_chemical_type", 
-    "Family", choices = choices)
+  choices <- c(choices[grep("PXA", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))])
   shiny::updateSelectInput(session, "graphics_chemical",
     "Family", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_family", 
@@ -221,14 +300,20 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 #' 
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
-#' @param input$process_results_chemical_type string, chemical type
-shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_chemical_type), {
+#' @param input$process_results_study string, chemical type
+shiny::observeEvent(c(deconvolution_params(), input$project, input$process_results_study), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project & 
-      deconvolution_params()$chemical_type == input$process_results_chemical_type), 
+      deconvolution_params()$chemical_type == input$process_results_study), 
     "adduct"]
-  shiny::updateSelectInput(session, "process_results_chemical_adduct", 
-    "Adduct", choices = choices)
+  # That if loop to be able to keep the selected adduct when travel between chemical type
+  if(input$process_results_chemical_adduct != ""){
+  	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    	"Adduct", choices = as.factor(choices), selected = input$process_results_chemical_adduct)
+  }else{
+  	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    	"Adduct", choices = as.factor(choices))
+  }
   shiny::updateSelectInput(session, "graphics_adduct",
     "Adduct", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_adduct",
@@ -247,7 +332,8 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("CPs", "COs", "CdiOs"))]
+  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs"))]
+  choices <- choices[-grep("PXAs", choices)]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
 })
@@ -268,3 +354,47 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
   shiny::updateSelectInput(session, "process_results_standard_adduct", 
     "Adduct", choices = choices)
 })
+
+
+
+#' @title adduct reactive value
+#'
+#' @description
+#' adducts reactive value update each time actualize is modified
+#' represent the adduct table in database
+#'
+#' @return datafram with columns:
+#' \itemize{
+#'      \item adduct string, adduct name
+#'      \item chemical_ion_family string, adduct familly name
+
+#'}
+#adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db, 
+	#"select distinct adduct from chemical_ion;")
+#ecni_adduct <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as ecni from chemical_ion where chemical_ion_family = "ECNI";')
+
+#esiapci_adducts <- shiny::eventReactive(actualize$adduct, db_get_query(db,'select distinct adduct as esiapci from chemical_ion where chemical_ion_family = "ESI/APCI";')
+#' @title adducts reactive value event
+#'
+#' @description
+#' update picker list of adducts when adducts reactive value change
+#'
+#' @param adducts reactive value, adducts in database
+#' @param adduct_selected string, adduct selected
+#shiny::observeEvent(adducts(), shinyWidgets::updatePickerInput(session, 'process_chemical', 
+	#label = NULL, choices = isolate(setNames(adducts()$adduct, adducts()$chemical_ion_family))
+	#)
+	#shiny::updateSelectInput(session, "process_chemical", 
+    #Adduct", choices = choices)
+	#)
+
+#' @title adduct reactive value event
+#'
+#' @description
+#' update picker list of project_samples when project_samples reactive value change
+#' and also when user change project
+#'
+#' @param project_samples reactive value, project_samples table database
+#' @param input$project integer, project id
+
+	

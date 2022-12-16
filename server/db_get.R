@@ -136,7 +136,7 @@ get_samples <- function(db, project = NULL, project_samples = NULL) {
 #' }
 get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL, formula = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-  if(chemical_type == "standard") query <- sprintf(
+  if(chemical_type == "Standard") query <- sprintf(
     "select chemical_ion, ion_formula, charge
 		from chemical_ion where adduct in (%s)
 		and chemical in (select chemical from chemical where formula in (%s));",
@@ -170,19 +170,53 @@ get_chemical_ions <- function(db, adduct_name = NULL, chemical_type = NULL, form
 #' }
 get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0, Cl = 0, formula = NULL) {
 	if (is.null(adduct_name)) return(data.frame())
-  if (chemical_type == "standard"){
-    query <- sprintf("select chemical_ion, ion_formula, charge
+  if (chemical_type == "Standard"){
+    query <- sprintf("select adduct, chemical_ion, ion_formula, charge
+		from chemical_ion,chemical where adduct == \"%s\" and
+		chemical == (select chemical from chemical
+    where formula == \"%s\");", adduct_name, formula)
+  }else if(length(grep("PXA",chemical_type)) > 0){
+  	query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
-    where formula == \"%s\") ;", adduct_name, formula)
-  }
-  else{
-   query <- sprintf("select chemical_ion, ion_formula, charge
+		where Br == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
+  }else if(length(grep("PBA",chemical_type)) > 0){
+  	query <- sprintf("select adduct, chemical_ion, ion_formula, charge
+		from chemical_ion where adduct == \"%s\" and
+		chemical == (select chemical from chemical
+		where C == %s and Br == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
+  }else{
+   query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
 		where C == %s and Cl == %s and chemical_type == \"%s\");", adduct_name, C, Cl, chemical_type)
   }
 	db_get_query(db, query)
+}
+
+get_ion_without_adduct <- function(db, adduct_name = NULL, ion_formula = NULL){
+	if(is.null(adduct_name)) return(ion_formula)
+	if(is.null(ion_formula)) return("")
+	adduct <- strsplit(adduct_name, "")[[1]]
+	sign <- adduct[2]
+	compound <- paste(adduct[3:length(adduct)], collapse = "")
+	data(isotopes)
+	compound_checked <- check_chemform(isotopes, compound)
+	if(compound_checked$warning == FALSE) compound <- compound_checked$new_formula
+	if(check_ded(compound, ion_formula)){ # check if compound in ion formula
+		if(sign == "+"){
+			print("Retirer le compound")
+			result_compound <- subform(ion_formula, compound)
+		}else if(sign == "-"){
+			print("Ajouter le compound")
+			result_compound <- mergeform(ion_formula, compound)
+		}else{
+			print("Error compound")
+		}
+	}else{
+		print("Compound not in ion_formula")
+	}
+	return(result_compound)
 }
 
 #' @title Get all features
@@ -310,16 +344,71 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #'		each row represent a level of carbon
 get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   chemical_type = NULL, simplify = TRUE, table = FALSE) {
-  query <- if (is.null(adduct)) "select C, Cl from chemical;"
-  else sprintf("select chemical_ion, C, Cl from chemical
+  if(is.null(adduct)){
+  	print("adduct null")
+  	query <- "select C, Cl from chemical;"
+  	chemicals <- db_get_query(db, query)
+  	colY <- range(chemicals[,1])
+  	colX <- range(chemicals[,2])
+  	profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+    	dimnames = list(paste0(colnames(chemicals)[1], colY[1]:colY[2]), paste0(colnames(chemicals)[2], colX[1]:colX[2])))
+  	if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
+  	query <- sprintf("select chemical_ion,
+    	round(score,0) as score, intensities, weighted_deviation from feature where
+			abundance == 100 and project_sample == %s and chemical_ion in (
+				select chemical_ion from chemical_ion
+				where adduct == \"%s\" and chemical_type == \"%s\");",
+    	project_sample, adduct, chemical_type)
+  	data <- db_get_query(db, query)
+  	if (nrow(data) == 0) return(profile_mat)
+  	data <- merge(chemicals, data,
+    	by = "chemical_ion", all.x = TRUE)
+  	if(table) return(data)
+  	ion_forms <- get_chemical_ions(db, adduct, chemical_type)
+  	theoric_patterns <- get_theoric(ion_forms$ion_formula,
+    	ion_forms$charge[1])
+  	mz_range <- get_project_mz_range(db, project_sample)
+  	status <- get_patterns_status(theoric_patterns, mz_range)
+  	if(simplify){
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[1]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[2]] - colX[1] + 1] <- paste(data[row, "score"],
+        	round(data[row, "intensities"]/10**6, digits = 0),
+        	round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        	status[row], sep = "/")
+  	}else{
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[1]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[2]] - colX[1] + 1] <- paste(data[row, "score"],
+        	data[row, "intensities"],
+        	data[row, "weighted_deviation"],
+        	status[row], sep = "/")
+  	}
+  	return(profile_mat)
+  }else if(length(grep("PXAs", chemical_type)) > 0){
+  	print("PXAs find")
+  	query <- sprintf("select chemical_ion, Br, Cl from chemical
 		left join chemical_ion on
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }else if(chemical_type == "PBAs"){
+  	print("PBAs find")
+  	query <- sprintf("select chemical_ion, C, Br from chemical
+		left join chemical_ion on
+		chemical.chemical = chemical_ion.chemical
+		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }else{
+  	print("autres")
+  	query <- sprintf("select chemical_ion, C, Cl from chemical
+		left join chemical_ion on
+		chemical.chemical = chemical_ion.chemical
+		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+  }
   chemicals <- db_get_query(db, query)
-  C <- range(chemicals$C)
-  Cl <- range(chemicals$Cl)
-  profile_mat <- matrix(NA, nrow = C[2] - C[1] + 1, ncol = Cl[2] - Cl[1] + 1,
-    dimnames = list(paste0("C", C[1]:C[2]), paste0("Cl", Cl[1]:Cl[2])))
+  colY <- range(chemicals[,2])
+  colX <- range(chemicals[,3])
+  profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+    dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
 
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   query <- sprintf("select chemical_ion,
@@ -338,23 +427,26 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     ion_forms$charge[1])
   mz_range <- get_project_mz_range(db, project_sample)
   status <- get_patterns_status(theoric_patterns, mz_range)
-
   if(simplify){
     for (row in seq(nrow(data))) profile_mat[
-      data[row, "C"] - C[1] + 1,
-      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"],
+      data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
         round(data[row, "intensities"]/10**6, digits = 0),
         round(data[row, "weighted_deviation"]*10**3, digits = 1),
         status[row], sep = "/")
   }
   else {
     for (row in seq(nrow(data))) profile_mat[
-      data[row, "C"] - C[1] + 1,
-      data[row, "Cl"] - Cl[1] + 1] <- paste(data[row, "score"],
+      data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
         data[row, "intensities"],
         data[row, "weighted_deviation"],
         status[row], sep = "/")
   }
+  # It stay NA cells where there is no compounds
+  # Set them by default to NA/NA/NA/inside because next function will switch it to outside
+  profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/inside"
+  profile_mat <- get_type_pattern(colX, colY, chemical_type, profile_mat)
   profile_mat
 }
 
@@ -403,10 +495,16 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
   table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
     table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
   data.table::setnames(table, c("into", "intb", "weighted_deviation"),
-    c("total area", "area above baseline", "deviation (mDa, xE-3)"))
+    c("total area", "area above baseline", "deviation(mDa)"))
   table
 }
 
 get_chemical_families <- function(db) {
     db_get_query(db, "SELECT DISTINCT(chemical_type) FROM chemical;")[, 1]
+}
+get_ecni_adduct <- function(db) {
+    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_family = "ECNI";')
+}
+get_esi_adduct <- function(db) {
+   db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_family = "ESI/APCI";')
 }

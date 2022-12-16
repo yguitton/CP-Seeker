@@ -8,29 +8,42 @@
 #' @param input$process_chemical_standard string, choice
 shiny::observeEvent(input$process_chemical_standard, {
   params <- list(choice = input$process_chemical_standard)
-  if (params$choice == "general"){
+  if (params$choice == "General"){
     shinyjs::show("process_general")
     shinyjs::hide("process_chemical")
     shinyjs::hide("process_standard")
   }
-  else if (params$choice == "target analyte") {
+  else if (params$choice == "Target analyte") {
     shinyjs::hide("process_general")
     shinyjs::show("process_chemical")
     shinyjs::hide("process_standard")
   }
-  else if (params$choice == "standard") {
+  else if (params$choice == "Standard") {
     shinyjs::hide("process_general")
     shinyjs::hide("process_chemical")
     shinyjs::show("process_standard")
   }
 })
 
+#javais souhaité faire de la programation dynamique qui permet de recupérer directement les vaiables adduct et chemical type avec leurs familles respectives dans la base de données
+#malheureusement je n'ai pas pule faire. néanmoins jai créer deux fonction get_ecni_adduct et get_esi_adduct qui permettent de recuppérer les adduits de chaque famille dans la base de donées.
+# J'ai également  créer les variables ecni_adduct et esi_apci_adduct dans le fichier manager.r  afin les  inclure dans la liste deroulante qui categorise les adduits de faço,n dynamique. 
+#Cependant cela n'a pas fonctionner car le serveur ne prend pas en comte ces variables  en compte.
 output$ui_process_chemical_type <- shiny::renderUI({
+    table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+    splitTable <- split(table$chemical_type, table$chemical_familly)
+    splitTable <- splitTable[splitTable != "Standard"]
+    # Correction to have a family and the name of the chemical even if it is alone in its family
+    for(x in names(splitTable)){
+    	if(length(splitTable[[x]]) < 2){
+    		names(splitTable[[x]]) <- splitTable[[x]]
+    	}
+    }
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(
             "process_chemical_type",
             "Family",
-            choices = get_chemical_families(db),
+            choices = splitTable,
             multiple = TRUE,
             options = list(`live-search` = TRUE)
         ),
@@ -41,7 +54,9 @@ output$ui_process_chemical_type <- shiny::renderUI({
         )
     )
 })
-
+output$ui_result <- shiny::renderUI({
+      paste("You chose",input$process_adduct)
+    })
 #' @title Event when choosing instrument
 #'
 #' @description
@@ -236,7 +251,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
 #' @param input$process_standard_formula string, standard formula
 #' @param input$process_standard_adduct string adduct name for standard
-#' @param input$process_retention_time float, standard retention time
+#' @param input$process_standard_retention_time float, standard retention time
 #'
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
@@ -265,7 +280,7 @@ shiny::observeEvent(input$process_launch, {
 	if(param$standard_study) {
 	  params_standard <- list(
       project = input$project,
-      chemical_type = "standard",
+      chemical_type = "Standard",
       standard_formula = input$process_standard_formula,
       adduct = input$process_standard_adduct,
       resolution = list(

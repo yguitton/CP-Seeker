@@ -6,9 +6,9 @@ shinydashboard::tabItem(tabName='graphics',
       multiple = FALSE),
     shiny::selectizeInput("graphics_chemical", "Family", choices = c()),
     shiny::selectizeInput("graphics_adduct", "Adduct", choices = c()),
-    shiny::checkboxInput("graphics_histogram", "3D histogram", value = TRUE),
-    shiny::checkboxInput("graphics_surface", "Surface plot", value = TRUE),
-    shiny::checkboxInput("graphics_bubble", "Bubble chart", value = TRUE),
+    shiny::checkboxInput("graphics_histogram", "3D histogram", value = FALSE),
+    shiny::checkboxInput("graphics_surface", "Surface plot", value = FALSE),
+    shiny::checkboxInput("graphics_bubble", "Bubble chart", value = FALSE),
     shinyjs::hidden(
       shiny::tags$div(id = 'graphics_bubble_params', style = "margin-left: 20px",
         bsplus::shinyInput_label_embed(

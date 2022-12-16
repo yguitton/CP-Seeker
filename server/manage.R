@@ -75,11 +75,11 @@ output$manage_table <- DT::renderDataTable({
 	)
 
 	tryCatch(
-	if (params$table_selected == "Project") {
+	if (params$table_selected == "Sequence") {
 		data <- projects()
 		data <- data[order(data$project, decreasing = TRUE), 
 			c("project", "name", "comments", "creation", "modified")]
-		colnames(data) <- c("project", "Name", "Comments", "Creation", "Last modified")
+		colnames(data) <- c("Sequence", "Name", "Comments", "Creation", "Last modified")
 		data
 	} else if (params$table_selected == "Sample") {
 		data <- samples()
@@ -174,7 +174,7 @@ shiny::observeEvent(input$manage_table_rename, {
 	print(params)
 	
 	tryCatch({
-		if (params$table == "Project") rename_project(db, params$id, params$name)
+		if (params$table == "Sequence") rename_project(db, params$id, params$name)
 		else if (params$table == "Sample") rename_project_sample(db, 
 			params$id, params$name)
 		toastr_success(sprintf('renamed to %s', params$name))
@@ -219,7 +219,7 @@ shiny::observeEvent(input$manage_add, {
 #' Delete database entry event
 #' if delete project entries, will also delete all project_samples associated
 #' 
-#' @param input$manage_select string, can be "Sample", "Project"
+#' @param input$manage_select string, can be "Sample", "Sequence"
 #' @param input$manage_table_selected vector of integers or strings, project_sample IDs or project IDs
 shiny::observeEvent(input$manage_delete, {
 	print('############################################################')
@@ -237,7 +237,7 @@ shiny::observeEvent(input$manage_delete, {
 	else if (params$selected[1] == 0) custom_stop('invalid', 
 		"Please select at least a row")
 	
-	if (params$table == 'Project') delete_projects(db, params$selected)
+	if (params$table == "Sequence") delete_projects(db, params$selected)
 	else if (params$table == "Sample") delete_project_samples(db, params$selected)
 	
 	toastr_success("entries deleted")
