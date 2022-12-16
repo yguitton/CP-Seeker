@@ -360,8 +360,12 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
           # Table 1 : area (x 1 M)
           openxlsx::writeData(wb, sheet, "Area (x1,000,000)", startRow = 4, startCol = 3)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 3)
-          table1 <- as.data.frame(reduce_matrix(table, 2, na_empty = FALSE))
-          openxlsx::writeData(wb, sheet, table1, startCol = 3, startRow = 6)
+          addStyle(wb, sheet, topBorderStyle, rows = 7, cols = 2)
+          addStyle(wb, sheet, bottomBorderStyle, rows = 37, cols = 2)
+          for(r in 8:36){
+            addStyle(wb, sheet, middleBorderStyle, rows = r, cols = 2)
+          }
+          addStyle(wb, sheet, bottomBlankBorderStyle, rows = 37, cols = 3:30)
           openxlsx::writeData(wb, sheet, rep(paste0("C",6:36)), startRow = 7, startCol = 2)
           for(i in 3:30){
             if(length(grep("PCAs",chem)) > 0){
@@ -377,18 +381,23 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
               addStyle(wb, sheet, topMiddleBorderStyle, rows = 6, cols = i)
             }
           }
-          addStyle(wb, sheet, topBorderStyle, rows = 7, cols = 2)
-          addStyle(wb, sheet, bottomBorderStyle, rows = 37, cols = 2)
-          for(r in 8:36){
-            addStyle(wb, sheet, middleBorderStyle, rows = r, cols = 2)
+          table1ALL <- as.data.frame(reduce_matrix(table, 2, greycells = TRUE, na_empty = FALSE))
+          table1Values <- as.data.frame(reduce_matrix(table1ALL, 1))
+          openxlsx::writeData(wb, sheet, table1Values, startCol = 3, startRow = 6)
+          table1Status <- as.data.frame(reduce_matrix(table1ALL, 2))
+          for(col in 3:(ncol(table1Status)+2)){
+            for(row in 7:(nrow(table1Status)+6)){
+              if(table1Status[row-6,col-2] == "half"){
+                addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
+              }else if(table1Status[row-6,col-2] == "outside"){
+                addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
+              }
+            }
           }
-          addStyle(wb, sheet, bottomBlankBorderStyle, rows = 37, cols = 3:30)
           
           # Table 2 : score %
           openxlsx::writeData(wb, sheet, "Score (%)", startRow = 4, startCol = 32)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 32)
-          table2 <- as.data.frame(reduce_matrix(table, 1, na_empty = FALSE))
-          openxlsx::writeData(wb, sheet, table2, startCol = 32, startRow = 6)
           openxlsx::writeData(wb, sheet, rep(paste0("C",6:36)), startRow = 7, startCol = 31)
           for(i in 3:30){
             if(length(grep("PCAs",chem)) > 0){
@@ -410,12 +419,23 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, middleBorderStyle, rows = r, cols = 31)
           }
           addStyle(wb, sheet, bottomBlankBorderStyle, rows = 37, cols = 32:59)
-          
+          table2ALL <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
+          table2Values <- as.data.frame(reduce_matrix(table2ALL, 1))
+          openxlsx::writeData(wb, sheet, table2Values, startCol = 32, startRow = 6)
+          table2Status <- as.data.frame(reduce_matrix(table2ALL, 2))        
+          for(col in 32:(ncol(table2Status)+31)){
+            for(row in 7:(nrow(table2Status)+6)){
+              if(table2Status[row-6,col-31] == "half"){
+                addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
+              }else if(table2Status[row-6,col-31] == "outside"){
+                addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
+              }
+            }
+          }
+
           # Table 3 : deviation (mDa) # penser à changer mDa ou ppm selon choix uilisateur !!
           openxlsx::writeData(wb, sheet, "Deviation (mDa)", startRow = 4, startCol = 61)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 61)
-          table3 <- as.data.frame(reduce_matrix(table, 3, na_empty = FALSE))
-          openxlsx::writeData(wb, sheet, table3, startCol = 61, startRow = 6)
           openxlsx::writeData(wb, sheet, rep(paste0("C",6:36)), startRow = 7, startCol = 60)
           for(i in 3:30){
             if(length(grep("PCAs",chem)) > 0){
@@ -439,6 +459,19 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
           addStyle(wb, sheet, bottomBlankBorderStyle, rows = 37, cols = 61:88)
           addStyle(wb, sheet, rightBlankBoderStyle, rows = 7:37, cols = 88)
           addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = 37, cols = 88)
+          table3ALL <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
+          table3Values <- as.data.frame(reduce_matrix(table3ALL, 1))
+          openxlsx::writeData(wb, sheet, table3Values, startCol = 61, startRow = 6)
+          table3Status <- as.data.frame(reduce_matrix(table3ALL, 2))        
+          for(col in 61:(ncol(table3Status)+60)){
+            for(row in 7:(nrow(table3Status)+6)){
+              if(table3Status[row-6,col-60] == "half"){
+                addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
+              }else if(table3Status[row-6,col-60] == "outside"){
+                addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
+              }
+            }
+          }
 
           sheet <- sheet + 1
         }
