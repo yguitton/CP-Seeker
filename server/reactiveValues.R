@@ -271,9 +271,16 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 	std <- db_get_query(db, "select formula from chemical where chemical_familly == 'Standard'")$formula
 	choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-	choices <- c(choices[-which(choices %in% std)], "Standard")
-	shiny::updateSelectInput(session, "process_results_study", 
+	if(std %in% choices){
+		# Delete formulas from standards and add 'Standard'
+		choices <- c(choices[-which(choices %in% std)], "Standard")
+		shiny::updateSelectInput(session, "process_results_study", 
 		"Type", choices = choices, selected = "Standard")
+	}else{
+		# Just keep choices it like it is (without any standards)
+		shiny::updateSelectInput(session, "process_results_study", 
+		"Type", choices = choices)
+	}	
 })
 
 #' @title deconvolution_params reactive value event

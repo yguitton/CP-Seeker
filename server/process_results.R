@@ -181,10 +181,14 @@ output$process_results_standard_table <- DT::renderDataTable({
     standard = unique(standard$chemical_type)[which(unique(standard$chemical_type) == input$process_results_standard_formula)],
     adduct = unique(standard$adduct)[which(unique(standard$adduct) == input$process_results_standard_adduct)]
   )
-  table <- get_standard_table(db, params$project, table_params$adduct, table_params$standard)
-  session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
-  as.matrix(table)
-  
+  if(nrow(standard) > 0){
+    table <- get_standard_table(db, params$project, table_params$adduct, table_params$standard)
+    session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
+    as.matrix(table)
+  }else{
+    table <- as.data.frame("No results")
+    as.data.frame(table)
+  }
 }, selection = "none", server = FALSE, extensions = 'Scroller', 
 class = 'display cell-border compact nowrap', 
 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scoller = TRUE, 
