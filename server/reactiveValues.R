@@ -271,15 +271,29 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 	std <- db_get_query(db, "select formula from chemical where chemical_familly == 'Standard'")$formula
 	choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
+	table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+	table <- table[which(table$chemical_type %in% choices),]
+  splitTable <- split(table$chemical_type, table$chemical_familly)
 	if(std %in% choices){
-		# Delete formulas from standards and add 'Standard'
-		choices <- c(choices[-which(choices %in% std)], "Standard")
+		splitTable <- c(splitTable, Standard = "Standard") # Delete formulas from standards and add 'Standard'
+  	# Correction to have a family and the name of the chemical even if it is alone in its family
+  	for(x in names(splitTable)){
+  		if(length(splitTable[[x]]) < 2){
+  			names(splitTable[[x]]) <- splitTable[[x]]
+  		}
+  	}
 		shiny::updateSelectInput(session, "process_results_study", 
-		"Type", choices = choices, selected = "Standard")
+		"Type", choices = splitTable, selected = "Standard")
 	}else{
 		# Just keep choices it like it is (without any standards)
+		# Correction to have a family and the name of the chemical even if it is alone in its family
+  	for(x in names(splitTable)){
+  		if(length(splitTable[[x]]) < 2){
+  			names(splitTable[[x]]) <- splitTable[[x]]
+  		}
+  	}
 		shiny::updateSelectInput(session, "process_results_study", 
-		"Type", choices = choices)
+		"Type", choices = splitTable)
 	}	
 })
 
