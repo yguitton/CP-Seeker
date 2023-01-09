@@ -174,15 +174,7 @@ shinydashboard::tabItem(tabName = 'process',
         shinyWidgets::switchInput("process_standard_study", "standard study",
           value = FALSE, onLabel = "yes", offLabel = "no"),
         shiny::tags$div(id = "process_standard_params",
-          bsplus::shinyInput_label_embed(
-            shiny::selectInput("process_standard_formula", "Standard formula",
-              choices = c("C12[2]H18Br6", "[13]C12H18Br6"), multiple = TRUE),
-            bsplus::bs_embed_tooltip(
-              bsplus::shiny_iconlink(),
-              placement = 'top',
-              title = "Formula of the standard"
-            )
-          ),
+          shiny::uiOutput("ui_process_standard_formula"),
           bsplus::shinyInput_label_embed(
             shiny::selectInput("process_standard_adduct", "Adduct",
               choices = c("M-H (or M-D)", "M+Cl"), multiple = TRUE),

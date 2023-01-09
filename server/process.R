@@ -54,6 +54,7 @@ output$ui_process_chemical_type <- shiny::renderUI({
         )
     )
 })
+
 output$ui_result <- shiny::renderUI({
       paste("You chose",input$process_adduct)
     })
@@ -104,6 +105,27 @@ shiny::observeEvent(input$process_standard_study, {
     shinyjs::hide("process_standard_params")
   }
 })
+
+# List of all possible standards for deconvolution
+output$ui_process_standard_formula <- shiny::renderUI({
+    table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+    table <- table[which(table$chemical_familly == "Standard"),]
+    std_list <- table$chemical_type
+    bsplus::shinyInput_label_embed(
+        shinyWidgets::pickerInput(
+            "process_standard_formula",
+            "Standard formula",
+            choices = std_list,
+            multiple = TRUE
+        ),
+        bsplus::bs_embed_tooltip(
+          bsplus::shiny_iconlink(),
+          placement = 'top',
+          title = "Formula of the standard"
+        )
+    )
+})
+
 
 #' @title Event when multiple standards are selected
 #'
