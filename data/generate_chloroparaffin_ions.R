@@ -1,5 +1,6 @@
 # Script to create the chemical_ions file from chemical file
 # Be careful chemical file needs to be in CSV with "," separating columns !!
+# AND formula needs number 1 when there is only one atom !!
 
 forms <- read.csv("data/chemical.csv")
 # List of wanted adducts
@@ -15,7 +16,7 @@ esi_list <- c('M+Cl', 'M-H', 'M+Hac-H', 'M+Br', 'M-D')
 get_ions <- function(forms, adduct) {
   default_df <- data.frame(matrix(, nrow = 0, ncol = 4, dimnames = list(c(),
         c("formula", "adduct", "ion_formula", "charge"))))
-    ion_forms <- forms
+  ion_forms <- forms
     if (adduct$Mult > 1) {
         ion_forms <- enviPat::multiform(ion_forms, adduct$Mult)
     }
