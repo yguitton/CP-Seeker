@@ -247,11 +247,13 @@ reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE){
   for(i in 1:nrow(mat)){
    	for(j in 1:ncol(mat)){
      	splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
-     	if(!is.na(splitted_cell) & splitted_cell != "NA"){
+     	if(!is.na(splitted_cell) & splitted_cell != "NA" & !is.na(suppressWarnings(as.numeric(splitted_cell)))){
      		reducted_mat[i,j] <- as.numeric(splitted_cell)
      	}else if(is.na(splitted_cell) | splitted_cell == "NA"){
        	if(na_empty) reducted_mat[i,j] <- ""
        	else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
+     	}else if(is.na(suppressWarnings(as.numeric(splitted_cell)))){
+     		reducted_mat[i,j] <- splitted_cell
      	}
    	}
   }

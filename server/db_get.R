@@ -411,6 +411,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
 
   if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
+  # abundance = 100 means it is a base peak A
   query <- sprintf("select chemical_ion,
     round(score,0) as score, intensities, weighted_deviation from feature where
 		abundance == 100 and project_sample == %s and chemical_ion in (
@@ -418,32 +419,32 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 			where adduct == \"%s\" and chemical_type == \"%s\");",
     project_sample, adduct, chemical_type)
   data <- db_get_query(db, query)
-  if (nrow(data) == 0) return(profile_mat)
-  data <- merge(chemicals, data,
-    by = "chemical_ion", all.x = TRUE)
-  if(table) return(data)
-  ion_forms <- get_chemical_ions(db, adduct, chemical_type)
-  theoric_patterns <- get_theoric(ion_forms$ion_formula,
-    ion_forms$charge[1])
-  mz_range <- get_project_mz_range(db, project_sample)
-  status <- get_patterns_status(theoric_patterns, mz_range)
-  if(simplify){
-    for (row in seq(nrow(data))) profile_mat[
-      data[row, colnames(chemicals)[2]] - colY[1] + 1,
-      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
-        round(data[row, "intensities"]/10**6, digits = 0),
-        round(data[row, "weighted_deviation"]*10**3, digits = 1),
-        status[row], sep = "/")
-  }
-  else {
-    for (row in seq(nrow(data))) profile_mat[
-      data[row, colnames(chemicals)[2]] - colY[1] + 1,
-      data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
-        data[row, "intensities"],
-        data[row, "weighted_deviation"],
-        status[row], sep = "/")
-  }
-  # It stay NA cells where there is no compounds
+  if(nrow(data) > 0){
+  	data <- merge(chemicals, data,
+    	by = "chemical_ion", all.x = TRUE)
+  	if(table) return(data)
+  	ion_forms <- get_chemical_ions(db, adduct, chemical_type)
+  	theoric_patterns <- get_theoric(ion_forms$ion_formula,
+    	ion_forms$charge[1])
+  	mz_range <- get_project_mz_range(db, project_sample)
+  	status <- get_patterns_status(theoric_patterns, mz_range)
+  	if(simplify){
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
+        	round(data[row, "intensities"]/10**6, digits = 0),
+        	round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        	status[row], sep = "/")
+  	}else{
+    	for (row in seq(nrow(data))) profile_mat[
+      	data[row, colnames(chemicals)[2]] - colY[1] + 1,
+      	data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
+        	data[row, "intensities"],
+        	data[row, "weighted_deviation"],
+        	status[row], sep = "/")
+  	}
+  } # else continue normally to have the status on table  
+  # It stays NA cells where there is no compounds
   # Set them by default to NA/NA/NA/inside because next function will switch it to outside
   profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/inside"
   profile_mat <- get_type_pattern(colX, colY, chemical_type, profile_mat)
