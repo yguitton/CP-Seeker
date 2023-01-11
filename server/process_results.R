@@ -174,7 +174,7 @@ output$process_results_standard_table <- DT::renderDataTable({
   #sweet_alert_error(error)
   samples <- get_samples(db, params$project)
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select formula from chemical where chemical_type == "Standard");',
+    chemical_type in (select chemical_type from chemical where chemical_familly == "Standard");',
       params$project)
   standard <- db_get_query(db, query)
   table_params <- list(
@@ -259,8 +259,9 @@ observeEvent(input$process_results_standard_selected, {
   params <- list(
     project_sample = input$process_results_file, 
     adduct = input$process_results_adduct_selected, 
-    chemical_type = input$process_results_study,
-    formula = input$process_results_standard_selected
+    chemical_familly = input$process_results_study,
+    chemical_type = input$process_results_standard_selected,
+    formula = "formula to complete"
   )
   print(params)
   }, invalid = function(i) NULL
@@ -309,7 +310,7 @@ output$process_results_eic <- plotly::renderPlotly({
 	)
 	# retrieve the parameters used for the deconvolution to trace EICs with same parameters
 	# same reasoning for the resolution parameter to simulate isotopic pattern
-	deconvolution_param <- if(study != "Standard") as.list(deconvolution_params()[which(
+  deconvolution_param <- if(study != "Standard") as.list(deconvolution_params()[which(
 		deconvolution_params()$project == params$project & 
 		deconvolution_params()$adduct == params$adduct &
 		deconvolution_params()$chemical_type == params$chemical_type), ])
@@ -323,7 +324,7 @@ output$process_results_eic <- plotly::renderPlotly({
 			resolution = deconvolution_param$resolution, 
 			mz = deconvolution_param$resolution_mz, 
 			index = deconvolution_param$resolution_index), 
-	  retention_time = c(deconvolution_param$retention_time_min, 
+	    retention_time = c(deconvolution_param$retention_time_min, 
 	    deconvolution_param$retention_time_max))
 	htmlwidgets::onRender(p, 
   	"function(el, x) {

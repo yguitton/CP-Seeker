@@ -113,7 +113,7 @@ output$ui_process_standard_formula <- shiny::renderUI({
     std_list <- table$chemical_type
     bsplus::shinyInput_label_embed(
         shinyWidgets::pickerInput(
-            "process_standard_formula",
+            "process_standard_type",
             "Standard formula",
             choices = std_list,
             multiple = TRUE
@@ -271,7 +271,7 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_retention_time_min float, minimum in retention time (in min)
 #' @param input$process_retention_time_max float, minimum in retention time (in min)
 #' @param input$process_missing_scans integer, maximim number of scans to consider them consecutive
-#' @param input$process_standard_formula string, standard formula
+#' @param input$process_standard_type string, standard names
 #' @param input$process_standard_adduct string adduct name for standard
 #' @param input$process_standard_retention_time float, standard retention time
 #'
@@ -303,7 +303,7 @@ shiny::observeEvent(input$process_launch, {
 	  params_standard <- list(
       project = input$project,
       chemical_type = "Standard",
-      standard_formula = input$process_standard_formula,
+      standard_type = input$process_standard_type,
       adduct = input$process_standard_adduct,
       resolution = list(
         instrument = input$process_instrument,
@@ -315,7 +315,7 @@ shiny::observeEvent(input$process_launch, {
       mz_tol_unit = input$process_mz_tol_unit,
       ppm = 0, mda = 0,
       peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
-      retention_time = lapply(1:length(input$process_standard_formula), function(i){
+      retention_time = lapply(1:length(input$process_standard_type), function(i){
         rt <- eval(parse(text = paste("input$process_standard_retention_time_", i, sep = "")))
       }),
       missing_scans = input$process_missing_scans
@@ -400,13 +400,13 @@ shiny::observeEvent(input$process_launch, {
 		check_inputs(inputs, conditions, messages)
 
 		if(param$standard_study){
-		  inputs <- c("process_standard_formula", "process_standard_adduct")
-		  conditions <- c(length(params_standard$standard_formula) > 0,
+		  inputs <- c("process_standard_type", "process_standard_adduct")
+		  conditions <- c(length(params_standard$standard_type) > 0,
 		    length(params_standard$adduct) > 0)
 		  messages <- c("A standard must be chosen", "An adduct for standard must be chosen")
 		  check_inputs(inputs, conditions, messages)
 
-		  inputs <- sapply(1:length(params_standard$standard_formula), function(i){
+		  inputs <- sapply(1:length(params_standard$standard_type), function(i){
 		    paste("process_standard_retention_time_", i, sep = "")
 		  })
 		  conditions <- sapply(1:length(inputs), function(i){
@@ -438,13 +438,17 @@ shiny::observeEvent(input$process_launch, {
 		  if(param$standard_study) params_standard$mda <- params_standard$mz_tol
 		}
 		ion_forms <- get_chemical_ions(db, params$adduct, params$chemical_type)
-		if(param$standard_study) ion_forms_standard <- lapply(
-		  params_standard$standard_formula, function(x){
+		if(param$standard_study){
+			std_list <- db_get_query(db, "select formula, chemical_type, chemical_familly from chemical")[which(
+				db_get_query(db, "select formula, chemical_type, chemical_familly from chemical")$chemical_familly == "Standard"),]
+			formula_list <- std_list[which(std_list$chemical_type %in% params_standard$standard_type), "formula"]
+			ion_forms_standard <- lapply(
+		  	formula_list, function(x){
 		    do.call(rbind, lapply(params_standard$adduct, function(adduct){
-		        get_chemical_ions(db, adduct, params_standard$chemical_type,
-		          formula = x)
+		        get_chemical_ions(db, adduct, params_standard$chemical_type, formula = x)
 		    }))
-		})
+			})
+		} 
 
   	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded
   		with this adduct")
@@ -466,7 +470,6 @@ shiny::observeEvent(input$process_launch, {
 		        cbind(y, get_mass_range(y[, "mz"], params$ppm, params$mda))
 		      })
 		  })
-
 		peaks <- NULL
   	peaks_standard <- NULL
   	for (i in 1:length(params$samples)) {
@@ -523,7 +526,7 @@ shiny::observeEvent(input$process_launch, {
 
     if(param$standard_study){
       delete_features(db, params$project_samples, params_standard$adduct, params_standard$chemical_type)
-  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$standard_formula)
+  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$standard_type)
       if (length(peaks_standard) > 0) {
     	  record_deconvolution_params(db, params_standard)
     	  record_features(db, peaks_standard)
