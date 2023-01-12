@@ -69,8 +69,8 @@ isotopes_not_CH <- isotopes[-elts_CH, ]
 isotopes <- rbind(isotopes_CH, isotopes_not_CH[order(
 	isotopes_not_CH$element), ])
 
-standard <- forms[which(forms$chemical_type == "Standard"), ]
-forms <- forms[which(forms$chemical_type != "Standard"), ]
+standard <- forms[which(forms$chemical_familly == "Standard"), ]
+forms <- forms[which(forms$chemical_familly != "Standard"), ]
 ion_forms <- do.call(rbind, lapply(seq(nrow(adducts)), function(i){
 	print(adducts[i,"Name"]);
   get_ions(unique(forms$formula), adducts[i, ])

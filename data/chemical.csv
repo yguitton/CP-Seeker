@@ -17804,23 +17804,23 @@ chemical,C,Br,Cl,formula,chemical_type,chemical_familly
 17803,36,0,28,C41H53Cl28NO4S1,Mercapturic-OH-PCAs,Phase II metabolites
 17804,36,0,29,C41H52Cl29NO4S1,Mercapturic-OH-PCAs,Phase II metabolites
 17805,36,0,30,C41H51Cl30NO4S1,Mercapturic-OH-PCAs,Phase II metabolites
-17806,0,0,0,[13]C3C8H18Cl6,Standard,Standard
-17807,0,0,0,[13]C3C9H20Cl6,Standard,Standard
-17808,0,0,0,[13]C3C10H22Cl6,Standard,Standard
-17809,0,0,0,[13]C3C11H24Cl6,Standard,Standard
-17810,0,0,0,[13]C3C12H26Cl6,Standard,Standard
-17811,0,0,0,[13]C3C13H28Cl6,Standard,Standard
-17812,0,0,0,[13]C3C18H36Cl8,Standard,Standard
-17813,0,0,0,[13]C10H16Cl6,Standard,Standard
-17814,0,0,0,C12[2]H18Br6,Standard,Standard
-17815,0,0,0,[13]C12H18Br6,Standard,Standard
-17816,0,0,0,[13]C6H6Cl6,Standard,Standard
-17817,0,0,0,[13]C12H5Cl5,Standard,Standard
-17818,0,0,0,[13]C6Cl6,Standard,Standard
-17819,0,0,0,[13]C8C2Cl12,Standard,Standard
-17820,0,0,0,[13]C10H6Cl8,Standard,Standard
-17821,0,0,0,[13]C10C8H12Cl12,Standard,Standard
-17822,0,0,0,[13]C10C4H4Cl12O1,Standard,Standard
-17823,0,0,0,[13]C12H4Br6,Standard,Standard
-17824,0,0,0,C13H6Br6O2,Standard,Standard
-17825,0,0,0,C13H7Br5O2,Standard,Standard
+17806,0,0,0,[13]C3C8H18Cl6,13C3-C11Cl6-PCA,Standard
+17807,0,0,0,[13]C3C9H20Cl6,13C3-C12Cl6-PCA,Standard
+17808,0,0,0,[13]C3C10H22Cl6,13C3-C13Cl6-PCA,Standard
+17809,0,0,0,[13]C3C11H24Cl6,13C3-C14Cl6-PCA,Standard
+17810,0,0,0,[13]C3C12H26Cl6,13C3-C15Cl6-PCA,Standard
+17811,0,0,0,[13]C3C13H28Cl6,13C3-C16Cl6-PCA,Standard
+17812,0,0,0,[13]C3C18H36Cl8,13C3-C21Cl8-PCA,Standard
+17813,0,0,0,[13]C10H16Cl6,13C10-C10Cl6-PCA,Standard
+17814,0,0,0,C12[2]H18Br6,2H18-HBCDD,Standard
+17815,0,0,0,[13]C12H18Br6,13C12-HBCDD,Standard
+17816,0,0,0,[13]C6H6Cl6,13C6-HCH,Standard
+17817,0,0,0,[13]C12H5Cl5,13C12-pentaCB,Standard
+17818,0,0,0,[13]C6Cl6,13C6-HCB,Standard
+17819,0,0,0,[13]C8C2Cl12,13C8-Mirex,Standard
+17820,0,0,0,[13]C10H6Cl8,13C10-Chlordane,Standard
+17821,0,0,0,[13]C10C8H12Cl12,13C10-Dechlorane_Plus,Standard
+17822,0,0,0,[13]C10C4H4Cl12O1,13C10-Dechlorane_602,Standard
+17823,0,0,0,[13]C12H4Br6,13C12-Br6-PBDE,Standard
+17824,0,0,0,C13H6Br6O2,MeO-Br6-PBDE,Standard
+17825,0,0,0,C13H7Br5O2,MeO-Br5-PBDE,Standard

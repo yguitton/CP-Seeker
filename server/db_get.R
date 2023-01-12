@@ -172,9 +172,9 @@ get_chemical_ion <- function(db, adduct_name = NULL, chemical_type = NULL, C = 0
 	if (is.null(adduct_name)) return(data.frame())
   if (chemical_type == "Standard"){
     query <- sprintf("select adduct, chemical_ion, ion_formula, charge
-		from chemical_ion,chemical where adduct == \"%s\" and
+		from chemical_ion where adduct == \"%s\" and
 		chemical == (select chemical from chemical
-    where formula == \"%s\");", adduct_name, formula)
+    where chemical_type == \"%s\");", adduct_name, formula)
   }else if(length(grep("PXA",chemical_type)) > 0){
   	query <- sprintf("select adduct, chemical_ion, ion_formula, charge
 		from chemical_ion where adduct == \"%s\" and
@@ -474,7 +474,7 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
               iso == \"A\" and project_sample in (select project_sample from project_sample where
               project == %s and sample_id == \"%s\") and chemical_ion in (
                 select chemical_ion from chemical_ion where adduct == \"%s\"
-                and chemical == (select chemical from chemical where formula == \"%s\"));',
+                and chemical == (select chemical from chemical where chemical_type == \"%s\"));',
               project, sample$sample_id[i], x, y)
             data2 <- db_get_query(db, query)
             if(nrow(data2) == 0){

@@ -4,8 +4,8 @@
 #' 
 #' @param input$process_standard_formula string, standard formula
 standard_number <- reactive({
-  length(input$process_standard_formula)
-}) 
+  length(input$process_standard_type)
+})
 
 #' @title Force reactualization of reactive values
 #'
@@ -268,14 +268,14 @@ deconvolution_params <- shiny::eventReactive(actualize$deconvolution_params,
 #' @param deconvolution_params reactive value deconvolution_param table database
 #' @param input$project integrer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
-	std <- db_get_query(db, "select formula from chemical where chemical_familly == 'Standard'")$formula
+	std <- db_get_query(db, "select chemical_type from chemical where chemical_familly == 'Standard'")$chemical_type
 	choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
 	table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
 	table <- table[which(table$chemical_type %in% choices),]
   splitTable <- split(table$chemical_type, table$chemical_familly)
-	if(std %in% choices){
-		splitTable <- c(splitTable, Standard = "Standard") # Delete formulas from standards and add 'Standard'
+	if("Standard" %in% names(splitTable)){
+		splitTable$Standard <- "Standard" # Delete types from Standard and add 'Standard'
   	# Correction to have a family and the name of the chemical even if it is alone in its family
   	for(x in names(splitTable)){
   		if(length(splitTable[[x]]) < 2){
