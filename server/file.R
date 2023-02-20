@@ -277,7 +277,7 @@ shiny::observeEvent(input$file_import, {
 		
 		shiny::showModal(shiny::modalDialog(
 			title = '',
-			shiny::div("Only negatives scans !!"),
+			shiny::div("Only negatives scans can be imported !!"),
 			DT::dataTableOutput('file_import_table'),
 			footer = shiny::div(
 				shinyWidgets::actionBttn('file_import_cancel', 'Cancel', style = 'minimal', color = 'primary'),

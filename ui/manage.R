@@ -11,10 +11,7 @@ shinydashboard::tabItem(tabName = 'manage',
 					class = "fa fa-circle-o", 
 					style = "color: steelblue"
 				)
-			)),
-		shiny::tags$div(style="float:right;", 
-			shinyWidgets::actionBttn('manage_add', "Add new entry", 
-				style = "bordered", color = "primary")
+			)
 		),
 		shiny::tags$div(style = "float:right;", 
 			shinyWidgets::actionBttn("manage_delete", "Delete entry(ies)", 

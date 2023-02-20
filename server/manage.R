@@ -187,32 +187,6 @@ shiny::observeEvent(input$manage_table_rename, {
 	print('############################################################')
 })
 
-#' @title Add new database entry event
-#' 
-#' @description
-#' if the table displayed is "Project" or "Sample" it redirects directly to the first tab of the app
-#' 
-#' @param input$manage_select string, can be "Sample", "Project"
-shiny::observeEvent(input$manage_add, {
-	print('############################################################')
-	print('######################### MANAGE ADD #######################')
-	print('############################################################')
-	params <- list(
-		table = input$manage_select
-	)
-	print(params)
-	
-	tryCatch({
-	shiny::updateTabsetPanel(session, 'tabs', 'project_files')
-	}, error = function(e){
-		print(e)
-		sweet_alert_error('Cannot add new entry in database', e$message)
-	})
-	print('############################################################')
-	print('######################### END MANAGE ADD ###################')
-	print('############################################################')
-})
-
 #' @title Delete database entry event
 #' 
 #' @description
