@@ -32,7 +32,8 @@ shiny::observeEvent(input$process_chemical_standard, {
 output$ui_process_chemical_type <- shiny::renderUI({
     table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
     splitTable <- split(table$chemical_type, table$chemical_familly)
-    splitTable <- splitTable[splitTable != "Standard"]
+    splitTable <- splitTable[-which(names(splitTable) == "Standard")]
+
     # Correction to have a family and the name of the chemical even if it is alone in its family
     for(x in names(splitTable)){
     	if(length(splitTable[[x]]) < 2){
