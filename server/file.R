@@ -277,15 +277,7 @@ shiny::observeEvent(input$file_import, {
 		
 		shiny::showModal(shiny::modalDialog(
 			title = '',
-			shiny::column(offset = 1, width = 12, 
-				shinyWidgets::prettyRadioButtons("file_polarity", 
-					label = "Choose polarity of file(s):", 
-					choices = list("negative" = "negative", "positive" = "positive"), 
-					selected = if (is.na(project_polarity)) "negative" 
-						else project_polarity, 
-					icon = shiny::icon('check'), bigger = TRUE, 
-					animation = "jelly", inline = TRUE, fill = TRUE)
-			),
+			shiny::div("Only negatives scans !!"),
 			DT::dataTableOutput('file_import_table'),
 			footer = shiny::div(
 				shinyWidgets::actionBttn('file_import_cancel', 'Cancel', style = 'minimal', color = 'primary'),
@@ -422,7 +414,7 @@ shiny::observeEvent(input$file_import_valid2, {
 		filenames = gsub('"', "'", 
 			shinyFiles::parseFilePaths(volumes, input$file_import)$name), 
 		sample_ids = gsub('"', "'", input$file_import_sample_id), 
-		polarity = input$file_polarity
+		polarity = "negative" # set it to negative here because only negatives are done
 	)
 	print(params)
 	
@@ -569,7 +561,7 @@ conversion <- function(db, project, sample_name, sample_id, filepath, filename, 
 	print(query)
 	msconvert_blabla <- system(query, intern = TRUE, wait = TRUE)
 	print(msconvert_blabla)
-	
+
 	if (!file.exists(out_filepath)) {
 		print('conversion failed')
 		if (grepl('mzXML$', filepath, ignore.case=TRUE) | 
