@@ -214,13 +214,13 @@ shiny::observeEvent(input$manage_delete, {
 	if (params$table == "Sequence") delete_projects(db, params$selected)
 	else if (params$table == "Sample") delete_project_samples(db, params$selected)
 	
-	toastr_success("entries deleted")
+	toastr_success("Entry(ies) deleted")
 	}, invalid = function(i) {
 		print(i)
 		toastr_error(i$message)
 	}, error = function(e) {
 		print(e)
-		sweet_alert_error('Cannot delete entrie(s)', e$message)
+		sweet_alert_error('Cannot delete entry(ies)', e$message)
 	})
 	print('############################################################')
 	print('######################### END MANAGE DELETE ################')
