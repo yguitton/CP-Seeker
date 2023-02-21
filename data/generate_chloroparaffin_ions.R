@@ -6,7 +6,7 @@ forms <- read.csv("data/chemical.csv")
 # List of wanted adducts
 adduct_names <- c('M+Cl', 'M-H', 'M+Hac-H', 'M+Br', 'M-Cl', 'M-HCl', 'M-Br',
                   'M-HBr')
-standard_adduct_names <- c('M+Cl', 'M-H', 'M-D')
+standard_adduct_names <- c(adduct_names, 'M-D')
 # List of ECNI or ESI/APCI
 # Please add all adducts from adduct_names and standard_adduct_names here
 ecni_list <- c('M-Cl', 'M-HCl', 'M-Br', 'M-HBr')
