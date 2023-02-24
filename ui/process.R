@@ -151,39 +151,16 @@ shinydashboard::tabItem(tabName = 'process',
     shinyjs::hidden(
   		shiny::tags$div(id = "process_chemical",
        shiny::uiOutput("ui_process_chemical_type"),
-    	bsplus::shinyInput_label_embed(
-    			shiny::selectInput("process_adduct",
-    				"Adduct(s)", list(
-                         'ECNI' = c("M-Cl", "M-HCl", "M-Br","M-HBr"),
-                         'ESI/APCI' = c("M-H", "M+Br", "M+Cl","M+Ac-H")
-							), multiple = TRUE),
-						 #options = list(searchField = c("text", "optgroup"))),
-						 #choices = available_adducts, multiple = TRUE),
-    			bsplus::bs_embed_tooltip(
-    				bsplus::shiny_iconlink(),
-    				placement = 'top',
-    				title = 'Adducts to use for ion formula generation'
-					)
-			#shiny::uiOutput("ui_result")
-				
-    		)
+    	 shiny::uiOutput("ui_process_chemical_adduct")
   		)
-	),
+	  ),
     shinyjs::hidden(
       shiny::tags$div(id = "process_standard",
         shinyWidgets::switchInput("process_standard_study", "standard study",
           value = FALSE, onLabel = "yes", offLabel = "no"),
         shiny::tags$div(id = "process_standard_params",
           shiny::uiOutput("ui_process_standard_formula"),
-          bsplus::shinyInput_label_embed(
-            shiny::selectInput("process_standard_adduct", "Adduct",
-              choices = c("M-H (or M-D)", "M+Cl"), multiple = TRUE),
-            bsplus::bs_embed_tooltip(
-              bsplus::shiny_iconlink(),
-              placement = 'top',
-              title = "Adduct to use"
-            )
-          ),
+          shiny::uiOutput("ui_process_standard_adduct"),
           bsplus::shinyInput_label_embed(
             shiny::numericInput("process_standard_retention_time_1", "Retention time +/- 2 (min)",
               value = ""),

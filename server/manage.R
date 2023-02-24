@@ -85,17 +85,17 @@ output$manage_table <- DT::renderDataTable({
 		data <- samples()
 		data <- merge(data, project_samples(), by = "sample")
 		data <- merge(data, projects(), by = "project")
-		data <- data[, c("project_sample", "sample_id", "name", "polarity", 
+		data <- data[, c("project_sample", "sample_id", "name", 
 			"size", "instrument_model", "instrument_manufacturer", "ion_source", 
 			"analyzer", "detector_type", "resolution", "agc_target", "maximum_it", 
 			"number_of_scan_range", "scan_range", "raw_path")]
-		data[, c("name", "polarity", "instrument_model", "instrument_manufacturer", 
+		data[, c("name", "instrument_model", "instrument_manufacturer", 
 				"ion_source", "analyzer", "detector_type", "resolution", "agc_target", 
 				"maximum_it", "number_of_scan_range", "scan_range")] <- lapply(data[, 
-			c("name", "polarity", "instrument_model", "instrument_manufacturer", 
+			c("name", "instrument_model", "instrument_manufacturer", 
 			"ion_source", "analyzer", "detector_type", "resolution", "agc_target", 
 			"maximum_it", "number_of_scan_range", "scan_range")], as.factor)
-		colnames(data) <- c("project_sample", "Sample", "Project", "Polarity", 
+		colnames(data) <- c("Sample ID", "Sample", "Project", 
 			"Size (Mo)", "Instrument model", "Instrument manufacturer", "Ion source", 
 			"Analyzer", "Detector type", "Resolution", "AGC target", "Maximum IT", 
 			"Number of scan range", "Scan range", "Original path")
@@ -187,32 +187,6 @@ shiny::observeEvent(input$manage_table_rename, {
 	print('############################################################')
 })
 
-#' @title Add new database entry event
-#' 
-#' @description
-#' if the table displayed is "Project" or "Sample" it redirects directly to the first tab of the app
-#' 
-#' @param input$manage_select string, can be "Sample", "Project"
-shiny::observeEvent(input$manage_add, {
-	print('############################################################')
-	print('######################### MANAGE ADD #######################')
-	print('############################################################')
-	params <- list(
-		table = input$manage_select
-	)
-	print(params)
-	
-	tryCatch({
-	shiny::updateTabsetPanel(session, 'tabs', 'project_files')
-	}, error = function(e){
-		print(e)
-		sweet_alert_error('Cannot add new entry in database', e$message)
-	})
-	print('############################################################')
-	print('######################### END MANAGE ADD ###################')
-	print('############################################################')
-})
-
 #' @title Delete database entry event
 #' 
 #' @description
@@ -240,13 +214,13 @@ shiny::observeEvent(input$manage_delete, {
 	if (params$table == "Sequence") delete_projects(db, params$selected)
 	else if (params$table == "Sample") delete_project_samples(db, params$selected)
 	
-	toastr_success("entries deleted")
+	toastr_success("Entry(ies) deleted")
 	}, invalid = function(i) {
 		print(i)
 		toastr_error(i$message)
 	}, error = function(e) {
 		print(e)
-		sweet_alert_error('Cannot delete entrie(s)', e$message)
+		sweet_alert_error('Cannot delete entry(ies)', e$message)
 	})
 	print('############################################################')
 	print('######################### END MANAGE DELETE ################')

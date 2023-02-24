@@ -57,8 +57,8 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
 			shinydashboard::menuSubItem("Database tables", icon = shiny::icon('database'), tabName = 'manage')
 		),
 		shinydashboard::menuItem("Deconvolution", icon = shiny::icon("cog"), 
-			shinydashboard::menuSubItem("Integration", icon = shiny::icon("cog"), tabName = "process"),
-			shinydashboard::menuSubItem("Linear regression", icon = shiny::icon("table"), tabName = "regression")
+			shinydashboard::menuSubItem("Integration", icon = shiny::icon("cog"), tabName = "process")#,
+			#shinydashboard::menuSubItem("Linear regression", icon = shiny::icon("table"), tabName = "regression")
 		),
 		shinydashboard::menuItem('Explore data', icon = shiny::icon('bar-chart-o'), 
 			shinydashboard::menuSubItem("Results", icon = shiny::icon("table"), tabName = "process_results"), 

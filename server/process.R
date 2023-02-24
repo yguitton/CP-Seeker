@@ -29,10 +29,13 @@ shiny::observeEvent(input$process_chemical_standard, {
 #malheureusement je n'ai pas pule faire. néanmoins jai créer deux fonction get_ecni_adduct et get_esi_adduct qui permettent de recuppérer les adduits de chaque famille dans la base de donées.
 # J'ai également  créer les variables ecni_adduct et esi_apci_adduct dans le fichier manager.r  afin les  inclure dans la liste deroulante qui categorise les adduits de faço,n dynamique. 
 #Cependant cela n'a pas fonctionner car le serveur ne prend pas en comte ces variables  en compte.
+
+# Chemical type choices from DB
 output$ui_process_chemical_type <- shiny::renderUI({
     table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
     splitTable <- split(table$chemical_type, table$chemical_familly)
-    splitTable <- splitTable[splitTable != "Standard"]
+    splitTable <- splitTable[-which(names(splitTable) == "Standard")]
+
     # Correction to have a family and the name of the chemical even if it is alone in its family
     for(x in names(splitTable)){
     	if(length(splitTable[[x]]) < 2){
@@ -55,9 +58,28 @@ output$ui_process_chemical_type <- shiny::renderUI({
     )
 })
 
-output$ui_result <- shiny::renderUI({
-      paste("You chose",input$process_adduct)
-    })
+# Adduct choices for chemical type from DB
+output$ui_process_chemical_adduct <- shiny::renderUI({
+	table <- unique(db_get_query(db, "select adduct, chemical_ion_family from chemical_ion"))
+	splitTable <- split(table$adduct, table$chemical_ion_family)
+	# Correction to have a family and the name of the chemical even if it is alone in its family
+   	for(x in names(splitTable)){
+    	if(length(splitTable[[x]]) < 2){
+    		names(splitTable[[x]]) <- splitTable[[x]]
+    	}
+   	}
+	bsplus::shinyInput_label_embed(
+		shiny::selectInput("process_adduct","Adduct(s)", choices = splitTable, multiple = TRUE),
+		#options = list(searchField = c("text", "optgroup"))),
+		#choices = available_adducts, multiple = TRUE),
+    	bsplus::bs_embed_tooltip(
+    		bsplus::shiny_iconlink(),
+    		placement = 'top',
+    		title = 'Adducts to use for ion formula generation'
+		)
+	)
+})
+
 #' @title Event when choosing instrument
 #'
 #' @description
@@ -106,7 +128,7 @@ shiny::observeEvent(input$process_standard_study, {
   }
 })
 
-# List of all possible standards for deconvolution
+# Choices forstandards from DB
 output$ui_process_standard_formula <- shiny::renderUI({
     table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
     table <- table[which(table$chemical_familly == "Standard"),]
@@ -126,6 +148,29 @@ output$ui_process_standard_formula <- shiny::renderUI({
     )
 })
 
+# Choices for the standard adducts from DB
+output$ui_process_standard_adduct <- shiny::renderUI({
+	table <- unique(db_get_query(db, "select adduct, chemical_ion_family from chemical_ion"))
+	if(grep("^M-H$", table$adduct)){
+		table$adduct[grep("^M-H$", table$adduct)] <- "M-H (or M-D)"
+	}
+	splitTable <- split(table$adduct, table$chemical_ion_family)
+	# Correction to have a family and the name of the chemical even if it is alone in its family
+   	for(x in names(splitTable)){
+    	if(length(splitTable[[x]]) < 2){
+    		names(splitTable[[x]]) <- splitTable[[x]]
+    	}
+   	}
+	bsplus::shinyInput_label_embed(
+        shiny::selectInput("process_standard_adduct", "Adduct",
+            choices = splitTable, multiple = TRUE),
+        bsplus::bs_embed_tooltip(
+            bsplus::shiny_iconlink(),
+            placement = 'top',
+            title = "Adduct to use"
+        )
+    )
+})
 
 #' @title Event when multiple standards are selected
 #'
