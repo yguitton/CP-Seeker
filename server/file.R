@@ -420,7 +420,6 @@ shiny::observeEvent(input$file_import_valid2, {
 	
 	tryCatch({
 		if(length(params$project) == 0) custom_stop('invalid', 'you must select a project')
-		
 		params$sample_names <- stringr::str_trunc(
 			paste(
 				stringr::str_trunc(params$polarity, 3, ellipsis=""),
@@ -458,8 +457,8 @@ shiny::observeEvent(input$file_import_valid2, {
 			print('---')
 		}
 		share_vars$file_import_success <- data.frame(
-			file = params$sample_ids, 
-			success = sapply(success, function(x) 
+			File = params$sample_ids, 
+			Import = sapply(success, function(x) 
 				if(x == "success") paste("<div style=\"background-color: #B3E2CD;\">", 
 					shiny::icon("check-circle"), x, "</div>")
 				else paste("<div style=\"background-color: #FDCDAC;\">", 
@@ -549,6 +548,7 @@ conversion <- function(db, project, sample_name, sample_id, filepath, filename, 
 	
 	print(paste('conversion of', filename))
 	# if it is a Water repertory, don't use the vendor algorithm
+	# And if it is already converted (mz(X)ML) also
 	algorithm <- if (
 		(grepl('raw$', filepath, ignore.case=TRUE) & 
 			!dir.exists(filepath)) | 
