@@ -45,13 +45,13 @@ shiny::observeEvent(input$regression_launch, {
   )
   tryCatch({
     if (is.null(params$project)) custom_stop("minor_error", 
-      "A project with files is needed for processing")
+      "A sequence with files is needed for processing")
     else if (params$project == "") custom_stop("minor_error", 
-      "A project with files is needed for processing")
+      "A sequence with files is needed for processing")
     params$samples <- project_samples()[which(
       project_samples()$project == params$project), "sample"]
     if (length(params$samples) == 0) custom_stop("minor_error", 
-      "you need to import files in project to process them")
+      "you need to import files in sequence to process them")
     
     inputs <- c("regression_observed_file", "regression_observed_family",
       "regression_observed_adduct")

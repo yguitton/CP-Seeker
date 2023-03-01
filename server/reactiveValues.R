@@ -76,6 +76,8 @@ filter_mat <- reactive({
       sapply(unique(chemicals$chemical_type), function(chemical){
         sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
           cellToFilter <- which(reduce_matrix(temp[[project]][[chemical]][[adduct]],1) < isolate(input$process_results_score_min), arr.ind=TRUE)
+          cellToFilter <- rbind(cellToFilter, which(reduce_matrix(temp[[project]][[chemical]][[adduct]],3) > isolate(input$process_results_deviation_max), arr.ind=TRUE))
+          cellToFilter <- rbind(cellToFilter, which(reduce_matrix(temp[[project]][[chemical]][[adduct]],3) < -(isolate(input$process_results_deviation_max)), arr.ind=TRUE))
         	if(nrow(cellToFilter) > 0){
         		for(c in 1:nrow(cellToFilter)){
         			keep <- strsplit(temp[[project]][[chemical]][[adduct]][cellToFilter[c,1], cellToFilter[c,2]], "/")[[1]][4]

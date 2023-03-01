@@ -214,8 +214,8 @@ output$process_TIC <- plotly::renderPlotly({
 		project = input$project
 	)
 	tryCatch({
-		if (is.null(params$project)) custom_stop("invalid", "no project")
-		else if (params$project == "") custom_stop("invalid", "no project")
+		if (is.null(params$project)) custom_stop("invalid", "No sequence")
+		else if (params$project == "") custom_stop("invalid", "No sequence")
 		htmlwidgets::onRender(plot_TIC(db, project = params$project),
 			"function(el, x){
 				el.on('plotly_click', function(eventData){
@@ -276,10 +276,10 @@ output$process_MS <- plotly::renderPlotly({
 		rt = input$process_TIC_rt
 	)
 	tryCatch({
-		if (is.null(params$project)) custom_stop("invalid", "no project")
-		if (is.null(params$rt)) custom_stop("invalid", "no rt selected")
-		else if (params$project == "") custom_stop("invalid", "no project")
-		else if (params$rt == 0) custom_stop("invalid", "no rt selected")
+		if (is.null(params$project)) custom_stop("invalid", "No sequence")
+		if (is.null(params$rt)) custom_stop("invalid", "No rt selected")
+		else if (params$project == "") custom_stop("invalid", "No sequence")
+		else if (params$rt == 0) custom_stop("invalid", "No rt selected")
 
 		plot_MS(db, project = params$project, rt = params$rt)
 	}, invalid = function(i) {
@@ -371,13 +371,13 @@ shiny::observeEvent(input$process_launch, {
 
 	tryCatch({
 		if (is.null(params$project)) custom_stop("minor_error",
-			"A project with files is needed for processing")
+			"A sequence with files is needed for processing")
 		else if (params$project == "") custom_stop("minor_error",
-			"A project with files is needed for processing")
+			"A sequence with files is needed for processing")
 		params$samples <- project_samples()[which(
 			project_samples()$project == params$project), "sample"]
 		if (length(params$samples) == 0) custom_stop("minor_error",
-			"you need to import files in project to process them")
+			"You need to import files in sequence to process them")
 		params$project_samples <- project_samples()[which(
 			project_samples()$project == params$project), "project_sample"]
 		params$sample_ids <- project_samples()[which(
@@ -495,7 +495,7 @@ shiny::observeEvent(input$process_launch, {
 			})
 		} 
 
-  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded
+  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "No chemical founded
   		with this adduct")
 
 		theoric_patterns <- get_theoric(ion_forms$ion_formula,
@@ -520,13 +520,13 @@ shiny::observeEvent(input$process_launch, {
   	for (i in 1:length(params$samples)) {
   		shinyWidgets::updateProgressBar(session, id = "pb2",
   			value = 0, title = "")
-  		msg <- sprintf("load data of %s", params$sample_ids[i])
+  		msg <- sprintf("Load data of %s", params$sample_ids[i])
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
   		ms_file <- load_ms_file(db, sampleID = params$samples[i])
 
-  		msg <- sprintf("target on %s", params$sample_ids[i])
+  		msg <- sprintf("Target on %s", params$sample_ids[i])
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
@@ -543,7 +543,7 @@ shiny::observeEvent(input$process_launch, {
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
   			project_sample = params$project_samples[i],
   			peaks2))
-  		else toastr_error(sprintf("no chemical detected
+  		else toastr_error(sprintf("No chemical detected
   			in %s", params$samples[i]))
 
   		if(param$standard_study){
@@ -557,7 +557,7 @@ shiny::observeEvent(input$process_launch, {
   		    peaks2_standard))
   		}
  	  }
-  	msg <- "record peaks"
+  	msg <- "Record peaks"
   	print(msg)
   	shinyWidgets::updateProgressBar(session, id = 'pb',
   		title = msg, value = 100)

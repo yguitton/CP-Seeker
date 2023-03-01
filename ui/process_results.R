@@ -26,12 +26,16 @@ shinydashboard::tabItem(tabName = 'process_results',
 		)
 	),
 	shinydashboard::box(width = 9,
-	  shiny::column(width = 7, style = 'margin-top: 20px; margin-bottom: 20px;',
+	  shiny::column(width = 3, style = 'margin-top: 20px; margin-bottom: 20px;',
 	    shiny::actionButton('process_results_download', 'Export matrix', 
 	      icon = shiny::icon("download"))
 	  ),
-    shiny::column(width = 2,
-      shiny::numericInput('process_results_score_min', 'Score min', value = 0)
+	  shiny::column(width = 2),
+	  shiny::column(width = 3,
+      shiny::numericInput('process_results_deviation_max', 'Deviation max (absolute value)', value = 0, step = 0.01)
+    ),
+    shiny::column(width = 3,
+      shiny::numericInput('process_results_score_min', 'Score min', value = 0, min = 0, max = 100, step = 1)
     ),
 	  shiny::column(width = 1, style = 'margin-top: 20px; margin-bottom: 20px;',
 	    shiny::actionButton('process_results_apply', 'Apply')

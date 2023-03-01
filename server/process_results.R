@@ -14,6 +14,7 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::show("process_results_adduct2")
     shinyjs::hide("process_results_selected_matrix")
     shinyjs::hide("process_results_download")
+    shinyjs::hide("process_results_deviation_max")
     shinyjs::hide("process_results_score_min")
     shinyjs::hide("process_results_apply")
     shinyjs::hide("process_results_profile_div")
@@ -25,6 +26,7 @@ shiny::observeEvent(input$process_results_study, {
     shinyjs::hide("process_results_adduct2")
     shinyjs::show("process_results_selected_matrix")
     shinyjs::show("process_results_download")
+    shinyjs::show("process_results_deviation_max")
     shinyjs::show("process_results_score_min")
     shinyjs::show("process_results_apply")
     shinyjs::show("process_results_profile_div")
@@ -129,7 +131,8 @@ initComplete = htmlwidgets::JS("
 
 # Observe event to change the filter checked variable to TRUE when "apply" button clicked
 observeEvent(input$process_results_apply, {
-  print(paste0("Apply filter on score : min = ",input$process_results_score_min," and max = 100"))
+  print(paste0("Apply filter on score : min = ", input$process_results_score_min," and max = 100"))
+  print(paste0("Apply filter on deviation : min = -", input$process_results_deviation_max, " - max = ", input$process_results_deviation_max))
   filters_apply$f <- TRUE
 })
 
