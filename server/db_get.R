@@ -361,6 +361,7 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     	project_sample, adduct, chemical_type)
   	data <- db_get_query(db, query)
   	if (nrow(data) == 0) return(profile_mat)
+  	print("passe")
   	data <- merge(chemicals, data,
     	by = "chemical_ion", all.x = TRUE)
   	if(table) return(data)
@@ -391,20 +392,43 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 		left join chemical_ion on
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+		chemicals <- db_get_query(db, query)
+  	if(nrow(chemicals) == 0){ # means there is no corresponding adduct + chemical_type
+  		query <- sprintf("select chemical_ion, Br, Cl from chemical
+			left join chemical_ion on
+			chemical.chemical = chemical_ion.chemical
+			where chemical.chemical_type == \"%s\";", chemical_type)
+			chemicals <- db_get_query(db, query)
+  	}
   }else if(chemical_type == "PBAs"){
   	print("PBAs find")
   	query <- sprintf("select chemical_ion, C, Br from chemical
 		left join chemical_ion on
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+		chemicals <- db_get_query(db, query)
+  	if(nrow(chemicals) == 0){ # means there is no corresponding adduct + chemical_type
+  		query <- sprintf("select chemical_ion, C, Br from chemical
+			left join chemical_ion on
+			chemical.chemical = chemical_ion.chemical
+			where chemical.chemical_type == \"%s\";", chemical_type)
+			chemicals <- db_get_query(db, query)
+  	}
   }else{
   	print("autres")
   	query <- sprintf("select chemical_ion, C, Cl from chemical
 		left join chemical_ion on
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
+		chemicals <- db_get_query(db, query)
+  	if(nrow(chemicals) == 0){ # means there is no corresponding adduct + chemical_type
+  		query <- query <- sprintf("select chemical_ion, C, Cl from chemical
+			left join chemical_ion on
+			chemical.chemical = chemical_ion.chemical
+			where chemical.chemical_type == \"%s\";", chemical_type)
+			chemicals <- db_get_query(db, query)
+  	}
   }
-  chemicals <- db_get_query(db, query)
   colY <- range(chemicals[,2])
   colX <- range(chemicals[,3])
   profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
