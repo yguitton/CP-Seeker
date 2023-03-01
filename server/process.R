@@ -495,7 +495,7 @@ shiny::observeEvent(input$process_launch, {
 			})
 		} 
 
-  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "no chemical founded
+  	if (nrow(ion_forms) == 0) custom_stop("minor_error", "No chemical founded
   		with this adduct")
 
 		theoric_patterns <- get_theoric(ion_forms$ion_formula,
@@ -520,13 +520,13 @@ shiny::observeEvent(input$process_launch, {
   	for (i in 1:length(params$samples)) {
   		shinyWidgets::updateProgressBar(session, id = "pb2",
   			value = 0, title = "")
-  		msg <- sprintf("load data of %s", params$sample_ids[i])
+  		msg <- sprintf("Load data of %s", params$sample_ids[i])
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
   		ms_file <- load_ms_file(db, sampleID = params$samples[i])
 
-  		msg <- sprintf("target on %s", params$sample_ids[i])
+  		msg <- sprintf("Target on %s", params$sample_ids[i])
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
@@ -543,7 +543,7 @@ shiny::observeEvent(input$process_launch, {
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
   			project_sample = params$project_samples[i],
   			peaks2))
-  		else toastr_error(sprintf("no chemical detected
+  		else toastr_error(sprintf("No chemical detected
   			in %s", params$samples[i]))
 
   		if(param$standard_study){
@@ -557,7 +557,7 @@ shiny::observeEvent(input$process_launch, {
   		    peaks2_standard))
   		}
  	  }
-  	msg <- "record peaks"
+  	msg <- "Record peaks"
   	print(msg)
   	shinyWidgets::updateProgressBar(session, id = 'pb',
   		title = msg, value = 100)
