@@ -49,9 +49,9 @@ shiny::observeEvent(input$file_associate, {
 	
 	tryCatch({
 	if (is.null(params$project)) custom_stop("invalid", 
-		"you must create a project before importing files")
+		"You must create a sequence before importing files")
 	else if (params$project == "") custom_stop("invalid", 
-		"you must create a project before importing files")
+		"You must create a sequence before importing files")
 	
 	files_in_project <- project_samples()[which(
 		project_samples()$project == params$project), 
@@ -68,7 +68,7 @@ shiny::observeEvent(input$file_associate, {
 	
 	if (nrow(to_delete) > 0) {
 		delete_project_samples(db, to_delete$project_sample)
-		toastr_success(sprintf("%s removed from project %s", 
+		toastr_success(sprintf("%s removed from sequence %s", 
 			paste(to_delete$sample_id, collapse = ", "), 
 			projects()[which(projects()$project == params$project), "name"]))
 	}
@@ -84,7 +84,7 @@ shiny::observeEvent(input$file_associate, {
 			test_polarities <- which(to_add_polarities != project_polarity)
 			if (any(test_polarities)) custom_stop("invalid", sprintf(
 				"%s have a %s polarity instead of %s polarity 
-				of files in project %s", 
+				of files in sequence %s", 
 				paste(to_add[which(test_polarities), "sample_id"], collapse = ", "), 
 				projects()[which(projects()$project == params$project), "name"]))
 		}
@@ -214,7 +214,7 @@ shiny::observeEvent(input$file_associate_valid2, {
 		sapply(1:length(params$sample_names), function(i) 
 			record_project_sample(db, params$project, 
 				params$sample_names[i], params$sample_ids[i])) 
-		toastr_success(sprintf("%s imported in project %s", 
+		toastr_success(sprintf("%s imported in sequence %s", 
 			paste(params$sample_ids, collapse = ", "), 
 			projects()[which(projects()$project == params$project), "name"]))
 	}, error = function(e) {
@@ -265,9 +265,9 @@ shiny::observeEvent(input$file_import, {
 	print(params)
 	
 	tryCatch({
-		if (is.null(input$project)) custom_stop("invalid", "You must create a project 
+		if (is.null(input$project)) custom_stop("invalid", "You must create a sequence 
 			before importing files")
-		else if (input$project == "") custom_stop("invalid", "You must create a project 
+		else if (input$project == "") custom_stop("invalid", "You must create a sequence 
 			before importing files")
 		
 		project_polarity <- samples()[which(
@@ -291,7 +291,7 @@ shiny::observeEvent(input$file_import, {
 		toastr_error(i$message)
 	} , error = function(e){
 		print(e)
-		sweet_alert_error("Cannot create project", e$message)
+		sweet_alert_error("Cannot create sequence", e$message)
 	})
 	print('############################################################')
 	print('######################### END FILE_IMPORT ##################')
@@ -419,7 +419,7 @@ shiny::observeEvent(input$file_import_valid2, {
 	print(params)
 	
 	tryCatch({
-		if(length(params$project) == 0) custom_stop('invalid', 'you must select a project')
+		if(length(params$project) == 0) custom_stop('invalid', 'You must select a sequence')
 		params$sample_names <- stringr::str_trunc(
 			paste(
 				stringr::str_trunc(params$polarity, 3, ellipsis=""),
@@ -439,7 +439,7 @@ shiny::observeEvent(input$file_import_valid2, {
 			success[i] <- tryCatch({
 				if (params$sample_names[i] %in% project_samples()[which(
 					project_samples()$project == params$project), "sample"]) custom_stop("invalid", 
-						"file already in project")
+						"File already in sequence")
 				else if (params$sample_names[i] %in% project_samples()$sample) record_project_sample(
 					db, params$project, params$sample_names[i], params$sample_ids[i])
 				else {

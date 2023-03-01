@@ -95,7 +95,7 @@ output$manage_table <- DT::renderDataTable({
 			c("name", "instrument_model", "instrument_manufacturer", 
 			"ion_source", "analyzer", "detector_type", "resolution", "agc_target", 
 			"maximum_it", "number_of_scan_range", "scan_range")], as.factor)
-		colnames(data) <- c("Sample ID", "Sample", "Project", 
+		colnames(data) <- c("Sample ID", "Sample", "Sequence", 
 			"Size (Mo)", "Instrument model", "Instrument manufacturer", "Ion source", 
 			"Analyzer", "Detector type", "Resolution", "AGC target", "Maximum IT", 
 			"Number of scan range", "Scan range", "Original path")
@@ -116,7 +116,7 @@ initComplete = htmlwidgets::JS("
 	function(settings, json){
 		var select = $('#manage_select .active').get(0).innerText,
 			table = settings.oInstance.api();
-		if (select == 'Sample' || select == 'Project') {
+		if (select == 'Sample' || select == 'Sequence') {
 			table.column(0).visible(false);
 		}
 	}
@@ -131,7 +131,7 @@ callback = htmlwidgets::JS("
 	table.on('dblclick', 'tbody td', function(){
 		var select = $('#manage_select .active').get(0).innerText,
 			index = table.cell(this).index();
-		if ((select == 'Project' || select == 'Sample') && 
+		if ((select == 'Sequence' || select == 'Sample') && 
 				index.column == 1){
 			var $input = $('<input type = \"text\">'),
 				value = table.cell(this).data(),

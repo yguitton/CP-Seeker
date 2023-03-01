@@ -28,7 +28,7 @@ shinydashboard::tabItem(tabName = 'project_files',
 
 	shiny::column(id = "file_box", width = 6, shinydashboard::box(width = 12, title = 'Add file(s)',
 		shiny::column(width = 6, 
-			shiny::tags$label('From a previous project'),
+			shiny::tags$label('From a previous sequence'),
 			shiny::fluidRow(
 				shiny::column(width = 12, 
 					shiny::selectizeInput('files_from_db', label = NULL, 

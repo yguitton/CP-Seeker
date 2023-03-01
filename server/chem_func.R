@@ -291,7 +291,7 @@ reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE){
 #'}
 get_tics <- function(db, project = NULL, project_samples = NULL) {
 	samples <- get_samples(db, project, project_samples)
-	if (nrow(samples) == 0) custom_stop("invalid", "no files in project")
+	if (nrow(samples) == 0) custom_stop("invalid", "No files in sequence")
 	do.call(rbind, lapply(1:nrow(samples), function(i) 
 		cbind(
 			get_tic(db, samples[i, "sample"]), 
@@ -356,7 +356,7 @@ get_tic <- function(db, sample) {
 get_eics <- function(db, project = NULL, project_samples = NULL, 
 		mzs = c(), ppm = 0, mda = 0) {
 	samples <- get_samples(db, project, project_samples)
-	if (nrow(samples) == 0) custom_stop("invalid", "no files in project")
+	if (nrow(samples) == 0) custom_stop("invalid", "No files in sequence")
 	mz_ranges <- cbind(mzs, get_mass_range(mzs, ppm, mda))
 	do.call(rbind, lapply(1:nrow(samples), function(i) { 
 		ms_file <- load_ms_file(db, sample = samples[i, "sample"])
@@ -429,7 +429,7 @@ get_eic <- function(db, ms_file, mzrange) {
 #'}
 get_mss <- function(db, project = NULL, project_samples = NULL, rt) {
 	samples <- get_samples(db, project, project_samples)
-	if (nrow(samples) == 0) custom_stop("invalid", "no files in project")
+	if (nrow(samples) == 0) custom_stop("invalid", "No files in sequence")
 	rt <- rt * 60 # convert sec to min
 	do.call(rbind, lapply(1:nrow(samples), function(i) 
 		cbind(

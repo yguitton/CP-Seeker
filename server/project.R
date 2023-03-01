@@ -9,7 +9,7 @@
 #' @param specialChars string, contains a sample of special characters to avoid
 shiny::observeEvent(input$project_create, {
 	print('############################################################')
-	print('######################### PROJECT_CREATE ###################')
+	print('######################### SEQUENCE_CREATE ###################')
 	print('############################################################')
 	params <- list(
 		name = gsub('"', "'", input$project_name), 
@@ -19,17 +19,17 @@ shiny::observeEvent(input$project_create, {
 	tryCatch({
 	inputs <- c("project_name")
 	conditions <- c(params$name != "")
-	msgs <- c("A project name is required")
+	msgs <- c("A sequence name is required")
 	check_inputs(inputs, conditions, msgs)
 	
 	record_project(db, params$name, params$comments)
-  	toastr_success(paste('Project', params$name, 'created!'))
+  	toastr_success(paste('Sequence', params$name, 'created!'))
 	}, invalid = function(i) NULL
 	, error = function(e){
 		print(e)
-		sweet_alert_error("Cannot create project", e$message)
+		sweet_alert_error("Cannot create sequence", e$message)
 	})
 	print('############################################################')
-	print('######################### END PROJECT_CREATE ###############')
+	print('######################### END SEQUENCE_CREATE ###############')
 	print('############################################################')
 })

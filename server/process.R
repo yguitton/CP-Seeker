@@ -214,8 +214,8 @@ output$process_TIC <- plotly::renderPlotly({
 		project = input$project
 	)
 	tryCatch({
-		if (is.null(params$project)) custom_stop("invalid", "no project")
-		else if (params$project == "") custom_stop("invalid", "no project")
+		if (is.null(params$project)) custom_stop("invalid", "No sequence")
+		else if (params$project == "") custom_stop("invalid", "No sequence")
 		htmlwidgets::onRender(plot_TIC(db, project = params$project),
 			"function(el, x){
 				el.on('plotly_click', function(eventData){
@@ -276,10 +276,10 @@ output$process_MS <- plotly::renderPlotly({
 		rt = input$process_TIC_rt
 	)
 	tryCatch({
-		if (is.null(params$project)) custom_stop("invalid", "no project")
-		if (is.null(params$rt)) custom_stop("invalid", "no rt selected")
-		else if (params$project == "") custom_stop("invalid", "no project")
-		else if (params$rt == 0) custom_stop("invalid", "no rt selected")
+		if (is.null(params$project)) custom_stop("invalid", "No sequence")
+		if (is.null(params$rt)) custom_stop("invalid", "No rt selected")
+		else if (params$project == "") custom_stop("invalid", "No sequence")
+		else if (params$rt == 0) custom_stop("invalid", "No rt selected")
 
 		plot_MS(db, project = params$project, rt = params$rt)
 	}, invalid = function(i) {
@@ -371,13 +371,13 @@ shiny::observeEvent(input$process_launch, {
 
 	tryCatch({
 		if (is.null(params$project)) custom_stop("minor_error",
-			"A project with files is needed for processing")
+			"A sequence with files is needed for processing")
 		else if (params$project == "") custom_stop("minor_error",
-			"A project with files is needed for processing")
+			"A sequence with files is needed for processing")
 		params$samples <- project_samples()[which(
 			project_samples()$project == params$project), "sample"]
 		if (length(params$samples) == 0) custom_stop("minor_error",
-			"you need to import files in project to process them")
+			"You need to import files in sequence to process them")
 		params$project_samples <- project_samples()[which(
 			project_samples()$project == params$project), "project_sample"]
 		params$sample_ids <- project_samples()[which(

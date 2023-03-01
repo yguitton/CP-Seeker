@@ -23,7 +23,7 @@ header <- shiny::tags$header(
 				shiny::tags$table(
 					shiny::tags$tr(
 						shiny::tags$td(style = "color: white; padding-right: 3px;", 
-							tags$b('Active project ')
+							tags$b('Active sequence ')
 						), 
 						tags$td(
 							shinyWidgets::pickerInput('project', 
@@ -53,7 +53,7 @@ header <- shiny::tags$header(
 sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE, 
 	shinydashboard::sidebarMenu(id = 'tabs', 
 		shinydashboard::menuItem('Projects & Files', icon = shiny::icon('database'), 
-			shinydashboard::menuSubItem("New project", icon = shiny::icon('plus'), tabName = 'project_files'),
+			shinydashboard::menuSubItem("New sequence", icon = shiny::icon('plus'), tabName = 'project_files'),
 			shinydashboard::menuSubItem("Database tables", icon = shiny::icon('database'), tabName = 'manage')
 		),
 		shinydashboard::menuItem("Deconvolution", icon = shiny::icon("cog"), 
