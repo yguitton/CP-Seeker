@@ -438,8 +438,8 @@ shiny::observeEvent(input$process_results_download, {
   }
   if(length(grep("P.*Os", chem_type)) > 0){
     adducts <- unique(deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[grep("PCOs",chem_type)]), "adduct"])
-    export_PCO(actual_user, chem_type = chem_type[grep("PCOs",chem_type)], 
+      deconvolution_params()$chemical_type %in% chem_type[grep("P.*Os",chem_type)]), "adduct"])
+    export_PCO(actual_user, chem_type = chem_type[grep("P.*Os",chem_type)], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"]))
   }

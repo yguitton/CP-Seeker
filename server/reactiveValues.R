@@ -308,7 +308,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- c(choices[grep("PXA", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))])
+  choices <- c(choices[grep("PXAs", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs", "PCtriOs"))]) # have to change it
   shiny::updateSelectInput(session, "graphics_chemical",
     "Family", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_family", 
@@ -355,7 +355,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs"))]
+  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs", "PCtriOs"))] # have to change it
   choices <- choices[-grep("PXAs", choices)]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
