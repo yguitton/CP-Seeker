@@ -844,7 +844,6 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
         addStyle(wb, sheet, hStyle, rows = 1:73, cols = 1)
         setColWidths(wb, sheet, cols = 1:1000, widths = 4.5)
         setRowHeights(wb, sheet, rows = 1:1000, heights = 18)
-
         for(chem in chem_type){
           # Save the table with all values for this file 
           table <- get_profile_matrix(db, myActualFile$project_sample, adduct = adduct, chemical_type = chem)
@@ -955,7 +954,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCOs", chem_type) > 0)){
             # Grey all tables
             # Table 1
             addStyle(wb, sheet, fullGreyCell, rows = 7:37, cols = 3:30, gridExpand = TRUE)
@@ -1069,8 +1068,9 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCdiOs", chem_type) > 0)){
             # Grey all tables
+            print("Grey all diOS")
             # Table 4
             addStyle(wb, sheet, fullGreyCell, rows = 41:71, cols = 3:30, gridExpand = TRUE)
             addStyle(wb, sheet, greyBottomBorderStyle, rows = 71, cols = 3:30)
@@ -1143,30 +1143,32 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = 105, cols = 3:30)
             table7Status <- as.data.frame(reduce_matrix(table7ALL, 2))
             for(col in 3:(ncol(table7Status)+2)){
-              for(row in 74:(nrow(table7Status)+73)){
-                if(table7Status[row-73,col-2] == "half"){
+              for(row in 75:(nrow(table7Status)+74)){
+                if(table7Status[row-74,col-2] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table7Status[row-73,col-2] == "outside"){
+                }else if(table7Status[row-74,col-2] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
             }
             # Table 8
+            print("table8")
             table8ALL <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
             table8Values <- as.data.frame(reduce_matrix(table8ALL, 1))
             openxlsx::writeData(wb, sheet, table8Values, startCol = 32, startRow = 74)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = 105, cols = 32:59)
             table8Status <- as.data.frame(reduce_matrix(table8ALL, 2))
             for(col in 32:(ncol(table8Status)+31)){
-              for(row in 74:(nrow(table8Status)+73)){
-                if(table8Status[row-73,col-31] == "half"){
+              for(row in 75:(nrow(table8Status)+74)){
+                if(table8Status[row-74,col-31] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table8Status[row-73,col-31] == "outside"){
+                }else if(table8Status[row-74,col-31] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
             }
             # Table 9
+            print("table9")
             table9ALL <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
             table9Values <- as.data.frame(reduce_matrix(table9ALL, 1))
             openxlsx::writeData(wb, sheet, table9Values, startCol = 61, startRow = 74)
@@ -1175,16 +1177,17 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = 105, cols = 88)
             table9Status <- as.data.frame(reduce_matrix(table9ALL, 2))
             for(col in 61:(ncol(table9Status)+60)){
-              for(row in 74:(nrow(table9Status)+73)){
-                if(table9Status[row-73,col-60] == "half"){
+              for(row in 75:(nrow(table9Status)+74)){
+                if(table9Status[row-74,col-60] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table9Status[row-73,col-60] == "outside"){
+                }else if(table9Status[row-74,col-60] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCtriOs", chem_type) > 0)){
             # Grey all tables
+            print("Grey all triOS")
             # Table 7
             addStyle(wb, sheet, fullGreyCell, rows = 75:105, cols = 3:30, gridExpand = TRUE)
             addStyle(wb, sheet, greyBottomBorderStyle, rows = 105, cols = 3:30)
