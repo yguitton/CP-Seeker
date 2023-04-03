@@ -422,18 +422,16 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
 		chemicals <- db_get_query(db, query)
-		colY <- range(chemicals[,2])
-  	colX <- range(chemicals[,3])
   	if(nrow(chemicals) == 0){ # means there is no corresponding adduct + chemical_type
-  		colY <- c(0,0)
-  		colX <- c(0,0)
   		noChem <- TRUE
-  		# query <- sprintf("select chemical_ion, C, Br from chemical
-			# left join chemical_ion on
-			# chemical.chemical = chemical_ion.chemical
-			# where chemical.chemical_type == \"%s\";", chemical_type)
-			# chemicals <- db_get_query(db, query)
+  		query <- sprintf("select chemical_ion, C, Br from chemical
+			left join chemical_ion on
+			chemical.chemical = chemical_ion.chemical
+			where chemical.chemical_type == \"%s\";", chemical_type)
+			chemicals <- db_get_query(db, query)
   	}
+  	colY <- range(chemicals[,2])
+  	colX <- range(chemicals[,3])
   }else{
   	print("Others")
   	query <- sprintf("select chemical_ion, C, Cl from chemical
@@ -441,22 +439,21 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 		chemical.chemical = chemical_ion.chemical
 		where adduct == \"%s\" and chemical.chemical_type == \"%s\";", adduct, chemical_type)
 		chemicals <- db_get_query(db, query)
-		colY <- range(chemicals[,2])
-  	colX <- range(chemicals[,3])
   	if(nrow(chemicals) == 0){ # means there is no corresponding adduct + chemical_type
-  		colY <- c(0,0)
-  		colX <- c(0,0)
   		noChem <- TRUE
-  	# 	query <- query <- sprintf("select chemical_ion, C, Cl from chemical
-		# 	left join chemical_ion on
-		# 	chemical.chemical = chemical_ion.chemical
-		# 	where chemical.chemical_type == \"%s\";", chemical_type)
-		# 	chemicals <- db_get_query(db, query)
+  		query <- query <- sprintf("select chemical_ion, C, Cl from chemical
+			left join chemical_ion on
+			chemical.chemical = chemical_ion.chemical
+			where chemical.chemical_type == \"%s\";", chemical_type)
+			chemicals <- db_get_query(db, query)
   	}
-  	
+  	colY <- range(chemicals[,2])
+  	colX <- range(chemicals[,3])
   }
   if(noChem){
-  	profile_mat <- data.frame(Error = "This adduct doesn't exist for this chemical type sorry !")
+  	profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+    dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
+    profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/outside"
   	noChem <- FALSE
   }else{
   	profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,

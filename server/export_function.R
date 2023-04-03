@@ -124,7 +124,9 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         setColWidths(wb, 2, cols = 2, widths = 25)
 
         # Mass tolerance
-        decParams <- deconvolution_params()[which(chem %in% deconvolution_params()$chemical_type),]
+        decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type == chem),]
+        decParams <- decParams[which(decParams$project == as.numeric(input$project)),]
+        decParams <- decParams[which(decParams$adduct == adduct),]
         if(decParams$ppm > 0){
           openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$ppm," ppm"), startCol = 3, startRow = 5)
         }else if(decParams$mda > 0){
@@ -333,7 +335,9 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         ################################################################################
         # Write the label's sheet(s)
         allFiles <- project_samples()[which(project_samples()$project == input$project),]
-        decParams <- deconvolution_params()[which(chem %in% deconvolution_params()$chemical_type),]
+        decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type == chem),]
+        decParams <- decParams[which(decParams$project == as.numeric(input$project)),]
+        decParams <- decParams[which(decParams$adduct == adduct),]
         for(file in allFiles$sample_id){
           myActualFile <- allFiles[which(allFiles$sample_id == file),] 
           # Create the sheet of the file label
@@ -356,7 +360,6 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
 
           # Save the table with all values for this file 
           table <- get_profile_matrix(db, myActualFile$project_sample, adduct = decParams$adduct, chemical_type = chem)
-          
           # Table 1 : area (x 1 M)
           openxlsx::writeData(wb, sheet, "Area (x1,000,000)", startRow = 4, startCol = 3)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 3)
@@ -1663,9 +1666,6 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (3+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (3+length(lineNames)-1))
             table1Status <- as.data.frame(reduce_matrix(table1ALL, 2))
-            if(i+1 == 16){
-              browser()
-            }
             for(col in 3:(3+length(lineNames)-1)){
               for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
                 if(table1Status[row-(previousEnd+2),col-2] == "half"){
