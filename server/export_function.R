@@ -1152,7 +1152,6 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
               }
             }
             # Table 8
-            print("table8")
             table8ALL <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
             table8Values <- as.data.frame(reduce_matrix(table8ALL, 1))
             openxlsx::writeData(wb, sheet, table8Values, startCol = 32, startRow = 74)
@@ -1168,7 +1167,6 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
               }
             }
             # Table 9
-            print("table9")
             table9ALL <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
             table9Values <- as.data.frame(reduce_matrix(table9ALL, 1))
             openxlsx::writeData(wb, sheet, table9Values, startCol = 61, startRow = 74)
@@ -1678,13 +1676,13 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
               }
             }
             # Table 2
-            table2 <- as.data.frame(reduce_matrix(table, 1, na_empty = FALSE))
+            table2 <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
             openxlsx::writeData(wb, sheet, table2, startCol = c2, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 35:(35+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
             # Table 3
-            table3 <- as.data.frame(reduce_matrix(table, 3, na_empty = FALSE))
+            table3 <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
             openxlsx::writeData(wb, sheet, table3, startCol = c3, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 67:(67+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (67+length(lineNames)-1))
