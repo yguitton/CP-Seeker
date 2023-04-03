@@ -148,36 +148,68 @@ get_isotope_annot <- function(isotopic_pattern) {
 #' @param mz_range vector, mz_range
 #' 
 #' @return vector, status for each pattern : inside, outside, half
-get_patterns_status <- function(patterns, mz_range){
-  delete <- sapply(1:length(patterns), function(i){
-    reducted_pattern <- patterns[[i]][(which(patterns[[i]]["iso"] == "A" | patterns[[i]]["iso"] == "A+2" | patterns[[i]]["iso"] == "A-2")),]
-    status <- if(max(patterns[[i]]["mz"]) < mz_range[1] | min(patterns[[i]]["mz"]) > mz_range[2]) "outside"
-    else if (min(patterns[[i]]["mz"]) < mz_range[1] | max(patterns[[i]]["mz"]) > mz_range[2]){
-      if(min(reducted_pattern["mz"]) < mz_range[1] | max(reducted_pattern["mz"]) > mz_range[2]) "outside"
-      else if(min(reducted_pattern["mz"]) > mz_range[1] | max(reducted_pattern["mz"]) < mz_range[2]) "half"
-    }
-    else "inside"
-    status
-  })
-  delete
+get_patterns_status <- function(patterns, mz_range, adduct = NULL){
+  result <- data.frame(ion_formula = c(), status = c())
+  for(i in 1:length(patterns)){
+  	reducted_pattern <- patterns[[i]][(which(patterns[[i]]["iso"] == "A" | patterns[[i]]["iso"] == "A+2" | patterns[[i]]["iso"] == "A-2")),]
+  	# According to mzrange
+  	if(max(patterns[[i]]["mz"]) < mz_range[1] | min(patterns[[i]]["mz"]) > mz_range[2]){
+			status <- "outside"
+		}else if(min(patterns[[i]]["mz"]) < mz_range[1] | max(patterns[[i]]["mz"]) > mz_range[2]){
+      if(min(reducted_pattern["mz"]) < mz_range[1] | max(reducted_pattern["mz"]) > mz_range[2]) status <- "outside"
+      else if(min(reducted_pattern["mz"]) > mz_range[1] | max(reducted_pattern["mz"]) < mz_range[2]) status <- "half"
+    }else{
+			status <- "inside"
+		}
+		result[i, "ion_formula"] <- names(patterns[i])
+		result[i, "status"] <- status
+  }
+  result
+  # delete <- sapply(1:length(patterns), function(i){
+  #   reducted_pattern <- patterns[[i]][(which(patterns[[i]]["iso"] == "A" | patterns[[i]]["iso"] == "A+2" | patterns[[i]]["iso"] == "A-2")),]
+  #   if(max(patterns[[i]]["mz"]) < mz_range[1] | min(patterns[[i]]["mz"]) > mz_range[2]){
+	# 		status <- "outside"
+	# 	}else if(min(patterns[[i]]["mz"]) < mz_range[1] | max(patterns[[i]]["mz"]) > mz_range[2]){
+  #     if(min(reducted_pattern["mz"]) < mz_range[1] | max(reducted_pattern["mz"]) > mz_range[2]) status <- "outside"
+  #     else if(min(reducted_pattern["mz"]) > mz_range[1] | max(reducted_pattern["mz"]) < mz_range[2]) status <- "half"
+  #   }else{
+	# 		status <- "inside"
+	# 	}
+  #   status
+  # })
+  # delete
 }
 
 #' @title Get patterns status for each chemical type
 #' 
 #' @description 
-#' Get status of patterns according to the rule for halogen : nb halogen < nb carbon + 3
+#' Get status of patterns according to the chemicals found
 #' 
 #' @param colX list, number of compound on X axis
 #' @param colY list, number of compound on Y axis
 #' @param chemical_type character, chemical type 
+#' @param chemicals datatable, datable made of each ion possible for this couple chemcial type - adduct
 #' @param profile_mat datatable, datatable made of each intensities score deviation and status 
 #' 
 #' @return vector, status for each pattern : inside, outside, half
-get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
+get_type_pattern <- function(colX, colY, chemical_type, chemicals, profile_mat){
 	if(length(c(grep("PCAs",chemical_type), grep("PBAs",chemical_type))) > 0){
     for(col in colX[1]:colX[2]){ # c for each Cl/Br
     	for(row in colY[1]:colY[2]){ # r for each C
     		if(col > (row+3)){
+    			colChem <- chemicals[which(chemicals$Cl == col),]
+    			resChem <- colChem[which(colChem$Br == row),]
+    			if(nrow(resChem) == 0){
+    				saved <- NULL
+    				for(p in 1:3){
+    					if(length(saved) < 1){
+    						saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    					}else{
+    						saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    					}
+    				}
+    				profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    			}
     			saved <- NULL
     			for(p in 1:3){
     				if(length(saved) < 1){
@@ -194,6 +226,19 @@ get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
   if(length(grep("P.*Os", chemical_type)) > 0){
     for(col in colX[1]:colX[2]){ # c for each Cl/Br
     	for(row in colY[1]:colY[2]){ # r for each C
+    		colChem <- chemicals[which(chemicals$Cl == col),]
+    		resChem <- colChem[which(colChem$C == row),]
+    		if(nrow(resChem) == 0){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
     		if(col > (row+3)){
     			saved <- NULL
     			for(p in 1:3){
@@ -214,6 +259,19 @@ get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
     print(nbC)
     for(col in colX[1]:colX[2]){ # c for each Cl
     	for(row in colY[1]:colY[2]){ # r for each Br
+    		colChem <- chemicals[which(chemicals$Cl == col),]
+    		resChem <- colChem[which(colChem$Br == row),]
+    		if(nrow(resChem) == 0){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}
     		if((col+row) > (nbC+3)){
     			saved <- NULL
     			for(p in 1:3){
@@ -224,6 +282,16 @@ get_type_pattern <- function(colX, colY, chemical_type, profile_mat){
     				}
     			}
     			profile_mat[row-colY[1]+1,col-colX[1]+1] <- paste(saved, "outside", sep="/")
+    		}else if(row == 0 & col == 0){
+    			saved <- NULL
+    			for(p in 1:3){
+    				if(length(saved) < 1){
+    					saved <- paste(strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}else{
+    					saved <- paste(saved, strsplit(profile_mat[row-colY[1]+1,col-colX[1]+1],"/")[[1]][p], sep="/")
+    				}
+    			}
+    			profile_mat[row,col] <- paste(saved, "outside", sep="/")
     		}
     	}
     }

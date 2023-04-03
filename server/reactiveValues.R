@@ -34,7 +34,7 @@ actualize <- shiny::reactiveValues(
 #' update when user changes the actual project
 #'
 #' @return list of matrix
-mat <- reactive({  
+mat <- reactive({
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
     input$project)

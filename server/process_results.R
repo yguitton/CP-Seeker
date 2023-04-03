@@ -51,7 +51,16 @@ final_mat <- reactive({
   }else{
     print("ERROR !!")
   }
-  reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
+  if(input$process_results_chemical_adduct %in% names(mat()[[file]][[input$process_results_study]])){
+    table <- reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
+    if(colnames(table) == "Error"){
+      data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
+    }else{
+      table
+    }
+  }else{
+    data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
+  }
 })
 
 #' @title Profile matrix table

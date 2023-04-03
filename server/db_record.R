@@ -137,8 +137,7 @@ record_deconvolution_params <- function(db, params) {
   		instrument, resolution, resolution_mz, resolution_index, ppm, 
   		mda, peakwidth_min, peakwidth_max, retention_time_min, retention_time_max, 
   		missing_scans) values %s", data)
-  }
-	else {
+  }else{
 	  data <- paste(sapply(1:length(params$adduct), function(i){
 	    paste(sprintf("(%s, \"%s\", \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", 
 	    params$project, params$chemical_type, params$adduct[i], params$resolution$instrument, 

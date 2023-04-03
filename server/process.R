@@ -25,7 +25,7 @@ shiny::observeEvent(input$process_chemical_standard, {
   }
 })
 
-#javais souhaité faire de la programation dynamique qui permet de recupérer directement les vaiables adduct et chemical type avec leurs familles respectives dans la base de données
+#javais souhaité faire de la programmation dynamique qui permet de recupérer directement les vaiables adduct et chemical type avec leurs familles respectives dans la base de données
 #malheureusement je n'ai pas pule faire. néanmoins jai créer deux fonction get_ecni_adduct et get_esi_adduct qui permettent de recuppérer les adduits de chaque famille dans la base de donées.
 # J'ai également  créer les variables ecni_adduct et esi_apci_adduct dans le fichier manager.r  afin les  inclure dans la liste deroulante qui categorise les adduits de faço,n dynamique. 
 #Cependant cela n'a pas fonctionner car le serveur ne prend pas en comte ces variables  en compte.
@@ -532,7 +532,7 @@ shiny::observeEvent(input$process_launch, {
   			title = msg, value = (i - 1) * 100 / pb_max)
 
   		status <- get_patterns_status(theoric_patterns, params$mz_range[i,])
-  		deleted <- which(status == "outside")
+  		deleted <- which(status$status == "outside")
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
   		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, theoric_patterns[-deleted],
   			ion_forms[-deleted,]$chemical_ion, scalerange, params$retention_time,
@@ -543,8 +543,7 @@ shiny::observeEvent(input$process_launch, {
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
   			project_sample = params$project_samples[i],
   			peaks2))
-  		else toastr_error(sprintf("No chemical detected
-  			in %s", params$samples[i]))
+  		else toastr_error(sprintf("No chemical detected	in %s", params$samples[i]))
 
   		if(param$standard_study){
   		  peaks2_standard <- do.call(rbind, lapply(1:length(theoric_patterns_standard), function(i){
@@ -561,7 +560,6 @@ shiny::observeEvent(input$process_launch, {
   	print(msg)
   	shinyWidgets::updateProgressBar(session, id = 'pb',
   		title = msg, value = 100)
-
   	delete_features(db, params$project_samples, params$adduct, params$chemical_type)
     delete_deconvolution_params(db, params$project, params$adduct, params$chemical_type)
     if (length(peaks) > 0) {
