@@ -1676,17 +1676,39 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
               }
             }
             # Table 2
-            table2 <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
-            openxlsx::writeData(wb, sheet, table2, startCol = c2, startRow = previousEnd+2)
+            table2ALL <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
+            table2Values <- as.data.frame(reduce_matrix(table2ALL, 1))
+            openxlsx::writeData(wb, sheet, table2Values, startCol = c2, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 35:(35+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
+            table2Status <- as.data.frame(reduce_matrix(table2ALL, 2))
+            for(col in 3:(3+length(lineNames)-1)){
+              for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
+                if(table2Status[row-(previousEnd+2),col-2] == "half"){
+                  addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col+32) # add 32 to correspond to the good column (35 - 3)
+                }else if(table2Status[row-(previousEnd+2),col-2] == "outside"){
+                  addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col+32) # add 32 to correspond to the good column (35 - 3)
+                }
+              }
+            }
             # Table 3
-            table3 <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
-            openxlsx::writeData(wb, sheet, table3, startCol = c3, startRow = previousEnd+2)
+            table3ALL <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
+            table3Values <- as.data.frame(reduce_matrix(table3ALL, 1))
+            openxlsx::writeData(wb, sheet, table3Values, startCol = c3, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 67:(67+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (67+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (67+length(lineNames)-1))
+            table3Status <- as.data.frame(reduce_matrix(table3ALL, 2))
+            for(col in 3:(3+length(lineNames)-1)){
+              for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
+                if(table3Status[row-(previousEnd+2),col-2] == "half"){
+                  addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col+64) # add 64 to correspond to the good column (67 - 3)
+                }else if(table3Status[row-(previousEnd+2),col-2] == "outside"){
+                  addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col+64) # add 64 to correspond to the good column (67 - 3)
+                }
+              }
+            }
           }else{
             # Grey all tables
             # Table 1
