@@ -128,7 +128,7 @@ shiny::observeEvent(input$process_standard_study, {
   }
 })
 
-# Choices forstandards from DB
+# Choices for standards from DB
 output$ui_process_standard_formula <- shiny::renderUI({
     table <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
     table <- table[which(table$chemical_familly == "Standard"),]
@@ -493,6 +493,7 @@ shiny::observeEvent(input$process_launch, {
 		        get_chemical_ions(db, adduct, params_standard$chemical_type, formula = x)
 		    }))
 			})
+
 		} 
 
   	if (nrow(ion_forms) == 0) custom_stop("minor_error", "No chemical founded
@@ -500,21 +501,36 @@ shiny::observeEvent(input$process_launch, {
 
 		theoric_patterns <- get_theoric(ion_forms$ion_formula,
 		  ion_forms$charge[1], params$resolution)
-		if(param$standard_study) theoric_patterns_standard <-
-		  lapply(1:length(ion_forms_standard), function(i){
-		    get_theoric(ion_forms_standard[[i]]$ion_formula,
-		      ion_forms_standard[[i]]$charge[1], params$resolution)
-		  })
+		if(param$standard_study){
+			theoric_patterns_standard <-
+		  	lapply(1:length(ion_forms_standard), function(i){
+		    	if(nrow(ion_forms_standard[[i]]) > 0){
+		    		get_theoric(ion_forms_standard[[i]]$ion_formula,
+		      		ion_forms_standard[[i]]$charge[1], params$resolution)
+		    	}
+		  	})
+		  # To make empty data when standard didn't found with adduct (ex : 13C12-HBCDD with M-Cl)
+		  for(x in 1:length(theoric_patterns_standard)){
+		    if(is.null(names(theoric_patterns_standard[[x]]))){
+		    	theoric_patterns_standard[[x]] <- "no theoric"
+		    	names(theoric_patterns_standard[[x]]) <- formula_list[x]
+		    }
+		  }
+		}
 
   	# for each theoric pattern compute m/z borns
 		theoric_patterns <- lapply(theoric_patterns,
 		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
-		if(param$standard_study) theoric_patterns_standard <- lapply(
-		  theoric_patterns_standard, function(x){
-		    lapply(x, function(y){
-		        cbind(y, get_mass_range(y[, "mz"], params$ppm, params$mda))
+		if(param$standard_study){
+			for(tp in 1:length(theoric_patterns_standard)){
+				if(theoric_patterns_standard[[tp]] != "no theoric"){
+					theoric_patterns_standard[[tp]] <- lapply(
+						theoric_patterns_standard[[tp]], function(y){
+		        	cbind(y, get_mass_range(y[, "mz"], params$ppm, params$mda))
 		      })
-		  })
+				}
+			}
+		}
 		peaks <- NULL
   	peaks_standard <- NULL
   	for (i in 1:length(params$samples)) {
@@ -547,36 +563,46 @@ shiny::observeEvent(input$process_launch, {
 
   		if(param$standard_study){
   		  peaks2_standard <- do.call(rbind, lapply(1:length(theoric_patterns_standard), function(i){
-  		    deconvolution(ms_file, theoric_patterns_standard[[i]],
-  		      ion_forms_standard[[i]]$chemical_ion, scalerange, params_standard$retention_time[[i]],
-  		      params$missing_scans, pb = "pb2")
+  		    if(theoric_patterns_standard[[i]] == "no theoric"){
+  		    	# If the standard is not possible = without any theoric patterns (ex : adduct M-Cl with HBCDD standard)
+  		    	# We want to keep it to show user that is not possible (we save it in DB also)
+  		    	notheoric <- c(mz = NA, mzmin = NA, mzmax = NA, rt = NA, rtmin = NA, rtmax = NA, into = NA, intb = NA, maxo = NA, sn = NA, scale = NA,
+						scpos = NA, scmin = NA, scmax = NA, lmin = NA, lmax = NA, abundance = NA, iso = "no theoric", score = NA, deviation = NA, chemical_ion = NA, 
+						intensities = NA, weighted_deviations = NA)
+  		    	notheoric
+  		    }else{
+  		    	deconvolution_std(ms_file, theoric_patterns_standard[[i]],
+  		      	ion_forms_standard[[i]]$chemical_ion, scalerange, params_standard$retention_time[[i]],
+  		      	params$missing_scans, pb = "pb2")
+  		    }
   		  }))
   		  if (length(peaks2_standard) > 0) peaks_standard <- rbind(peaks_standard, cbind(
   		    project_sample = params$project_samples[i],
   		    peaks2_standard))
   		}
  	  }
-  	msg <- "Record peaks"
-  	print(msg)
+  	
   	shinyWidgets::updateProgressBar(session, id = 'pb',
   		title = msg, value = 100)
   	delete_features(db, params$project_samples, params$adduct, params$chemical_type)
     delete_deconvolution_params(db, params$project, params$adduct, params$chemical_type)
     if (length(peaks) > 0) {
+    	msg <- "Record peaks"
+  		print(msg)
   	  record_deconvolution_params(db, params)
   	  record_features(db, peaks)
     }
-
     if(param$standard_study){
-      delete_features(db, params$project_samples, params_standard$adduct, params_standard$chemical_type)
-  	  delete_deconvolution_params(db, params$project, params_standard$adduct, params_standard$standard_type)
-      if (length(peaks_standard) > 0) {
-    	  record_deconvolution_params(db, params_standard)
-    	  record_features(db, peaks_standard)
-    	}
+    	msg <- "Record standards"
+  		print(msg)
+   		record_deconvolution_params(db, params_standard)
+    	record_features(db, peaks_standard)
   	}
 
 		print('done')
+		actualize$results_matrix
+  	actualize$deconvolution_params
+  	mat()
 		shiny::updateTabsetPanel(session, "tabs", "process_results")
 		shinyWidgets::closeSweetAlert(session)
 	}, invalid = function(i) NULL
