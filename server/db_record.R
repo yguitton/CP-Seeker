@@ -188,18 +188,35 @@ record_deconvolution_params <- function(db, params) {
 #' 		\item project_sample id integer project_sample ID
 #' }
 record_features <- function(db, features) {
-  features <- features[which(features$score > 0), ]
-	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
-		`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
-		score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
-		paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-			\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
-			features$mzmax, features$rt, features$rtmin, features$rtmax, 
-			features$into, features$intb, features$maxo, features$sn, 
-			features$scale, features$scpos, features$scmin, features$scmax, 
-			features$iso, features$abundance, features$score, 
-			features$deviation, features$chemical_ion, features$intensities, 
-			features$weighted_deviation, features$project_sample), 
-			collapse = ", "))
-	db_execute(db, query)
+  # Record features (standard) which have been nexted by deconvolution (ex : M-Cl with HBCDD) their score is NA and they will be stop in next step
+  # AJOUTER LES AUTRES POSSIBILITES DE NEXTED !!!!!!
+  if(c("no ROIs") %in% features[,"iso"]){
+  	outftr <- features[which(features[,"iso"] %in% c("no ROIs")),]
+  	query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
+			`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
+			score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
+			paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+				\"%s\", %s, %s, %s, %s, %s, %s, %s)", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+				outftr[,"iso"], 0, 0, 0, outftr[,"chemical_ion"], 0, 0, outftr[,"project_sample"]), 
+				collapse = ", "))
+		db_execute(db, query)
+  }
+  # Record features with score > 0 and with values
+  features <- features[which(!(is.na(features[,"score"]))),]
+  features <- features[which(features[,"score"] > 0), ]
+	if(nrow(features) > 0){
+		query <- sprintf("insert into feature (mz, mzmin, mzmax, rt, rtmin, rtmax, 
+			`into`, intb, maxo, sn, scale, scpos, scmin, scmax, iso, abundance, 
+			score, deviation, chemical_ion, intensities, weighted_deviation, project_sample) values %s;", 
+			paste(sprintf("(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+				\"%s\", %s, %s, %s, %s, %s, %s, %s)", features$mz, features$mzmin, 
+				features$mzmax, features$rt, features$rtmin, features$rtmax, 
+				features$into, features$intb, features$maxo, features$sn, 
+				features$scale, features$scpos, features$scmin, features$scmax, 
+				features$iso, features$abundance, features$score, 
+				features$deviation, features$chemical_ion, features$intensities, 
+				features$weighted_deviation, features$project_sample), 
+				collapse = ", "))
+		db_execute(db, query)
+	}
 }
