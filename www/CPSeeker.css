@@ -149,3 +149,6 @@ table td input {
 .outside {
 	background-color: #888;
 }
+input:invalid {
+  border: red solid 3px;
+}
