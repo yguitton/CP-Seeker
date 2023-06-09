@@ -338,13 +338,23 @@ get_deconvolution_params <- function(db, project, chemical_type, adduct){
 #' @param chemical_type string type of chemical studied
 #' @param simplify boolean if TRUE will round deviation and intensities
 #' @param table boolean if TRUE will return the data table, else the matrix
+#' @param export boolean to know if the function is in export and needs different digits
 #'
 #' @return matrix with isotopic scores of chemical ions integrated
 #' 		each column represent a level of chlore &
 #'		each row represent a level of carbon
 get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
-  chemical_type = NULL, simplify = TRUE, table = FALSE) {
+  chemical_type = NULL, simplify = TRUE, table = FALSE, export = FALSE) {
   noChem <- FALSE
+  if(export){
+		digits_int <- 6
+		digits_score <- 0
+		digits_dev <- 2
+  }else{
+		digits_int <- 0
+		digits_score <- 0
+		digits_dev <- 1
+  }
   if(is.null(adduct)){
   	print("adduct null")
   	query <- "select C, Cl from chemical;"
@@ -355,11 +365,11 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     	dimnames = list(paste0(colnames(chemicals)[1], colY[1]:colY[2]), paste0(colnames(chemicals)[2], colX[1]:colX[2])))
   	if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   	query <- sprintf("select chemical_ion,
-    	round(score,0) as score, intensities, weighted_deviation from feature where
+    	round(score,%s) as score, intensities, weighted_deviation from feature where
 			abundance == 100 and project_sample == %s and chemical_ion in (
 				select chemical_ion from chemical_ion
 				where adduct == \"%s\" and chemical_type == \"%s\");",
-    	project_sample, adduct, chemical_type)
+    	digits_score, project_sample, adduct, chemical_type)
   	data <- db_get_query(db, query)
   	if (nrow(data) == 0) return(profile_mat)
   	print("passe")
@@ -375,8 +385,8 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     	for (row in seq(nrow(data))) profile_mat[
       	data[row, colnames(chemicals)[1]] - colY[1] + 1,
       	data[row, colnames(chemicals)[2]] - colX[1] + 1] <- paste(data[row, "score"],
-        	round(data[row, "intensities"]/10**6, digits = 0),
-        	round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        	round(data[row, "intensities"]/10**6, digits = digits_int),
+        	round(data[row, "weighted_deviation"]*10**3, digits = digits_dev),
         	status[row], sep = "/")
   	}else{
     	for (row in seq(nrow(data))) profile_mat[
@@ -461,11 +471,11 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
   	if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
   	# abundance = 100 means it is a base peak A
   	query <- sprintf("select chemical_ion,
-    	round(score,0) as score, intensities, weighted_deviation from feature where
+    	round(score,%s) as score, intensities, weighted_deviation from feature where
 			abundance == 100 and project_sample == %s and chemical_ion in (
 				select chemical_ion from chemical_ion
 				where adduct == \"%s\" and chemical_type == \"%s\");",
-    	project_sample, adduct, chemical_type)
+    	digits_score, project_sample, adduct, chemical_type)
   	data <- db_get_query(db, query)
   	if(nrow(data) > 0){
   		if(table) return(merge(chemicals, data, by = "chemical_ion", all.x = TRUE))
@@ -484,8 +494,8 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     		for (row in seq(nrow(data))) profile_mat[
       		data[row, colnames(chemicals)[2]] - colY[1] + 1,
       		data[row, colnames(chemicals)[3]] - colX[1] + 1] <- paste(data[row, "score"],
-        		round(data[row, "intensities"]/10**6, digits = 0),
-        		round(data[row, "weighted_deviation"]*10**3, digits = 1),
+        		round(data[row, "intensities"]/10**6, digits = digits_int),
+        		round(data[row, "weighted_deviation"]*10**3, digits = digits_dev),
         		data[row,"status"], sep = "/")
   		}else{
     		for (row in seq(nrow(data))) profile_mat[
@@ -531,34 +541,41 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
   sample <- get_samples(db, project)
   table <- NULL
   for(i in 1:length(sample$project_sample)){
-    data <- do.call(rbind,
-      lapply(standard_formula, function(y){
-        do.call(rbind,
-          lapply(adduct, function(x){
-            query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
-              iso == \"A\" and project_sample in (select project_sample from project_sample where
+    # query of normal standard with iso = A
+    query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+         			iso == \"A\" and project_sample in (select project_sample from project_sample where
               project == %s and sample_id == \"%s\") and chemical_ion in (
-                select chemical_ion from chemical_ion where adduct == \"%s\"
-                and chemical == (select chemical from chemical where chemical_type == \"%s\"));',
-              project, sample$sample_id[i], x, y)
-            data2 <- db_get_query(db, query)
-            if(nrow(data2) == 0){
-              data2 <- data.frame(into = NA, intb = NA, score = NA, weighted_deviation = NA)
-            }
-            data2 <- cbind(sample_id = sample$sample_id[i], formula = y, adduct = x, data2)
-          })
-        )
-      })
-    )
-    table <- rbind(table, data)
+                select chemical_ion from chemical_ion where adduct == \"%s\" and chemical == (
+                	select chemical from chemical where chemical_type == \"%s\"));',
+              project, sample$sample_id[i], adduct, standard_formula)
+    data <- db_get_query(db, query)
+    if(nrow(data) > 0) data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, data) 
+    # Second try the standard had no results but has a theoric pattern (iso = "no ROIs" or something like that)
+    if(nrow(data) == 0){
+      # query of standard where nothing found and nexted (iso = "no ROIs" or something)
+    	query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+         			iso == \"no ROIs\" and project_sample in (select project_sample from project_sample where
+              project == %s and sample_id == \"%s\") and chemical_ion in (
+                select chemical_ion from chemical_ion where adduct == \"%s\" and chemical == (
+                	select chemical from chemical where chemical_type == \"%s\"));',
+              project, sample$sample_id[i], adduct, standard_formula)
+    	dataOut <- db_get_query(db, query)
+    	if(nrow(dataOut) > 0) data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, dataOut) 
+    }
+    # Last try, the standard has been asked but the adduct is not possible with it
+    if(nrow(data) == 0){
+    	data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, into = "not possible", 
+    		intb = "not possible", score = "not possible", weighted_deviation = "not possible")
+    }
+    table <- as.data.frame(rbind(table, data))
   }
-  table$into[which(!is.na(table$into))] <- formatC(
+  if(class(table$into) != "character") table$into[which(!is.na(table$into))] <- formatC(
     as.numeric(table$into[which(!is.na(table$into))]), format = 'f', big.mark = " ", digits = 0)
-  table$intb[which(!is.na(table$intb))] <- formatC(
+  if(class(table$intb) != "character") table$intb[which(!is.na(table$intb))] <- formatC(
     as.numeric(table$intb[which(!is.na(table$intb))]), format = 'f', big.mark = " ", digits = 0)
-  table$score[which(!is.na(table$score))] <- round(
+  if(class(table$score) != "character") table$score[which(!is.na(table$score))] <- round(
     table$score[which(!is.na(table$score))], digits = 0)
-  table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
+  if(class(table$weighted_deviation) != "character") table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
     table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
   data.table::setnames(table, c("into", "intb", "weighted_deviation"),
     c("total area", "area above baseline", "deviation(mDa)"))
