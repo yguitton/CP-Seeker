@@ -16,13 +16,13 @@ shiny::observeEvent(input$user_create, {
 	print(params)
 	
 	tryCatch({
-	inputs <- c("login", "login")
-	conditions <- c(params$login != "", !params$login %in% users())
-	msgs <- c("you must select a login", "A user with this login already exists")
-	check_inputs(inputs, conditions, msgs)
+		inputs <- c("login", "login")
+		conditions <- c(params$login != "", !params$login %in% users())
+		msgs <- c("you must select a login", "A user with this login already exists")
+		check_inputs(inputs, conditions, msgs)
 	
-	record_user(db, params$login)
-	toastr_success("User created")
+		record_user(db, params$login)
+		toastr_success("User created")
 	}, invalid = function(i) NULL
 	, error = function(e) {
 		print(e)
