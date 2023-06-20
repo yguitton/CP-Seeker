@@ -25,7 +25,7 @@ db_disconnect <- function(db) {
 #' \dontrun{db_get_query(db, "select * from mtcars;")}
 db_get_query <- function(db, query) {
     if (length(query) > 1) stop('multiple request not authorized')
-	print(query)
+	#print(query)
     suppressWarnings(RSQLite::dbGetQuery(db, query))
 }
 
@@ -47,7 +47,7 @@ db_execute <- function(db, query, ...){
 	query <- gsub("\"NA\"", "null", query)
 	query <- gsub("NA", "null", query)
 	query <- gsub("\"\"", "null", query)
-	print(query)
+	#print(query)
 	msg <- "database is locked"
 	while (msg == "database is locked") {
 		msg <- tryCatch ({
@@ -165,3 +165,17 @@ check_inputs <- function(inputs, conditions, msgs) {
 
 show_feedback <- function(input, msg) if (input != "") shinyFeedback::showFeedbackDanger(input, msg)
 hide_feedback <- function(input) if (input != "") shinyFeedback::hideFeedback(input)
+
+# check if the inputs respect the conditions
+# if not it use shinyFeedback to hightlight the input and send a message
+inputsTest <- function(inputs, conditions, messages){
+	if(length(inputs) == 0) return(TRUE)
+	for(i in 1:length(inputs)){
+		feedbackDanger(inputs[i], conditions[i], messages[i])
+		if(conditions[i]){
+			print(paste('ERR: ', messages[i]))
+			toastr_error(messages[i])
+		}
+	}
+	return(!any(conditions))
+}

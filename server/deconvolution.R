@@ -547,7 +547,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' }
 deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL, reintegration = FALSE) {
-  peaks <- NULL
+  	peaks <- NULL
 	pb_max <- length(theoric_patterns)
 	extend_range <- ceiling(scalerange[2] * 1.5)
 	for (i in seq(theoric_patterns)) {
@@ -555,6 +555,104 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
 		roi <- get_rois(traces$eic[, "int"], scalerange[1])
 		if (length(roi) == 0) next
+		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
+			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
+		# xcms define noiserange as 1.5x peakwidth_max
+		baselines <- lapply(traces, function(x) 
+            suppressWarnings(runmed(x$eic[, "int"], nrow(x$eic) / 3, endrule = "constant", algorithm = "Turlach")))
+		noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))
+		if(reintegration){
+		  roi <- range(which(traces[[1]]$eic[, "int"] > 0 & 
+		    traces[[1]]$eic[, "rt"] > scanrange[1]*60 & traces[[1]]$eic[, "rt"] < scanrange[2]*60))
+		  if (roi[1] == Inf) next
+		  lm <- c(roi[1] - traces[[1]]$eic[roi[1], "scan"] + 1, roi[2] - traces[[1]]$eic[roi[1], "scan"] + 1)
+		  basepeaks <- integrate2(traces[[1]]$eic[roi[1]:roi[2], ], lm, 
+		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
+		  traces[[1]]$mzmat[which(
+		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+	    , , drop = FALSE])
+		}
+		else{
+		  # extend roi for better integration
+  		roi <- range(
+  		  (if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
+  		  (if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
+  	  )
+  	  basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
+  		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
+  		  traces[[1]]$mzmat[which(
+  		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+  		  , , drop = FALSE])
+		}
+		
+	  if (length(basepeaks) == 0) next
+	  basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
+		if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
+	  if(nrow(basepeaks) == 0) next
+		basepeak <- basepeaks[which.max(basepeaks$maxo),]
+		peaks2 <- NULL
+		scores <- c(theoric_patterns[[i]][1, "weight"])
+		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
+		weight <- c(theoric_patterns[[i]][1, "weight"])
+		continue_integration <- TRUE
+		k <- 2
+		while (k < length(traces) & continue_integration) {
+			eic <- traces[[k]]$eic
+			mzmat <- traces[[k]]$mzmat
+			peak <- integrate2(eic[roi[1]:roi[2], ], 
+				unlist(basepeak[, c("lmin", "lmax")]), 
+				baselines[[k]][roi[1]:roi[2]], noises[k], missing_scans, 
+				mzmat[which(mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])[1, ]
+			if (length(peak) > 0) {
+				if (k == 2) peaks2 <- basepeak
+				peak <- cbind(peak, 
+					abundance = peak[1, "intb"] / basepeak[1, "intb"] * 100, 
+					iso = theoric_patterns[[i]][k, "iso"])
+				scores <- c(scores, (1 - 
+					abs(theoric_patterns[[i]][k, "abundance"] - peak[1, "abundance"]) / 
+						theoric_patterns[[i]][k, "abundance"]) * 
+							theoric_patterns[[i]][k, "weight"])
+				deviations <- c(deviations, 
+					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+				weight <- c(weight, theoric_patterns[[i]][k, "weight"])
+				peaks2 <- rbind(peaks2, peak)
+			} else continue_integration <- FALSE
+			k <- k + 1
+		}
+		if (length(peaks2) > 0) {
+			peaks <- rbind(peaks, cbind(
+					peaks2, 
+					score = sum(scores) * 100, 
+					deviation = mean(deviations) * 10**3, 
+					chemical_ion = chemical_ids[i],
+          intensities = length(traces)*sum(peaks2[,"maxo"])/k,
+          weighted_deviations = sum(deviations*weight)/sum(weight)
+			))
+		}
+		
+		shinyWidgets::updateProgressBar(session, id = pb, 
+			value = i * 100 / pb_max,  
+			title = "")
+	}
+	peaks
+}
+
+deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerange, scanrange = NULL, 
+		missing_scans = 1, pb = NULL, reintegration = FALSE) {
+  	peaks <- NULL
+	pb_max <- length(theoric_patterns)
+	extend_range <- ceiling(scalerange[2] * 1.5)
+	for (i in seq(theoric_patterns)) {
+		time_begin <- Sys.time()
+		traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
+		roi <- get_rois(traces$eic[, "int"], scalerange[1])
+		if (length(roi) == 0){
+			norois <- c(mz = NA, mzmin = NA, mzmax = NA, rt = NA, rtmin = NA, rtmax = NA, into = NA, intb = NA, maxo = NA, sn = NA, scale = NA,
+				scpos = NA, scmin = NA, scmax = NA, lmin = NA, lmax = NA, abundance = NA, iso = "no ROIs", score = NA, deviation = NA, chemical_ion = chemical_ids[i], 
+				intensities = NA, weighted_deviations = NA)
+			peaks <- rbind(peaks, norois)
+			next
+		}
 		traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
 			get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
 		# xcms define noiserange as 1.5x peakwidth_max

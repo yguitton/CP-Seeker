@@ -34,11 +34,13 @@ actualize <- shiny::reactiveValues(
 #' update when user changes the actual project
 #'
 #' @return list of matrix
-mat <- reactive({  
+mat <- reactive({
+  actualize$deconvolution_params
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_type != "Standard");',
+    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
     input$project)
   chemicals <- db_get_query(db, query)
+  print(chemicals)
   samples <- get_samples(db, input$project)
   mat <- list()
   for(i in 1:length(samples$sample_id)){
@@ -308,7 +310,7 @@ shiny::observeEvent(c(deconvolution_params(), input$project), {
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- c(choices[grep("PXA", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs"))])
+  choices <- c(choices[grep("PXAs", choices)], choices[which(choices %in% c("PCAs", "PCOs", "PCdiOs", "PCtriOs"))]) # have to change it
   shiny::updateSelectInput(session, "graphics_chemical",
     "Family", choices = choices)
   shiny::updateSelectInput(session, "regression_observed_family", 
@@ -331,11 +333,16 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
     "adduct"]
   # That if loop to be able to keep the selected adduct when travel between chemical type
   if(input$process_results_chemical_adduct != ""){
-  	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
-    	"Adduct", choices = as.factor(choices), selected = input$process_results_chemical_adduct)
+  	if(input$process_results_chemical_adduct %in% choices){
+  		shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    		"Adduct", choices = as.factor(choices), selected = input$process_results_chemical_adduct)
+  	}else{
+  		shiny::updateSelectInput(session, "process_results_chemical_adduct", 
+    		"Adduct", choices = as.factor(choices), selected = as.factor(choices)[1])
+  	}
   }else{
   	shiny::updateSelectInput(session, "process_results_chemical_adduct", 
-    	"Adduct", choices = as.factor(choices))
+    	"Adduct", choices = as.factor(choices), selected = as.factor(choices)[1])
   }
   shiny::updateSelectInput(session, "graphics_adduct",
     "Adduct", choices = choices)
@@ -355,8 +362,8 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 shiny::observeEvent(c(deconvolution_params(), input$project), {
   choices <- deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs"))]
-  choices <- choices[-grep("PXAs", choices)]
+  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs", "PCtriOs"))] # have to change it
+  if(length(grep("PXAs", choices)) > 0) choices <- choices[-grep("PXAs", choices)]
   shiny::updateSelectInput(session, "process_results_standard_formula", 
     "Standard formula", choices = choices)
 })

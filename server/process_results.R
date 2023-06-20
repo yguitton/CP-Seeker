@@ -51,7 +51,16 @@ final_mat <- reactive({
   }else{
     print("ERROR !!")
   }
-  reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
+  if(input$process_results_chemical_adduct %in% names(mat()[[file]][[input$process_results_study]])){
+    table <- reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], select_choice, greycells = TRUE)
+    if("Error" %in% colnames(table)){
+      data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
+    }else{
+      table
+    }
+  }else{
+    data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
+  }
 })
 
 #' @title Profile matrix table
@@ -413,6 +422,10 @@ output$process_results_ms <- plotly::renderPlotly({
 #' 
 #' @param input$project integer, project id
 shiny::observeEvent(input$process_results_download, {
+  print('############################################################')
+  print('###################### EXPORTATION #########################')
+  print('############################################################')
+  
   files <- project_samples()[which(
     project_samples()$project == input$project), "sample_id"]
   allDeconv <- deconvolution_params()[which(
@@ -430,26 +443,33 @@ shiny::observeEvent(input$process_results_download, {
   pbValue <- 0
   shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
   if(length(c(grep("PCAs",chem_type), grep("PBAs",chem_type))) > 0){
-    adducts <- unique(deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))]), "adduct"])
+    adducts <- deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))]), ]
+    adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
     export_PCA(actual_user, chem_type = chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(allDeconv[c(grep("PCAs",allDeconv$chemical_type), grep("PBAs",allDeconv$chemical_type)),"adduct"])
   }
   if(length(grep("P.*Os", chem_type)) > 0){
-    adducts <- unique(deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[grep("PCOs",chem_type)]), "adduct"])
-    export_PCO(actual_user, chem_type = chem_type[grep("PCOs",chem_type)], 
+    adducts <- deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[grep("P.*Os",chem_type)]), ]
+    adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
+    export_PCO(actual_user, chem_type = chem_type[grep("P.*Os",chem_type)], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"]))
   }
   if(length(grep("PXAs",chem_type)) > 0){
-    adducts <- unique(deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[grep("PXAs",chem_type)]), "adduct"])
+    adducts <- deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type[grep("PXAs",chem_type)]), ]
+    adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
     export_PXA(actual_user, chem_type = chem_type[grep("PXAs",chem_type)], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
   }
+  toastr_success("Exportation success !")
+  print('############################################################')
+  print('################### END OF EXPORTATION #####################')
+  print('############################################################')
   shinyWidgets::closeSweetAlert(session)
 })
 

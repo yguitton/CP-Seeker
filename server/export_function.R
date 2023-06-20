@@ -4,12 +4,16 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
   # Template PCAs & PBAs
   library(openxlsx)
   #library(XLConnect) # for some more functions
+  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
+    input$project)
+  chemicals <- db_get_query(db, query)
   for(chem in chem_type){
     for(adduct in adducts){
       shinyWidgets::updateProgressBar(session, id = "exportBar",
-        value = (pbValue + 1)/8*100, 
-        title = paste0("Exportation of ", chem, "..."))
-      pbValue <- pbValue + 1
+      value = (pbValue + 1)/nrow(chemicals)*100, 
+      title = paste0("Exportation of ", chem, "..."))
+    pbValue <- pbValue + 1
       print("######################################################################################")
       print(paste0("Run for ",chem," and ",adduct))
       if(adduct %in% deconvolution_params()[which(deconvolution_params()$chemical_type == chem),"adduct"]){
@@ -35,6 +39,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         italicStyle <- createStyle(textDecoration = "italic")
         sh2TableStyle <- createStyle(halign = "center", fgFill = "#def1fa", border = "TopBottomLeftRight")
         noiseActiveStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f20505", textDecoration = "bold")
+        noiseOrangeStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f1a251", textDecoration = "bold")
         noiseStopStyle <- createStyle(halign = "center", fgFill = "#def1fa")
         topBorderStyle <- createStyle(halign = "center", valign = "center", border = c("top","left","right"),fgFill = "#9dd4e3", textDecoration = "bold")
         bottomBorderStyle <- createStyle(halign = "center", valign = "center", border = c("bottom","left","right"), fgFill = "#9dd4e3", textDecoration = "bold")
@@ -124,13 +129,15 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         setColWidths(wb, 2, cols = 2, widths = 25)
 
         # Mass tolerance
-        decParams <- deconvolution_params()[which(chem %in% deconvolution_params()$chemical_type),]
+        decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type == chem),]
+        decParams <- decParams[which(decParams$project == as.numeric(input$project)),]
+        decParams <- decParams[which(decParams$adduct == adduct),]
         if(decParams$ppm > 0){
           openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$ppm," ppm"), startCol = 3, startRow = 5)
         }else if(decParams$mda > 0){
           openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$mda," mDa"), startCol = 3, startRow = 5)
         }
-        if(decParams$instrument == "Orbitrap"){
+        if(unique(decParams$instrument == "Orbitrap")){
           openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution/1000,"k@",decParams$resolution_mz), startCol = 3, startRow = 6)
         }else if(grep("ToF", decParams$instrument)){
           openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution), startCol = 3, startRow = 6)
@@ -156,7 +163,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         #################################
         # Standard(s) information
         std <- unique(deconvolution_params()[which(deconvolution_params()$project == input$project), "chemical_type"])
-        std <- std[-which(std %in% c("PBAs"))]
+        if(length(grep("PBAs", std)) > 0) std <- std[-grep("PBAs",std)]
         std <- std[-c(grep("PXAs", std),grep("PCAs",std),grep("Os",std))]
         usedStd <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% std),]
         myStd <- NULL
@@ -196,7 +203,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         }
         # Standard RT 1 (given by user)
         stdInfo <- unique(deconvolution_params()[which(deconvolution_params()$project == input$project), ])
-        stdInfo <- stdInfo[-which(stdInfo$chemical_type %in% c("PBAs")),]
+        if(length(grep("PBAs", stdInfo$chemical_type)) > 0) stdInfo <- stdInfo[-grep("PBAs", stdInfo$chemical_typ),]
         stdInfo <- stdInfo[-c(grep("PXAs", stdInfo$chemical_type),grep("PCAs",stdInfo$chemical_type),grep("Os",stdInfo$chemical_type)),]
         openxlsx::writeData(wb, 2, paste0(mean(c(stdInfo$retention_time_min[which(stdInfo$chemical_type == std[1])], 
                                                 stdInfo$retention_time_max[which(stdInfo$chemical_type == std[1])]))," min"), 
@@ -225,6 +232,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
         # Write the third sheet X times with X is the number of standard
         sheet <- 3
         for(s in std){
+          print(paste0("Standard : ", s))
           # Add one sheet per standard
           addWorksheet(wb=wb, sheetName=paste0('Standard',sheet-2), gridLines=FALSE)
           # Write the sheet
@@ -292,12 +300,18 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
               table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
               addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
               # Is there noise ? Calculate with total area ABOVE baseline (script from home)
-              if(is.na(table$'total area')){
-                noiseParam <- "Not detected"
+              if(is.na(table$'total area') || table$'total area' == 0){
                 openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
+                addStyle(wb, sheet, noiseOrangeStyle, rows = line, cols = 5)
+                openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
+                # Score 
+                openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
+              }else if(length(grep("not possible", table$score)) > 0){
+                openxlsx::writeData(wb, sheet, "Not possible", startCol = 5, startRow = line)
                 addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 5)
                 openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
-                addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
                 # Score 
                 openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
                 # Deviation (mDa)
@@ -329,11 +343,13 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
           
           sheet <- sheet + 1
         }
-        
+        print("label sheet")
         ################################################################################
         # Write the label's sheet(s)
         allFiles <- project_samples()[which(project_samples()$project == input$project),]
-        decParams <- deconvolution_params()[which(chem %in% deconvolution_params()$chemical_type),]
+        decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type == chem),]
+        decParams <- decParams[which(decParams$project == as.numeric(input$project)),]
+        decParams <- decParams[which(decParams$adduct == adduct),]
         for(file in allFiles$sample_id){
           myActualFile <- allFiles[which(allFiles$sample_id == file),] 
           # Create the sheet of the file label
@@ -355,8 +371,7 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
           setRowHeights(wb, sheet, rows = 1:1000, heights = 18)
 
           # Save the table with all values for this file 
-          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = decParams$adduct, chemical_type = chem)
-          
+          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = decParams$adduct, chemical_type = chem, export = TRUE)
           # Table 1 : area (x 1 M)
           openxlsx::writeData(wb, sheet, "Area (x1,000,000)", startRow = 4, startCol = 3)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 3)
@@ -488,14 +503,20 @@ export_PCA <- function(user, chem_type, adducts, project_informations, pbValue, 
 export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
+  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
+    input$project)
+  chemicals <- db_get_query(db, query)
+  allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
+  myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
-      value = (pbValue + 1)/8*100, 
+      value = (pbValue + 1)/nrow(chemicals)*100,
       title = paste0("Exportation of PCOs ..."))
-    pbValue <- pbValue + 1
+    pbValue <- pbValue + nrow(myProjDeconv[which(myProjDeconv$adduct == adduct),])
     print("######################################################################################")
     print(paste0("Run for PCOs and ",adduct))
-    if(adduct %in% deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),"adduct"]){
+    if(adduct %in% myProjDeconv$adduct){
       # Create the work book for Excel
       wb <- openxlsx::createWorkbook()
 
@@ -518,6 +539,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       italicStyle <- createStyle(textDecoration = "italic")
       sh2TableStyle <- createStyle(halign = "center", fgFill = "#def1fa", border = "TopBottomLeftRight")
       noiseActiveStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f20505", textDecoration = "bold")
+      noiseOrangeStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f1a251", textDecoration = "bold")
       noiseStopStyle <- createStyle(halign = "center", fgFill = "#def1fa")
       topBorderStyle <- createStyle(halign = "center", valign = "center", border = c("top","left","right"),fgFill = "#9dd4e3", textDecoration = "bold")
       bottomBorderStyle <- createStyle(halign = "center", valign = "center", border = c("bottom","left","right"), fgFill = "#9dd4e3", textDecoration = "bold")
@@ -611,14 +633,13 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       setColWidths(wb, 2, cols = 2, widths = 25)
 
       # Mass tolerance
-      decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
-      decParams <- decParams[which(decParams$adduct == adduct),]
+      decParams <- myProjDeconv[which(myProjDeconv$adduct == adduct),]
       if(unique(decParams$ppm) > 0){
         openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$ppm," ppm"), startCol = 3, startRow = 5)
-      }else if(decParams$mda > 0){
+      }else if(any(decParams$mda > 0)){
         openxlsx::writeData(wb, 2, paste0("\u00b1 ", decParams$mda," mDa"), startCol = 3, startRow = 5)
       }
-      if(decParams$instrument == "Orbitrap"){
+      if(unique(decParams$instrument == "Orbitrap")){
         openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution/1000,"k@",decParams$resolution_mz), startCol = 3, startRow = 6)
       }else if(grep("ToF", decParams$instrument)){
         openxlsx::writeData(wb, 2, paste0(decParams$instrument," ",decParams$resolution), startCol = 3, startRow = 6)
@@ -713,6 +734,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       # Write the third sheet X times with X is the number of standard
       sheet <- 3
       for(s in std){
+        print(paste0("Standard : ", s))
         # Add one sheet per standard
         addWorksheet(wb=wb, sheetName=paste0('Standard',sheet-2), gridLines=FALSE)
         # Write the sheet
@@ -779,38 +801,43 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             table <- get_standard_table(db, input$project, stdAdduct, s)
             table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
-            # Is there noise ? Calculate with total area ABOVE baseline (script from home)
-            if(is.na(table$'total area')){
-              noiseParam <- "Not detected"
-              openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
-              addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 5)
-              openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
-              addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
-              # Score 
-              openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
-              # Deviation (mDa)
-              openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
-            }else{
-              totArea <- gsub(" ", "", table$'total area')
-              aboveArea <- gsub(" ", "", table$'area above baseline')
-              if(as.numeric(totArea) > as.numeric(aboveArea)){
-                openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
-                addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
-                noiseParam <- "YES"
-                openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
-                addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
+            if(is.na(table$'total area') || table$'total area' == 0){
+                openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
+                addStyle(wb, sheet, noiseOrangeStyle, rows = line, cols = 5)
+                openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
+                # Score 
+                openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
+              }else if(length(grep("not possible", table$score)) > 0){
+                openxlsx::writeData(wb, sheet, "Not possible", startCol = 5, startRow = line)
+                addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 5)
+                openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
+                # Score 
+                openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
               }else{
-                openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
-                addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
-                noiseParam <- "No"
-                openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
-                addStyle(wb, sheet, noiseStopStyle, rows = line, cols = 6)
+                totArea <- gsub(" ", "", table$'total area')
+                aboveArea <- gsub(" ", "", table$'area above baseline')
+                if(as.numeric(totArea) > as.numeric(aboveArea)){
+                  openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
+                  addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
+                  noiseParam <- "YES"
+                  openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
+                  addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
+                }else{
+                  openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
+                  addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
+                  noiseParam <- "No"
+                  openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
+                  addStyle(wb, sheet, noiseStopStyle, rows = line, cols = 6)
+                }
+               # Score 
+                openxlsx::writeData(wb, sheet, table$score, startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, table$'deviation(mDa)', startCol = 8, startRow = line)
               }
-             # Score 
-              openxlsx::writeData(wb, sheet, table$score, startCol = 7, startRow = line)
-              # Deviation (mDa)
-              openxlsx::writeData(wb, sheet, table$'deviation(mDa)', startCol = 8, startRow = line)
-            }
             line <- line + 1
           }
         }
@@ -819,8 +846,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
       ################################################################################
       # Write the label's sheet(s)
       allFiles <- project_samples()[which(project_samples()$project == input$project),]
-      decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
-      decParams <- decParams[which(decParams$adduct == adduct),]
+      decParams <- myProjDeconv[which(myProjDeconv$adduct == adduct),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
 
       for(file in allFiles$sample_id){
@@ -844,10 +870,9 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
         addStyle(wb, sheet, hStyle, rows = 1:73, cols = 1)
         setColWidths(wb, sheet, cols = 1:1000, widths = 4.5)
         setRowHeights(wb, sheet, rows = 1:1000, heights = 18)
-
         for(chem in chem_type){
           # Save the table with all values for this file 
-          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = adduct, chemical_type = chem)
+          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = adduct, chemical_type = chem, export = TRUE)
           openxlsx::writeData(wb, sheet, "Area (x1,000,000)", startRow = 4, startCol = 3)
           addStyle(wb, sheet, boldStyle, rows = 4, cols = 3)
           openxlsx::writeData(wb, sheet, "Score (%)", startRow = 4, startCol = 32)
@@ -955,7 +980,7 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCOs", chem_type) > 0)){
             # Grey all tables
             # Table 1
             addStyle(wb, sheet, fullGreyCell, rows = 7:37, cols = 3:30, gridExpand = TRUE)
@@ -1069,8 +1094,9 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCdiOs", chem_type) > 0)){
             # Grey all tables
+            print("Grey all diOS")
             # Table 4
             addStyle(wb, sheet, fullGreyCell, rows = 41:71, cols = 3:30, gridExpand = TRUE)
             addStyle(wb, sheet, greyBottomBorderStyle, rows = 71, cols = 3:30)
@@ -1143,10 +1169,10 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = 105, cols = 3:30)
             table7Status <- as.data.frame(reduce_matrix(table7ALL, 2))
             for(col in 3:(ncol(table7Status)+2)){
-              for(row in 74:(nrow(table7Status)+73)){
-                if(table7Status[row-73,col-2] == "half"){
+              for(row in 75:(nrow(table7Status)+74)){
+                if(table7Status[row-74,col-2] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table7Status[row-73,col-2] == "outside"){
+                }else if(table7Status[row-74,col-2] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
@@ -1158,10 +1184,10 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = 105, cols = 32:59)
             table8Status <- as.data.frame(reduce_matrix(table8ALL, 2))
             for(col in 32:(ncol(table8Status)+31)){
-              for(row in 74:(nrow(table8Status)+73)){
-                if(table8Status[row-73,col-31] == "half"){
+              for(row in 75:(nrow(table8Status)+74)){
+                if(table8Status[row-74,col-31] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table8Status[row-73,col-31] == "outside"){
+                }else if(table8Status[row-74,col-31] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
@@ -1175,16 +1201,17 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = 105, cols = 88)
             table9Status <- as.data.frame(reduce_matrix(table9ALL, 2))
             for(col in 61:(ncol(table9Status)+60)){
-              for(row in 74:(nrow(table9Status)+73)){
-                if(table9Status[row-73,col-60] == "half"){
+              for(row in 75:(nrow(table9Status)+74)){
+                if(table9Status[row-74,col-60] == "half"){
                   addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col)
-                }else if(table9Status[row-73,col-60] == "outside"){
+                }else if(table9Status[row-74,col-60] == "outside"){
                   addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col)
                 }
               }
             }
-          }else{
+          }else if(!(grep("PCtriOs", chem_type) > 0)){
             # Grey all tables
+            print("Grey all triOS")
             # Table 7
             addStyle(wb, sheet, fullGreyCell, rows = 75:105, cols = 3:30, gridExpand = TRUE)
             addStyle(wb, sheet, greyBottomBorderStyle, rows = 105, cols = 3:30)
@@ -1211,11 +1238,17 @@ export_PCO <- function(user, chem_type, adducts, project_informations, pbValue, 
 export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
+  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
+    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
+    input$project)
+  chemicals <- db_get_query(db, query)
+  allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
+  myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
-      value = (pbValue + 1)/8*100, 
+      value = (pbValue + 1)/nrow(chemicals)*100, 
       title = paste0("Exportation of PXAs ..."))
-    pbValue <- pbValue + 1
+    pbValue <- pbValue + nrow(myProjDeconv[which(myProjDeconv$adduct == adduct),])
     print("######################################################################################")
     print(paste0("Run for PXAs and ",adduct))
     if(adduct %in% deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),"adduct"]){
@@ -1241,6 +1274,7 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       italicStyle <- createStyle(textDecoration = "italic")
       sh2TableStyle <- createStyle(halign = "center", fgFill = "#def1fa", border = "TopBottomLeftRight")
       noiseActiveStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f20505", textDecoration = "bold")
+      noiseOrangeStyle <- createStyle(halign = "center", fgFill = "#def1fa", fontColour = "#f1a251", textDecoration = "bold")
       noiseStopStyle <- createStyle(halign = "center", fgFill = "#def1fa")
       topBorderStyle <- createStyle(halign = "center", valign = "center", border = c("top","left","right"),fgFill = "#9dd4e3", textDecoration = "bold")
       bottomBorderStyle <- createStyle(halign = "center", valign = "center", border = c("bottom","left","right"), fgFill = "#9dd4e3", textDecoration = "bold")
@@ -1341,7 +1375,7 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       }else if(decParams$mda > 0){
         openxlsx::writeData(wb, 2, paste0("\u00b1 ", unique(decParams$mda)," mDa"), startCol = 3, startRow = 5)
       }
-      if(decParams$instrument == "Orbitrap"){
+      if(unique(decParams$instrument == "Orbitrap")){
         openxlsx::writeData(wb, 2, paste0(unique(decParams$instrument)," ",unique(decParams$resolution)/1000,"k@",unique(decParams$resolution_mz)), startCol = 3, startRow = 6)
       }else if(grep("ToF", decParams$instrument)){
         openxlsx::writeData(wb, 2, paste0(unique(decParams$instrument)," ",unique(decParams$resolution)), startCol = 3, startRow = 6)
@@ -1459,6 +1493,7 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
       # Write the third sheet X times with X is the number of standard
       sheet <- 3
       for(s in std){
+        print(paste0("Standard : ", s))
         # Add one sheet per standard
         addWorksheet(wb=wb, sheetName=paste0('Standard',sheet-2), gridLines=FALSE)
         # Write the sheet
@@ -1525,38 +1560,43 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
             table <- get_standard_table(db, input$project, stdAdduct, s)
             table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
-            # Is there noise ? Calculate with total area ABOVE baseline (script from home)
-            if(is.na(table$'total area')){
-              noiseParam <- "Not detected"
-              openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
-              addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 5)
-              openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
-              addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
-              # Score 
-              openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
-              # Deviation (mDa)
-              openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
-            }else{
-              totArea <- gsub(" ", "", table$'total area')
-              aboveArea <- gsub(" ", "", table$'area above baseline')
-              if(as.numeric(totArea) > as.numeric(aboveArea)){
-                openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
-                addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
-                noiseParam <- "YES"
-                openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
-                addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
+            if(is.na(table$'total area') || table$'total area' == 0){
+                openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
+                addStyle(wb, sheet, noiseOrangeStyle, rows = line, cols = 5)
+                openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
+                # Score 
+                openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
+              }else if(length(grep("not possible", table$score)) > 0){
+                openxlsx::writeData(wb, sheet, "Not possible", startCol = 5, startRow = line)
+                addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 5)
+                openxlsx::writeData(wb, sheet, "", startCol = 6, startRow = line)
+                # Score 
+                openxlsx::writeData(wb, sheet, "", startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, "", startCol = 8, startRow = line)
               }else{
-                openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
-                addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
-                noiseParam <- "No"
-                openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
-                addStyle(wb, sheet, noiseStopStyle, rows = line, cols = 6)
+                totArea <- gsub(" ", "", table$'total area')
+                aboveArea <- gsub(" ", "", table$'area above baseline')
+                if(as.numeric(totArea) > as.numeric(aboveArea)){
+                  openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
+                  addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
+                  noiseParam <- "YES"
+                  openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
+                  addStyle(wb, sheet, noiseActiveStyle, rows = line, cols = 6)
+                }else{
+                  openxlsx::writeData(wb, sheet, as.numeric(totArea), startCol = 5, startRow = line)
+                  addStyle(wb, sheet, tableNumberStyle, rows = line, cols = 5)
+                  noiseParam <- "No"
+                  openxlsx::writeData(wb, sheet, noiseParam, startCol = 6, startRow = line)
+                  addStyle(wb, sheet, noiseStopStyle, rows = line, cols = 6)
+                }
+               # Score 
+                openxlsx::writeData(wb, sheet, table$score, startCol = 7, startRow = line)
+                # Deviation (mDa)
+                openxlsx::writeData(wb, sheet, table$'deviation(mDa)', startCol = 8, startRow = line)
               }
-             # Score 
-              openxlsx::writeData(wb, sheet, table$score, startCol = 7, startRow = line)
-              # Deviation (mDa)
-              openxlsx::writeData(wb, sheet, table$'deviation(mDa)', startCol = 8, startRow = line)
-            }
             line <- line + 1
           }
         }
@@ -1599,7 +1639,7 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
           # That is for each PXA possible
           # Title of tables
           openxlsx::writeData(wb, sheet, paste0("C",i+1,"-PXAs"), startRow = previousEnd+1)
-          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = adduct, chemical_type = paste0("C",i+1,"-PXAs")) 
+          table <- get_profile_matrix(db, myActualFile$project_sample, adduct = adduct, chemical_type = paste0("C",i+1,"-PXAs"), export = TRUE) 
           # Rownames of tables
           lineNames <- c()
           if(i+4 > 30){
@@ -1662,9 +1702,6 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (3+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (3+length(lineNames)-1))
             table1Status <- as.data.frame(reduce_matrix(table1ALL, 2))
-            if(i+1 == 16){
-              browser()
-            }
             for(col in 3:(3+length(lineNames)-1)){
               for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
                 if(table1Status[row-(previousEnd+2),col-2] == "half"){
@@ -1675,17 +1712,39 @@ export_PXA <- function(user, chem_type, adducts, project_informations, pbValue, 
               }
             }
             # Table 2
-            table2 <- as.data.frame(reduce_matrix(table, 1, na_empty = FALSE))
-            openxlsx::writeData(wb, sheet, table2, startCol = c2, startRow = previousEnd+2)
+            table2ALL <- as.data.frame(reduce_matrix(table, 1, greycells = TRUE, na_empty = FALSE))
+            table2Values <- as.data.frame(reduce_matrix(table2ALL, 1))
+            openxlsx::writeData(wb, sheet, table2Values, startCol = c2, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 35:(35+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (35+length(lineNames)-1))
+            table2Status <- as.data.frame(reduce_matrix(table2ALL, 2))
+            for(col in 3:(3+length(lineNames)-1)){
+              for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
+                if(table2Status[row-(previousEnd+2),col-2] == "half"){
+                  addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col+32) # add 32 to correspond to the good column (35 - 3)
+                }else if(table2Status[row-(previousEnd+2),col-2] == "outside"){
+                  addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col+32) # add 32 to correspond to the good column (35 - 3)
+                }
+              }
+            }
             # Table 3
-            table3 <- as.data.frame(reduce_matrix(table, 3, na_empty = FALSE))
-            openxlsx::writeData(wb, sheet, table3, startCol = c3, startRow = previousEnd+2)
+            table3ALL <- as.data.frame(reduce_matrix(table, 3, greycells = TRUE, na_empty = FALSE))
+            table3Values <- as.data.frame(reduce_matrix(table3ALL, 1))
+            openxlsx::writeData(wb, sheet, table3Values, startCol = c3, startRow = previousEnd+2)
             addStyle(wb, sheet, bottomBlankBorderStyle, rows = previousEnd+3+length(lineNames)-1, cols = 67:(67+length(lineNames)-1))
             addStyle(wb, sheet, rightBlankBoderStyle, rows = (previousEnd+3):(previousEnd+4+length(lineNames)-2), cols = (67+length(lineNames)-1))
             addStyle(wb, sheet, cornerRightBottomBlankStyle, rows = (previousEnd+4+length(lineNames)-2), cols = (67+length(lineNames)-1))
+            table3Status <- as.data.frame(reduce_matrix(table3ALL, 2))
+            for(col in 3:(3+length(lineNames)-1)){
+              for(row in (previousEnd+3):(previousEnd+4+length(lineNames)-2)){
+                if(table3Status[row-(previousEnd+2),col-2] == "half"){
+                  addStyle(wb, sheet, sh2DisplayStyle2, rows = row, cols = col+64) # add 64 to correspond to the good column (67 - 3)
+                }else if(table3Status[row-(previousEnd+2),col-2] == "outside"){
+                  addStyle(wb, sheet, sh2DisplayStyle1, rows = row, cols = col+64) # add 64 to correspond to the good column (67 - 3)
+                }
+              }
+            }
           }else{
             # Grey all tables
             # Table 1
