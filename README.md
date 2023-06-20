@@ -1,6 +1,6 @@
 # CP-Seeker application
 
-## How to install run this application
+## How to install and run this application
 
 ### Windows
 For Windows users, we created one file to click to be able to run our application.
