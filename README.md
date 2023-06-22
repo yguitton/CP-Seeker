@@ -20,3 +20,18 @@ source("./utils/manager.R")
 ```
 
 Now all the application should run and open in a new internet window.
+
+## Known bug(s)
+
+### Crash when start
+
+Sometimes, it can crash if you didn't closed correctly your last session. You will have this windiw and the application will stop.
+![crash_chromium](./data/bug_chromium.PNG "")
+
+If you have this, you have to go in your Taks Manager. To be able to open it, just click simultanely on CTRL + SHIFT + ECHAP :
+![open_task_manager](./data/ctrl_shift_echap.jpg "")
+
+Once it is open, you have to find `R for Windows terminal front-end` and ending this task !
+![end_r_task_manager](./data/remove_r_task_manager.PNG "")
+
+Now you can launch again your application and it should work fine.
