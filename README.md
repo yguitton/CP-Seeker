@@ -26,19 +26,19 @@ Now all the application should run and open in a new internet window.
 ### Crash when start
 
 Sometimes, it can crash if you didn't closed correctly your last session. You will have this windiw and the application will stop.
-<div style="text-align: center;">
-![crash_chromium](./data/bug_chromium.PNG "")
-</div>
+<p align="center" width="100%">
+    <img width="33%" src="./data/bug_chromium.PNG" alt="crash_chromium"> 
+</p>
 
 
 If you have this, you have to go in your Taks Manager. To be able to open it, just click simultanely on CTRL + SHIFT + ECHAP :
-<div style="text-align: center;">
-![open_task_manager](./data/ctrl_shift_echap.jpg "")
-</div>
+<p align="center" width="100%">
+    <img width="33%" src="./data/ctrl_shift_echap.jpg" alt="open_task_manager"> 
+</p>
 
 Once it is open, you have to find `R for Windows terminal front-end` and ending this task !
-<div style="text-align: center;">
-![end_r_task_manager](./data/remove_r_task_manager.PNG "")
-</div>
+<p align="center" width="100%">
+    <img width="33%" src="./data/remove_r_task_manager.PNG" alt="end_r_task_manager"> 
+</p>
 
 Now you can launch again your application and it should work fine.
