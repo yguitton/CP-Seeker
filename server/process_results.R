@@ -425,13 +425,17 @@ shiny::observeEvent(input$process_results_download, {
   print('############################################################')
   print('###################### EXPORTATION #########################')
   print('############################################################')
-  
+  browser()
   files <- project_samples()[which(
     project_samples()$project == input$project), "sample_id"]
   allDeconv <- deconvolution_params()[which(
     deconvolution_params()$project == input$project),]
   chem_type <- unique(deconvolution_params()[which(
     deconvolution_params()$project == input$project), "chemical_type"])
+  # Search for all families we have
+  family <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+  # Merge our type and their family
+  chem_type <- family[which(family$chemical_type %in% chem_type),]
   actual_user <- input$user
   actual_project_informations <- projects()[which(
     projects()$project == input$project),]
@@ -442,30 +446,42 @@ shiny::observeEvent(input$process_results_download, {
   #   length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
   pbValue <- 0
   shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
-  if(length(c(grep("PCAs",chem_type), grep("PBAs",chem_type))) > 0){
+  if(length(c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))) > 0){
     adducts <- deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))]), ]
+      deconvolution_params()$chemical_type %in% chem_type$chemical_type[c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))]), ]
     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-    export_PCA(actual_user, chem_type = chem_type[c(grep("PCAs",chem_type), grep("PBAs",chem_type))], 
+    export_PCA(actual_user, chem_type = chem_type[c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly)), "chemical_type"], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(allDeconv[c(grep("PCAs",allDeconv$chemical_type), grep("PBAs",allDeconv$chemical_type)),"adduct"])
   }
-  if(length(grep("P.*Os", chem_type)) > 0){
+  if(length(grep("Chlorinated olefins", chem_type$chemical_familly)) > 0){
     adducts <- deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[grep("P.*Os",chem_type)]), ]
+      deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Chlorinated olefins",chem_type$chemical_familly)]), ]
     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-    export_PCO(actual_user, chem_type = chem_type[grep("P.*Os",chem_type)], 
+    export_PCO(actual_user, chem_type = chem_type[grep("Chlorinated olefins",chem_type$chemical_familly), "chemical_type"], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"]))
   }
-  if(length(grep("PXAs",chem_type)) > 0){
+  if(length(grep("Mixed paraffins",chem_type$chemical_familly)) > 0){
     adducts <- deconvolution_params()[which(
-      deconvolution_params()$chemical_type %in% chem_type[grep("PXAs",chem_type)]), ]
+      deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Mixed paraffins",chem_type$chemical_familly)]), ]
     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-    export_PXA(actual_user, chem_type = chem_type[grep("PXAs",chem_type)], 
+    export_PXA(actual_user, chem_type = chem_type[grep("Mixed paraffins",chem_type$chemical_familly), "chemical_type"], 
       adducts = adducts, actual_project_informations, pbValue)
     pbValue <- pbValue + length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
   }
+  if(length(grep("Phase I metabolites", chem_type$chemical_familly)) > 0){
+    adducts <- deconvolution_params()[which(
+      deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Phase I metabolites",chem_type$chemical_familly)]), ]
+    adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
+    export_phase1(actual_user, chem_type = chem_type[grep("Phase I metabolites",chem_type$chemical_familly), "chemical_type"], 
+      adducts = adducts, actual_project_informations, pbValue)
+    pbValue <- pbValue + length(unique(allDeconv[grep("*-PCAs",allDeconv$chemical_type),"adduct"]))
+  }
+
+
+  #Phase II metabolites
+
   toastr_success("Exportation success !")
   print('############################################################')
   print('################### END OF EXPORTATION #####################')
