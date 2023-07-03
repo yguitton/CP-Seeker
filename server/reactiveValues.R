@@ -360,12 +360,20 @@ shiny::observeEvent(c(deconvolution_params(), input$project, input$process_resul
 #' @param deconvolution_params reactive value standard_deconvolution_param table database
 #' @param input$project integer, project id
 shiny::observeEvent(c(deconvolution_params(), input$project), {
-  choices <- deconvolution_params()[which(
-    deconvolution_params()$project == input$project), "chemical_type"]
-  choices <- choices[-which(choices %in% c("PCAs", "PBAs", "PCOs", "PCdiOs", "PCtriOs"))] # have to change it
-  if(length(grep("PXAs", choices)) > 0) choices <- choices[-grep("PXAs", choices)]
+  #Select the different type of deconvolution
+  choices <- unique(deconvolution_params()[which(
+    deconvolution_params()$project == input$project), "chemical_type"])
+  # Search for all families we have
+  family <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
+  # Merge our type and their family
+  choices <- family[which(family$chemical_type %in% choices),]
+  # Search for family != Standard to keep only std after
+  todelete <- unique(choices$chemical_familly[which(choices$chemical_familly != "Standard")])
+  if(length(todelete) > 0){ # Add it cause error when = integer(0)
+  	choices <- choices[-which(choices$chemical_familly %in% todelete),] # have to change it
+  }
   shiny::updateSelectInput(session, "process_results_standard_formula", 
-    "Standard formula", choices = choices)
+    "Standard formula", choices = choices$chemical_type)
 })
 
 #' @title deconvolution_params reactive value event
