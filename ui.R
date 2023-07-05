@@ -52,7 +52,7 @@ header <- shiny::tags$header(
 
 sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE, 
 	shinydashboard::sidebarMenu(id = 'tabs', 
-		shinydashboard::menuItem('Projects & Files', icon = shiny::icon('database'), 
+		shinydashboard::menuItem('Sequences & Files', icon = shiny::icon('database'), 
 			shinydashboard::menuSubItem("New sequence", icon = shiny::icon('plus'), tabName = 'project_files'),
 			shinydashboard::menuSubItem("Database tables", icon = shiny::icon('database'), tabName = 'manage')
 		),
