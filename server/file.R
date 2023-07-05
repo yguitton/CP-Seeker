@@ -441,6 +441,8 @@ shiny::observeEvent(input$file_import_valid2, {
 			shinyWidgets::updateProgressBar(session, id = 'pb', title = msg, 
 				value = round((i - 1) * 100 / length(params$filepaths)))
 			
+			# Have to add the checking of the label given by user to not have multiple file labels with the same name => error in Excel exportation
+			
 			# check if file already exists in database
 			success[i] <- tryCatch({
 				if (params$sample_names[i] %in% project_samples()[which(
