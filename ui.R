@@ -27,7 +27,7 @@ header <- shiny::tags$header(
 						), 
 						tags$td(
 							shinyWidgets::pickerInput('project', 
-								label = NULL, choices = c(), width = "100%")
+								label = NULL, choices = c(), width = "100%", options = pickerOptions(dropdownAlignRight = TRUE))
 						)
 					)
 				)
@@ -41,7 +41,7 @@ header <- shiny::tags$header(
 						), 
 						tags$td(
 							shinyWidgets::pickerInput('user', 
-								label = NULL, choices = c(), width = "100%")
+								label = NULL, choices = c(), width = "100%", options = pickerOptions(dropdownAlignRight = TRUE))
 						)
 					)
 				)
