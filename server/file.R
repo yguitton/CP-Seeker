@@ -276,12 +276,18 @@ shiny::observeEvent(input$file_import, {
 			"sample"]), "polarity"][1]
 		
 		shiny::showModal(shiny::modalDialog(
-			title = '',
-			shiny::div("Only negatives scans can be imported !!"),
+			title = 'Only negatives scans can be imported !!',
+			#shiny::div("Only negatives scans can be imported !!"),
 			DT::dataTableOutput('file_import_table'),
 			footer = shiny::div(
-				shinyWidgets::actionBttn('file_import_cancel', 'Cancel', style = 'minimal', color = 'primary'),
-				shinyWidgets::actionBttn('file_import_valid', 'Valid', style = 'minimal', color = 'primary')
+				shiny::column(width=4,
+					HTML("You can't add \"<b>:</b>\", \"<b>?</b>\", \"<b>/</b>\", \"<b>\\</b>\", \"<b>*</b>\", \"<b>[</b>\", \"<b>]</b>\", \"<b>'</b>\" in your sample names !!")
+				),
+				shiny::column(width=4),
+				shiny::column(width=4,
+					shinyWidgets::actionBttn('file_import_cancel', 'Cancel', style = 'minimal', color = 'primary'),
+					shinyWidgets::actionBttn('file_import_valid', 'Valid', style = 'minimal', color = 'primary')
+				)
 			),
 			size = 'l'
 		))
@@ -317,52 +323,44 @@ shiny::observeEvent(input$file_import, {
 #'}
 output$file_import_table <- DT::renderDataTable({
 	tryCatch({
-	if (is.integer(input$file_import)) custom_stop("invalid", "")
-	params <- list(
-		filenames = gsub('"', "'", 
-			shinyFiles::parseFilePaths(volumes, input$file_import)$name)
-	)
-	
-	data.frame(
-		File = params$filenames,  
-		Label = paste('<input type=\"text\" value=\"', 
-			stringr::str_trunc(
-				paste(
-					#stringr::str_trunc(input$file_polarity, 3, ellipsis=""),
-					tools::file_path_sans_ext(params$filenames)
-				), 30, ellipsis=""), 
-			'\" maxlength=30 width=\"100%\" required>', sep=''
+		if (is.integer(input$file_import)) custom_stop("invalid", "")
+		params <- list(
+			filenames = gsub('"', "'", 
+				shinyFiles::parseFilePaths(volumes, input$file_import)$name)
 		)
-	)
-	}, invalid = function(i) data.frame(matrix(, nrow = 0, ncol = 2, dimnames = list(c(), 
-		c('File', 'Label'))), check.names = FALSE)
-	, error = function(e){
-		print('ERR file_import_table')
-		print(e)
-		toastr_error(e$message)
-		data.frame(matrix(, nrow = 0, ncol = 2, dimnames = list(c(), c('File', 'Label'))), 
-			check.names = FALSE)
+	
+		data.frame(
+			File = params$filenames,  
+			Label = paste('<input type=\"text\" value=\"', 
+				stringr::str_trunc(
+					paste(
+						#stringr::str_trunc(input$file_polarity, 3, ellipsis=""),
+						tools::file_path_sans_ext(params$filenames)
+					), 30, ellipsis=""), 
+				'\" maxlength=30 width=\"100%\" pattern="[^:\'[\\]?\\/\\\\*]+" required/>', sep=''
+			)
+		)
+		}, invalid = function(i) data.frame(matrix(, nrow = 0, ncol = 2, dimnames = list(c(), 
+			c('File', 'Label'))), check.names = FALSE)
+		, error = function(e){
+			print('ERR file_import_table')
+			print(e)
+			toastr_error(e$message)
+			data.frame(matrix(, nrow = 0, ncol = 2, dimnames = list(c(), c('File', 'Label'))), 
+				check.names = FALSE)
 	})
 }, escape = FALSE, selection = 'none', rownames = FALSE, extensions = "Scroller", 
 options = list(dom = 'frtip', fixedColumns = TRUE, bFilter = FALSE, paging = FALSE, 
-ordering = FALSE, info = FALSE, scrollX = TRUE, scrollY = "70%", scrollCollapse = TRUE, 
-columnDefs = list(list(className = "dt-head-center dt-center", targets = "_all"))), 
-callback = DT::JS('
-	$(document).on("click", "#file_import_valid", function() {
-		var sample_ids = $("#file_import_table input").toArray().map(x => x.value);
-		if (sample_ids.some(x => x.length > 30)) {
-			toastr.error("sample_ids cannot contain more than 30 characters", "", 
-				{positionClass: "toast-top-center",
-				closeButton: true, 
-				newestOnTop: true, 
-				preventDuplicates: true
-			})
-		} else {
-			Shiny.onInputChange("file_import_sample_id", sample_ids);
-			Shiny.onInputChange("file_import_valid2", Math.random());
-		}
+	ordering = FALSE, info = FALSE, scrollX = TRUE, scrollY = "70%", scrollCollapse = TRUE, 
+	columnDefs = list(list(className = "dt-head-center dt-center", targets = "_all"))),
+callback = DT::JS("
+	$(document).on('click', '#file_import_valid', function() {
+		var sample_ids = $('#file_import_table input').toArray().map(x => x.value);
+		Shiny.onInputChange('file_import_sample_id', sample_ids);
+		Shiny.onInputChange('file_import_valid2', Math.random());
 	});
-'))
+")
+)
 
 #' @title Cancel importation file button event
 #'
@@ -406,7 +404,7 @@ shiny::observeEvent(input$file_import_cancel, {
 #'      \item sample string, sample ID of table sample
 #'}
 shiny::observeEvent(input$file_import_valid2, {
-	shiny::removeModal()
+	#shiny::removeModal()
 	params <- list(
 		project = input$project, 
 		filepaths = gsub('"', "'", 
@@ -417,9 +415,17 @@ shiny::observeEvent(input$file_import_valid2, {
 		polarity = "negative" # set it to negative here because only negatives are done
 	)
 	print(params)
-	
+
 	tryCatch({
-		if(length(params$project) == 0) custom_stop('invalid', 'You must select a sequence')
+		if(length(params$project) == 0) custom_stop('error', 'You must select a sequence')
+		inputs <- c('sample_ids', 'sample_ids')
+		conditions <- c(!(is.null(params$sample_ids)), length(grep("[][:*?/\\']", params$sample_ids, perl = TRUE)) == 0)
+		messages <- c("You have to write a sample name", "You can't add special characters listed in your sample names")
+		check_inputs(inputs, conditions, messages) 
+
+		# Hide the modal if tests are good
+		shiny::removeModal()
+
 		params$sample_names <- stringr::str_trunc(
 			paste(
 				stringr::str_trunc(params$polarity, 3, ellipsis=""),
@@ -434,6 +440,8 @@ shiny::observeEvent(input$file_import_valid2, {
 			print(msg)
 			shinyWidgets::updateProgressBar(session, id = 'pb', title = msg, 
 				value = round((i - 1) * 100 / length(params$filepaths)))
+			
+			# Have to add the checking of the label given by user to not have multiple file labels with the same name => error in Excel exportation
 			
 			# check if file already exists in database
 			success[i] <- tryCatch({
@@ -472,11 +480,9 @@ shiny::observeEvent(input$file_import_valid2, {
 			footer = modalButton('Close'),
 			size = "l"
 		))
-	}, invalid = function(i){
-		print(i)
-		toastr_error(i$message)
+	}, invalid = function(i){ NULL
 	}, error = function(e){
-		shinyWidgets::closeSweetAlert(session)
+		#shinyWidgets::closeSweetAlert(session)
 		print(e)
 		sweet_alert_error("Cannot import files to database", e$message)
 	})
