@@ -324,7 +324,7 @@ shiny::observeEvent(input$process_launch, {
 	print('############################################################')
 	print('######################### PROCESS ##########################')
 	print('############################################################')
-
+	print(Sys.time())
 	param <- list(standard_study = input$process_standard_study)
 	params <- list(
 		project = input$project,
@@ -615,7 +615,7 @@ shiny::observeEvent(input$process_launch, {
 		shinyWidgets::closeSweetAlert(session)
 		sweet_alert_error(e$message)
 	})
-
+	print(Sys.time())
 	print('############################################################')
 	print('######################### END PROCESS ######################')
 	print('############################################################')

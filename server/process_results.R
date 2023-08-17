@@ -425,6 +425,7 @@ shiny::observeEvent(input$process_results_download, {
   print('############################################################')
   print('###################### EXPORTATION #########################')
   print('############################################################')
+  print(Sys.time())
   files <- project_samples()[which(
     project_samples()$project == input$project), "sample_id"]
   allDeconv <- deconvolution_params()[which(
@@ -483,6 +484,7 @@ shiny::observeEvent(input$process_results_download, {
   }
 
   toastr_success("Exportation success !")
+  print(Sys.time())
   print('############################################################')
   print('################### END OF EXPORTATION #####################')
   print('############################################################')
