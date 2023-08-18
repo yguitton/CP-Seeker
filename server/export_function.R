@@ -64,7 +64,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 2)
         openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 2)
         openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 2)
-        setColWidths(wb, sheet = 1, cols = 2, widths = 50)
+        setColWidths(wb, sheet = 1, cols = 2, widths = 55)
 
         openxlsx::writeData(wb, 1, user, startRow = 4, startCol = 3)
         openxlsx::writeData(wb, 1, project_informations$name, startRow = 5, startCol = 3)
@@ -72,7 +72,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 1, project_informations$creation, startRow = 7, startCol = 3)
         openxlsx::writeData(wb, 1, project_informations$modified, startRow = 8, startCol = 3)
         addStyle(wb, sheet = 1, tableStyle, rows = 4:8, cols = 3)
-        setColWidths(wb, sheet = 1, cols = 3, widths = 50)
+        setColWidths(wb, sheet = 1, cols = 3, widths = 55)
 
         openxlsx::writeData(wb, 1, c("File"), startRow = 10, startCol = 2)
         openxlsx::writeData(wb, 1, c("Label"), startRow = 10, startCol = 3)
@@ -222,7 +222,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
         openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
         openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-        setColWidths(wb, 2, cols = 3, widths = 50)
+        setColWidths(wb, 2, cols = 3, widths = 55)
         addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
         addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
 
@@ -272,9 +272,9 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
           setColWidths(wb, sheet, cols = 1, widths = 4)
 
           openxlsx::writeData(wb, sheet, "File", startCol = 2, startRow = 5)
-          setColWidths(wb, sheet, cols = 2, widths = 50)
+          setColWidths(wb, sheet, cols = 2, widths = 55)
           openxlsx::writeData(wb, sheet, "Label", startCol = 3, startRow = 5)
-          setColWidths(wb, sheet, cols = 3, widths = 50)
+          setColWidths(wb, sheet, cols = 3, widths = 55)
           openxlsx::writeData(wb, sheet, "Adduct", startCol = 4, startRow = 5)
           setColWidths(wb, sheet, cols = 4, widths = 15)
           openxlsx::writeData(wb, sheet, "Total area", startCol = 5, startRow = 5)
@@ -301,7 +301,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
               openxlsx::writeData(wb, sheet, paste0("[",stdAdduct,"]"), startCol = 4, startRow = line)
               # Total area
               table <- get_standard_table(db, input$project, stdAdduct, s)
-              table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
+              table <- unique(table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),])
               addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
               # Is there noise ? Calculate with total area ABOVE baseline (script from home)
               if(is.na(table$'total area') || table$'total area' == 0){
@@ -350,11 +350,11 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         print("label sheet")
         ################################################################################
         # Write the label's sheet(s)
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type == chem),]
         decParams <- decParams[which(decParams$project == as.numeric(input$project)),]
         decParams <- decParams[which(decParams$adduct == adduct),]
-        for(file in allFiles$sample_id){
+        for(file in unique(allFiles$sample_id)){
           myActualFile <- allFiles[which(allFiles$sample_id == file),] 
           # Create the sheet of the file label
           addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
@@ -572,7 +572,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 2)
-      setColWidths(wb, sheet = 1, cols = 2, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 2, widths = 55)
 
       openxlsx::writeData(wb, 1, user, startRow = 4, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$name, startRow = 5, startCol = 3)
@@ -580,7 +580,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, project_informations$creation, startRow = 7, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$modified, startRow = 8, startCol = 3)
       addStyle(wb, sheet = 1, tableStyle, rows = 4:8, cols = 3)
-      setColWidths(wb, sheet = 1, cols = 3, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 3, widths = 55)
 
       openxlsx::writeData(wb, 1, c("File"), startRow = 10, startCol = 2)
       openxlsx::writeData(wb, 1, c("Label"), startRow = 10, startCol = 3)
@@ -594,7 +594,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, c("Original path"), startRow = 10, startCol = 9)
       addStyle(wb, sheet = 1, hTableStyle, rows = 10, cols = 2:9)
       setColWidths(wb, sheet = 1, cols = 9, widths = 100)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       line <- 11
       for(smpl in allFiles$sample){
         sample_info <- samples()[which(samples()$sample == smpl),]
@@ -651,13 +651,46 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       # Peakwidth
       openxlsx::writeData(wb, 2, paste0(decParams$peakwidth_min," to ",decParams$peakwidth_max," s"), startCol = 3, startRow = 7)
       # Retention time
-      openxlsx::writeData(wb, 2, paste0(decParams$retention_time_min," to ",decParams$retention_time_max," min"), startCol = 3, startRow = 8)
+      if(length(unique(decParams$retention_time_min)) == 1 && length(unique(decParams$retention_time_max)) == 1){
+        openxlsx::writeData(wb, 2, paste0(unique(decParams$retention_time_min)," to ",unique(decParams$retention_time_max)," min"), startCol = 3, startRow = 8)
+      }else{
+        if(length(unique(decParams$retention_time_min)) == 1){
+          for(max in 1:length(unique(decParams$retention_time_max))){
+            my_rt <- paste0(unique(decParams$retention_time_min), " to (", unique(decParams$retention_time_max), ") min")
+          }
+        }
+        if(length(unique(decParams$retention_time_max)) == 1){
+          for(min in 1:length(unique(decParams$retention_time_min))){
+            my_rt <- paste0("(", unique(decParams$retention_time_min), ") to ", unique(decParams$retention_time_max), " min")
+          }
+        }
+        openxlsx::writeData(wb, 2, my_rt, startCol = 3, startRow = 8)
+      }
       # Missing scans
-      openxlsx::writeData(wb, 2, decParams$missing_scans, startCol = 3, startRow = 9)
+      if(length(unique(decParams$missing_scans)) == 1){
+        openxlsx::writeData(wb, 2, unique(decParams$missing_scans), startCol = 3, startRow = 9)
+      }else{
+        miss_scan <- paste(decParams$missing_scans)
+        openxlsx::writeData(wb, 2, miss_scan, startCol = 3, startRow = 9)
+      }
       # Chemical type
-      openxlsx::writeData(wb, 2, chem_type, startCol = 3, startRow = 12)
+      my_chemtype <- NULL
+      whichone <- rep(0, 3)
+      if(length(chem_type == 3)){
+        my_chemtype <- "PCOs (mono, di, tri)"
+      }else if(length(chem_type) == 1){
+        my_chemtype <- chem_type
+      }else{
+        if(grep("PCOs", chem_type)) whichone[1] <- 1
+        if(grep("di", chem_type)) whichone[2] <- 1
+        if(grep("tri", chem_type)) whichone[3] <- 1
+        if(whichone == c(1,1,0)) my_chemtype <- "PCOs (mono, di)"
+        if(whichone == c(1,0,1)) my_chemtype <- "PCOs (mono, tri)"
+        if(whichone == c(0,1,1)) my_chemtype <- "PCOs (di, tri)"
+      }
+      openxlsx::writeData(wb, 2, my_chemtype, startCol = 3, startRow = 12)
       # Adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
@@ -686,7 +719,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       }
       openxlsx::writeData(wb, 2, myStd, startCol = 3, startRow = 16)
       # Standard adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         myStdAdduct <- NULL
@@ -728,7 +761,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 50)
+      setColWidths(wb, 2, cols = 3, widths = 55)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
 
@@ -749,7 +782,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         usedStd <- deconvolution_params()[which(deconvolution_params()$chemical_type == s),]
         openxlsx::writeData(wb, sheet, unique(usedStd$chemical_type), startRow = 2)
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
         if(unique(allSamples$polarity == "negative")){
           myStdAdduct <- NULL
@@ -778,9 +811,9 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
         setColWidths(wb, sheet, cols = 1, widths = 4)
 
         openxlsx::writeData(wb, sheet, "File", startCol = 2, startRow = 5)
-        setColWidths(wb, sheet, cols = 2, widths = 50)
+        setColWidths(wb, sheet, cols = 2, widths = 55)
         openxlsx::writeData(wb, sheet, "Label", startCol = 3, startRow = 5)
-        setColWidths(wb, sheet, cols = 3, widths = 50)
+        setColWidths(wb, sheet, cols = 3, widths = 55)
         openxlsx::writeData(wb, sheet, "Adduct", startCol = 4, startRow = 5)
         setColWidths(wb, sheet, cols = 4, widths = 15)
         openxlsx::writeData(wb, sheet, "Total area", startCol = 5, startRow = 5)
@@ -794,7 +827,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
         addStyle(wb, sheet, hTableStyle, rows = 5, cols = 2:8)
         addStyle(wb, sheet, headerRightAlignStd, rows = 5, cols = c(5,7,8))
           
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         line <- 6
         for(stdAdduct in unique(usedStd$adduct)){
           for(smpl in allFiles$sample){
@@ -807,7 +840,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
             openxlsx::writeData(wb, sheet, paste0("[",stdAdduct,"]"), startCol = 4, startRow = line)
             # Total area
             table <- get_standard_table(db, input$project, stdAdduct, s)
-            table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
+            table <- unique(table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),])
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
             if(is.na(table$'total area') || table$'total area' == 0){
                 openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
@@ -853,11 +886,11 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       }
       ################################################################################
       # Write the label's sheet(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       decParams <- myProjDeconv[which(myProjDeconv$adduct == adduct),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
 
-      for(file in allFiles$sample_id){
+      for(file in unique(allFiles$sample_id)){
         myActualFile <- allFiles[which(allFiles$sample_id == file),] 
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
@@ -1311,7 +1344,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 2)
-      setColWidths(wb, sheet = 1, cols = 2, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 2, widths = 55)
 
       openxlsx::writeData(wb, 1, user, startRow = 4, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$name, startRow = 5, startCol = 3)
@@ -1319,7 +1352,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, project_informations$creation, startRow = 7, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$modified, startRow = 8, startCol = 3)
       addStyle(wb, sheet = 1, tableStyle, rows = 4:8, cols = 3)
-      setColWidths(wb, sheet = 1, cols = 3, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 3, widths = 55)
 
       openxlsx::writeData(wb, 1, c("File"), startRow = 10, startCol = 2)
       openxlsx::writeData(wb, 1, c("Label"), startRow = 10, startCol = 3)
@@ -1333,7 +1366,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 1, c("Original path"), startRow = 10, startCol = 9)
       addStyle(wb, sheet = 1, hTableStyle, rows = 10, cols = 2:9)
       setColWidths(wb, sheet = 1, cols = 9, widths = 100)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       line <- 11
       for(smpl in allFiles$sample){
         sample_info <- samples()[which(samples()$sample == smpl),]
@@ -1420,7 +1453,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       }
       openxlsx::writeData(wb, 2, paste0("PXAs (", saveChem, ")"), startCol = 3, startRow = 12)
       # Adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
@@ -1449,7 +1482,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       }
       openxlsx::writeData(wb, 2, myStd, startCol = 3, startRow = 16)
       # Standard adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         myStdAdduct <- NULL
@@ -1491,7 +1524,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 50)
+      setColWidths(wb, 2, cols = 3, widths = 55)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
 
@@ -1512,7 +1545,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         usedStd <- deconvolution_params()[which(deconvolution_params()$chemical_type == s),]
         openxlsx::writeData(wb, sheet, unique(usedStd$chemical_type), startRow = 2)
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
         if(unique(allSamples$polarity == "negative")){
           myStdAdduct <- NULL
@@ -1541,9 +1574,9 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
         setColWidths(wb, sheet, cols = 1, widths = 4)
 
         openxlsx::writeData(wb, sheet, "File", startCol = 2, startRow = 5)
-        setColWidths(wb, sheet, cols = 2, widths = 50)
+        setColWidths(wb, sheet, cols = 2, widths = 55)
         openxlsx::writeData(wb, sheet, "Label", startCol = 3, startRow = 5)
-        setColWidths(wb, sheet, cols = 3, widths = 50)
+        setColWidths(wb, sheet, cols = 3, widths = 55)
         openxlsx::writeData(wb, sheet, "Adduct", startCol = 4, startRow = 5)
         setColWidths(wb, sheet, cols = 4, widths = 15)
         openxlsx::writeData(wb, sheet, "Total area", startCol = 5, startRow = 5)
@@ -1557,7 +1590,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
         addStyle(wb, sheet, hTableStyle, rows = 5, cols = 2:8)
         addStyle(wb, sheet, headerRightAlignStd, rows = 5, cols = c(5,7,8))
         
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         line <- 6
         for(stdAdduct in unique(usedStd$adduct)){
           for(smpl in allFiles$sample){
@@ -1570,7 +1603,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
             openxlsx::writeData(wb, sheet, paste0("[",stdAdduct,"]"), startCol = 4, startRow = line)
             # Total area
             table <- get_standard_table(db, input$project, stdAdduct, s)
-            table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
+            table <- unique(table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),])
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
             if(is.na(table$'total area') || table$'total area' == 0){
                 openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
@@ -1617,12 +1650,12 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       
       ################################################################################
       # Write the label's sheet(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       decParams <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
       decParams <- decParams[which(decParams$adduct == adduct),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       
-      for(file in allFiles$sample_id){
+      for(file in unique(allFiles$sample_id)){
         myActualFile <- allFiles[which(allFiles$sample_id == file),] 
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
@@ -1855,7 +1888,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 2)
-      setColWidths(wb, sheet = 1, cols = 2, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 2, widths = 55)
 
       openxlsx::writeData(wb, 1, user, startRow = 4, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$name, startRow = 5, startCol = 3)
@@ -1863,7 +1896,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, project_informations$creation, startRow = 7, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$modified, startRow = 8, startCol = 3)
       addStyle(wb, sheet = 1, tableStyle, rows = 4:8, cols = 3)
-      setColWidths(wb, sheet = 1, cols = 3, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 3, widths = 55)
 
       openxlsx::writeData(wb, 1, c("File"), startRow = 10, startCol = 2)
       openxlsx::writeData(wb, 1, c("Label"), startRow = 10, startCol = 3)
@@ -1877,7 +1910,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, c("Original path"), startRow = 10, startCol = 9)
       addStyle(wb, sheet = 1, hTableStyle, rows = 10, cols = 2:9)
       setColWidths(wb, sheet = 1, cols = 9, widths = 100)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       line <- 11
       for(smpl in allFiles$sample){
         sample_info <- samples()[which(samples()$sample == smpl),]
@@ -1934,13 +1967,40 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       # Peakwidth
       openxlsx::writeData(wb, 2, paste0(decParams$peakwidth_min," to ",decParams$peakwidth_max," s"), startCol = 3, startRow = 7)
       # Retention time
-      openxlsx::writeData(wb, 2, paste0(decParams$retention_time_min," to ",decParams$retention_time_max," min"), startCol = 3, startRow = 8)
+      if(length(unique(decParams$retention_time_min)) == 1 && length(unique(decParams$retention_time_max)) == 1){
+        openxlsx::writeData(wb, 2, paste0(unique(decParams$retention_time_min)," to ",unique(decParams$retention_time_max)," min"), startCol = 3, startRow = 8)
+      }else{
+        if(length(unique(decParams$retention_time_min)) == 1){
+          for(max in 1:length(unique(decParams$retention_time_max))){
+            my_rt <- paste0(unique(decParams$retention_time_min), " to (", unique(decParams$retention_time_max), ") min")
+          }
+        }
+        if(length(unique(decParams$retention_time_max)) == 1){
+          for(min in 1:length(unique(decParams$retention_time_min))){
+            my_rt <- paste0("(", unique(decParams$retention_time_min), ") to ", unique(decParams$retention_time_max), " min")
+          }
+        }
+        openxlsx::writeData(wb, 2, my_rt, startCol = 3, startRow = 8)
+      }
       # Missing scans
-      openxlsx::writeData(wb, 2, decParams$missing_scans, startCol = 3, startRow = 9)
+      if(length(unique(decParams$missing_scans)) == 1){
+        openxlsx::writeData(wb, 2, unique(decParams$missing_scans), startCol = 3, startRow = 9)
+      }else{
+        miss_scan <- paste(decParams$missing_scans)
+        openxlsx::writeData(wb, 2, miss_scan, startCol = 3, startRow = 9)
+      }
       # Chemical type
-      openxlsx::writeData(wb, 2, chem_type, startCol = 3, startRow = 12)
+      my_chemtype <- "Phase I metabolites ("
+      for(met in 1:length(chem_type)){
+        if(met < length(chem_type)){
+          my_chemtype <- paste0(my_chemtype, chem_type[met], ", ")
+        }else{
+          my_chemtype <- paste0(my_chemtype, chem_type[met], ")")
+        }
+      }
+      openxlsx::writeData(wb, 2, my_chemtype, startCol = 3, startRow = 12)
       # Adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
@@ -1969,7 +2029,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       }
       openxlsx::writeData(wb, 2, myStd, startCol = 3, startRow = 16)
       # Standard adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         myStdAdduct <- NULL
@@ -2011,7 +2071,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 50)
+      setColWidths(wb, 2, cols = 3, widths = 55)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
 
@@ -2032,7 +2092,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
         openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         usedStd <- deconvolution_params()[which(deconvolution_params()$chemical_type == s),]
         openxlsx::writeData(wb, sheet, unique(usedStd$chemical_type), startRow = 2)
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
         if(unique(allSamples$polarity == "negative")){
           myStdAdduct <- NULL
@@ -2061,9 +2121,9 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
         setColWidths(wb, sheet, cols = 1, widths = 4)
 
         openxlsx::writeData(wb, sheet, "File", startCol = 2, startRow = 5)
-        setColWidths(wb, sheet, cols = 2, widths = 50)
+        setColWidths(wb, sheet, cols = 2, widths = 55)
         openxlsx::writeData(wb, sheet, "Label", startCol = 3, startRow = 5)
-        setColWidths(wb, sheet, cols = 3, widths = 50)
+        setColWidths(wb, sheet, cols = 3, widths = 55)
         openxlsx::writeData(wb, sheet, "Adduct", startCol = 4, startRow = 5)
         setColWidths(wb, sheet, cols = 4, widths = 15)
         openxlsx::writeData(wb, sheet, "Total area", startCol = 5, startRow = 5)
@@ -2077,7 +2137,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
         addStyle(wb, sheet, hTableStyle, rows = 5, cols = 2:8)
         addStyle(wb, sheet, headerRightAlignStd, rows = 5, cols = c(5,7,8))
           
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         line <- 6
         for(stdAdduct in unique(usedStd$adduct)){
           for(smpl in allFiles$sample){
@@ -2090,7 +2150,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
             openxlsx::writeData(wb, sheet, paste0("[",stdAdduct,"]"), startCol = 4, startRow = line)
             # Total area
             table <- get_standard_table(db, input$project, stdAdduct, s)
-            table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
+            table <- unique(table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),])
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
             if(is.na(table$'total area') || table$'total area' == 0){
                 openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
@@ -2136,11 +2196,11 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       }
       ################################################################################
       # Write the label's sheet(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       decParams <- myProjDeconv[which(myProjDeconv$adduct == adduct),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
 
-      for(file in allFiles$sample_id){
+      for(file in unique(allFiles$sample_id)){
         myActualFile <- allFiles[which(allFiles$sample_id == file),] 
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
@@ -2594,7 +2654,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, paste("Comments"),startRow = 6, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Creation date"),startRow = 7, startCol = 2)
       openxlsx::writeData(wb, 1, paste("Last modified"),startRow = 8, startCol = 2)
-      setColWidths(wb, sheet = 1, cols = 2, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 2, widths = 55)
 
       openxlsx::writeData(wb, 1, user, startRow = 4, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$name, startRow = 5, startCol = 3)
@@ -2602,7 +2662,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, project_informations$creation, startRow = 7, startCol = 3)
       openxlsx::writeData(wb, 1, project_informations$modified, startRow = 8, startCol = 3)
       addStyle(wb, sheet = 1, tableStyle, rows = 4:8, cols = 3)
-      setColWidths(wb, sheet = 1, cols = 3, widths = 50)
+      setColWidths(wb, sheet = 1, cols = 3, widths = 55)
 
       openxlsx::writeData(wb, 1, c("File"), startRow = 10, startCol = 2)
       openxlsx::writeData(wb, 1, c("Label"), startRow = 10, startCol = 3)
@@ -2616,7 +2676,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 1, c("Original path"), startRow = 10, startCol = 9)
       addStyle(wb, sheet = 1, hTableStyle, rows = 10, cols = 2:9)
       setColWidths(wb, sheet = 1, cols = 9, widths = 100)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       line <- 11
       for(smpl in allFiles$sample){
         sample_info <- samples()[which(samples()$sample == smpl),]
@@ -2673,13 +2733,40 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       # Peakwidth
       openxlsx::writeData(wb, 2, paste0(decParams$peakwidth_min," to ",decParams$peakwidth_max," s"), startCol = 3, startRow = 7)
       # Retention time
-      openxlsx::writeData(wb, 2, paste0(decParams$retention_time_min," to ",decParams$retention_time_max," min"), startCol = 3, startRow = 8)
+      if(length(unique(decParams$retention_time_min)) == 1 && length(unique(decParams$retention_time_max)) == 1){
+        openxlsx::writeData(wb, 2, paste0(unique(decParams$retention_time_min)," to ",unique(decParams$retention_time_max)," min"), startCol = 3, startRow = 8)
+      }else{
+        if(length(unique(decParams$retention_time_min)) == 1){
+          for(max in 1:length(unique(decParams$retention_time_max))){
+            my_rt <- paste0(unique(decParams$retention_time_min), " to (", unique(decParams$retention_time_max), ") min")
+          }
+        }
+        if(length(unique(decParams$retention_time_max)) == 1){
+          for(min in 1:length(unique(decParams$retention_time_min))){
+            my_rt <- paste0("(", unique(decParams$retention_time_min), ") to ", unique(decParams$retention_time_max), " min")
+          }
+        }
+        openxlsx::writeData(wb, 2, my_rt, startCol = 3, startRow = 8)
+      }
       # Missing scans
-      openxlsx::writeData(wb, 2, decParams$missing_scans, startCol = 3, startRow = 9)
+      if(length(unique(decParams$missing_scans)) == 1){
+        openxlsx::writeData(wb, 2, unique(decParams$missing_scans), startCol = 3, startRow = 9)
+      }else{
+        miss_scan <- paste(decParams$missing_scans)
+        openxlsx::writeData(wb, 2, miss_scan, startCol = 3, startRow = 9)
+      }
       # Chemical type
-      openxlsx::writeData(wb, 2, chem_type, startCol = 3, startRow = 12)
+      my_chemtype <- "Phase II metabolites ("
+      for(met in 1:length(chem_type)){
+        if(met < length(chem_type)){
+          my_chemtype <- paste0(my_chemtype, chem_type[met], ", ")
+        }else{
+          my_chemtype <- paste0(my_chemtype, chem_type[met], ")")
+        }
+      }
+      openxlsx::writeData(wb, 2, my_chemtype, startCol = 3, startRow = 12)
       # Adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         openxlsx::writeData(wb, 2, paste0("[",adduct,"]-"), startCol = 3, startRow = 13)
@@ -2708,7 +2795,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       }
       openxlsx::writeData(wb, 2, myStd, startCol = 3, startRow = 16)
       # Standard adduct(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
       if(unique(allSamples$polarity == "negative")){
         myStdAdduct <- NULL
@@ -2750,7 +2837,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 50)
+      setColWidths(wb, 2, cols = 3, widths = 55)
       addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
 
@@ -2771,7 +2858,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
         openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         usedStd <- deconvolution_params()[which(deconvolution_params()$chemical_type == s),]
         openxlsx::writeData(wb, sheet, unique(usedStd$chemical_type), startRow = 2)
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
         if(unique(allSamples$polarity == "negative")){
           myStdAdduct <- NULL
@@ -2800,9 +2887,9 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
         setColWidths(wb, sheet, cols = 1, widths = 4)
 
         openxlsx::writeData(wb, sheet, "File", startCol = 2, startRow = 5)
-        setColWidths(wb, sheet, cols = 2, widths = 50)
+        setColWidths(wb, sheet, cols = 2, widths = 55)
         openxlsx::writeData(wb, sheet, "Label", startCol = 3, startRow = 5)
-        setColWidths(wb, sheet, cols = 3, widths = 50)
+        setColWidths(wb, sheet, cols = 3, widths = 55)
         openxlsx::writeData(wb, sheet, "Adduct", startCol = 4, startRow = 5)
         setColWidths(wb, sheet, cols = 4, widths = 15)
         openxlsx::writeData(wb, sheet, "Total area", startCol = 5, startRow = 5)
@@ -2816,7 +2903,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
         addStyle(wb, sheet, hTableStyle, rows = 5, cols = 2:8)
         addStyle(wb, sheet, headerRightAlignStd, rows = 5, cols = c(5,7,8))
           
-        allFiles <- project_samples()[which(project_samples()$project == input$project),]
+        allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
         line <- 6
         for(stdAdduct in unique(usedStd$adduct)){
           for(smpl in allFiles$sample){
@@ -2829,7 +2916,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
             openxlsx::writeData(wb, sheet, paste0("[",stdAdduct,"]"), startCol = 4, startRow = line)
             # Total area
             table <- get_standard_table(db, input$project, stdAdduct, s)
-            table <- table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),]
+            table <- unique(table[which(table$sample_id == allFiles[which(allFiles$sample == smpl),"sample_id"]),])
             addStyle(wb, sheet = sheet, bodyTableStyle, rows = line, cols = 2:8)
             if(is.na(table$'total area') || table$'total area' == 0){
                 openxlsx::writeData(wb, sheet, "Not detected", startCol = 5, startRow = line)
@@ -2875,11 +2962,11 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       }
       ################################################################################
       # Write the label's sheet(s)
-      allFiles <- project_samples()[which(project_samples()$project == input$project),]
+      allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
       decParams <- myProjDeconv[which(myProjDeconv$adduct == adduct),]
       allSamples <- samples()[which(samples()$sample %in% allFiles$sample),]
 
-      for(file in allFiles$sample_id){
+      for(file in unique(allFiles$sample_id)){
         myActualFile <- allFiles[which(allFiles$sample_id == file),] 
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
