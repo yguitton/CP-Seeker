@@ -178,19 +178,26 @@ output$ui_process_standard_adduct <- shiny::renderUI({
 #' When more than one standard are chosen, will display a retention time input
 #' for each standard
 #'
-#' @param standard_number reactive value number of standard chosen
+#' @param standard_selected reactive value number of standard chosen
 output$process_standard_rt <- renderUI({
-  standard <- standard_number()
+  standard <- standard_selected()
   print(standard)
-  ids <- sapply(1:standard, function(i){
+  ids <- sapply(1:length(standard), function(i){
     paste("process_standard_retention_time_", i, sep = "")
   })
   print(ids)
   output <- tagList()
-  if(standard > 1){
-    for(i in 2:standard){
+  if(length(standard > 1)){
+    for(i in 1:length(standard)){
       output[[i]] <- tagList()
-      output[[i]][[1]] <- numericInput(ids[i], "Retention time", value = NA)
+      output[[i]][[1]] <- bsplus::shinyInput_label_embed(
+      											shiny::numericInput(ids[i], paste0("Retention time (+/- 2 min) - ", standard[i]), value = NA),
+      											bsplus::bs_embed_tooltip(
+             									bsplus::shiny_iconlink(),
+              								placement = 'top',
+              								title = "Retention time to use for the standard study"
+            								)
+            							)
     }
   }
   output
@@ -361,7 +368,7 @@ shiny::observeEvent(input$process_launch, {
       ppm = 0, mda = 0,
       peakwidth = c(input$process_peakwidth_min, input$process_peakwidth_max),
       retention_time = lapply(1:length(input$process_standard_type), function(i){
-        rt <- eval(parse(text = paste("input$process_standard_retention_time_", i, sep = "")))
+        rt <- eval(parse(text = paste0("input$process_standard_retention_time_", i)))
       }),
       missing_scans = input$process_missing_scans
     )
