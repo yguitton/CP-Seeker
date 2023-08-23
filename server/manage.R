@@ -79,7 +79,7 @@ output$manage_table <- DT::renderDataTable({
 		data <- projects()
 		data <- data[order(data$project, decreasing = TRUE), 
 			c("project", "name", "comments", "creation", "modified")]
-		colnames(data) <- c("Sequence", "Name", "Comments", "Creation", "Last modified")
+		colnames(data) <- c("Increment", "Name", "Comments", "Creation", "Last modified")
 		data
 	} else if (params$table_selected == "Sample") {
 		data <- samples()
@@ -95,7 +95,7 @@ output$manage_table <- DT::renderDataTable({
 			c("name", "instrument_model", "instrument_manufacturer", 
 			"ion_source", "analyzer", "detector_type", "resolution", "agc_target", 
 			"maximum_it", "number_of_scan_range", "scan_range")], as.factor)
-		colnames(data) <- c("Sample ID", "Sample", "Sequence", 
+		colnames(data) <- c("Increment", "Label", "Sequence", 
 			"Size (Mo)", "Instrument model", "Instrument manufacturer", "Ion source", 
 			"Analyzer", "Detector type", "Resolution", "AGC target", "Maximum IT", 
 			"Number of scan range", "Scan range", "Original path")
