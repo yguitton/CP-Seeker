@@ -436,7 +436,9 @@ shiny::observeEvent(input$process_results_download, {
   family <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
   # Merge our type and their family
   chem_type <- family[which(family$chemical_type %in% chem_type),]
-  chem_type <- chem_type[-which(chem_type$chemical_familly == "Standard"),]
+  if(length(grep("Standard", chem_type$chemical_familly)) > 0){
+    chem_type <- chem_type[-which(chem_type$chemical_familly == "Standard"),]
+  }
   actual_user <- input$user
   actual_project_informations <- projects()[which(
     projects()$project == input$project),]
