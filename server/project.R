@@ -15,15 +15,14 @@ shiny::observeEvent(input$project_create, {
 		name = gsub('"', "'", input$project_name), 
 		comments = gsub('"', "'", input$project_comment))
 	print(params)
-	
 	tryCatch({
-	inputs <- c("project_name")
-	conditions <- c(params$name != "")
-	msgs <- c("A sequence name is required")
-	check_inputs(inputs, conditions, msgs)
+		inputs <- c("project_name", "project_name")
+		conditions <- c(params$name != "", nchar(params$name) < 51)
+		msgs <- c("A sequence name is required", "Name have to be less than 50 characters")
+		check_inputs(inputs, conditions, msgs)
 	
-	record_project(db, params$name, params$comments)
-  	toastr_success(paste('Sequence', params$name, 'created!'))
+		record_project(db, params$name, params$comments)
+  		toastr_success(paste('Sequence', params$name, 'created!'))
 	}, invalid = function(i) NULL
 	, error = function(e){
 		print(e)
