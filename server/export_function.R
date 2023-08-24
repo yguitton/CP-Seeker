@@ -4,10 +4,6 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
   # Template PCAs & PBAs
   library(openxlsx)
   #library(XLConnect) # for some more functions
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
-    input$project)
-  chemicals <- db_get_query(db, query)
   for(chem in chem_type){
     for(adduct in adducts){
       shinyWidgets::updateProgressBar(session, id = "exportBar",
@@ -507,10 +503,6 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
 export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
-    input$project)
-  chemicals <- db_get_query(db, query)
   allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
   myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
@@ -1279,10 +1271,6 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
 export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
-    input$project)
-  chemicals <- db_get_query(db, query)
   allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
   myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
@@ -1823,10 +1811,6 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
 export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
-    input$project)
-  chemicals <- db_get_query(db, query)
   allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
   myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
@@ -2589,10 +2573,6 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
 export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations, pbValue, output = ""){
   library(openxlsx)
   #library(XLConnect) # for some more functions
-  query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
-    chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
-    input$project)
-  chemicals <- db_get_query(db, query)
   allProj <- deconvolution_params()[which(deconvolution_params()$chemical_type %in% chem_type),]
   myProjDeconv <- allProj[which(allProj$project == project_informations$project),]
   for(adduct in adducts){
