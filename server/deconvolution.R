@@ -592,7 +592,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		basepeak <- basepeaks[which.max(basepeaks$maxo),]
 		peaks2 <- NULL
 		scores <- c(theoric_patterns[[i]][1, "weight"])
-		deviations <- c(theoric_patterns[[i]][1, "mz"] - basepeak[1, "mz"])
+		deviations <- c(basepeak[1, "mz"] - theoric_patterns[[i]][1, "mz"])
 		weight <- c(theoric_patterns[[i]][1, "weight"])
 		continue_integration <- TRUE
 		k <- 2
@@ -613,7 +613,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 						theoric_patterns[[i]][k, "abundance"]) * 
 							theoric_patterns[[i]][k, "weight"])
 				deviations <- c(deviations, 
-					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+					 peak[1, "mz"] - theoric_patterns[[i]][k, "mz"])
 				weight <- c(weight, theoric_patterns[[i]][k, "weight"])
 				peaks2 <- rbind(peaks2, peak)
 			} else continue_integration <- FALSE
@@ -711,7 +711,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 						theoric_patterns[[i]][k, "abundance"]) * 
 							theoric_patterns[[i]][k, "weight"])
 				deviations <- c(deviations, 
-					theoric_patterns[[i]][k, "mz"] - peak[1, "mz"])
+					peak[1, "mz"] - theoric_patterns[[i]][k, "mz"])
 				weight <- c(weight, theoric_patterns[[i]][k, "weight"])
 				peaks2 <- rbind(peaks2, peak)
 			} else continue_integration <- FALSE
