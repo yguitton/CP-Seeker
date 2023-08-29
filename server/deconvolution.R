@@ -315,7 +315,7 @@ merge_peaks <- function(peaks, eic, baseline, noise){
 		rt = peaks[1, "rt"], 
 		rtmin = min(peaks[, "rtmin"]), 
 		rtmax = max(peaks[, "rtmax"]), 
-		into = pracma::trapz(eic[lm[1]:lm[2], 'int']),
+		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
 		intb = intb, 
 		maxo = max(peaks[, "maxo"]), 
 		sn = if (noise == 0) intb 
@@ -482,7 +482,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 		rt = eic[center, 'rt'] / 60, 
 		rtmin = eic[lm[1], 'rt'] / 60, 
 		rtmax = eic[lm[2], 'rt'] / 60, 
-		into = pracma::trapz(eic[lm[1]:lm[2], 'int']),
+		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
 		intb = intb, 
 		maxo = max(mz_vals[, "int"]), 
 		sn = if (noise == 0) intb 
@@ -625,7 +625,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
-          intensities = length(traces)*sum(peaks2[,"maxo"])/k,
+          intensities = length(traces)*sum(peaks2[,"into"])/k,
           weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
@@ -723,7 +723,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
-          intensities = length(traces)*sum(peaks2[,"maxo"])/k,
+          intensities = length(traces)*sum(peaks2[,"into"])/k,
           weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
