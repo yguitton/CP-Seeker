@@ -26,9 +26,9 @@ shinydashboard::tabItem(tabName = 'process_results',
 		)
 	),
 	shinydashboard::box(width = 9,
-	  shiny::column(width = 3, style = 'margin-top: 20px; margin-bottom: 20px;',
-	    shiny::actionButton('process_results_download', 'Export matrix', 
-	      icon = shiny::icon("download"))
+	  shiny::column(width = 3, style = 'margin-top: 20px; margin-bottom: 20px;'#,
+	    # shiny::actionButton('process_results_download', 'Export matrix', 
+	    #   icon = shiny::icon("download"))
 	  ),
 	  shiny::column(width = 2),
 	  shiny::column(width = 3,

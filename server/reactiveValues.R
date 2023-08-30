@@ -3,8 +3,8 @@
 #' @description 
 #' 
 #' @param input$process_standard_formula string, standard formula
-standard_number <- reactive({
-  length(input$process_standard_type)
+standard_selected <- reactive({
+  input$process_standard_type
 })
 
 #' @title Force reactualization of reactive values
