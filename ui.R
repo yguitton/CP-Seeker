@@ -65,9 +65,9 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
 			shinydashboard::menuSubItem("TIC/EIC & MS", icon = shiny::icon("bar-chart-o"), tabName = "EIC"), 
 			shinydashboard::menuSubItem("Figures", icon = shiny::icon("bar-chart-o"), tabName = "graphics")
 		),
-		shinydashboard::menuItem("Generate Report", tabName = "sectors", icon = icon("download"),
+		shinydashboard::menuItem("Export Results", tabName = "sectors", icon = icon("download"),
         	radioButtons("export_format", "Document format", c("Excel", "CSV"),inline = FALSE, selected = 1),
-        	shiny::actionButton("export_button", "Download Report", class = "butt"),
+        	shiny::actionButton("export_button", "Launch Report", class = "butt"),
         	tags$head(tags$style(".butt{color: blue !important;}"))
       )	
 	)

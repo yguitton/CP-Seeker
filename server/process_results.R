@@ -504,10 +504,10 @@ shiny::observeEvent(input$export_button,{
   tryCatch({
     inputs <- c("export_format")
     conditions <- c(!is.null(input$export_format))
-    msgs <- c("Please select a format for exportation")
+    msgs <- c("Please select a format for export")
     check_inputs(inputs, conditions, msgs)
 
-    # Variables for exportation
+    # Variables for export
     files <- project_samples()[which(
         project_samples()$project == input$project), ]
     allDeconv <- deconvolution_params()[which(
@@ -524,15 +524,15 @@ shiny::observeEvent(input$export_button,{
     actual_user <- input$user
     actual_project_informations <- projects()[which(projects()$project == input$project),]
 
-    # Excel exportation
+    # Excel export
     if(input$export_format == "Excel"){
       print('##################################################################')
-      print('###################### EXCEL EXPORTATION #########################')
+      print('######################### EXCEL EXPORT ###########################')
       print('##################################################################')
       print(Sys.time())
       
       pbValue <- 0 # When add unique is when we considered all chem type in one family
-      shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
+      shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
       if(length(c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))) > 0){
         adducts <- deconvolution_params()[which(
           deconvolution_params()$chemical_type %in% chem_type$chemical_type[c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))]), ]
@@ -574,25 +574,25 @@ shiny::observeEvent(input$export_button,{
         pbValue <- pbValue + length(unique(allDeconv[grep("-OH-PCAs",allDeconv$chemical_type),"adduct"]))
       }
 
-      toastr_success("Exportation success !")
+      toastr_success("Export success !")
       print(Sys.time())
       print('############################################################')
-      print('################### END OF EXPORTATION #####################')
+      print('###################### END OF EXPORT #######################')
       print('############################################################')
       shinyWidgets::closeSweetAlert(session)
     }
 
-    # CSV exportation
+    # CSV export
     if(input$export_format == "CSV"){
       print('################################################################')
-      print('###################### CSV EXPORTATION #########################')
+      print('######################### CSV EXPORT ###########################')
       print('################################################################')
       print(Sys.time())
 
       toastr_error("WORK IN PROGRESS, NOT AVAILABLE YET")
 
       # pbValue <- 0 # When add unique is when we considered all chem type in one family
-      # shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
+      # shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
       # browser()
       # final_csv <- NULL
       # for(r in 1:nrow(allDeconv)){
@@ -603,10 +603,10 @@ shiny::observeEvent(input$export_button,{
       #   }
       # }
 
-      #toastr_success("Exportation success !")
+      #toastr_success("Export success !")
       print(Sys.time())
       print('############################################################')
-      print('################### END OF EXPORTATION #####################')
+      print('###################### END OF EXPORT #######################')
       print('############################################################')
       shinyWidgets::closeSweetAlert(session)
     }
