@@ -307,7 +307,6 @@ overlap_peaks <- function(peaks, eic, baseline, noise) {
 #' }
 merge_peaks <- function(peaks, eic, baseline, noise){
 	lm <- c(min(peaks$lmin), max(peaks$lmax))
-	intb <- pracma::trapz(eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]])
 	new_peak <- data.frame(
 		mz = peaks[1, "mz"], 
 		mzmin = min(peaks[, "mzmin"]), 
@@ -316,7 +315,7 @@ merge_peaks <- function(peaks, eic, baseline, noise){
 		rtmin = min(peaks[, "rtmin"]), 
 		rtmax = max(peaks[, "rtmax"]), 
 		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
-		intb = intb, 
+		intb = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]]), 
 		maxo = max(peaks[, "maxo"]), 
 		sn = if (noise == 0) intb 
 		  else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
@@ -474,7 +473,6 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 	mz <- do.call(xcms:::mzCenter.wMean, list(
 		mz = mz_vals[, "mz"], 
 		intensity = mz_vals[, "int"]))
-	intb <- pracma::trapz(eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]])
 	data.frame(
 		mz = mz, 
 		mzmin = mz_range[1], 
@@ -483,7 +481,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 		rtmin = eic[lm[1], 'rt'] / 60, 
 		rtmax = eic[lm[2], 'rt'] / 60, 
 		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
-		intb = intb, 
+		intb = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]]), 
 		maxo = max(mz_vals[, "int"]), 
 		sn = if (noise == 0) intb 
 			else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
@@ -568,26 +566,23 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		  lm <- c(roi[1] - traces[[1]]$eic[roi[1], "scan"] + 1, roi[2] - traces[[1]]$eic[roi[1], "scan"] + 1)
 		  basepeaks <- integrate2(traces[[1]]$eic[roi[1]:roi[2], ], lm, 
 		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
-		  traces[[1]]$mzmat[which(
-		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
-	    , , drop = FALSE])
-		}
-		else{
+		  traces[[1]]$mzmat[which(traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2]), , drop = FALSE])
+		}else{
 		  # extend roi for better integration
-  		roi <- range(
-  		  (if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
-  		  (if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
-  	  )
-  	  basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
-  		  baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
-  		  traces[[1]]$mzmat[which(
-  		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
-  		  , , drop = FALSE])
+  		  roi <- range(
+  		    (if (min(roi) - extend_range < 1) 1 else min(roi) - extend_range) : 
+  		    (if (max(roi) + extend_range > nrow(traces[[1]]$eic)) nrow(traces[[1]]$eic) else max(roi) + extend_range)
+  	      )
+  	      basepeaks <- integrate(traces[[1]]$eic[roi[1]:roi[2], ], scalerange, 
+  		    baselines[[1]][roi[1]:roi[2]], noises[1], missing_scans,
+  		    traces[[1]]$mzmat[which(
+  		      traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
+  		    , , drop = FALSE])
 		}
 		
 	  if (length(basepeaks) == 0) next
 	  basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
-		if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
+	  if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
 	  if(nrow(basepeaks) == 0) next
 		basepeak <- basepeaks[which.max(basepeaks$maxo),]
 		peaks2 <- NULL
@@ -595,7 +590,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 		deviations <- c(basepeak[1, "mz"] - theoric_patterns[[i]][1, "mz"])
 		weight <- c(theoric_patterns[[i]][1, "weight"])
 		continue_integration <- TRUE
-		k <- 2
+		k <- 2 # To avoid iso = A
 		while (k < length(traces) & continue_integration) {
 			eic <- traces[[k]]$eic
 			mzmat <- traces[[k]]$mzmat
@@ -625,8 +620,8 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
-          intensities = length(traces)*sum(peaks2[,"into"])/k,
-          weighted_deviations = sum(deviations*weight)/sum(weight)
+          			intensities = sum(peaks2[,"into"]),
+          			weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
 		
@@ -685,7 +680,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 		
 	  if (length(basepeaks) == 0) next
 	  basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
-		if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
+	  if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
 	  if(nrow(basepeaks) == 0) next
 		basepeak <- basepeaks[which.max(basepeaks$maxo),]
 		peaks2 <- NULL
@@ -723,8 +718,8 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 					score = sum(scores) * 100, 
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
-          intensities = length(traces)*sum(peaks2[,"into"])/k,
-          weighted_deviations = sum(deviations*weight)/sum(weight)
+          			intensities = sum(peaks2[,"into"]),
+          			weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
 		
