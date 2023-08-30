@@ -307,6 +307,7 @@ overlap_peaks <- function(peaks, eic, baseline, noise) {
 #' }
 merge_peaks <- function(peaks, eic, baseline, noise){
 	lm <- c(min(peaks$lmin), max(peaks$lmax))
+	intb <- pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]])
 	new_peak <- data.frame(
 		mz = peaks[1, "mz"], 
 		mzmin = min(peaks[, "mzmin"]), 
@@ -315,7 +316,7 @@ merge_peaks <- function(peaks, eic, baseline, noise){
 		rtmin = min(peaks[, "rtmin"]), 
 		rtmax = max(peaks[, "rtmax"]), 
 		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
-		intb = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]]), 
+		intb = intb, 
 		maxo = max(peaks[, "maxo"]), 
 		sn = if (noise == 0) intb 
 		  else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
@@ -473,6 +474,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 	mz <- do.call(xcms:::mzCenter.wMean, list(
 		mz = mz_vals[, "mz"], 
 		intensity = mz_vals[, "int"]))
+	intb <- pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]])
 	data.frame(
 		mz = mz, 
 		mzmin = mz_range[1], 
@@ -481,7 +483,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 		rtmin = eic[lm[1], 'rt'] / 60, 
 		rtmax = eic[lm[2], 'rt'] / 60, 
 		into = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int']),
-		intb = pracma::trapz(eic[lm[1]:lm[2], 'rt'], eic[lm[1]:lm[2], 'int'] - baseline[lm[1]:lm[2]]), 
+		intb = intb, 
 		maxo = max(mz_vals[, "int"]), 
 		sn = if (noise == 0) intb 
 			else intb / pracma::trapz(rep(noise, diff(lm) + 1)),
