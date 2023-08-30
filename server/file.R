@@ -559,10 +559,10 @@ conversion <- function(db, project, sample_name, sample_id, filepath, filename, 
 		(grepl('raw$', filepath, ignore.case=TRUE) & 
 			!dir.exists(filepath)) | 
 		grepl('mzXML$', filepath, ignore.case=TRUE) | 
-		grepl('mzML$', filepath, ignore.case=TRUE)) 'cwt' else 'vendor'
+		grepl('mzML$', filepath, ignore.case=TRUE)) 'vendor' #'cwt' else 'vendor' cwt only for waters but raw is also thermo
 	
 	# call msConvert
-	query <- sprintf("\"%s\" \"%s\" -o \"%s\" --outfile \"%s\" --mzXML --32 --zlib --filter \"peakPicking %s msLevel=1\" --filter \"polarity %s\"", 
+	query <- sprintf("\"%s\" \"%s\" -o \"%s\" --outfile \"%s\" --mzXML --64 --zlib --filter \"peakPicking %s msLevel=1\" --filter \"polarity %s\"", 
 		converter, filepath, out_dir, out_filename, algorithm, polarity)
 	print(query)
 	msconvert_blabla <- system(query, intern = TRUE, wait = TRUE)
