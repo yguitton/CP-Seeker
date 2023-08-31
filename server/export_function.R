@@ -9,7 +9,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
       shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100, 
       title = paste0("Exportation of ", chem, "..."))
-    pbValue <- pbValue + 1
+      pbValue <- pbValue + 1
       print("######################################################################################")
       print(paste0("Run for ",chem," and ",adduct))
       if(adduct %in% deconvolution_params()[which(deconvolution_params()$chemical_type == chem),"adduct"]){
@@ -343,7 +343,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
           
           sheet <- sheet + 1
         }
-        print("label sheet")
+
         ################################################################################
         # Write the label's sheet(s)
         allFiles <- unique(project_samples()[which(project_samples()$project == input$project),])
