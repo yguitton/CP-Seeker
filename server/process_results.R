@@ -512,21 +512,55 @@ shiny::observeEvent(input$export_button,{
       print('################################################################')
       print(Sys.time())
 
-      toastr_error("WORK IN PROGRESS, NOT AVAILABLE YET")
+      pbValue <- 0 # When add unique is when we considered all chem type in one family
+      maxBar <- length(unique(allDeconv$adduct))
+      shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
+      full_mat <- mat()
+      for(adduct in unique(allDeconv$adduct)){
+        pbValue <- pbValue + 1
+        print(paste0("Exporting adduct ", adduct, "..."))
+        shinyWidgets::updateProgressBar(session, id = "exportBar",
+          value = pbValue/maxBar*100, 
+          title = paste0("Exporting ", adduct, "..."))
+        thisDeconv <- allDeconv[which(allDeconv$adduct == adduct),]
+        thisResult <- NULL
+        
+        for(file in names(full_mat)){
+          print(paste0("In this file ", file))
+          this_sample <- samples()[which(samples()$sample == paste0("neg ",file)),]
+          this_mat <- full_mat[[file]]
+          for(chem in names(this_mat)){
+            print(paste0("For ", chem))
+            whichInside <- reduce_matrix(this_mat[[chem]][[adduct]], 4)
+            deviation <- reduce_matrix(this_mat[[chem]][[adduct]], 3)
+            area <- reduce_matrix(this_mat[[chem]][[adduct]], 2)
+            score <- reduce_matrix(this_mat[[chem]][[adduct]], 1)
+            for(col in colnames(this_mat[[chem]][[adduct]])){
+              for(line in rownames(this_mat[[chem]][[adduct]])){
+                if(whichInside[line,col] == "inside"){
+                  nbC <- strsplit(line, "C")[[1]][2]
+                  nbCl <- if(length(grep("Cl", col))) strsplit(col, "Cl")[[1]][2] else 0
+                  nbBr <- if(length(grep("Br", col))) strsplit(col, "Br")[[1]][2] else 0
+                  thisResult <- rbind(thisResult, cbind(
+                                  filename = this_sample$raw_path,
+                                  file_label = this_sample$sample,
+                                  chemical_type = chem,
+                                  homologue = paste0(col,line),
+                                  neutral_formula = get_formula(db, chem, C = nbC, Cl = nbCl, Br = nbBr)[,"formula"],
+                                  adduct = adduct,
+                                  area = area[line,col],
+                                  score = score[line,col],
+                                  deviation = deviation[line,col]
+                  ))
+                }
+              }
+            }
+          }
+        }
+        write.csv(thisResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,"_[",adduct,"]_.csv"))
+      }
 
-      # pbValue <- 0 # When add unique is when we considered all chem type in one family
-      # shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
-      # browser()
-      # final_csv <- NULL
-      # for(r in 1:nrow(allDeconv)){
-      #   this_chem <- allDeconv[r, "chemical_type"]
-      #   this_adduct <- allDeconv[r, "adduct"]
-      #   for(file in files){
-
-      #   }
-      # }
-
-      #toastr_success("Export success !")
+      toastr_success("Export success !")
       print(Sys.time())
       print('############################################################')
       print('###################### END OF EXPORT #######################')

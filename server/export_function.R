@@ -8,7 +8,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
     for(adduct in adducts){
       shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100, 
-      title = paste0("Exportation of ", chem, "..."))
+      title = paste0("Exporting ", chem, "..."))
       pbValue <- pbValue + 1
       print("######################################################################################")
       print(paste0("Run for ",chem," and ",adduct))
@@ -508,7 +508,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100,
-      title = paste0("Exportation of PCOs ..."))
+      title = paste0("Exporting PCOs ..."))
     pbValue <- pbValue + 1
     print("######################################################################################")
     print(paste0("Run for PCOs and ",adduct))
@@ -1276,7 +1276,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100, 
-      title = paste0("Exportation of PXAs ..."))
+      title = paste0("Exporting PXAs ..."))
     pbValue <- pbValue + 1
     print("######################################################################################")
     print(paste0("Run for PXAs and ",adduct))
@@ -1816,7 +1816,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100,
-      title = paste0("Exportation of Phase 1 metabolites ..."))
+      title = paste0("Exporting Phase 1 metabolites ..."))
     pbValue <- pbValue + 1
     print("######################################################################################")
     print(paste0("Run for Phase 1 metabolites and ",adduct))
@@ -2578,7 +2578,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
   for(adduct in adducts){
     shinyWidgets::updateProgressBar(session, id = "exportBar",
       value = (pbValue + 1)/maxBar*100,
-      title = paste0("Exportation of Phase 2 metabolites ..."))
+      title = paste0("Exporting Phase 2 metabolites ..."))
     pbValue <- pbValue + 1
     print("######################################################################################")
     print(paste0("Run for Phase 2 metabolites and ",adduct))

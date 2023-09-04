@@ -591,3 +591,11 @@ get_ecni_adduct <- function(db) {
 get_esi_adduct <- function(db) {
    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_family = "ESI/APCI";')
 }
+
+get_formula <- function(db, chemical_type, C, Cl = 0, Br = 0){
+	if(is.null(chemical_type)) return("No chemical_type")
+	query <- sprintf("select * from chemical where 
+		chemical_type == \"%s\" and C == %s and Cl == %s and Br == %s", 
+		chemical_type, C, Cl, Br)
+	db_get_query(db, query)
+}
