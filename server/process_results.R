@@ -516,6 +516,7 @@ shiny::observeEvent(input$export_button,{
       maxBar <- length(unique(allDeconv$adduct))
       shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
       full_mat <- mat()
+      finalResult <- NULL
       for(adduct in unique(allDeconv$adduct)){
         pbValue <- pbValue + 1
         print(paste0("Exporting adduct ", adduct, "..."))
@@ -557,8 +558,9 @@ shiny::observeEvent(input$export_button,{
             }
           }
         }
-        write.csv(thisResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,"_[",adduct,"]_.csv"))
+        finalResult <- rbind(finalResult, thisResult)
       }
+      write.csv(finalResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,".csv"))
 
       toastr_success("Export success !")
       print(Sys.time())
