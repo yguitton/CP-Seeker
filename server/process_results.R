@@ -543,8 +543,8 @@ shiny::observeEvent(input$export_button,{
                   nbCl <- if(length(grep("Cl", col))) strsplit(col, "Cl")[[1]][2] else 0
                   nbBr <- if(length(grep("Br", col))) strsplit(col, "Br")[[1]][2] else 0
                   thisResult <- rbind(thisResult, cbind(
-                                  filename = this_sample$raw_path,
-                                  file_label = this_sample$sample,
+                                  filename = strsplit(this_sample$raw_path, "/")[[1]][length(strsplit(this_sample$raw_path, "/")[[1]])],
+                                  file_label = strsplit(this_sample$sample, " ")[[1]][2:length(strsplit(this_sample$sample, " ")[[1]])],
                                   chemical_type = chem,
                                   homologue = paste0(col,line),
                                   neutral_formula = get_formula(db, chem, C = nbC, Cl = nbCl, Br = nbBr)[,"formula"],
@@ -560,7 +560,7 @@ shiny::observeEvent(input$export_button,{
         }
         finalResult <- rbind(finalResult, thisResult)
       }
-      write.csv(finalResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,".csv"))
+      write.csv(finalResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,".csv"), row.names = FALSE)
 
       toastr_success("Export success !")
       print(Sys.time())
