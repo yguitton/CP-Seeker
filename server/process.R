@@ -528,6 +528,7 @@ shiny::observeEvent(input$process_launch, {
   	# for each theoric pattern compute m/z borns
 		theoric_patterns <- lapply(theoric_patterns,
 		    function(x) cbind(x, get_mass_range(x[, "mz"], params$ppm, params$mda)))
+		#browser() # Pour gérer un warning
 		if(param$standard_study){
 			for(tp in 1:length(theoric_patterns_standard)){
 				if(theoric_patterns_standard[[tp]] != "no theoric"){
