@@ -542,7 +542,7 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
   table <- NULL
   for(i in 1:length(sample$project_sample)){
     # query of normal standard with iso = A
-    query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+    query <- sprintf('select intensities, intensities_b, score, weighted_deviation from feature where
          			iso == \"A\" and project_sample in (select project_sample from project_sample where
               project == %s and sample_id == \"%s\") and chemical_ion in (
                 select chemical_ion from chemical_ion where adduct == \"%s\" and chemical == (
@@ -553,7 +553,7 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
     # Second try the standard had no results but has a theoric pattern (iso = "no ROIs" or something like that)
     if(nrow(data) == 0){
       # query of standard where nothing found and nexted (iso = "no ROIs" or something)
-    	query <- sprintf('select `into`, intb, score, weighted_deviation from feature where
+    	query <- sprintf('select intensities, intensities_b, score, weighted_deviation from feature where
          			iso == \"no ROIs\" and project_sample in (select project_sample from project_sample where
               project == %s and sample_id == \"%s\") and chemical_ion in (
                 select chemical_ion from chemical_ion where adduct == \"%s\" and chemical == (
@@ -564,20 +564,20 @@ get_standard_table <- function(db, project = NULL, adduct = NULL, standard_formu
     }
     # Last try, the standard has been asked but the adduct is not possible with it
     if(nrow(data) == 0){
-    	data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, into = "not possible", 
-    		intb = "not possible", score = "not possible", weighted_deviation = "not possible")
+    	data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, intensities = "not possible", 
+    		intensities_b = "not possible", score = "not possible", weighted_deviation = "not possible")
     }
     table <- as.data.frame(rbind(table, data))
   }
-  if(class(table$into) != "character") table$into[which(!is.na(table$into))] <- formatC(
-    as.numeric(table$into[which(!is.na(table$into))]), format = 'f', big.mark = " ", digits = 0)
-  if(class(table$intb) != "character") table$intb[which(!is.na(table$intb))] <- formatC(
-    as.numeric(table$intb[which(!is.na(table$intb))]), format = 'f', big.mark = " ", digits = 0)
+  if(class(table$intensities) != "character") table$intensities[which(!is.na(table$intensities))] <- formatC(
+    as.numeric(table$intensities[which(!is.na(table$intensities))]), format = 'f', big.mark = " ", digits = 0)
+  if(class(table$intensities_b) != "character") table$intensities_b[which(!is.na(table$intensities_b))] <- formatC(
+    as.numeric(table$intensities_b[which(!is.na(table$intensities_b))]), format = 'f', big.mark = " ", digits = 0)
   if(class(table$score) != "character") table$score[which(!is.na(table$score))] <- round(
     table$score[which(!is.na(table$score))], digits = 0)
   if(class(table$weighted_deviation) != "character") table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
     table$weighted_deviation[which(!is.na(table$weighted_deviation))]*10**3, digits = 2)
-  data.table::setnames(table, c("into", "intb", "weighted_deviation"),
+  data.table::setnames(table, c("intensities", "intensities_b", "weighted_deviation"),
     c("total area", "area above baseline", "deviation(mDa)"))
   table
 }
@@ -590,4 +590,12 @@ get_ecni_adduct <- function(db) {
 }
 get_esi_adduct <- function(db) {
    db_get_query(db, 'SELECT DISTINCT adduct FROM chemical_ion where chemical_ion_family = "ESI/APCI";')
+}
+
+get_formula <- function(db, chemical_type, C, Cl = 0, Br = 0){
+	if(is.null(chemical_type)) return("No chemical_type")
+	query <- sprintf("select * from chemical where 
+		chemical_type == \"%s\" and C == %s and Cl == %s and Br == %s", 
+		chemical_type, C, Cl, Br)
+	db_get_query(db, query)
 }

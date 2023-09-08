@@ -415,83 +415,6 @@ output$process_results_ms <- plotly::renderPlotly({
 	})
 })
 
-#' @title File selection for matrix downloading
-#' 
-#' @description 
-#' Will display a modal dialog for the selection of files to download
-#' 
-#' @param input$project integer, project id
-# shiny::observeEvent(input$process_results_download, {
-#   print('############################################################')
-#   print('###################### EXPORTATION #########################')
-#   print('############################################################')
-#   print(Sys.time())
-#   files <- project_samples()[which(
-#     project_samples()$project == input$project), "sample_id"]
-#   allDeconv <- deconvolution_params()[which(
-#     deconvolution_params()$project == input$project),]
-#   chem_type <- unique(deconvolution_params()[which(
-#     deconvolution_params()$project == input$project), "chemical_type"])
-#   # Search for all families we have
-#   family <- unique(db_get_query(db, "select chemical_type, chemical_familly from chemical"))
-#   # Merge our type and their family
-#   chem_type <- family[which(family$chemical_type %in% chem_type),]
-#   if(length(grep("Standard", chem_type$chemical_familly)) > 0){
-#     chem_type <- chem_type[-which(chem_type$chemical_familly == "Standard"),]
-#   }
-#   actual_user <- input$user
-#   actual_project_informations <- projects()[which(
-#     projects()$project == input$project),]
-#   pbValue <- 0 # When add unique is when we considered all chem type in one family
-#   shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Exportation...", striped = TRUE, display_pct = TRUE)
-#   if(length(c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))) > 0){
-#     adducts <- deconvolution_params()[which(
-#       deconvolution_params()$chemical_type %in% chem_type$chemical_type[c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly))]), ]
-#     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-#     export_PCA(actual_user, maxBar = length(unique(chem_type$chemical_familly))*length(adducts), chem_type = chem_type[c(grep("Chlorinated paraffins",chem_type$chemical_familly), grep("Brominated paraffins",chem_type$chemical_familly)), "chemical_type"], 
-#       adducts = adducts, actual_project_informations, pbValue)
-#     pbValue <- pbValue + length(allDeconv[c(grep("^PCAs",allDeconv$chemical_type), grep("^PBAs",allDeconv$chemical_type)),"adduct"])
-#   }
-#   if(length(grep("Chlorinated olefins", chem_type$chemical_familly)) > 0){
-#     adducts <- deconvolution_params()[which(
-#       deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Chlorinated olefins",chem_type$chemical_familly)]), ]
-#     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-#     export_PCO(actual_user, maxBar = length(unique(chem_type$chemical_familly))*length(adducts), chem_type = chem_type[grep("Chlorinated olefins",chem_type$chemical_familly), "chemical_type"], 
-#       adducts = adducts, actual_project_informations, pbValue)
-#     pbValue <- pbValue + length(unique(allDeconv[grep("P.*Os",allDeconv$chemical_type),"adduct"]))
-#   }
-#   if(length(grep("Mixed paraffins",chem_type$chemical_familly)) > 0){
-#     adducts <- deconvolution_params()[which(
-#       deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Mixed paraffins",chem_type$chemical_familly)]), ]
-#     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-#     export_PXA(actual_user, maxBar = length(unique(chem_type$chemical_familly))*length(adducts), chem_type = chem_type[grep("Mixed paraffins",chem_type$chemical_familly), "chemical_type"], 
-#       adducts = adducts, actual_project_informations, pbValue)
-#     pbValue <- pbValue + length(unique(allDeconv[grep("PXAs",allDeconv$chemical_type),"adduct"]))
-#   }
-#   if(length(grep("Phase I metabolites", chem_type$chemical_familly)) > 0){
-#     adducts <- deconvolution_params()[which(
-#       deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Phase I metabolites",chem_type$chemical_familly)]), ]
-#     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-#     export_phase1(actual_user, maxBar = length(unique(chem_type$chemical_familly))*length(adducts), chem_type = chem_type[grep("Phase I metabolites",chem_type$chemical_familly), "chemical_type"], 
-#       adducts = adducts, actual_project_informations, pbValue)
-#     pbValue <- pbValue + length(unique(allDeconv[grep("-PCAs",allDeconv$chemical_type),"adduct"]))
-#   }
-#   if(length(grep("Phase II metabolites", chem_type$chemical_familly)) > 0){
-#     adducts <- deconvolution_params()[which(
-#       deconvolution_params()$chemical_type %in% chem_type$chemical_type[grep("Phase I metabolites",chem_type$chemical_familly)]), ]
-#     adducts <- unique(adducts[which(adducts$project == input$project), "adduct"])
-#     export_phase2(actual_user, maxBar = length(unique(chem_type$chemical_familly))*length(adducts), chem_type = chem_type[grep("Phase II metabolites",chem_type$chemical_familly), "chemical_type"], 
-#       adducts = adducts, actual_project_informations, pbValue)
-#     pbValue <- pbValue + length(unique(allDeconv[grep("-OH-PCAs",allDeconv$chemical_type),"adduct"]))
-#   }
-
-#   toastr_success("Exportation success !")
-#   print(Sys.time())
-#   print('############################################################')
-#   print('################### END OF EXPORTATION #####################')
-#   print('############################################################')
-#   shinyWidgets::closeSweetAlert(session)
-# })
 
 #' @title File selection for matrix downloading
 #' 
@@ -589,21 +512,57 @@ shiny::observeEvent(input$export_button,{
       print('################################################################')
       print(Sys.time())
 
-      toastr_error("WORK IN PROGRESS, NOT AVAILABLE YET")
+      pbValue <- 0 # When add unique is when we considered all chem type in one family
+      maxBar <- length(unique(allDeconv$adduct))
+      shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
+      full_mat <- mat()
+      finalResult <- NULL
+      for(adduct in unique(allDeconv$adduct)){
+        pbValue <- pbValue + 1
+        print(paste0("Exporting adduct ", adduct, "..."))
+        shinyWidgets::updateProgressBar(session, id = "exportBar",
+          value = pbValue/maxBar*100, 
+          title = paste0("Exporting ", adduct, "..."))
+        thisDeconv <- allDeconv[which(allDeconv$adduct == adduct),]
+        thisResult <- NULL
+        
+        for(file in names(full_mat)){
+          print(paste0("In this file ", file))
+          this_sample <- samples()[which(samples()$sample == paste0("neg ",file)),]
+          this_mat <- full_mat[[file]]
+          for(chem in names(this_mat)){
+            print(paste0("For ", chem))
+            whichInside <- reduce_matrix(this_mat[[chem]][[adduct]], 4)
+            deviation <- reduce_matrix(this_mat[[chem]][[adduct]], 3)
+            area <- reduce_matrix(this_mat[[chem]][[adduct]], 2)
+            score <- reduce_matrix(this_mat[[chem]][[adduct]], 1)
+            for(col in colnames(this_mat[[chem]][[adduct]])){
+              for(line in rownames(this_mat[[chem]][[adduct]])){
+                if(whichInside[line,col] == "inside"){
+                  nbC <- strsplit(line, "C")[[1]][2]
+                  nbCl <- if(length(grep("Cl", col))) strsplit(col, "Cl")[[1]][2] else 0
+                  nbBr <- if(length(grep("Br", col))) strsplit(col, "Br")[[1]][2] else 0
+                  thisResult <- rbind(thisResult, cbind(
+                                  filename = strsplit(this_sample$raw_path, "/")[[1]][length(strsplit(this_sample$raw_path, "/")[[1]])],
+                                  file_label = strsplit(this_sample$sample, " ")[[1]][2:length(strsplit(this_sample$sample, " ")[[1]])],
+                                  chemical_type = chem,
+                                  homologue = paste0(col,line),
+                                  neutral_formula = get_formula(db, chem, C = nbC, Cl = nbCl, Br = nbBr)[,"formula"],
+                                  adduct = adduct,
+                                  area = area[line,col],
+                                  score = score[line,col],
+                                  deviation = deviation[line,col]
+                  ))
+                }
+              }
+            }
+          }
+        }
+        finalResult <- rbind(finalResult, thisResult)
+      }
+      write.csv(finalResult, paste0(config_dir,"/",actual_project_informations$name,"_",actual_project_informations$creation,".csv"), row.names = FALSE)
 
-      # pbValue <- 0 # When add unique is when we considered all chem type in one family
-      # shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
-      # browser()
-      # final_csv <- NULL
-      # for(r in 1:nrow(allDeconv)){
-      #   this_chem <- allDeconv[r, "chemical_type"]
-      #   this_adduct <- allDeconv[r, "adduct"]
-      #   for(file in files){
-
-      #   }
-      # }
-
-      #toastr_success("Export success !")
+      toastr_success("Export success !")
       print(Sys.time())
       print('############################################################')
       print('###################### END OF EXPORT #######################')

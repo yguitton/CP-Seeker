@@ -623,6 +623,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
           			intensities = sum(peaks2[,"into"]),
+          			intensities_b = sum(peaks2[,"intb"]),
           			weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
@@ -646,7 +647,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 		if (length(roi) == 0){
 			norois <- c(mz = NA, mzmin = NA, mzmax = NA, rt = NA, rtmin = NA, rtmax = NA, into = NA, intb = NA, maxo = NA, sn = NA, scale = NA,
 				scpos = NA, scmin = NA, scmax = NA, lmin = NA, lmax = NA, abundance = NA, iso = "no ROIs", score = NA, deviation = NA, chemical_ion = chemical_ids[i], 
-				intensities = NA, weighted_deviations = NA)
+				intensities = NA, intensities_b = NA, weighted_deviations = NA)
 			peaks <- rbind(peaks, norois)
 			next
 		}
@@ -679,7 +680,6 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
   		    traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
   		  , , drop = FALSE])
 		}
-		
 	  if (length(basepeaks) == 0) next
 	  basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
 	  if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
@@ -721,6 +721,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 					deviation = mean(deviations) * 10**3, 
 					chemical_ion = chemical_ids[i],
           			intensities = sum(peaks2[,"into"]),
+          			intensities_b = sum(peaks2[,"intb"]),
           			weighted_deviations = sum(deviations*weight)/sum(weight)
 			))
 		}
