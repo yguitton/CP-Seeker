@@ -528,7 +528,9 @@ shiny::observeEvent(input$export_button,{
         
         for(file in names(full_mat)){
           print(paste0("In this file ", file))
-          this_sample <- samples()[which(samples()$sample == paste0("neg ",file)),]
+          all_samples <- db_get_query(db, paste0("SELECT * FROM project_sample WHERE project == ", input$project))
+          this_sample <- all_samples[which(all_samples$sample_id == file),]
+          this_sample <- samples()[which(samples()$sample == this_sample$sample),]
           this_mat <- full_mat[[file]]
           for(chem in names(this_mat)){
             print(paste0("For ", chem))
@@ -539,7 +541,7 @@ shiny::observeEvent(input$export_button,{
             for(col in colnames(this_mat[[chem]][[adduct]])){
               for(line in rownames(this_mat[[chem]][[adduct]])){
                 if(whichInside[line,col] == "inside"){
-                  nbC <- strsplit(line, "C")[[1]][2]
+                  nbC <- if(length(grep("C[1-9]", col))) strsplit(line, "C")[[1]][2] else 0
                   nbCl <- if(length(grep("Cl", col))) strsplit(col, "Cl")[[1]][2] else 0
                   nbBr <- if(length(grep("Br", col))) strsplit(col, "Br")[[1]][2] else 0
                   thisResult <- rbind(thisResult, cbind(
