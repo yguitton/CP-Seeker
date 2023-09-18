@@ -512,6 +512,7 @@ shiny::observeEvent(input$export_button,{
       print('################################################################')
       print(Sys.time())
 
+      data(isotopes)
       pbValue <- 0 # When add unique is when we considered all chem type in one family
       maxBar <- length(unique(allDeconv$adduct))
       shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
@@ -548,7 +549,7 @@ shiny::observeEvent(input$export_button,{
                                   filename = strsplit(this_sample$raw_path, "/")[[1]][length(strsplit(this_sample$raw_path, "/")[[1]])],
                                   file_label = strsplit(this_sample$sample, " ")[[1]][2:length(strsplit(this_sample$sample, " ")[[1]])],
                                   chemical_type = chem,
-                                  homologue = paste0(col,line),
+                                  homologue = check_chemform(isotopes, paste0(col,line), get_sorted = TRUE)$new_formula,
                                   neutral_formula = get_formula(db, chem, C = nbC, Cl = nbCl, Br = nbBr)[,"formula"],
                                   adduct = adduct,
                                   area = area[line,col],
