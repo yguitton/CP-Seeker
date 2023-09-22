@@ -512,6 +512,7 @@ shiny::observeEvent(input$export_button,{
       print('################################################################')
       print(Sys.time())
 
+      data(isotopes)
       pbValue <- 0 # When add unique is when we considered all chem type in one family
       maxBar <- length(unique(allDeconv$adduct))
       shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
@@ -528,7 +529,9 @@ shiny::observeEvent(input$export_button,{
         
         for(file in names(full_mat)){
           print(paste0("In this file ", file))
-          this_sample <- samples()[which(samples()$sample == paste0("neg ",file)),]
+          all_samples <- db_get_query(db, paste0("SELECT * FROM project_sample WHERE project == ", input$project))
+          this_sample <- all_samples[which(all_samples$sample_id == file),]
+          this_sample <- samples()[which(samples()$sample == this_sample$sample),]
           this_mat <- full_mat[[file]]
           for(chem in names(this_mat)){
             print(paste0("For ", chem))
@@ -539,14 +542,14 @@ shiny::observeEvent(input$export_button,{
             for(col in colnames(this_mat[[chem]][[adduct]])){
               for(line in rownames(this_mat[[chem]][[adduct]])){
                 if(whichInside[line,col] == "inside"){
-                  nbC <- strsplit(line, "C")[[1]][2]
+                  nbC <- if(length(grep("C[1-9]", col))) strsplit(line, "C")[[1]][2] else 0
                   nbCl <- if(length(grep("Cl", col))) strsplit(col, "Cl")[[1]][2] else 0
                   nbBr <- if(length(grep("Br", col))) strsplit(col, "Br")[[1]][2] else 0
                   thisResult <- rbind(thisResult, cbind(
                                   filename = strsplit(this_sample$raw_path, "/")[[1]][length(strsplit(this_sample$raw_path, "/")[[1]])],
                                   file_label = strsplit(this_sample$sample, " ")[[1]][2:length(strsplit(this_sample$sample, " ")[[1]])],
                                   chemical_type = chem,
-                                  homologue = paste0(col,line),
+                                  homologue = check_chemform(isotopes, paste0(col,line), get_sorted = TRUE)$new_formula,
                                   neutral_formula = get_formula(db, chem, C = nbC, Cl = nbCl, Br = nbBr)[,"formula"],
                                   adduct = adduct,
                                   area = area[line,col],
