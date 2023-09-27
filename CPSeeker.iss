@@ -1,5 +1,5 @@
 #define MyAppName "CPSeeker"
-#define MyAppVersion "2.1.1"
+#define MyAppVersion "2.1.2"
 #define MyAppExeName "CPSeeker.bat"
 
 [Setup]
