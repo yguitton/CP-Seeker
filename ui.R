@@ -69,7 +69,7 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
         	radioButtons("export_format", "Document format", c("Excel", "CSV"),inline = FALSE, selected = 1),
         	shiny::actionButton("export_button", "Launch Report", class = "butt"),
         	tags$head(tags$style(".butt{color: blue !important;}"))
-      )	
+      )
 	)
 )
 
