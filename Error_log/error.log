@@ -208,3 +208,16 @@ Listening on http://127.0.0.1:5270
 [1] "############################################################"
 [1] "TAB ######################### project_files #############..."
 [1] "############################################################"
+[1] "clean db"
+[1] "application terminated normally"
+Warning message:
+In fun(libname, pkgname) :
+  mzR has been built against a different Rcpp version (1.0.2)
+than is installed on your system (1.0.6). This might lead to errors
+when loading mzR. If you encounter such issues, please send a report,
+including the output of sessionInfo() to the Bioc support forum at 
+https://support.bioconductor.org/. For details see also
+https://github.com/sneumann/mzR/wiki/mzR-Rcpp-compiler-linker-issue.
+          used  (Mb) gc trigger  (Mb) max used  (Mb)
+Ncells 5332790 284.9    8046718 429.8  8046718 429.8
+Vcells 8599747  65.7   14786712 112.9 11690030  89.2
