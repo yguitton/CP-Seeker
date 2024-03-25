@@ -35,10 +35,28 @@ if (this.JSON) {
 // If deployed to users individually, keep with the deployment (default)
 // If deployed to a central location (e.g. a network share) use a directory in
 // each user's %userprofile%
-sLogPath = 'log';
-//' Determine User Home directory
-var sUPath = oShell.ExpandEnvironmentStrings("%USERPROFILE%");
-var sLogPath = sUPath + "\\." + oConfig.appname;
+
+// Old code 
+// sLogPath = 'log';
+// //' Determine User Home directory
+// var sUPath = oShell.ExpandEnvironmentStrings("%USERPROFILE%");
+// var sLogPath = sUPath + "\\." + oConfig.appname;
+
+// New version 
+// Define the log directory path to store the error log file.
+// It is obtained by going three levels up from the current script's directory.
+var sLogPath = oFSO.GetParentFolderName(oFSO.GetParentFolderName(oFSO.GetParentFolderName(WScript.ScriptFullName))) + "\\Error_log";
+
+//' Create the error log directory if it does not exist
+if (!oFSO.FolderExists(sLogPath)) {
+    try {
+        oFSO.CreateFolder(sLogPath);
+        WScript.Echo("Directory created: " + sLogPath);
+    } catch(e) {
+        WScript.Echo("Error creating directory: " + sLogPath);
+        WScript.Quit(1); // Quit the script if directory creation fails
+    }
+}
 
 //' Create an application log directory as needed
 if (!oFSO.FolderExists(sLogPath)) {
