@@ -887,7 +887,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
-        openxlsx::writeData(wb, sheet, paste("CP-Seeker Version"), startRow = 1)
+        openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         openxlsx::writeData(wb, sheet, file, startRow = 2)
         mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
         if(unique(mySample$polarity == "negative")){
@@ -2189,7 +2189,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
-        openxlsx::writeData(wb, sheet, paste("CP-Seeker Version"), startRow = 1)
+        openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         openxlsx::writeData(wb, sheet, file, startRow = 2)
         mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
         if(unique(mySample$polarity == "negative")){
@@ -2951,7 +2951,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
         # Create the sheet of the file label
         addWorksheet(wb = wb, sheetName = file, gridLines = FALSE)
 
-        openxlsx::writeData(wb, sheet, paste("CP-Seeker Version"), startRow = 1)
+        openxlsx::writeData(wb, sheet, config$appname, startRow = 1)
         openxlsx::writeData(wb, sheet, file, startRow = 2)
         mySample <- samples()[which(samples()$sample %in% myActualFile$sample),]
         if(unique(mySample$polarity == "negative")){
