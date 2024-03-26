@@ -327,11 +327,15 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_standard_adduct string adduct name for standard
 #' @param input$process_standard_retention_time float, standard retention time
 #'
+
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
 	print('######################### PROCESS ##########################')
 	print('############################################################')
 	print(Sys.time())
+	start_time <- Sys.time()
+	start_deconvolution <<- as.character(start_time, units = "mins")
+	
 	param <- list(standard_study = input$process_standard_study)
 	params <- list(
 		project = input$project,
@@ -624,7 +628,21 @@ shiny::observeEvent(input$process_launch, {
 		sweet_alert_error(e$message)
 	})
 	print(Sys.time())
+	end_time <- Sys.time()
+
+	# Calculate the difference between end_time and start_time
+	time_diff <- end_time - start_time
+	print(paste(time_diff))
+
+	# Convert the time difference in minutes
+	minutes_diff <<- as.character(time_diff, units = "mins")
+
 	print('############################################################')
 	print('######################### END PROCESS ######################')
 	print('############################################################')
+
+	# Exécution de la commande PowerShell
+	computer_model <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Model", intern = TRUE)
+	print(computer_model)
+
 })

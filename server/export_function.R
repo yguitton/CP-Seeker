@@ -115,7 +115,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
         openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
         openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-        openxlsx::writeData(wb, 2, c("Start time","Computer","Duration"), startRow = 22, startCol = 2)
+        openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
         openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
         openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
         openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
@@ -213,9 +213,9 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
                                                 stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                             startCol = 3, startRow = 19)
         #################################
-        openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
-        openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
-        openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
+        openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
+        openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
+        openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
         openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
         openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
         setColWidths(wb, 2, cols = 3, widths = 55)
@@ -493,7 +493,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         
         ################################################################################
         # Save the workbook
-        saveWorkbook(wb, paste0(config_dir,"/",project_informations$name,"_",project_informations$creation,"_[",adduct,"]_",chem,".xlsx"), overwrite = TRUE) # add start time
+        saveWorkbook(wb, paste0(config_dir,"/",project_informations$name,"_",project_informations$creation,"_[",adduct,"]_",chem,".xlsx"), overwrite = TRUE) # add Start time
       }
     }
   }
@@ -619,7 +619,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
       openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
       openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
       openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
@@ -748,9 +748,9 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 55)
@@ -1387,7 +1387,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
       openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
       openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
       openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
@@ -1507,9 +1507,9 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 55)
@@ -1927,7 +1927,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
       openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
       openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
       openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
@@ -2050,9 +2050,9 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 55)
@@ -2689,7 +2689,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
       openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
       openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
       openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
@@ -2812,9 +2812,9 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, "time when started", startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, "computer name", startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, "time of duration", startCol = 3, startRow = 24) # surement à créer
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
       openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
       openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
       setColWidths(wb, 2, cols = 3, widths = 55)
