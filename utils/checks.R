@@ -51,8 +51,13 @@ thermo <- reg_paths$thermo
 sqlite_path <- reg_paths$sqlite_path
 sqlite_lighted_path <- reg_paths$sqlite_lighted_path
 
+# Root PATH
+app_root <- normalizePath(".", mustWork = FALSE)
+
 # create a config file if not exists already
-config_dir <- paste0("~/.", appname)
+config_dir <- file.path(app_root, "export")
+
+# Create the "export" directory if it doesn't exist
 config_file <- file.path(config_dir, "user.cfg")
 if (!dir.exists(config_dir)) dir.create(config_dir)
 if (file.exists(config_file)) {

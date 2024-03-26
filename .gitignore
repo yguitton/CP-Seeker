@@ -2,3 +2,4 @@
 *.sqlite-shm
 *.sqlite-wal
 Error_log/*
+export/*
