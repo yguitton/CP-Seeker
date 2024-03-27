@@ -642,6 +642,7 @@ shiny::observeEvent(input$process_launch, {
 	print('############################################################')
 
 	# Obtenir les informations sur l'ordinateur de l'utilisateur
+	print('################ GET PC USER INFO ################')
 	computer_manufacturer <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Manufacturer", intern = TRUE)
 	print(computer_manufacturer)
 	computer_model <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Model", intern = TRUE)
@@ -666,4 +667,7 @@ shiny::observeEvent(input$process_launch, {
 	# Obtenir les informations sur la mémoire physique
 	memory_info <<- system("powershell (Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB", intern = TRUE)
 	print(memory_info)
+	memory_speed <<- system("powershell Get-CimInstance -ClassName CIM_PhysicalMemory | Select-Object -ExpandProperty Speed", intern = TRUE)
+	print(memory_speed)
+	print('################ END PC USER INFO ################')
 })

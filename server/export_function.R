@@ -122,7 +122,7 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
         openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
         openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
-        openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+        openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory","RAM Speed"), startRow = 32, startCol = 2)
         addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
         setColWidths(wb, 2, cols = 2, widths = 25)
 
@@ -228,9 +228,10 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
         openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
         openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+        openxlsx::writeData(wb, 2, paste0(memory_speed, " (unit: MHz)"), startCol = 3, startRow = 41)
 
         setColWidths(wb, 2, cols = 3, widths = 55)
-        addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+        addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:41), cols = 3)
         addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
         openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
@@ -637,7 +638,7 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
       openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
       openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory","RAM Speed"), startRow = 32, startCol = 2)
       addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
@@ -774,9 +775,10 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
       openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
       openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+      openxlsx::writeData(wb, 2, paste0(memory_speed, " (unit: MHz)"), startCol = 3, startRow = 41)
 
       setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:41), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
       openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
@@ -1416,7 +1418,7 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
       openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
       openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory","RAM Speed"), startRow = 32, startCol = 2)
       addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
@@ -1544,9 +1546,10 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
       openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
       openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+      openxlsx::writeData(wb, 2, paste0(memory_speed, " (unit: MHz)"), startCol = 3, startRow = 41)
 
       setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:41), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
       openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
@@ -1967,7 +1970,7 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
       openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
       openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory","RAM Speed"), startRow = 32, startCol = 2)
       addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
@@ -2098,9 +2101,10 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
       openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
       openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+      openxlsx::writeData(wb, 2, paste0(memory_speed, " (unit: MHz)"), startCol = 3, startRow = 41)
 
       setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:41), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
       openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
@@ -2740,7 +2744,7 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
       openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
       openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory","RAM Speed"), startRow = 32, startCol = 2)
       addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
@@ -2871,9 +2875,10 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
       openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
       openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+      openxlsx::writeData(wb, 2, paste0(memory_speed, " (unit: MHz)"), startCol = 3, startRow = 41)
 
       setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:41), cols = 3)
       addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
       openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
