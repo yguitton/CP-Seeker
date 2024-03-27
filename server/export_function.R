@@ -115,13 +115,15 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
         openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
         openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
         openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-        openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
-        openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
-        openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
-        openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
-        openxlsx::writeData(wb, 2, "Score threshold", startRow = 29, startCol = 2)
-        openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 30, startCol = 2)
-        addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,26), cols = 2)
+        openxlsx::writeData(wb, 2, c("Start time","Duration (minutes)"), startRow = 22, startCol = 2)
+        openxlsx::writeData(wb, 2, "Display format", startRow = 25, startCol = 2)
+        openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 26, startCol = 2)
+        openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 27, startCol = 2)
+        openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
+        openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
+        openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
+        openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+        addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
         setColWidths(wb, 2, cols = 2, widths = 25)
 
         # Mass tolerance
@@ -213,20 +215,29 @@ export_PCA <- function(user, maxBar, chem_type, adducts, project_informations, p
                                                 stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                             startCol = 3, startRow = 19)
         #################################
-        openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
-        openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
-        openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
-        openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
-        openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-        setColWidths(wb, 2, cols = 3, widths = 55)
-        addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
-        addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
+        openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22)
+        openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 23)
+        openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 28)
+        openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 29)
+        openxlsx::writeData(wb, 2, computer_manufacturer, startCol = 3, startRow = 32)
+        openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 33)
+        openxlsx::writeData(wb, 2, os_info, startCol = 3, startRow = 34)
+        openxlsx::writeData(wb, 2, system_type, startCol = 3, startRow = 35)
+        openxlsx::writeData(wb, 2, cpu_manufacturer, startCol = 3, startRow = 36)
+        openxlsx::writeData(wb, 2, processor_info, startCol = 3, startRow = 37)
+        openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
+        openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
+        openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
 
-        openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 24)
-        openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 29)
-        openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 30)
-        addStyle(wb, 2, italicStyle, rows = 24, cols = 4)
-        addStyle(wb, 2, sh2LegendStyle, rows = 29:30, cols = 4)
+        setColWidths(wb, 2, cols = 3, widths = 55)
+        addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+        addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
+
+        openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
+        openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 28)
+        openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 29)
+        addStyle(wb, 2, italicStyle, rows = 23, cols = 4)
+        addStyle(wb, 2, sh2LegendStyle, rows = 28:29, cols = 4)
 
         ################################################################################
         # Write the third sheet X times with X is the number of standard
@@ -619,13 +630,15 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
-      openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
-      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
-      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
-      openxlsx::writeData(wb, 2, "Score threshold", startRow = 29, startCol = 2)
-      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 30, startCol = 2)
-      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,26), cols = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Duration (minutes)"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, "Display format", startRow = 25, startCol = 2)
+      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 26, startCol = 2)
+      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 27, startCol = 2)
+      openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
+      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
+      openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
       # Mass tolerance
@@ -748,20 +761,29 @@ export_PCO <- function(user, maxBar, chem_type, adducts, project_informations, p
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
-      addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22)
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 23)
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 28)
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 29)
+      openxlsx::writeData(wb, 2, computer_manufacturer, startCol = 3, startRow = 32)
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 33)
+      openxlsx::writeData(wb, 2, os_info, startCol = 3, startRow = 34)
+      openxlsx::writeData(wb, 2, system_type, startCol = 3, startRow = 35)
+      openxlsx::writeData(wb, 2, cpu_manufacturer, startCol = 3, startRow = 36)
+      openxlsx::writeData(wb, 2, processor_info, startCol = 3, startRow = 37)
+      openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
+      openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
+      openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
 
-      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 24)
-      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 29)
-      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 30)
-      addStyle(wb, 2, italicStyle, rows = 24, cols = 4)
-      addStyle(wb, 2, sh2LegendStyle, rows = 29:30, cols = 4)
+      setColWidths(wb, 2, cols = 3, widths = 55)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
+
+      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
+      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 28)
+      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 29)
+      addStyle(wb, 2, italicStyle, rows = 23, cols = 4)
+      addStyle(wb, 2, sh2LegendStyle, rows = 28:29, cols = 4)
 
       ################################################################################
       # Write the third sheet X times with X is the number of standard
@@ -1387,13 +1409,15 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
-      openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
-      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
-      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
-      openxlsx::writeData(wb, 2, "Score threshold", startRow = 29, startCol = 2)
-      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 30, startCol = 2)
-      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,26), cols = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Duration (minutes)"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, "Display format", startRow = 25, startCol = 2)
+      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 26, startCol = 2)
+      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 27, startCol = 2)
+      openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
+      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
+      openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
       # Mass tolerance
@@ -1507,20 +1531,29 @@ export_PXA <- function(user, maxBar, chem_type, adducts, project_informations, p
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
-      addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22)
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 23)
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 28)
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 29)
+      openxlsx::writeData(wb, 2, computer_manufacturer, startCol = 3, startRow = 32)
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 33)
+      openxlsx::writeData(wb, 2, os_info, startCol = 3, startRow = 34)
+      openxlsx::writeData(wb, 2, system_type, startCol = 3, startRow = 35)
+      openxlsx::writeData(wb, 2, cpu_manufacturer, startCol = 3, startRow = 36)
+      openxlsx::writeData(wb, 2, processor_info, startCol = 3, startRow = 37)
+      openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
+      openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
+      openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
 
-      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 24)
-      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 29)
-      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 30)
-      addStyle(wb, 2, italicStyle, rows = 24, cols = 4)
-      addStyle(wb, 2, sh2LegendStyle, rows = 29:30, cols = 4)
+      setColWidths(wb, 2, cols = 3, widths = 55)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
+
+      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
+      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 28)
+      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 29)
+      addStyle(wb, 2, italicStyle, rows = 23, cols = 4)
+      addStyle(wb, 2, sh2LegendStyle, rows = 28:29, cols = 4)
 
       ################################################################################
       # Write the third sheet X times with X is the number of standard
@@ -1927,13 +1960,15 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
-      openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
-      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
-      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
-      openxlsx::writeData(wb, 2, "Score threshold", startRow = 29, startCol = 2)
-      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 30, startCol = 2)
-      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,26), cols = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Duration (minutes)"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, "Display format", startRow = 25, startCol = 2)
+      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 26, startCol = 2)
+      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 27, startCol = 2)
+      openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
+      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
+      openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
       # Mass tolerance
@@ -2050,20 +2085,29 @@ export_phase1 <- function(user, maxBar, chem_type, adducts, project_informations
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
-      setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
-      addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22)
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 23)
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 28)
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 29)
+      openxlsx::writeData(wb, 2, computer_manufacturer, startCol = 3, startRow = 32)
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 33)
+      openxlsx::writeData(wb, 2, os_info, startCol = 3, startRow = 34)
+      openxlsx::writeData(wb, 2, system_type, startCol = 3, startRow = 35)
+      openxlsx::writeData(wb, 2, cpu_manufacturer, startCol = 3, startRow = 36)
+      openxlsx::writeData(wb, 2, processor_info, startCol = 3, startRow = 37)
+      openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
+      openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
+      openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
 
-      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 24)
-      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 29)
-      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 30)
-      addStyle(wb, 2, italicStyle, rows = 24, cols = 4)
-      addStyle(wb, 2, sh2LegendStyle, rows = 29:30, cols = 4)
+      setColWidths(wb, 2, cols = 3, widths = 55)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
+
+      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
+      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 28)
+      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 29)
+      addStyle(wb, 2, italicStyle, rows = 23, cols = 4)
+      addStyle(wb, 2, sh2LegendStyle, rows = 28:29, cols = 4)
 
       ################################################################################
       # Write the third sheet X times with X is the number of standard
@@ -2689,13 +2733,15 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
       openxlsx::writeData(wb, 2, "Standard", startRow = 15, startCol = 2)
       openxlsx::writeData(wb, 2, c("Formula","Adduct","Retention time 1","Retention time 2"), startRow = 16, startCol = 2)
       openxlsx::writeData(wb, 2, "Deconvolution process", startRow = 21, startCol = 2)
-      openxlsx::writeData(wb, 2, c("Start time","Computer","Duration (minutes)"), startRow = 22, startCol = 2)
-      openxlsx::writeData(wb, 2, "Display format", startRow = 26, startCol = 2)
-      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 27, startCol = 2)
-      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 28, startCol = 2)
-      openxlsx::writeData(wb, 2, "Score threshold", startRow = 29, startCol = 2)
-      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 30, startCol = 2)
-      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,26), cols = 2)
+      openxlsx::writeData(wb, 2, c("Start time","Duration (minutes)"), startRow = 22, startCol = 2)
+      openxlsx::writeData(wb, 2, "Display format", startRow = 25, startCol = 2)
+      openxlsx::writeData(wb, 2, "Out of m/z range, or number of halogen higher than number of carbon plus 3, or not processed", startRow = 26, startCol = 2)
+      openxlsx::writeData(wb, 2, "Stadding (at least the 2 most intense isotopomer groups)", startRow = 27, startCol = 2)
+      openxlsx::writeData(wb, 2, "Score threshold", startRow = 28, startCol = 2)
+      openxlsx::writeData(wb, 2, "Deviation tolerance (\u00b1 mDa)", startRow = 29, startCol = 2)
+      openxlsx::writeData(wb, 2, "Computer Hardware", startRow = 31, startCol = 2)
+      openxlsx::writeData(wb, 2, c("Computer Manufacturer","Computer Model","Operating System","System Type", "CPU Manufacturer", "CPU Name", "Number of CPU Cores", "CPU Speed", "Installed Memory"), startRow = 32, startCol = 2)
+      addStyle(wb, 2, boldStyle, rows = c(4,11,15,21,25,31), cols = 2)
       setColWidths(wb, 2, cols = 2, widths = 25)
 
       # Mass tolerance
@@ -2812,21 +2858,29 @@ export_phase2 <- function(user, maxBar, chem_type, adducts, project_informations
                                               stdInfo$retention_time_max[which(stdInfo$chemical_type == std[2])]))," min"), 
                           startCol = 3, startRow = 19)
       #################################
-      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22) # surement à créer
-      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 23) # surement à créer
-      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 24) # surement à créer
-      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 29) # pas compris
-      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 30) # pas compris
+      openxlsx::writeData(wb, 2, start_deconvolution, startCol = 3, startRow = 22)
+      openxlsx::writeData(wb, 2, minutes_diff, startCol = 3, startRow = 23)
+      openxlsx::writeData(wb, 2, paste0(as.numeric(80),"%"), startCol = 3, startRow = 28)
+      openxlsx::writeData(wb, 2, as.numeric(2), startCol = 3, startRow = 29)
+      openxlsx::writeData(wb, 2, computer_manufacturer, startCol = 3, startRow = 32)
+      openxlsx::writeData(wb, 2, computer_model, startCol = 3, startRow = 33)
+      openxlsx::writeData(wb, 2, os_info, startCol = 3, startRow = 34)
+      openxlsx::writeData(wb, 2, system_type, startCol = 3, startRow = 35)
+      openxlsx::writeData(wb, 2, cpu_manufacturer, startCol = 3, startRow = 36)
+      openxlsx::writeData(wb, 2, processor_info, startCol = 3, startRow = 37)
+      openxlsx::writeData(wb, 2, paste0(cpu_cores, " (unit: cores)"), startCol = 3, startRow = 38)
+      openxlsx::writeData(wb, 2, paste0(cpu_speed, " (unit: MHz)"), startCol = 3, startRow = 39)
+      openxlsx::writeData(wb, 2, paste0(memory_info, " (unit: GB)"), startCol = 3, startRow = 40)
+
       setColWidths(wb, 2, cols = 3, widths = 55)
-      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:24), cols = 3)
-      addStyle(wb, 2, sh2EndTableStyle, rows = 29:30, cols = 3)
+      addStyle(wb, 2, sh2TableStyle, rows = c(5:9,12:13,16:19,22:23,32:40), cols = 3)
+      addStyle(wb, 2, sh2EndTableStyle, rows = 28:29, cols = 3)
 
-      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 24)
-      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 29)
-      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 30)
-      addStyle(wb, 2, italicStyle, rows = 24, cols = 4)
-      addStyle(wb, 2, sh2LegendStyle, rows = 29:30, cols = 4)
-
+      openxlsx::writeData(wb, 2, "Possibly includes processing of other family and adduct types", startCol = 4, startRow = 23)
+      openxlsx::writeData(wb, 2, "Number in grey police if below", startCol = 4, startRow = 28)
+      openxlsx::writeData(wb, 2, "Number in grey police if outside", startCol = 4, startRow = 29)
+      addStyle(wb, 2, italicStyle, rows = 23, cols = 4)
+      addStyle(wb, 2, sh2LegendStyle, rows = 28:29, cols = 4)
       ################################################################################
       # Write the third sheet X times with X is the number of standard
       sheet <- 3

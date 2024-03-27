@@ -641,8 +641,29 @@ shiny::observeEvent(input$process_launch, {
 	print('######################### END PROCESS ######################')
 	print('############################################################')
 
-	# Exécution de la commande PowerShell
+	# Obtenir les informations sur l'ordinateur de l'utilisateur
+	computer_manufacturer <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Manufacturer", intern = TRUE)
+	print(computer_manufacturer)
 	computer_model <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Model", intern = TRUE)
 	print(computer_model)
 
+	# Systeme d'exploitation et son architecture
+	os_info <<- system("powershell (Get-CimInstance -ClassName Win32_OperatingSystem).Caption", intern = TRUE)
+	print(os_info)
+	system_type <<- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).SystemType", intern = TRUE)
+	print(system_type)
+
+	# Obtenir les informations sur le processeur
+	cpu_manufacturer <<- system("powershell (Get-CimInstance -ClassName Win32_Processor).Manufacturer", intern = TRUE)
+	print(cpu_manufacturer)
+	processor_info <<- system("powershell Get-WmiObject Win32_Processor | Select-Object -ExpandProperty Name", intern = TRUE)
+	print(processor_info)
+	cpu_cores <<- system("powershell (Get-CimInstance -ClassName Win32_Processor).NumberOfCores", intern = TRUE)
+	print(cpu_cores)
+	cpu_speed <<- system("powershell (Get-CimInstance -ClassName Win32_Processor).MaxClockSpeed", intern = TRUE)
+	print(cpu_speed)
+
+	# Obtenir les informations sur la mémoire physique
+	memory_info <<- system("powershell (Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB", intern = TRUE)
+	print(memory_info)
 })
