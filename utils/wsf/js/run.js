@@ -63,7 +63,11 @@ if (!oFSO.FolderExists(sLogPath)) {
 	oFSO.CreateFolder(sLogPath);
 }
 
-sLogFile = 'error.log';
+// Ajoutez la date dans le nom du fichier error.log
+var currentDate = new Date();
+// Format de la date : YYYY-MM-DD_HH-MM-SS
+var formattedDate = ('0' + currentDate.getDate()).slice(-2) + 'D-' + ('0' + (currentDate.getMonth() + 1)).slice(-2) + 'M-' + currentDate.getFullYear() + 'Y_' + ('0' + currentDate.getHours()).slice(-2) + 'h-' + ('0' + currentDate.getMinutes()).slice(-2) + 'min';
+sLogFile = 'error_' + formattedDate + '.log';
 
 //' Define the R interpreter
 var Rbindir = "";
