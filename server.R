@@ -56,6 +56,10 @@ shiny::observeEvent(c(input$user, input$project), {
 		con = config_file)
 })
 
+shiny::observeEvent(input$open_doc, {
+	system(sprintf("\"%s\" \"%s\"", chromium, documentation_file), wait = FALSE)
+})
+
 source(file.path('server', 'func.R'), local = TRUE)$value
 
 source(file.path('server', 'reactiveValues.R'), local = TRUE)$value

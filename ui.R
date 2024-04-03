@@ -18,6 +18,13 @@ header <- shiny::tags$header(
 			shiny::tags$div(class = "form-group", style = "float:left", 
 				shiny::tags$span(id = "titleApp", class = "logo", appname)
 			), 
+			shiny::tags$div(class = "form-group", style = "float:right;",
+				shiny::tags$a(`data-toggle` = "tooltip", 
+					`data-placement` = "left", 
+					title = 'CP-Seeker 2.1.2 documentation', 
+					shiny::actionButton('open_doc', '', icon = icon('file-pdf'))
+				)
+			), 
 			shiny::tags$div(class = "form-group", 
 				style = "float: right; padding-top: 0.55%; padding-right: 10px",
 				shiny::tags$table(

@@ -11,6 +11,7 @@ if (is.null(reg_paths$chemical_ion)) stop('Missing chemical_ion in file reg_path
 if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
 if (is.null(reg_paths$sqlite_path)) stop('Missing sqlitePath in file reg_paths.json')
 if (is.null(reg_paths$sqlite_lighted_path)) stop('Missing sqlite lighted path in file reg_paths.json')
+if (is.null(reg_paths$documentation_file)) stop('Missing documentation file in file reg_paths.json')
 
 for (i in 1:length(reg_paths)){
 	name <- names(reg_paths[i])
@@ -50,6 +51,7 @@ converter <- reg_paths$converter
 thermo <- reg_paths$thermo
 sqlite_path <- reg_paths$sqlite_path
 sqlite_lighted_path <- reg_paths$sqlite_lighted_path
+documentation_file <- reg_paths$documentation_file
 
 # Root PATH
 app_root <- normalizePath(".", mustWork = FALSE)
