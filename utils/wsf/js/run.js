@@ -66,7 +66,7 @@ if (!oFSO.FolderExists(sLogPath)) {
 // Ajoutez la date dans le nom du fichier error.log
 var currentDate = new Date();
 // Format de la date : YYYY-MM-DD_HH-MM
-var formattedDate = currentDate.getFullYear() + '-' + ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentDate.getDate()).slice(-2) + '_' + ('0' + currentDate.getHours()).slice(-2) + 'h-' + ('0' + currentDate.getMinutes()).slice(-2) + 'min';
+var formattedDate = currentDate.getFullYear() + '-' + ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentDate.getDate()).slice(-2) + '-' + ('0' + currentDate.getHours()).slice(-2) + 'h-' + ('0' + currentDate.getMinutes()).slice(-2) + 'min';
 sLogFile = 'error_' + formattedDate + '.log';
 
 //' Define the R interpreter
