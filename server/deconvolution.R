@@ -554,10 +554,12 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
     # Process cluster creation
 	ncores <- detectCores() - 2L
     cl <- makeCluster(ncores)
-    
+
+	time_begin <- Sys.time()
+	print(time_begin)
+
     # Loop parallelization with parLapply
     peaks <- parLapply(cl, seq_along(theoric_patterns), function(i) {
-        time_begin <- Sys.time()
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) return(NULL)
@@ -585,9 +587,8 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
                                        traces[[1]]$mzmat[, "scan"] %in% roi[1]:roi[2])
                                    , , drop = FALSE])
         }
-        
-        if (length(basepeaks) == 0) return(NULL)
-        basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")
+		if (length(basepeaks) == 0) return(NULL)
+        basepeaks <- cbind(basepeaks, abundance = 100, iso = "A")		
         if(is.vector(scanrange)) basepeaks <- basepeaks[(basepeaks$rt > scanrange[1] & basepeaks$rt < scanrange[2]),]
         if(nrow(basepeaks) == 0) return(NULL)
         basepeak <- basepeaks[which.max(basepeaks$maxo),]
@@ -633,6 +634,13 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
         }
     })
     
+	time_end <- Sys.time()
+	print(time_end)
+	time_diff <- time_end - time_begin
+	print("############## deconvolution ##############")
+	print(time_diff)
+	print("###########################################")
+
     # Cluster shutdown
     stopCluster(cl)
     
@@ -644,7 +652,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 
 
 deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerange, scanrange = NULL, 
-                              missing_scans = 1, pb = NULL, reintegration = FALSE) {
+                              missing_scans = 1, pb = NULL, reintegration = FALSE, session = NULL) {
     peaks <- NULL
     pb_max <- length(theoric_patterns)
     extend_range <- ceiling(scalerange[2] * 1.5)
@@ -653,9 +661,13 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 	ncores <- detectCores() - 2L
     cl <- makeCluster(ncores)
 
+	time_begin <- Sys.time()
+	print("##### START DECONVOLUTION #####")
+	print(time_begin)
+
     # Loop parallelization with parLapply
     peaks <- parLapply(cl, seq_along(theoric_patterns), function(i) {
-        time_begin <- Sys.time()
+        
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) {
@@ -735,7 +747,16 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
                 weighted_deviations = sum(deviations*weight)/sum(weight)
             ))
         }
+		# shinyWidgets::updateProgressBar(session, id = pb, value = i * 100 / pb_max,  title = "")
     })
+
+	time_end <- Sys.time()
+	print(time_end)
+	time_diff <- time_end - time_begin
+	print("############## deconvolution_std ##############")
+	print(time_diff)
+	print("###############################################")
+
 	# Cluster shutdown
     stopCluster(cl)
 

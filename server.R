@@ -61,41 +61,23 @@ shiny::observeEvent(input$open_doc, {
 })
 
 source(file.path('server', 'func.R'), local = TRUE)$value
-
 source(file.path('server', 'reactiveValues.R'), local = TRUE)$value
-
 source(file.path('server', 'db_func.R'), local = TRUE)$value
-
 source(file.path('server', 'db_delete.R'), local = TRUE)$value
-
 source(file.path('server', 'db_record.R'), local = TRUE)$value
-
 source(file.path('server', 'db_get.R'), local = TRUE)$value
-
 source(file.path('server', 'chem_func.R'), local = TRUE)$value
-
 source(file.path('server', 'plot.R'), local = TRUE)$value
-
 source(file.path('server', 'user.R'), local = TRUE)$value	
-
 source(file.path('server', 'project.R'), local = TRUE)$value
-
 source(file.path('server', 'file.R'), local = TRUE)$value
-
 source(file.path('server', 'manage.R'), local = TRUE)$value
-
 source(file.path('server', 'process.R'), local = TRUE)$value
-
 source(file.path('server', 'deconvolution.R'), local = TRUE)$value
-
 source(file.path('server', 'EIC.R'), local=TRUE)$value
-
 source(file.path('server', 'process_results.R'), local = TRUE)$value
-
 source(file.path('server', 'graphics.R'), local = TRUE)$value
-
 source(file.path('server', 'regression.R'), local = TRUE)$value
-
 source(file.path('server', 'export_function.R'), local = TRUE)$value
 
 # hide loader & show app div
