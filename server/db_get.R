@@ -351,9 +351,9 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
 		digits_score <- 0
 		digits_dev <- 2
   }else{
-		digits_int <- 0
+		digits_int <- 6
 		digits_score <- 0
-		digits_dev <- 1
+		digits_dev <- 2
   }
   if(is.null(adduct)){
   	print("adduct null")
