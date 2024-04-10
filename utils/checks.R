@@ -12,6 +12,7 @@ if (is.null(reg_paths$create_database)) stop('Missing create_database in file re
 if (is.null(reg_paths$sqlite_path)) stop('Missing sqlitePath in file reg_paths.json')
 if (is.null(reg_paths$sqlite_lighted_path)) stop('Missing sqlite lighted path in file reg_paths.json')
 if (is.null(reg_paths$documentation_file)) stop('Missing documentation file in file reg_paths.json')
+if (is.null(reg_paths$error_log_path)) stop('Missing error.log in file reg_paths.json')
 
 for (i in 1:length(reg_paths)){
 	name <- names(reg_paths[i])
@@ -52,6 +53,8 @@ thermo <- reg_paths$thermo
 sqlite_path <- reg_paths$sqlite_path
 sqlite_lighted_path <- reg_paths$sqlite_lighted_path
 documentation_file <- reg_paths$documentation_file
+error_log_path <- reg_paths$error_log_path
+
 
 # Root PATH
 app_root <- normalizePath(".", mustWork = FALSE)

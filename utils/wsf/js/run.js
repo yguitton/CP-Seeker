@@ -95,6 +95,24 @@ if (!oFSO.FileExists(RScriptFile)) {
 
 var Outfile        = sLogPath + "\\" + sLogFile;
 
+// Charger le contenu actuel de regpaths.json
+var regPathsContent = oFSO.OpenTextFile('utils\\regpaths.json', 1).ReadAll();
+
+// Convertir le contenu JSON en objet JavaScript
+var regPathsObject = JSON.parse(JSON.minify(regPathsContent));
+
+// Mettre à jour le chemin du fichier journal d'erreurs
+regPathsObject.error_log_path = Outfile;
+
+// Convertir l'objet JavaScript mis à jour en chaîne JSON
+var updatedRegPathsContent = JSON.stringify(regPathsObject, null, 2);
+
+// Écrire la chaîne JSON dans le fichier regpaths.json
+var regPathsFile = oFSO.OpenTextFile('utils\\regpaths.json', 2); // 2 = for writing
+regPathsFile.Write(updatedRegPathsContent);
+regPathsFile.Close();
+
+
 var strCommand     = ['"' + Rexe + '"', Ropts, '"' + RScriptFile + '"', "1>", '"' + Outfile + '"', "2>&1"].join(" ");
 // var strCommand     = ['"' + Rexe + '"', RScriptFile].join(" ");
 var intWindowStyle = 0;

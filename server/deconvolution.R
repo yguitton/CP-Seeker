@@ -552,14 +552,19 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
     extend_range <- ceiling(scalerange[2] * 1.5)
     
     # Process cluster creation
-	ncores <- detectCores() - 2L
-    cl <- makeCluster(ncores)
+	detectCores <- detectCores()
+	if (!is.na(detectCores)) {
+	ncores <- round(detectCores() / 2L)
+	} else {
+	ncores <- 2L
+	}
+	cl <- makeCluster(ncores)
 
 	time_begin <- Sys.time()
 	print(time_begin)
 
     # Loop parallelization with parLapply
-    peaks <- parLapply(cl, seq_along(theoric_patterns), function(i) {
+    peaks <- parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) return(NULL)
@@ -658,16 +663,19 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
     extend_range <- ceiling(scalerange[2] * 1.5)
     
     # Process cluster creation
-	ncores <- detectCores() - 2L
-    cl <- makeCluster(ncores)
+	detectCores <- detectCores()
+	if (!is.na(detectCores)) {
+	ncores <- round(detectCores() / 2L)
+	} else {
+	ncores <- 2L
+	}
+	cl <- makeCluster(ncores)
 
 	time_begin <- Sys.time()
-	print("##### START DECONVOLUTION #####")
 	print(time_begin)
 
     # Loop parallelization with parLapply
-    peaks <- parLapply(cl, seq_along(theoric_patterns), function(i) {
-        
+    peaks <- parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) {
