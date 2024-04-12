@@ -5,3 +5,4 @@ Error_log/*
 export/*
 Error_log/error.log
 /Error_log
+.Rproj.user

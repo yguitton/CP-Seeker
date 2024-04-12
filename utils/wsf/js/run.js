@@ -95,20 +95,11 @@ if (!oFSO.FileExists(RScriptFile)) {
 
 var Outfile        = sLogPath + "\\" + sLogFile;
 
-// Charger le contenu actuel de regpaths.json
-var regPathsContent = oFSO.OpenTextFile('utils\\regpaths.json', 1).ReadAll();
-
-// Convertir le contenu JSON en objet JavaScript
-var regPathsObject = JSON.parse(JSON.minify(regPathsContent));
-
-// Mettre à jour le chemin du fichier journal d'erreurs
-regPathsObject.error_log_path = Outfile;
-
-// Convertir l'objet JavaScript mis à jour en chaîne JSON
-var updatedRegPathsContent = JSON.stringify(regPathsObject, null, 2);
-
-// Écrire la chaîne JSON dans le fichier regpaths.json
-var regPathsFile = oFSO.OpenTextFile('utils\\regpaths.json', 2); // 2 = for writing
+var regPathsContent = oFSO.OpenTextFile('utils\\regpaths.json', 1).ReadAll(); // Load the current content of regpaths.json
+var regPathsObject = JSON.parse(JSON.minify(regPathsContent)); // Convert the JSON content to a JavaScript object
+regPathsObject.error_log_path = Outfile; // Update the error log file path
+var updatedRegPathsContent = JSON.stringify(regPathsObject, null, 2); // Convert the updated JavaScript object to JSON string
+var regPathsFile = oFSO.OpenTextFile('utils\\regpaths.json', 2); // 2 = for writing // Write the JSON string to the regpaths.json file
 regPathsFile.Write(updatedRegPathsContent);
 regPathsFile.Close();
 

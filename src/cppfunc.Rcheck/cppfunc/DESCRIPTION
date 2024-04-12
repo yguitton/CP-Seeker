@@ -1,0 +1,16 @@
+Package: cppfunc
+Type: Package
+Title: Optimize CP-Seeker
+Version: 0.1.0
+Author: Damien Rat
+Maintainer: The package maintainer <damien.rat@oniris-nantes.fr>
+Description: This package optimizes the CP-Seeker application. The code belonging to it is developed in cpp and exported by Rcpp as classic R functions. The functions can be called up in the software's R code to speed up certain tasks.
+License: GPL (>= 3)
+Encoding: UTF-8
+RoxygenNote: 7.3.1
+LinkingTo: Rcpp
+Imports: Rcpp
+NeedsCompilation: yes
+Packaged: 2024-04-12 10:19:57 UTC; DRA
+Built: R 4.3.3; x86_64-w64-mingw32; 2024-04-12 10:20:00 UTC; windows
+Archs: x64
