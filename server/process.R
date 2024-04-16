@@ -614,7 +614,7 @@ shiny::observeEvent(input$process_launch, {
 		print('done')
 		actualize$results_matrix
   	actualize$deconvolution_params
-  	mat()
+  	mat(export = FALSE)
 		shiny::updateTabsetPanel(session, "tabs", "process_results")
 		shinyWidgets::closeSweetAlert(session)
 	}, invalid = function(i) NULL

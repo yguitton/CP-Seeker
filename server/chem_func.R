@@ -8,6 +8,7 @@
 #'
 #' @return float, tolerance in Da
 ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
+# ppm_to_da <- .Call("_cppFuncs_ppm_to_da", mass, ppm) // Call Rcpp Function (Test)
 
 #' @title Convert Da to ppm
 #'
@@ -19,6 +20,7 @@ ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
 #'
 #' @return float, tolerance in ppm
 da_to_ppm <- function(mass, da) da * 10**6 / mass
+# da_to_ppm <- .Call("_cppFuncs_da_to_ppm", mass, da) // Call Rcpp Function (Test)
 
 #' @title Get mass range
 #'

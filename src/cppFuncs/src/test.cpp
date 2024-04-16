@@ -2,12 +2,15 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericVector multiplicationCpp(NumericVector a, NumericVector b) {
-  int na = a.size(), nb = b.size();
-  int nab = na + nb - 1;
-  NumericVector xab(nab);
-  for (int i = 0; i < na; i++)
-    for (int j = 0; j < nb; j++)
-      xab[i + j] += a[i] * b[j];
-  return xab;
+NumericVector ppm_to_da(NumericVector mass, double ppm) {
+  NumericVector result(mass.size());
+  for (int i = 0; i < mass.size(); ++i) {
+    result[i] = mass[i] * ppm * pow(10, -6);
+  }
+  return result;
+}
+
+// [[Rcpp::export]]
+double da_to_ppm(double mass, double da) {
+  return da * pow(10, 6) / mass;
 }
