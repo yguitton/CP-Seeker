@@ -599,3 +599,21 @@ get_formula <- function(db, chemical_type, C = 0, Cl = 0, Br = 0){
 		chemical_type, C, Cl, Br)
 	db_get_query(db, query)
 }
+
+#' @title Get deconvolution_infos table
+#'
+#' @description
+#' Recover information corresponding to execution times during deconvolution and information 
+#' on the specifications of the device that performed the calculation. 
+#'
+#' @param db sqlite connection
+#' @param project integrer project id
+#'
+#' @return complete info table
+get_infos <- function(db, project = NULL){
+  query <- "SELECT * FROM deconvolution_infos"
+  if (!is.null(project)) {
+    query <- paste(query, sprintf("WHERE project = '%s'", project), sep = " ")
+  }
+  db_get_query(db, query)
+}
