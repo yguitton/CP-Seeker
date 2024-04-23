@@ -35,17 +35,39 @@ if (this.JSON) {
 // If deployed to users individually, keep with the deployment (default)
 // If deployed to a central location (e.g. a network share) use a directory in
 // each user's %userprofile%
-sLogPath = 'log';
-//' Determine User Home directory
-var sUPath = oShell.ExpandEnvironmentStrings("%USERPROFILE%");
-var sLogPath = sUPath + "\\." + oConfig.appname;
+
+// Old code 
+// sLogPath = 'log';
+// //' Determine User Home directory
+// var sUPath = oShell.ExpandEnvironmentStrings("%USERPROFILE%");
+// var sLogPath = sUPath + "\\." + oConfig.appname;
+
+// New version 
+// Define the log directory path to store the error log file.
+// It is obtained by going three levels up from the current script's directory.
+var sLogPath = oFSO.GetParentFolderName(oFSO.GetParentFolderName(oFSO.GetParentFolderName(WScript.ScriptFullName))) + "\\Error_log";
+
+//' Create the error log directory if it does not exist
+if (!oFSO.FolderExists(sLogPath)) {
+    try {
+        oFSO.CreateFolder(sLogPath);
+        WScript.Echo("Directory created: " + sLogPath);
+    } catch(e) {
+        WScript.Echo("Error creating directory: " + sLogPath);
+        WScript.Quit(1); // Quit the script if directory creation fails
+    }
+}
 
 //' Create an application log directory as needed
 if (!oFSO.FolderExists(sLogPath)) {
 	oFSO.CreateFolder(sLogPath);
 }
 
-sLogFile = 'error.log';
+// Ajoutez la date dans le nom du fichier error.log
+var currentDate = new Date();
+// Format de la date : YYYY-MM-DD_HH-MM
+var formattedDate = currentDate.getFullYear() + '-' + ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentDate.getDate()).slice(-2) + '-' + ('0' + currentDate.getHours()).slice(-2) + 'h-' + ('0' + currentDate.getMinutes()).slice(-2) + 'min';
+sLogFile = 'error_' + formattedDate + '.log';
 
 //' Define the R interpreter
 var Rbindir = "";
@@ -72,6 +94,15 @@ if (!oFSO.FileExists(RScriptFile)) {
 }
 
 var Outfile        = sLogPath + "\\" + sLogFile;
+
+var regPathsContent = oFSO.OpenTextFile('utils\\regpaths.json', 1).ReadAll(); // Load the current content of regpaths.json
+var regPathsObject = JSON.parse(JSON.minify(regPathsContent)); // Convert the JSON content to a JavaScript object
+regPathsObject.error_log_path = Outfile; // Update the error log file path
+var updatedRegPathsContent = JSON.stringify(regPathsObject, null, 2); // Convert the updated JavaScript object to JSON string
+var regPathsFile = oFSO.OpenTextFile('utils\\regpaths.json', 2); // 2 = for writing // Write the JSON string to the regpaths.json file
+regPathsFile.Write(updatedRegPathsContent);
+regPathsFile.Close();
+
 
 var strCommand     = ['"' + Rexe + '"', Ropts, '"' + RScriptFile + '"', "1>", '"' + Outfile + '"', "2>&1"].join(" ");
 // var strCommand     = ['"' + Rexe + '"', RScriptFile].join(" ");

@@ -327,11 +327,15 @@ output$process_MS <- plotly::renderPlotly({
 #' @param input$process_standard_adduct string adduct name for standard
 #' @param input$process_standard_retention_time float, standard retention time
 #'
+
 shiny::observeEvent(input$process_launch, {
 	print('############################################################')
 	print('######################### PROCESS ##########################')
 	print('############################################################')
 	print(Sys.time())
+	start_time <- Sys.time()
+	start_deconvolution <- as.character(start_time, units = "mins")
+	
 	param <- list(standard_study = input$process_standard_study)
 	params <- list(
 		project = input$project,
@@ -589,7 +593,7 @@ shiny::observeEvent(input$process_launch, {
   		    peaks2_standard))
   		}
  	  }
-  	
+
   	shinyWidgets::updateProgressBar(session, id = 'pb',
   		title = msg, value = 100)
   	delete_features(db, params$project_samples, params$adduct, params$chemical_type)
@@ -624,7 +628,69 @@ shiny::observeEvent(input$process_launch, {
 		sweet_alert_error(e$message)
 	})
 	print(Sys.time())
+	end_time <- Sys.time()
+
+	# Calculate the difference between end_time and start_time
+	time_diff <- end_time - start_time
+	print(paste(time_diff))
+
+	# Convert the time difference in minutes
+	minutes_diff <- as.character(time_diff, units = "mins")
+
 	print('############################################################')
 	print('######################### END PROCESS ######################')
+	print('############################################################')
+	
+	print('############################################################')
+	print('####################### GET PC USER INFO ###################')
+	print('############################################################')
+
+	computer_manufacturer <- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Manufacturer", intern = TRUE)
+	print(computer_manufacturer)
+	computer_model <- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).Model", intern = TRUE)
+	print(computer_model)
+
+	# Systeme d'exploitation et son architecture
+	os_info <- system("powershell (Get-CimInstance -ClassName Win32_OperatingSystem).Caption", intern = TRUE)
+	print(os_info)
+	system_type <- system("powershell (Get-CimInstance -ClassName Win32_ComputerSystem).SystemType", intern = TRUE)
+	print(system_type)
+
+	# Obtenir les informations sur le processeur
+	cpu_manufacturer <- system("powershell (Get-CimInstance -ClassName Win32_Processor).Manufacturer", intern = TRUE)
+	print(cpu_manufacturer)
+	processor_info <- system("powershell Get-WmiObject Win32_Processor | Select-Object -ExpandProperty Name", intern = TRUE)
+	print(processor_info)
+	cpu_cores <- system("powershell (Get-CimInstance -ClassName Win32_Processor).NumberOfCores", intern = TRUE)
+	print(cpu_cores)
+	cpu_speed <- system("powershell (Get-CimInstance -ClassName Win32_Processor).MaxClockSpeed", intern = TRUE)
+	print(cpu_speed)
+
+	# Obtenir les informations sur la mémoire physique
+	memory_info <- system("powershell (Get-WmiObject Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1GB", intern = TRUE)
+	print(memory_info)
+	memory_speed <- system("powershell Get-CimInstance -ClassName CIM_PhysicalMemory | Select-Object -ExpandProperty Speed", intern = TRUE)
+	print(memory_speed)
+
+	infos <- list(
+		project = input$project,
+		time_start = start_deconvolution,
+		time_end = end_time,
+		time_diff = minutes_diff,
+		computer_manufacturer = computer_manufacturer,
+		computer_model = computer_model,
+		os_info = os_info,
+		system_type = system_type,
+		cpu_manufacturer = cpu_manufacturer,
+		processor_info = processor_info,
+		cpu_cores = cpu_cores,
+		cpu_speed = cpu_speed,
+		memory_info = memory_info,
+		memory_speed = memory_speed
+	)
+	record_deconvolution_infos(db, infos)
+
+	print('############################################################')
+	print('####################### END PC USER INFO ###################')
 	print('############################################################')
 })

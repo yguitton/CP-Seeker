@@ -99,6 +99,48 @@ record_project_sample <- function(db, project, sample_name, sample_id) {
 	actualize$project_samples <<- runif(1)
 }
 
+#' @title Record deconvolution info
+#' 
+#' @description 
+#' Record info in database
+#'
+#' @param db sqlite connection
+#' @param project integer, project id
+#' @param params list with items:
+#' \itemize{
+#' 		\item project PRIMARY KEY INTEGER NOT NULL UNIQUE FOREIGN KEY("project") REFERENCES "project"("project")
+#' 		\item time_start TEXT
+#' 		\item time_end TEXT
+#' 		\item time_diff TEXT
+#' 		\item computer_manufacturer TEXT
+#' 		\item computer_model TEXT
+#' 		\item os_info TEXT
+#' 		\item system_type TEXT
+#' 		\item cpu_manufacturer TEXT
+#' 		\item processor_info TEXT
+#' 		\item cpu_cores TEXT
+#' 		\item cpu_speed TEXT
+#' 		\item memory_info TEXT
+#' 		\item memory_speed TEXT
+#' }
+record_deconvolution_infos <- function(db, infos) {
+  # Création de la chaîne de valeurs pour l'insertion
+  data <- paste(sprintf("('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
+                       infos$project, infos$time_start, infos$time_end, infos$time_diff, infos$computer_manufacturer,
+                       infos$computer_model, infos$os_info, infos$system_type, infos$cpu_manufacturer,
+                       infos$processor_info, infos$cpu_cores, infos$cpu_speed, infos$memory_info, 
+                       infos$memory_speed), collapse = ", ")
+  
+  # Création de la requête SQL
+	query <- sprintf("INSERT OR REPLACE INTO deconvolution_infos (project, time_start, time_end, time_diff, 
+					computer_manufacturer, computer_model, os_info, system_type, cpu_manufacturer, 
+					processor_info, cpu_cores, cpu_speed, memory_info, memory_speed) VALUES %s", data)
+
+  # Exécution de la requête
+  db_execute(db, query)
+}
+
+
 #' @title Record deconvolution params
 #'
 #' @description
