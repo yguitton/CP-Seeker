@@ -10,7 +10,7 @@
 09.Diagnostics          Topic: Diagnostics and Quality Assessment
 10.GeneSetTests         Topic: Gene Set Tests
 11.RNAseq               Topic: Analysis of RNA-seq Data
-EList-class             Expression List - class
+EList-class             Expression List (EList) class
 LargeDataObject-class   Large Data Object - class
 MAList-class            M-value, A-value Expression List - class
 MArrayLM-class          Microarray Linear Model Fit - class
@@ -41,7 +41,9 @@ camera                  Competitive Gene Set Test Accounting for
                         Inter-gene Correlation
 cbind                   Combine RGList, MAList, EList or EListRaw
                         Objects
-changeLog               Limma Change Log
+changeLog               Change Log
+chooseLowessSpan        Choose Span for Local-Weighted Regression
+                        Smoothing
 classifyTestsF          Genewise Nested F-Tests
 contrastAsCoef          Reform a Design Matrix to that Contrasts Become
                         Coefficients
@@ -58,7 +60,7 @@ dim.RGList              Retrieve the Dimensions of an RGList, MAList or
                         MArrayLM Object
 dimnames.RGList         Retrieve the Dimension Names of an RGList,
                         MAList, EList, EListRaw or MArrayLM Object
-duplicateCorrelation    Correlation Between Duplicates
+duplicateCorrelation    Correlation Between Duplicates or Within Blocks
 eBayes                  Empirical Bayes Statistics for Differential
                         Expression
 exprs.MA                Extract Log-Expression Matrix from MAList
@@ -76,6 +78,8 @@ getSpacing              Get Numerical Spacing
 gls.series              Fit Linear Model to Microarray Data by
                         Generalized Least Squares
 goana                   Gene Ontology or KEGG Pathway Analysis
+goanaTrend              Estimate DE Trend for Gene Ontology or KEGG
+                        Pathway Analysis
 gridr                   Row and Column Positions on Microarray
 head.RGList             Return the First to Last Part of a Data Object
 heatdiagram             Stemmed Heat Diagram
@@ -164,8 +168,7 @@ rankSumTestWithCorrelation
                         Two Sample Wilcoxon-Mann-Whitney Rank Sum Test
                         Allowing For Correlation
 read.columns            Read specified columns from a file
-read.idat               Read Illumina expression data directly from
-                        IDAT files
+read.idat               Read Illumina expression data from IDAT files
 read.ilmn               Read Illumina Expression Data
 read.ilmn.targets       Read Illumina Data from a Target Dataframe
 read.maimages           Read RGList or EListRaw from Image Analysis
@@ -181,11 +184,13 @@ removeExt               Remove Common Extension from File Names
 residuals.MArrayLM      Extract Residuals from MArrayLM Fit
 roast                   Rotation Gene Set Tests
 romer                   Rotation Gene Set Enrichment Analysis
+sampleInfoFromGEO       Read Sample Characteristics From GEO Series
+                        Matrix File
 selectModel             Select Appropriate Linear Model
 squeezeVar              Squeeze Sample Variances
 strsplit2               Split Composite Names
-subsetting              Subset RGList, MAList, EListRaw, EList or
-                        MArrayLM Objects
+subsetting              Subset RGList, MAList, EListRaw, EList,
+                        MArrayLM or TestResults Objects
 summary.RGList          Summaries of Microarray Data Objects
 targetsA2C              Convert Two-Color Targets Dataframe from
                         One-Row-Per-Array to One-Row-Per-Channel
@@ -195,7 +200,7 @@ topGO                   Table of Top GO Terms or Top KEGG Pathways
 topRomer                Top Gene Set Testing Results from Romer
 topSplice               Top table of differentially spliced genes or
                         exons
-toptable                Table of Top Genes from Linear Model Fit
+topTable                Table of Top Genes from Linear Model Fit
 tricubeMovingAverage    Moving Average Smoother With Tricube Weights
 trigammaInverse         Inverse Trigamma Function
 trimWhiteSpace          Trim Leading and Trailing White Space
@@ -214,7 +219,7 @@ vooma                   Convert Mean-Variance Trend to
                         Observation-specific Precision Weights for
                         Microarray Data
 weighted.median         Weighted Median
-weightedLowess          Lowess fit with weighting
+weightedLowess          LOWESS Smoother with Prior Weights
 write.fit               Write MArrayLM Object to a File
 wsva                    Weighted Surrogate Variable Analysis
 zscore                  Transform non-normal random deviates to

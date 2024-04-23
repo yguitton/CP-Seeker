@@ -1,0 +1,19 @@
+AllGenerics             Placeholder for generics functions
+                        documentation
+AssayLinks              Links between Assays
+QFeatures               Quantitative MS QFeatures
+QFeatures-filtering     Filter features based on their rowData
+QFeatures-processing    QFeatures processing
+aggregateFeatures       Aggregate an assay's quantitative features
+countUniqueFeatures     Count Unique Features
+display                 Interactive MultiAssayExperiment Explorer
+feat1                   Feature example data
+feat3                   Example 'QFeatures' object after processing
+hlpsms                  hyperLOPIT PSM-level expression data
+impute                  Quantitative proteomics data imputation
+joinAssays              Join assays in a QFeatures object
+missing-data            Managing missing data
+readQFeatures           QFeatures from tabular data
+reduceDataFrame         Reduces and expands a 'DataFrame'
+subsetByFeature         Subset by feature name
+unfoldDataFrame         Unfold a data frame

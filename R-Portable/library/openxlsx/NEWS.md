@@ -1,7 +1,65 @@
+# openxlsx 4.2.5
+
+## Fixes
+
+* `openxlsx_setOp()` now works with named list ([#215](https://github.com/ycphs/openxlsx/issues/215))  
+* `loadWorkbook()` imports `inlineStr`. Values remain `inlineStr` when writing the workbook with `saveWorkbook()`. Similar `read.xlsx` and `readWorkbook` import `inlineStr`.
+* `read.xlsx()` no longer changes random seed ([#183](https://github.com/ycphs/openxlsx/issues/183))
+* fixed a regression that caused fonts to be read in incorrectly ([#207](https://github.com/ycphs/openxlsx/issues/207))
+* add option to save as read only recommended ([#201](https://github.com/ycphs/openxlsx/issues/201))
+* fixed writing hyperlink formulas ([#200](https://github.com/ycphs/openxlsx/issues/200))
+* `write.xlsx()` now throws an error if it doesn't have write permissions ([#190](https://github.com/ycphs/openxlsx/issues/190))
+* `write.xlsx()` now again uses the default of `overwrite = TRUE` for saving files ([#249](https://github.com/ycphs/openxlsx/issues/249))
+
+## Improvements
+
+* `options()` are more consistently set in functions (see: [#289](https://github.com/ycphs/openxlsx/issues/262))
+* `Workbook$show()` no longer fails when called in a 0 sheet workbook([#240](https://github.com/ycphs/openxlsx/issues/240))
+* `read.xlsx()` again accepts `.xlsm` files ([#205](https://github.com/ycphs/openxlsx/issues/205),
+[#209](https://github.com/ycphs/openxlsx/issues/209))
+* `makeHyperlinkString()` does no longer require a sheet argument ([#57](https://github.com/ycphs/openxlsx/issues/57), [#58](https://github.com/ycphs/openxlsx/issues/58))
+* improvements in how `openxlsx` creates temporary directories (see [#262](https://github.com/ycphs/openxlsx/issues/262))
+* `writeData()` calls `force(x)` to evaluate the object before options are set ([#264](https://github.com/ycphs/openxlsx/issues/264))
+* `createComment()` now correctly handles `integers` in `width` and `height` ([#275](https://github.com/ycphs/openxlsx/issues/275))
+* `setStyles()` accepts `halign="justify"` ([#305](https://github.com/ycphs/openxlsx/issues/305))
+
+# openxlsx 4.2.4
+
+## Fixes
+
+* `write.xlsx()` now successfully passes `withFilter` ([#151](https://github.com/ycphs/openxlsx/issues/151))
+* code clean up PR [#168](https://github.com/ycphs/openxlsx/pull/168)
+* removal of unused variables PR [#168](https://github.com/ycphs/openxlsx/pull/168)
+
+## New features
+
+* adds `buildWorkbook()` to generate a `Workbook` object from a (named) list or a data.frame ([#192](https://github.com/ycphs/openxlsx/issues/192), [#187](https://github.com/ycphs/openxlsx/issues/187))
+  * this is now recommended rather than the `write.xlsx(x, file) ; wb <- read.xlsx(file)` functionality before
+  * `write.xlsx()` is now a wrapper for `wb <- buildWorkbook(x); saveWorkbook(x, file)`
+  * parameter checking from `write.xlsx()` >> `buildWorkbook()` are now held off until passed to `writeData()`, `writeDataTable()`, etc
+  * `row.names` is now deprecated for `writeData()` and `writeDataTable()`; please use `rowNames` instead
+* `read.xlsx()` now checks for the file extension `.xlsx`; previously it would throw an error when the file was `.xls` or `.xlm` files
+* memory allocation improvements
+* global options added for `minWidth` and `maxWidth`
+* `write.xlsx()` >> `buildWorkbook()` can now handle `colWidths` passed as either a single element or a `list()`
+* Added ability to change positioning of summary columns and rows.
+  * These can be set with the `summaryCol` and `summaryRow` arguments in `pageSetup()`.
+* `activeSheet` allows to set and get the active (displayed) sheet of a workbook.
+* Adds new global options for workbook formatting ([#165](https://github.com/ycphs/openxlsx/issues/165); see `?op.openxlsx`)
+
+
+
+
 # openxlsx 4.2.3
- 
+
+## New Features
+
+* Most of functions in openxlsx now support non-ASCII arguments better. More specifically, we can use non-ASCII strings as names or contents for `createNamedRegion()` ([#103](https://github.com/ycphs/openxlsx/issues/103)), `writeComment()`, `writeData()`, `writeDataTable()` and `writeFormula()`. In addition, openxlsx now reads comments and region names that contain non-ASCII strings correctly on Windows. Thanks to @shrektan for the PR [#118](https://github.com/ycphs/openxlsx/pull/118).
+
+* `setColWidths()` now supports zero-length `cols`, which is convenient when `cols` is dynamically provided [#128](https://github.com/ycphs/openxlsx/issues/128). Thanks to @shrektan for the feature request and the PR.
+
 ## Fixes for Check issues
- 
+
 * Fix to pass the tests for link-time optimization type mismatches
 
 * Fix to pass the checks of native code (C/C++) based on static code analysis
@@ -24,9 +82,9 @@
 
 * Added Tests for new parameter of `saveWorkbook()`
 
-## Bug Fixes 
- 
-* Solved CRAN check errors based on the change disussed in [PR#17277](https://bugs.r-project.org/bugzilla3/show_bug.cgi?id=17277)
+## Bug Fixes
+
+* Solved CRAN check errors based on the change discussed in [PR#17277](https://bugs.r-project.org/show_bug.cgi?id=17277)
 
 # openxlsx 4.2.0
 
@@ -34,9 +92,9 @@
 
 * Added `groupColumns()`, `groupRows()`, `ungroupColumns()`, and `ungroupRows()` to group/ugroup columns/rows ([#32](https://github.com/ycphs/openxlsx/issues/32))
 
-## Bug Fixes 
+## Bug Fixes
 
-* Allow xml-sensitve characters in sheetnames ([#78](https://github.com/ycphs/openxlsx/issues/78))
+* Allow xml-sensitive characters in sheetnames ([#78](https://github.com/ycphs/openxlsx/issues/78))
 
 ## Internal
 
@@ -62,7 +120,7 @@
 
 *  Fixed writing of mixed EST/EDT datetimes
 
-*  Added description for `writeFormula()` to use only english function names
+*  Added description for `writeFormula()` to use only English function names
 
 *  Fixed validateSheet for special characters
 
@@ -92,7 +150,7 @@
 
 ## Internal
 
-*  update to rogygen2 7.0.0
+*  update to roxygen2 7.0.0
 
 # openxlsx 4.1.3
 
@@ -125,19 +183,19 @@
 
 *  `deleteNamedRegions` to delete named region and optionally the worksheet data
 
-*  set Workbook properties 'title', 'subject', 'category' 
+*  set Workbook properties 'title', 'subject', 'category'
 
 ## Bug Fixes
 
 *  `pageSetup` fails when passing in sheet by name
 
-*  matching sheet names with special characters now works 
+*  matching sheet names with special characters now works
 
 *  `skipEmptyCols` being ignored by `read.xlsx.Workbook`
 
 *  zero column data.frames would throw an error.
 
-*  `read.xlsx` on files created using apache poi failed to match sheet name to xml file. 
+*  `read.xlsx` on files created using apache poi failed to match sheet name to xml file.
 
 *  deleted table re-appearing after save & load.
 
@@ -159,7 +217,7 @@
 
 *  options("openxlsx.zipflags") to pass additional flags to zip application e.g. compression level
 
-*  `getTables()` and `removeTable()` to show and remove Excel table objects 
+*  `getTables()` and `removeTable()` to show and remove Excel table objects
 
 *  set column to 'hidden' with `setColWidths()`
 
@@ -199,7 +257,7 @@
 
 ## Bug Fixes
 
-*  Fix date time conversion accuracy issues. 
+*  Fix date time conversion accuracy issues.
 
 *  Allow multibyte characters in names and comments.
 
@@ -233,7 +291,7 @@
 
 *  improved performance of `read.xlsx` and `loadWorkbook`
 
-*  `writeFormula` funciton added to write cell formulas. Also columns
+*  `writeFormula` function added to write cell formulas. Also columns
   with class "formula" are written as cell formulas similar how column
   classes determine cell styling
 
@@ -269,7 +327,7 @@
 
 *  `getDateOrigin` function to return the date origin used internally by the xlsx file to pass to
   `convertToDate`
-  
+
 *  Auto-detection of date cells. Cells that "look" like dates will be converted to dates when reading from file.
 
 *  `read.xlsx.Workbook` to read from workbook objects
@@ -288,7 +346,7 @@
 
 *  `convertToDate` & `convertToDateTime` now handle NA values.
 
-*  multiple selected worksheet issue whioch preventing adding of new worksheets in Excel.
+*  multiple selected worksheet issue which preventing adding of new worksheets in Excel.
 
 *  `zoom` parameter now limited to [10, 400] and documentation updated.
 
@@ -307,7 +365,7 @@
 *  extended `numFmt` formatting to numeric rounding also added option("openxlsx.numFmt" = ...)
  for default number formatting of numeric columns
 
-*  additional `numFmt` "comma" to format numerics with "," thousands separator 
+*  additional `numFmt` "comma" to format numerics with "," thousands separator
 
 *  `tableName` parameter to `writeDataTable` to assign the table a name
 
@@ -352,7 +410,7 @@
 
 *  `writeData` now style based on column class the same as `writeDataTable`
 
-*  Vignette "Formatting" for examples focussed on formatting
+*  Vignette "Formatting" for examples focused on formatting
 
 *  Customizable date formatting with `createStyle` and also through option("openxlsx.dateFormat" = ...)
 
@@ -413,14 +471,14 @@
 
 *  conversion of numeric data to integer in `read.xlsx` fixed.
 
-*  `readWorkbook`/`read.xlsx` should work now. Empty values are 
+*  `readWorkbook`/`read.xlsx` should work now. Empty values are
   now padded with NA. Many other bugs fixed.
 
 *  borders on single row and/or column data.frames now work.
 
 *  `readWorkbook`/`read.xlsx` check for TRUE/FALSE values is now case-insensitive.
 
-*  sheet names containing invalid xml charcters (&, <, >, ', ") now work when referencing
+*  sheet names containing invalid xml characters (&, <, >, ', ") now work when referencing
   by name and will not result in a corrupt workbook.
 
 *  sheet names containing non-local characters can now be referenced by name.

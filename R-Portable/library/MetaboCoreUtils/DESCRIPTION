@@ -1,0 +1,69 @@
+Package: MetaboCoreUtils
+Title: Core Utils for Metabolomics Data
+Version: 1.10.0
+Description: MetaboCoreUtils defines metabolomics-related core functionality
+    provided as low-level functions to allow a data structure-independent usage
+    across various R packages. This includes functions to calculate between ion
+    (adduct) and compound mass-to-charge ratios and masses or functions to work
+    with chemical formulas. The package provides also a set of adduct
+    definitions and information on some commercially available internal
+    standard mixes commonly used in MS experiments.
+Authors@R: 
+    c(person(given = "Johannes", family = "Rainer",
+                     email = "Johannes.Rainer@eurac.edu",
+                     role = c("aut", "cre"),
+                     comment = c(ORCID = "0000-0002-6977-7147")),
+      person(given = "Michael", family = "Witting",
+                     email = "michael.witting@helmholtz-muenchen.de",
+                     role = c("aut"),
+                     comment = c(ORCID = "0000-0002-1462-4426")),
+      person(given = "Andrea", family = "Vicini",
+                     email = "andrea.vicini@eurac.edu",
+                     role = "aut"),
+      person(given = "Liesa", family = "Salzer",
+                     email = "liesa.salzer@helmholtz-muenchen.de",
+                     role = "ctb",
+                     comment = c(ORCID = "0000-0003-0761-0656")),
+      person(given = "Sebastian", family = "Gibb",
+                     email = "mail@sebastiangibb.de",
+                     role = "aut",
+                     comment = c(ORCID = "0000-0001-7406-4443")),
+      person(given = "Michael", family = "Stravs",
+                     email = "stravsmi@eawag.ch",
+                     role = "ctb",
+                     comment = c(ORCID = "0000-0002-1426-8572")),
+      person(given = "Roger", family = "Gine",
+                     email = "alrgibe9@gmail.com",
+                     role = c("aut"),
+                     comment = c(ORCID = "0000-0003-0288-9619")),
+      person(given = "Philippine", family = "Louail",
+                     email = "philippine.louail@eurac.edu",
+                     role = c("aut"),
+                     comment = c(ORCID = "0009-0007-5429-6846")))
+Depends: R (>= 4.0)
+Imports: utils, MsCoreUtils
+Suggests: BiocStyle, testthat, knitr, rmarkdown
+License: Artistic-2.0
+VignetteBuilder: knitr
+BugReports: https://github.com/RforMassSpectrometry/MetaboCoreUtils/issues
+URL: https://github.com/RforMassSpectrometry/MetaboCoreUtils
+biocViews: Infrastructure, Metabolomics, MassSpectrometry
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 7.2.3
+git_url: https://git.bioconductor.org/packages/MetaboCoreUtils
+git_branch: RELEASE_3_18
+git_last_commit: 4c181cc
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-25 01:09:22 UTC; biocbuild
+Author: Johannes Rainer [aut, cre] (<https://orcid.org/0000-0002-6977-7147>),
+  Michael Witting [aut] (<https://orcid.org/0000-0002-1462-4426>),
+  Andrea Vicini [aut],
+  Liesa Salzer [ctb] (<https://orcid.org/0000-0003-0761-0656>),
+  Sebastian Gibb [aut] (<https://orcid.org/0000-0001-7406-4443>),
+  Michael Stravs [ctb] (<https://orcid.org/0000-0002-1426-8572>),
+  Roger Gine [aut] (<https://orcid.org/0000-0003-0288-9619>),
+  Philippine Louail [aut] (<https://orcid.org/0009-0007-5429-6846>)
+Maintainer: Johannes Rainer <Johannes.Rainer@eurac.edu>
+Built: R 4.3.1; ; 2023-10-25 14:19:45 UTC; windows

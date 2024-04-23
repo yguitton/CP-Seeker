@@ -1,22 +1,24 @@
 useDynLib(xcms)
 
-importFrom("utils", "capture.output")
+importFrom("utils", "capture.output", "data")
 import("methods")
 importMethodsFrom("ProtGenerics", "peaks", "chromatogram", "writeMSData",
-    "polarity<-", "isCentroided", "peaks<-", "isolationWindowTargetMz")
+    "polarity<-", "centroided", "isCentroided", "peaks<-",
+    "isolationWindowTargetMz", "quantify", "bin", "spectrapply")
+importClassesFrom("ProtGenerics", "Param")
 importFrom("BiocGenerics", "updateObject", "fileName", "subset",
     "dirname", "dirname<-")
 ## import("Biobase")
 importFrom("Biobase", "AnnotatedDataFrame")
-importClassesFrom("Biobase", "AnnotatedDataFrame", "Versioned")
-importMethodsFrom("Biobase", "classVersion", "classVersion<-", "phenoData",
+importClassesFrom("Biobase", "AnnotatedDataFrame")
+importMethodsFrom("Biobase", "phenoData",
                   "phenoData<-", "pData", "rowMedians", "varLabels",
-                  "fvarLabels")
+                  "fvarLabels", "annotatedDataFrameFrom", "pData<-")
 importFrom("IRanges", "CharacterList", "NumericList")
 importClassesFrom("IRanges", "CharacterList", "NumericList")
 
-importFrom("graphics", "plot", "image", "boxplot", "matplot", "rect", "axis",
-           "grid", "mtext", "polygon")
+importFrom("graphics", "image", "boxplot", "matplot", "rect", "axis",
+           "grid", "mtext", "polygon", "box", "plot.xy")
 importFrom("mzR", "peaks", "close", "openMSfile", "header")
 importFrom("lattice", "levelplot", "panel.rect", "panel.levelplot",
            "level.colors", "do.breaks")
@@ -24,11 +26,17 @@ importFrom("plyr", "rbind.fill")
 importFrom("robustbase", "lmrob", "lmrob.control")
 import("RColorBrewer")
 import("BiocParallel")
+## importMethodsFrom("stats4", "plot")
 
 ## import("S4Vectors")
-importClassesFrom("S4Vectors", "Rle", "DataFrame")
-importFrom("S4Vectors", "split", "Rle", "DataFrame", "SimpleList")
-importMethodsFrom("S4Vectors", "as.matrix", "mcols", "mcols<-")
+importClassesFrom("S4Vectors", "Rle", "DataFrame", "Hits")
+importFrom("S4Vectors", "split", "Rle", "DataFrame", "SimpleList", "List",
+           "as.matrix")
+importMethodsFrom("S4Vectors", "as.matrix", "mcols", "mcols<-",
+                  "extractROWS", "findMatches")
+importFrom("SummarizedExperiment", "SummarizedExperiment")
+importFrom("MsCoreUtils", "rbindFill", "closest", "i2index", "sumi", "between",
+           "maxi")
 
 ## Additional imports proposed by R CMD check:
 importFrom("graphics", "abline", "barplot", "close.screen", "hist",
@@ -37,12 +45,13 @@ importFrom("graphics", "abline", "barplot", "close.screen", "hist",
            "strwidth", "text", "title")
 importFrom("grDevices", "col2rgb", "colorRampPalette", "dev.cur",
            "dev.list", "dev.off", "dev.set", "palette", "pdf", "png",
-           "rainbow", "rgb", "terrain.colors")
+           "rainbow", "rgb", "terrain.colors", "n2mfrow", "dev.flush",
+	   "dev.hold", "xy.coords")
 importFrom("stats", "aov", "approx", "convolve", "cor", "deriv3",
            "dist", "fft", "fitted", "lm", "loess", "lsfit", "median",
            "na.omit", "nextn", "nls", "predict", "pt", "quantile",
            "runmed", "sd", "stepfun", "weighted.mean", "density", "approxfun",
-	   "rnorm")
+	   "rnorm", "runif")
 importFrom("utils", "flush.console", "head", "object.size",
            "packageVersion", "read.csv", "tail", "write.csv",
            "write.table")
@@ -54,18 +63,19 @@ importFrom("MassSpecWavelet", "peakDetectionCWT", "tuneInPeakInfo")
 
 ## MSnbase:
 importClassesFrom("MSnbase", "MSnExp", "pSet", "OnDiskMSnExp", "Chromatogram",
-                  "Chromatograms", "Spectra")
+                  "MChromatograms", "MSpectra")
 importMethodsFrom("MSnbase", "intensity", "mz", "rtime", "fileNames", "fromFile",
                   "filterFile", "filterMsLevel", "msLevel", "scanIndex",
-                  "spectra", "impute", "isCentroided", "polarity", "[", "bin",
+                  "spectra", "impute", "isCentroided", "polarity", "[",
                   "clean", "featureNames", "filterAcquisitionNum", "filterMz",
                   "filterRt", "normalize", "pickPeaks", "removePeaks",
                   "removeReporters", "smooth", "trimMz", "splitByFile", "[[",
                   "spectrapply", "peaksCount", "precursorMz", "chromatogram",
                   "plot", "fData", "fData<-", "writeMSData",
-                  "filterIsolationWindow")
+                  "filterIsolationWindow", "filterIntensity",
+		  "alignRt", "compareChromatograms", "transformIntensity")
 importFrom("MSnbase", "as.data.frame.Spectrum", "Chromatogram",
-    "Chromatograms", "Spectra", "requiredFvarLabels", "selectFeatureData")
+    "MChromatograms", "MSpectra", "requiredFvarLabels", "selectFeatureData")
 
 export(
     "etg",
@@ -80,7 +90,6 @@ export(
     "xcmsRaw",
     "xcmsSet",
     "xcmsFragments",
-    "xcmsPapply",
     "phenoDataFromPaths"
 )
 
@@ -200,7 +209,9 @@ exportMethods(
     "write.mzQuantML",
     "xcmsSource",
     "loadRaw",
-    "isolationWindowTargetMz"
+    "isolationWindowTargetMz",
+    "quantify",
+    "findmzROI"
 )
 
 ## New functions
@@ -223,15 +234,12 @@ export(
     "do_adjustRtime_peakGroups",
     "processHistoryTypes",
     "adjustRtimePeakGroups",
-    "plotAdjustedRtime",
-    "plotChromatogram",
     "highlightChromPeaks",
     "plotChromPeaks",
     "plotChromPeakImage",
     "isCalibrated",
     "plotMsData",
     "applyAdjustedRtime",
-    "filterFeatureDefinitions",
     "peaksWithMatchedFilter",
     "peaksWithCentWave",
     "rla",
@@ -243,12 +251,12 @@ export(
     "exportMetaboAnalyst",
     "imputeRowMin",
     "imputeRowMinRand",
-    "chromPeakSpectra",
-    "featureSpectra",
-    "featureChromatograms",
     "hasFilledChromPeaks",
-    "findChromPeaksIsolationWindow",
-    "reconstructChromPeakSpectra"
+    "plotAdjustedRtime",
+    "groupOverlaps",
+    "estimatePrecursorIntensity",
+    "featureArea",
+    "loadXcmsData"
 )
 
 ## New analysis methods
@@ -256,7 +264,9 @@ exportMethods(
     "showError",
     "findChromPeaks",
     "groupChromPeaks",
-    "adjustRtime"
+    "adjustRtime",
+    "findChromPeaksIsolationWindow",
+    "reconstructChromPeakSpectra"
 )
 
 ## New Param classes
@@ -273,7 +283,11 @@ exportClasses(
     "ObiwarpParam",
     "GenericParam",
     "FillChromPeaksParam",
-    "CalibrantMassParam"
+    "CalibrantMassParam",
+    "CleanPeaksParam",
+    "MergeNeighboringPeaksParam",
+    "FilterIntensityParam",
+    "ChromPeakAreaParam"
 )
 ## Param methods
 exportMethods(
@@ -440,7 +454,11 @@ export("CentWaveParam",
        "FillChromPeaksParam",
        "CalibrantMassParam",
        "XChromatogram",
-       "XChromatograms")
+       "XChromatograms",
+       "CleanPeaksParam",
+       "MergeNeighboringPeaksParam",
+       "FilterIntensityParam",
+       "ChromPeakAreaParam")
 ## Param class methods.
 
 ## New Classes
@@ -477,7 +495,6 @@ exportMethods("hasChromPeaks",
               "filterMsLevel",
               "filterMz",
               "filterRt",
-              "normalize",
               "pickPeaks",
               "removePeaks",
               "smooth",
@@ -488,7 +505,6 @@ exportMethods("hasChromPeaks",
               "rtime",
               "mz",
               "intensity",
-              "extractChromatograms",
               "fillChromPeaks",
               "dropFilledChromPeaks",
               "extractMsData",
@@ -496,7 +512,77 @@ exportMethods("hasChromPeaks",
               "spectrapply",
 	      "writeMSData",
               "plotChromPeakDensity",
-              "align",
               "correlate",
-              "plot"
+              "plot",
+              "refineChromPeaks",
+              "removeIntensity",
+              "filterColumnsIntensityAbove",
+              "filterColumnsKeepTop",
+	      "plotChromatogramsOverlay",
+	      "transformIntensity",
+              "filterChromPeaks",
+              "filterFeatureDefinitions",
+              "manualChromPeaks",
+              "manualFeatures",
+              "featureSpectra",
+              "chromPeakSpectra",
+              "chromPeakChromatograms",
+              "featureChromatograms"
               )
+
+## feature grouping functions and methods.
+importFrom("MsCoreUtils",
+           "group")
+importMethodsFrom("MsFeatures",
+                  "featureGroups",
+		  "featureGroups<-",
+		  "groupFeatures")
+importClassesFrom("MsFeatures",
+                  "SimilarRtimeParam",
+		  "AbundanceSimilarityParam")
+importFrom("MsFeatures",
+           "SimilarRtimeParam",
+	   "AbundanceSimilarityParam",
+	   "groupSimilarityMatrix")
+exportMethods("featureGroups",
+              "featureGroups<-")
+export("plotFeatureGroups", "EicSimilarityParam")
+exportClasses("EicSimilarityParam")
+
+## Spectra things
+importClassesFrom("Spectra", "Spectra")
+importMethodsFrom("Spectra", "Spectra")
+importMethodsFrom("Spectra", "spectrapply")
+importMethodsFrom("Spectra", "peaksData")
+importMethodsFrom("Spectra", "uniqueMsLevels")
+importMethodsFrom("Spectra", "selectSpectraVariables")
+importMethodsFrom("Spectra", "setBackend")
+importMethodsFrom("Spectra", "dataOrigin")
+importMethodsFrom("Spectra", "dataStorage")
+importMethodsFrom("Spectra", "spectraVariables")
+importMethodsFrom("Spectra", "rtime<-")
+importMethodsFrom("Spectra", "ionCount")
+importMethodsFrom("Spectra", "precursorMz")
+importMethodsFrom("Spectra", "$")
+importMethodsFrom("Spectra", "uniqueMsLevels")
+importMethodsFrom("Spectra", "filterMzRange")
+importMethodsFrom("Spectra", "backendBpparam")
+importFrom("Spectra", "MsBackendMemory")
+
+## MsExperiment things
+importClassesFrom("MsExperiment", "MsExperiment")
+importMethodsFrom("MsExperiment", "spectra")
+importMethodsFrom("BiocGenerics", "do.call")
+importMethodsFrom("BiocGenerics", "rbind")
+importFrom("MsExperiment", "MsExperiment")
+importFrom("MsExperiment", "linkSampleData")
+importFrom("MsExperiment", "sampleData<-")
+importFrom("MsExperiment", "sampleData")
+importFrom("MsExperiment", "readMsExperiment")
+importMethodsFrom("MsExperiment", "spectra<-")
+
+importFrom("progress", "progress_bar")
+
+exportClasses("XcmsExperiment")
+exportMethods("uniqueMsLevels")
+exportMethods("filterMzRange")

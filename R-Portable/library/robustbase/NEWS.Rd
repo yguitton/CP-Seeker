@@ -4,6 +4,253 @@
 \title{News for \R Package \pkg{robustbase}}
 \encoding{UTF-8}
 
+  % --- 1.0-0  once we fix  adjOutlyingness() properly !
+  %     =====
+
+\section{CHANGES in robustbase VERSION 0.99-2 (2023-01-27, svn r9..)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item fix thinko bug introduced exact fit checking in 0.99-0; thanks
+      to the report by Thomas Mang.
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.99-1 (2023-11-28, svn r988)}{
+  \subsection{Misc}{
+    \itemize{
+      \item document the \code{...} argument(s) of \code{nlrob.control()}.
+      \item \file{DESCRIPTION}: more URLSs.
+      \item \file{*.Rd} tweaks; avoiding other \verb{NOTE}s.
+      \item \file{src/lmrob.c,mc.c,monitor.c}: format \%lld etc
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.99-0 (2023-06-12, svn r928)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item In case it finds an \emph{exact fit}, i.e., \eqn{k > n/2}
+      residuals are (practically) zero, \code{lmrob.S()} now returns that,
+      \code{scale = 0}, and robustness weights \code{weights(.,	"robustness")}
+      which are either 0 or 1 quickly and more consistently.
+
+      This is \emph{not yet} satisfactorily working for the \dQuote{large n} case.
+
+      **** \bold{TODO}: Optionally (but off by default?? for back compatibility??),
+      \code{lmrob()} initialized by such an exact-fit estimator may use a
+      (user-specified or automatic) scale \eqn{\hat{s} > 0}{s^ > 0} to
+      continue providing efficient SM / MM estimates.
+
+      \item \code{lmrob.control()} gets class \code{"lmrobCtrl"} which can be
+      \code{print()}ed and \code{update()}d.
+
+      \item New tuning const \code{zero.scale = 1e-10} instead of hardwired
+      \code{EPS_ZERO} in \code{lmrob.S()}'s C code; additionally the exact
+      fit / zero-residuals checking is finally y-scale equivariant, using
+      \eqn{1/n ||y||_1 = } \code{mean(abs(y))}.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Fixed \code{covMcd()}: corrected the consistency correction
+      factor for the reweighted estimate: was MCDCons(p, sum(w)/n),
+      now is MCDCons(p, 0.975), see Croux and Haesbroeck (1999).
+
+      Consequently, often \code{covMcd()} and estimates based on it, such
+      as \code{BYlogreg()} or \code{ltsReg()} are slightly changed. % 3 of our ex. checks broke
+
+      \item registered \code{residuals.lmrob.S} \emph{and} changed
+      \code{formals} compatible with generic to \code{(object, ...)}.
+
+      \item \code{lmrob.S()} in C level \code{refine_fast_s()} no longer
+      modifies \code{beta_cand[]} which notably fixes a bug found in
+      exact-fit examples previously resulting in \code{coef() == 0}
+      \dQuote{results}, also for \code{lmrob()} which calls
+      \code{lmrob.S()} for its default initial estimate.
+
+      \item \code{print(<lmrob.S>)} finally works again as intended
+      (\emph{not} printing a largish list); mostly by fixing internal
+      \code{lmrob.control.minimal()}.
+
+      \item \code{summary.lmrob(obj)} now also gets a \code{weights}
+      component from \code{obj} if that is non-trivial; this may also
+      correct \code{summary()} output in weighted cases.
+
+      \item Minor fixes in \code{plot.lts()} related to par mfrow.
+
+      \item ltsReg() Help file changed - the note strongly advising NOT
+      to use LTS regression removed.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item argument \code{mf} e.g., in \code{lmrob.fit()} has been deprecated
+      since 2017-12-09 and is defunct now.
+
+      \item \code{lmrob()} tweaks, notably saying more for \code{trace.lev >= 3}.
+
+      \item replaceed (almost) all \code{Calloc()} by \code{R_alloc()} in C code;
+      e.g., prevents leakage from user interrupt.
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.95-1 (2023-03-28, svn r903)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Fixed \code{covMcd()}: \code{raw.only=TRUE} does not work in the case \code{nsamp="deterministic"}
+    }
+  }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New \code{lmc()} and \code{rmc()} for robust tail weight
+      (\dQuote{robust kurtosis}). % ../man/lmc-rmc.Rd
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item Our \file{tests/*.R} no longer rely on the \CRANpkg{Matrix}
+      \file{test-tools.R} collection but rather use our much smaller own
+      one in \file{xtraR/test-tools.R}.
+
+      \item fixed \code{\\} escape in \file{man/aircraft.Rd}.
+
+      \item initialize \var{equed} in \file{src/lmrob.c} to avoid
+      false positive compiler warning.
+
+      \item document "internal" \code{.regularize.Mpsi()}.
+
+      \item replace \code{()} by \code{(void)} arguments for \code{F77_SUB(println)}.
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.95-0 (2022-04-02, svn r894)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{huberM(x, k)} now also works in small sample cases with
+      \code{+/-Inf}, e.g. for \code{x = c(-Inf, 1)}.
+    }
+  }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New \code{huberize()} utility, notably by default used in \code{mc()}.
+
+      \item \code{mc()} now by default uses \code{doScale=FALSE} in order
+      to guarantee convergence also in extreme cases when used \emph{together}
+      with new \code{c.huberize = 1e11}.  Both are \emph{not} back
+      compatible but clearly better in extreme cases, as assessed by
+      Lukas Graz' BSc thesis.
+      Note that the behavior of the new default \code{doScale=FALSE} has
+      been amended in the C code to be more compatible in its \code{eps}
+      checks with (the previous default) \code{doScale=TRUE}.
+
+      Lastly, a \code{message()} is printed currently, at most once per \R session,
+      whenever \code{mc()} is called without an explicit specification of \code{doScale=*},
+      alerting users to the changed default.  This message can be turned
+      off by setting \code{options(mc_doScale_quiet = TRUE)}.
+
+      \item New dataset \code{data(x30o50)} as an example of potentially
+      problematic data, not just for \code{mc()}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item rather "truncating" \eqn{+/-}\code{Inf} to <large>, use
+      \code{NA.OK = TRUE} in \code{Qn()} and \code{Sn()}'s \code{.C()} call.
+
+      \item Our C code no longer uses the \code{DOUBLE_*} constants from S,
+      but rather standard \code{<float.h>}.
+    }
+  }
+}
+
+
+\section{CHANGES in robustbase VERSION 0.93-9 (2021-09-27, svn r888)}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{Qn(x)} and \code{Sn(x)} gain an \code{na.rm = FALSE}
+      option and now work when \code{x} has \code{NA}s and contains
+      \eqn{\pm}{+/-} \code{Inf}.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
+
+      \item In \file{src/lmrob.c} add \code{USE_FC_LEN_T} and use \code{FCONE}
+      rather than the older FCLEN approach.
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.93-8 (2021-06-01, svn r879)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{scaleTau2()} gets new optional \code{iter = 1} and
+      \code{tol.iter} arguments; mostly experimentally to see if or when
+      iteration makes sense.
+
+      \item \code{Qn(x, *)} gets new optional \code{k = .} to indicate the
+      \dQuote{quantile} i.e., order statistic to be computed (with default as
+      previously hard-coded).\cr
+      Experimentally to try for cases where more than n/2 observations
+      coincide (with the median), i.e., \code{x[i] == x0 == median(x[])},
+      and hence \code{Qn(x)} and \code{mad(x)} are zero.
+
+      \item \code{adjOutlyingness()} gets new option \code{IQRtype = 7}.
+    }
+  }
+  \subsection{Tweaks}{
+    \itemize{
+      \item For tests: *again* differences found in the non-sensical
+      \code{adjOutlyingness()} example (with large p/n, hence many "random" values
+      in the order of 1e15).
+      Disable the test for now (and record the result in *.Rout).
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item The \code{test()} utility in \file{tests/lmrob-ex12.R} no
+      longer calls \code{matrix(x, n,4)} where the length of x does not
+      match \code{4n}.   Similar change in \file{tests/mc-strict.R}
+    }
+  }
+}
+
+\section{CHANGES in robustbase VERSION 0.93-7 (2021-01-03, svn r865)}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Use \command{\\CRANpkg\{.\}} in most places, providing web
+      links to the respective CRAN package page.
+
+      \item \code{adjOutlyingness()} now gains optional parameters to be
+      passed to \code{mc()}.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item update the internal man page, so new \code{checkRdContents()}
+      is happy.
+      \item fix several \samp{\\url{.}}'s that now are diagnosed as
+      \sQuote{moved}.
+
+      \item \code{adjOutlyingness()} finally works with \code{p.samp > p}.
+
+      \item \code{scaleTau2()} now works with \code{Inf} and very large
+      values, and obeys new \code{na.rm = FALSE} argument.
+
+      \item add \code{check.environment=FALSE} to some of the
+      \code{all.equal()} calls (for 'R-devel', i.e., future R 4.1.x).
+
+      \item \code{wgt.himedian(numeric())} now returns \code{NA} instead of
+      occasionally seg.faulting or inf.looping.  Ditto for a case when
+      called from \code{Qn()}.
+    }
+  }
+}
+
 \section{CHANGES in robustbase VERSION 0.93-6 (2020-03-20, svn r854)}{
   \subsection{NEW FEATURES}{
     \itemize{
@@ -90,8 +337,8 @@
 \section{CHANGES in robustbase VERSION 0.93-1-1 (2018-07-18, svn r818)}{
   \subsection{BUG FIXES}{
     \itemize{
-      \item \file{src/robustbase.h}: \code{is_redescender} now
-      \code{\bold{static} inline}, needed for some compilers, e.g., on
+      \item \file{src/robustbase.h}: \code{is_redescender} now is
+      \code{static inline}, needed for some compilers, e.g., on
       ubuntu 18.04.
       Fixing R-forge bug(s) 6588 (and 6590, 6593),
       \url{https://r-forge.r-project.org/tracker/index.php?func=detail&aid=6588&group_id=59&atid=302}
@@ -106,7 +353,7 @@
       \code{data(<..>, package="robustbase")}.
 
       \item The \file{lmrob_simulation} vignette now should continue
-      to work with upcoming \pkg{ggplot2}.
+      to work with upcoming package \CRANpkg{ggplot2}.
     }
   }
   \subsection{BUG FIXES}{
@@ -147,7 +394,7 @@
       %% which also depicts the \dQuote{non-robust} behavior of \code{lmrob(setting="KS2014")}
 
       \item Vignette \file{lmrob_simulation.Rnw}: fixed the wrong
-      \dQuote{emprical power} plots; with faster \pkg{ggplot2}, remove
+      \dQuote{emprical power} plots; with faster \CRANpkg{ggplot2}, remove
       all \code{eval=FALSE} for plots and longer store the
       \file{*.pdf}s.
 

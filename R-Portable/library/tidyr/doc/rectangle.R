@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -47,11 +47,6 @@ repos %>%
   unnest_wider(owner)
 
 ## -----------------------------------------------------------------------------
-tibble(repo = gh_repos) %>% 
-  unnest_auto(repo) %>% 
-  unnest_auto(repo)
-
-## -----------------------------------------------------------------------------
 chars <- tibble(char = got_chars)
 chars
 
@@ -73,85 +68,48 @@ chars2 %>%
   unnest_longer(title)
 
 ## -----------------------------------------------------------------------------
-tibble(char = got_chars) %>% 
-  unnest_auto(char) %>% 
-  select(name, title = titles) %>% 
-  unnest_auto(title)
+repurrrsive::gmaps_cities
 
 ## -----------------------------------------------------------------------------
-has_key <- !identical(Sys.getenv("GOOGLE_MAPS_API_KEY"), "")
-if (!has_key) {
-  message("No Google Maps API key found; code chunks will not be run")
-}
-
-# https://developers.google.com/maps/documentation/geocoding
-geocode <- function(address, api_key = Sys.getenv("GOOGLE_MAPS_API_KEY")) {
-  url <- "https://maps.googleapis.com/maps/api/geocode/json"
-  url <- paste0(url, "?address=", URLencode(address), "&key=", api_key)
-
-  jsonlite::read_json(url)
-}
-
-## ---- eval = has_key----------------------------------------------------------
-houston <- geocode("Houston TX")
-str(houston)
-
-## ---- eval = has_key, cache = TRUE--------------------------------------------
-city <- c("Houston", "LA", "New York", "Chicago", "Springfield")
-city_geo <- purrr::map(city, geocode)
-
-## ---- eval = has_key----------------------------------------------------------
-loc <- tibble(city = city, json = city_geo)
-loc
-
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+repurrrsive::gmaps_cities %>%
   unnest_wider(json)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   unnest_wider(json) %>% 
   unnest_longer(results)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   unnest_wider(json) %>% 
   unnest_longer(results) %>% 
   unnest_wider(results)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   unnest_wider(json) %>% 
   unnest_longer(results) %>% 
   unnest_wider(results) %>% 
   unnest_wider(geometry)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   unnest_wider(json) %>%
   unnest_longer(results) %>%
   unnest_wider(results) %>%
   unnest_wider(geometry) %>%
   unnest_wider(location)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
-  unnest_auto(json) %>%
-  unnest_auto(results) %>%
-  unnest_auto(results) %>%
-  unnest_auto(geometry) %>%
-  unnest_auto(location)
-
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   unnest_wider(json) %>%
   hoist(results, first_result = 1) %>%
   unnest_wider(first_result) %>%
   unnest_wider(geometry) %>%
   unnest_wider(location)
 
-## ---- eval = has_key----------------------------------------------------------
-loc %>%
+## -----------------------------------------------------------------------------
+repurrrsive::gmaps_cities %>%
   hoist(json,
     lat = list("results", 1, "geometry", "location", "lat"),
     lng = list("results", 1, "geometry", "location", "lng")
@@ -163,7 +121,7 @@ discs <- tibble(disc = discog) %>%
   mutate(date_added = as.POSIXct(strptime(date_added, "%Y-%m-%dT%H:%M:%S"))) 
 discs
 
-## ---- error = TRUE------------------------------------------------------------
+## ----error = TRUE-------------------------------------------------------------
 discs %>% unnest_wider(basic_information)
 
 ## -----------------------------------------------------------------------------

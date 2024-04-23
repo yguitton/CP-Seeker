@@ -1,3 +1,40 @@
+# zip 2.3.1
+
+* The zip shared library now hides its symbols (on platforms that support
+  this), to avoid name clashes with other libraries (#98).
+
+# zip 2.3.0
+
+* zip now handles large zip files on Windows (#65, #75, #79, @weshinsley).
+
+* zip now behaves better for absolute paths in mirror mode, and when the
+  paths contain a `:` character (#69, #70).
+
+* `zip::unzip()` now uses the process's umask value (see `umask(2)`) on Unix
+  if the zip file does not contain Unix permissions (#67).
+
+* Fix segmentation fault when zip file can't be created (#91, @zeehio)
+
+* Fix delayed evaluation error on zipfile when `zip::zip()`
+  is used (#92, @zeehio)
+
+* New `deflate()` and `inflate()` functions to compress and uncompress
+  GZIP streams in memory.
+
+# zip 2.2.2
+
+* No user visible changes.
+
+# zip 2.2.1
+
+* No user visible changes.
+
+# 2.2.0
+
+* Header values (of version made by and external attributes) are now
+  correctly read and written on big-endian systems (#68).
+
+* `zip_list()` now also returns `crc32` and `offset` (#74, @jefferis).
 
 # 2.1.1
 

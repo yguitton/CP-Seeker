@@ -1,0 +1,44 @@
+Package: AnnotationFilter
+Title: Facilities for Filtering Bioconductor Annotation Resources
+Version: 1.26.0
+Authors@R: c(
+    person("Martin", "Morgan", email = "martin.morgan@roswellpark.org",
+        role = "aut"),
+    person("Johannes", "Rainer", email = "johannes.rainer@eurac.edu",
+        role = "aut"),
+    person("Joachim", "Bargsten", email = "jw@bargsten.org", role = "ctb"),
+    person("Daniel", "Van Twisk", email = "daniel.vantwisk@roswellpark.org",
+        role = "ctb"),
+    person("Bioconductor Package", "Maintainer",
+        email="maintainer@bioconductor.org",
+        role = "cre"))
+URL: https://github.com/Bioconductor/AnnotationFilter
+BugReports: https://github.com/Bioconductor/AnnotationFilter/issues
+Description: This package provides class and other infrastructure to
+    implement filters for manipulating Bioconductor annotation
+    resources. The filters will be used by ensembldb, Organism.dplyr,
+    and other packages.
+Depends: R (>= 3.4.0)
+Imports: utils, methods, GenomicRanges, lazyeval
+Suggests: BiocStyle, knitr, testthat, RSQLite, org.Hs.eg.db, rmarkdown
+VignetteBuilder: knitr
+License: Artistic-2.0
+biocViews: Annotation, Infrastructure, Software
+Encoding: UTF-8
+RoxygenNote: 6.0.1
+Collate: 'AllGenerics.R' 'AnnotationFilter.R' 'AnnotationFilterList.R'
+        'translate-utils.R'
+git_url: https://git.bioconductor.org/packages/AnnotationFilter
+git_branch: RELEASE_3_18
+git_last_commit: be933b3
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-24 22:18:23 UTC; biocbuild
+Author: Martin Morgan [aut],
+  Johannes Rainer [aut],
+  Joachim Bargsten [ctb],
+  Daniel Van Twisk [ctb],
+  Bioconductor Package Maintainer [cre]
+Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
+Built: R 4.3.1; ; 2023-10-25 13:39:37 UTC; windows

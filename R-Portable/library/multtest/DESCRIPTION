@@ -1,6 +1,6 @@
 Package: multtest
 Title: Resampling-based multiple hypothesis testing
-Version: 2.42.0
+Version: 2.58.0
 Author: Katherine S. Pollard, Houston N. Gilbert, Yongchao Ge, Sandra
         Taylor, Sandrine Dudoit
 Description: Non-parametric bootstrap and permutation resampling-based
@@ -30,11 +30,11 @@ License: LGPL
 LazyLoad: yes
 biocViews: Microarray, DifferentialExpression, MultipleComparison
 git_url: https://git.bioconductor.org/packages/multtest
-git_branch: RELEASE_3_10
-git_last_commit: 048f6b6
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 523a966
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:19:09 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 13:46:05 UTC; windows
-Archs: i386, x64
+Packaged: 2023-10-25 01:37:46 UTC; biocbuild
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-25 14:26:10 UTC; windows
+Archs: x64

@@ -3,7 +3,6 @@ AtomicList-utils        Common operations on AtomicList objects
 CompressedHitsList-class
                         CompressedHitsList objects
 CompressedList-class    CompressedList objects
-DataFrame-utils         Common operations on DataFrame objects
 DataFrameList-class     List of DataFrames
 Grouping-class          Grouping objects
 Hits-examples           Examples of basic manipulation of Hits objects
@@ -20,7 +19,6 @@ IntegerRangesList-class
                         IntegerRangesList objects
 MaskCollection-class    MaskCollection objects
 NCList-class            Nested Containment List objects
-RangedData-class        Data on ranges
 RangedSelection-class   Selection of ranges and columns
 RleViews-class          The RleViews class
 RleViewsList-class      List of RleViews
@@ -46,7 +44,6 @@ reverse                 reverse
 setops-methods          Set operations on IntegerRanges and
                         IntegerRangesList objects
 slice-methods           Slice a vector-like or list-like object
-stack,List-method       List objects (old man page)
 unsplit,List-method     2 methods that should be documented somewhere
                         else
 view-summarization-methods

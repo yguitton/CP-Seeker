@@ -115,9 +115,6 @@ exportClasses(
     CompressedIntegerRangesList,
     CompressedIRangesList, CompressedNormalIRangesList, CompressedIPosList,
 
-    ## RangedData-class.R:
-    RangedData,
-
     ## NCList-class.R:
     NCList, NCLists,
 
@@ -135,6 +132,9 @@ S3method(as.data.frame, IPos)
 
 S3method(diff, AtomicList)
 
+S3method(summary, IPosRanges)
+S3method(summary, IPos)
+
 S3method(`window<-`, Vector)
 S3method(`window<-`, vector)
 S3method(`window<-`, factor)
@@ -148,6 +148,9 @@ export(
 
     diff.AtomicList,
 
+    summary.IPosRanges,
+    summary.IPos,
+
     "window<-.Vector",
     "window<-.vector",
     "window<-.factor"
@@ -155,59 +158,73 @@ export(
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Export S4 methods for generics not defined in IRanges
+### Export S4 methods for generics NOT defined in this package
 ###
 
 exportMethods(
+    ## Methods for generics defined in the base package:
     length, "length<-",
     names, "names<-",
-    nrow, NROW,
-    ncol, NCOL,
     dim,
-    rownames, "rownames<-",
-    colnames, "colnames<-",
     dimnames, "dimnames<-",
     "[", "[<-", "[[", "[[<-",
-    as.vector,
     as.integer,
     as.character,
     as.factor,
     as.matrix,
-    as.data.frame,
-    as.list,
-    coerce,
-    c,
-    show,
-    match, duplicated, unique, anyDuplicated,
-    is.unsorted, order,
-    Ops, Math, Math2, Summary, Complex,
-    summary,
     drop,
-    start, "start<-", end, "end<-", width, "width<-", pos,
-    min, max, range, which.max, which.min,
+    min, max, range,
     diff,
-    mean, var, cov, cor, sd, median, quantile, mad, IQR, smoothEnds, runmed,
-    "window<-", transform,
-    nchar, chartr, tolower, toupper, sub, gsub,
-    unlist, stack, "split<-", unsplit,
-    relist,
-    append,
-    "!", which,
+    transform,
+    nchar, chartr, tolower, toupper,
+    sub, gsub,
+    startsWith, endsWith,
+    "split<-",
+    "!",
     merge,
     is.na,
     by,
-    cbind, rbind,
-    lapply,
+
+    ## Methods for generics defined in the methods package:
+    coerce, show,
+    Ops, Math, Math2, Summary, Complex,
+
+    ## Methods for generics defined in the utils package:
+    stack,
+
+    ## Methods for generics defined in the stats package:
+    mean, var, cov, cor, sd, median, quantile, mad, IQR, smoothEnds, runmed,
+    "window<-",
+
+    ## Methods for generics defined in the stats4 package:
+    summary,
+
+    ## Methods for generics defined in the BiocGenerics package:
+    nrow, ncol,
+    NROW, NCOL,
+    rownames, "rownames<-",
+    colnames, "colnames<-",
+    rbind, cbind,
+    unlist, relist, unsplit,
+    lapply, tapply,
+    as.vector, as.list, as.data.frame,
+    which, which.max, which.min,
     pmax, pmin, pmax.int, pmin.int,
+    match, duplicated, unique, anyDuplicated,
+    is.unsorted, order,
+    append,
     paste,
     table,
-    tapply,
     union, intersect, setdiff,
+    start, "start<-", end, "end<-", width, "width<-", pos,
+    dims, nrows, ncols,
     updateObject,
+
+    ## Methods for generics defined in the S4Vectors package:
+    ROWNAMES, "ROWNAMES<-",
     bindROWS,
     extractROWS, replaceROWS, getListElement,
-    parallelSlotNames,
-    values, "values<-",
+    parallel_slot_names,
     classNameForDisplay,
     from, to,
     nLnode, nRnode,
@@ -216,7 +233,6 @@ exportMethods(
     runLength, "runValue<-",
     runsum, runmean, runwtsum, runq,
     elementNROWS, isEmpty,
-    relistToClass,
     revElements,
     as.env,
     active, "active<-"
@@ -229,7 +245,7 @@ exportMethods(
 
 export(
     multisplit,
-    solveUserSEW0, IRanges, solveUserSEW,
+    IRanges, solveUserSEW,
     successiveIRanges,
     slidingIRanges,
     breakInChunks,
@@ -240,9 +256,7 @@ export(
     NCList, NCLists,
     H2LGrouping, Dups,
     PartitioningByEnd, PartitioningByWidth, PartitioningMap,
-    RangedData,
     RangedSelection,
-    RangesList,
     IRangesList,
     RleViewsList,
     "%over%", "%within%", "%outside%",
@@ -268,16 +282,12 @@ export(
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Export S4 generics defined in IRanges + export corresponding methods
+### Export S4 generics defined in IRanges, and corresponding methods
 ###
 
 export(
     ## range-squeezers.R:
     ranges, rglist,
-
-    ## Vector-class-leftovers.R:
-    showAsCell,
-    mstack,
 
     ## Ranges-and-RangesList-classes.R:
     mid,
@@ -302,10 +312,11 @@ export(
     extractList,
 
     ## DataFrameList-class.R:
+    commonColnames, "commonColnames<-",
     columnMetadata, "columnMetadata<-",
 
     ## IntegerRangesList-class.R:
-    universe, "universe<-", space,
+    space,
 
     ## MaskCollection-class.R:
     nir_list,
@@ -353,12 +364,10 @@ export(
     ifelse2
 )
 
-### Exactly the same list as above.
+### Same list as above.
 exportMethods(
     ranges, rglist,
     runsum, runmean, runwtsum, runq,
-    showAsCell,
-    mstack,
     mid,
     isNormal, whichFirstNotNormal,
     subject,
@@ -371,8 +380,9 @@ exportMethods(
     high2low, low2high, grouprank, togrouprank, mapOrder,
     findRange, splitRanges,
     extractList,
+    commonColnames, "commonColnames<-",
     columnMetadata, "columnMetadata<-",
-    universe, "universe<-", space,
+    space,
     nir_list,
     desc, "desc<-",
     maskedwidth, maskedratio,

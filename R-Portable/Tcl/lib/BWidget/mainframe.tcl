@@ -37,29 +37,47 @@ namespace eval MainFrame {
 	-foreground -progressfg
     }
 
-    Widget::declare MainFrame {
-	{-width         TkResource 0      0 frame}
-	{-height        TkResource 0      0 frame}
-	{-background    TkResource ""     0 frame}
-	{-textvariable  String     ""     0}
-	{-menu          String     {}     1}
-	{-separator     Enum       both   1 {none top bottom both}}
-	{-bg            Synonym    -background}
+    if {[Widget::theme]} {
+        # No option -background for themed MainFrame
+        Widget::declare MainFrame {
+            {-width         TkResource 0      0 frame}
+            {-height        TkResource 0      0 frame}
+            {-textvariable  String     ""     0}
+            {-menu          String     {}     1}
+            {-separator     Enum       both   1 {none top bottom both}}
 
-	{-menubarfont   String     ""  0}
-	{-menuentryfont String     ""  0}
-	{-statusbarfont String     ""  0}
-	{-sizegrip      Boolean    0   1}
+            {-menubarfont   String     ""  0}
+            {-menuentryfont String     ""  0}
+            {-statusbarfont String     ""  0}
+            {-sizegrip      Boolean    0   1}
+        }
+
+        Widget::addmap MainFrame "" .frame  {-width {} -height {}}
+    } else {
+        Widget::declare MainFrame {
+            {-width         TkResource 0      0 frame}
+            {-height        TkResource 0      0 frame}
+            {-background    TkResource ""     0 frame}
+            {-textvariable  String     ""     0}
+            {-menu          String     {}     1}
+            {-separator     Enum       both   1 {none top bottom both}}
+            {-bg            Synonym    -background}
+
+            {-menubarfont   String     ""  0}
+            {-menuentryfont String     ""  0}
+            {-statusbarfont String     ""  0}
+            {-sizegrip      Boolean    0   1}
+        }
+
+        Widget::addmap MainFrame "" .frame  {-width {} -height {} -background {}}
+        Widget::addmap MainFrame "" .topf   {-background {}}
+        Widget::addmap MainFrame "" .botf   {-background {}}
+        Widget::addmap MainFrame "" .status {-background {}}
+        Widget::addmap MainFrame "" .status.label {-background {}}
+        Widget::addmap MainFrame "" .status.indf  {-background {}}
+        Widget::addmap MainFrame "" .status.prgf  {-background {}}
+        Widget::addmap MainFrame ProgressBar .status.prg {-background {} -background -troughcolor}
     }
-
-    Widget::addmap MainFrame "" .frame  {-width {} -height {} -background {}}
-    Widget::addmap MainFrame "" .topf   {-background {}}
-    Widget::addmap MainFrame "" .botf   {-background {}}
-    Widget::addmap MainFrame "" .status {-background {}}
-    Widget::addmap MainFrame "" .status.label {-background {}}
-    Widget::addmap MainFrame "" .status.indf  {-background {}}
-    Widget::addmap MainFrame "" .status.prgf  {-background {}}
-    Widget::addmap MainFrame ProgressBar .status.prg {-background {} -background -troughcolor}
 
     variable _widget
 }
@@ -184,6 +202,7 @@ proc MainFrame::create { path args } {
     }
 
     bind $path <Destroy> [list MainFrame::_destroy %W]
+    bind $path <<TkWorldChanged>> [list MainFrame::_world_changed  %W %d]
 
     return [Widget::create MainFrame $path]
 }
@@ -272,15 +291,11 @@ proc MainFrame::configure { path args } {
 	    eval [list $indic configure] $sbfnt
 	}
 	eval [list $path.status.label configure] $sbfnt
-	$path.status configure -height [winfo reqheight $path.status.label]
-
-	$path.status.prg configure \
-		-height [expr {[winfo reqheight $path.status.label]-2}]
+        _evaluate_status_height $path
     }
 
     return $res
 }
-
 
 # ----------------------------------------------------------------------------
 #  Command MainFrame::cget
@@ -506,15 +521,42 @@ proc MainFrame::_destroy { path } {
     }
 }
 
+# -----------------------------------------------------------------------------
+#  Command MainFrame::_world_changed
+# -----------------------------------------------------------------------------
+proc MainFrame::_world_changed { path type} {
+    # Check if font changed
+    if {$type == "FontChanged"} {
+        _evaluate_status_height $path
+    }
+}
+
+# -----------------------------------------------------------------------------
+#  Command MainFrame::_evaluate_status_height
+# -----------------------------------------------------------------------------
+# Change the status bar height in dependence of the status bar font.
+# This is used on configure -statusfont and on world change, where the font
+# height may also change.
+proc MainFrame::_evaluate_status_height {path} {
+    $path.status configure -height [winfo reqheight $path.status.label]
+
+    $path.status.prg configure \
+            -height [expr {[winfo reqheight $path.status.label]-2}]
+}
 
 # ----------------------------------------------------------------------------
 #  Command MainFrame::_create_menubar
 # ----------------------------------------------------------------------------
-proc MainFrame::_create_menubar { path descmenu } {
+# For Android, a menubutton is more appropriate.
+# To support this, the menubutton widget may be passed as 3rd
+# parameter.
+proc MainFrame::_create_menubar { path descmenu {top ""} } {
     variable _widget
     global    tcl_platform
 
-    set top $_widget($path,top)
+    if {![string length $top]} {
+        set top $_widget($path,top)
+    }
 
     foreach {v x} {mbfnt -menubarfont mefnt -menuentryfont} {
 	if {[string length [Widget::getoption $path $x]]} {
@@ -536,31 +578,40 @@ proc MainFrame::_create_menubar { path descmenu } {
 
     set count 0
     foreach {name tags menuid tearoff entries} $descmenu {
-        set opt  [_parse_name $name]
-        if {[string length $menuid]
-	    && ![info exists _widget($path,menuid,$menuid)] } {
-            # menu has identifier
-	    # we use it for its pathname, to enable special menu entries
-	    # (help, system, ...)
-	    set menu $menubar.$menuid
+        # Check if only one menu with an empty name is given
+        # In this case, remove the top level menu item
+        # This allows to also have checkboxes and commands at the top level.
+        if {![string length $name] && 5 == [llength $descmenu]} {
+            # A single namesless menu - skip the first level to allow other
+            # than cascade as first level.
+            set menu $menubar
         } else {
-	    set menu $menubar.menu$count
-	}
-        eval [list $menubar add cascade] $opt [list -menu $menu]
-        eval [list menu $menu -tearoff $tearoff] $menuopts $mefnt
-        foreach tag $tags {
-            lappend _widget($path,tags,$tag) $menubar $count
-	    # ericm@scriptics:  Add a tagstate tracker
-	    if { ![info exists _widget($path,tagstate,$tag)] } {
-		set _widget($path,tagstate,$tag) 1
-	    }
-        }
-	# ericm@scriptics:  Add mapping from menu items to tags
-	set _widget($path,menutags,[list $menubar $count]) $tags
+            set opt  [_parse_name $name]
+            if {[string length $menuid]
+                    && ![info exists _widget($path,menuid,$menuid)] } {
+                # menu has identifier
+                # we use it for its pathname, to enable special menu entries
+                # (help, system, ...)
+                set menu $menubar.$menuid
+            } else {
+                set menu $menubar.menu$count
+            }
+            eval [list $menubar add cascade] $opt [list -menu $menu]
+            eval [list menu $menu -tearoff $tearoff] $menuopts $mefnt
+            foreach tag $tags {
+                lappend _widget($path,tags,$tag) $menubar $count
+                # ericm@scriptics:  Add a tagstate tracker
+                if { ![info exists _widget($path,tagstate,$tag)] } {
+                    set _widget($path,tagstate,$tag) 1
+                }
+            }
+            # ericm@scriptics:  Add mapping from menu items to tags
+            set _widget($path,menutags,[list $menubar $count]) $tags
 
-        if { [string length $menuid] } {
-            # menu has identifier
-            set _widget($path,menuid,$menuid) $menu
+            if { [string length $menuid] } {
+                # menu has identifier
+                set _widget($path,menuid,$menuid) $menu
+            }
         }
         _create_entries $path $menu $menuopts $entries
         incr count

@@ -1,3 +1,146 @@
+CHANGES IN VERSION 2.36.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Add link to revElements() in man page for reverse().
+
+BUG FIXES
+
+    o Fix is.unsorted() methods for Compressed[Integer|Numeric]List
+      objects (they were never working since their introduction years
+      ago).
+
+
+CHANGES IN VERSION 2.34.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Improve error handling in AtomicList constructors when input is too big.
+
+
+CHANGES IN VERSION 2.32.0
+-------------------------
+
+NEW FEATURES
+
+    o splitAsList() can now perform a "dumb split", that is, when
+      no split factor is supplied, 'splitAsList(x)' is equivalent
+      to 'unname(splitAsList(x, seq_along(x)))' but is slightly more
+      efficient.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Add ellipsis argument (...) to the gaps() generic function.
+
+
+CHANGES IN VERSION 2.30.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Like the DataFrame class defined in the S4Vectors package, classes
+      SimpleDataFrameList, CompressedDataFrameList, SimpleSplitDataFrameList,
+      and CompressedSplitDataFrameList, are now virtual. This completes the
+      replacement of DataFrame with DFrame announced in September 2019. See:
+      https://www.bioconductor.org/help/course-materials/2019/BiocDevelForum/02-DataFrame.pdf
+
+
+CHANGES IN VERSION 2.28.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Replace dim(), nrow(), and ncol() methods for DataFrameList objects with
+      dims(), nrows(), and ncols() methods.
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecate dim(), nrow(), and ncol() methods for DataFrameList objects
+      in favor of the new dims(), nrows(), and ncols() methods.
+
+
+CHANGES IN VERSION 2.26.0
+-------------------------
+
+NEW FEATURES
+
+    o Add commonColnames() accessor to get or set the character vector of
+      column names present in the individual DataFrames of a SplitDataFrameList
+      object.
+
+    o Implement unary + and - for AtomicList derivatives.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Much improved error handling and messages in IRanges() constructor
+      function
+
+DEPRECATED AND DEFUNCT
+
+    o Remove RangesList() constructor (was deprecated in BioC 3.7 and defunct
+      in BioC 3.8).
+
+BUG FIXES
+
+    o Fix unplit() on named List objects.
+
+    o Fix findOverlapPairs() for missing subject (fixes #35).
+
+    o quantile() on an AtomicList object always returns a matrix (fixes #33).
+
+    o Fix which.min()/which.max() for CompressedNumericList objects (fixes #30).
+
+    o Export startsWith() and endsWith() methods for CharacterList/RleList
+      objects (fixes #26).
+
+
+CHANGES IN VERSION 2.24.0
+-------------------------
+
+NEW FEATURES
+
+    o coverage() now supports 'method="naive"'. This is in addition to the
+      already supported methods "sort" and "hash". This new method is a slower
+      version of the "hash" method that has the advantage of avoiding floating
+      point artefacts in the no-coverage regions of the numeric-Rle object
+      returned by coverage() when the weights are supplied as a numeric vector
+      of type 'double'. See "FLOATING POINT ARITHMETIC CAN BRING A SURPRISE"
+      example in '?coverage'.
+
+DEPRECATED AND DEFUNCT
+
+    o Removed RangedData class and anything related to RangedData objects.
+
+BUG FIXES
+
+    o Fix bug in list element recycling.
+
+
+CHANGES IN VERSION 2.22.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Resync with change to smoothEnds() in R 4.0.
+      In R 4.0, stats::smoothEnds() always returns an integer vector
+      when the input is an integer vector. smoothEnds() on an IntegerList now
+      reflects this: it returns an IntegerList object instead of a NumericList
+      object.
+
+DEPRECATED AND DEFUNCT
+
+    o RangedData objects are now defunct.
+      RangedData objects are defunct in BioC 3.11. They were deprecated in BioC
+      3.9 and, before that, their use has been discouraged in favor of GRanges
+      or GRangesList objects since BioC 2.12, that is, since 2014.
+
+BUG FIXES
+
+    o Fix restrict() method for RangesList objects for when ranges are dropped.
+
+
 CHANGES IN VERSION 2.20.0
 -------------------------
 
@@ -26,9 +169,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
 
     o as.data.frame(IRanges) now propagates the metadata columns
 
-    o Move splitAsList() to the S4Vector package
+    o Move splitAsList() to the S4Vectors package
 
-    o Move S4 class "atomic" from the S4Vector package
+    o Move S4 class "atomic" from the S4Vectors package
 
     o No longer export %in% (was a leftover from an older time when the
       package was defining an %in% method)

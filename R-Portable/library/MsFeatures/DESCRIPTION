@@ -1,0 +1,45 @@
+Package: MsFeatures
+Title: Functionality for Mass Spectrometry Features
+Version: 1.10.0
+Description: The MsFeature package defines functionality for Mass Spectrometry
+    features. This includes functions to group (LC-MS) features based on some
+    of their properties, such as retention time (coeluting features), or
+    correlation of signals across samples. This packge hence allows to group
+    features, and its results can be used as an input for the `QFeatures`
+    package which allows to aggregate abundance levels of features within each
+    group. This package defines concepts and functions for base and common data
+    types, implementations for more specific data types are expected to be
+    implemented in the respective packages (such as e.g. `xcms`). All
+    functionality of this package is implemented in a modular way which allows
+    combination of different grouping approaches and enables its re-use in
+    other R packages.
+Authors@R: c(person(given = "Johannes", family = "Rainer",
+                    email = "Johannes.Rainer@eurac.edu",
+                    comment = c(ORCID = "0000-0002-6977-7147"),
+                    role = c("aut", "cre")))
+Depends: R (>= 4.1)
+Imports: methods, ProtGenerics (>= 1.23.5), MsCoreUtils,
+        SummarizedExperiment, stats
+Suggests: testthat, roxygen2, BiocStyle, pheatmap, knitr, rmarkdown
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: no
+BugReports: https://github.com/RforMassSpectrometry/MsFeatures/issues
+URL: https://github.com/RforMassSpectrometry/MsFeatures
+biocViews: Infrastructure, MassSpectrometry, Metabolomics
+RoxygenNote: 7.1.1
+Roxygen: list(markdown=TRUE)
+VignetteBuilder: knitr
+Collate: 'corRows.R' 'grouping-functions.R' 'hidden_aliases.R'
+        'AllGenerics.R' 'AbundanceSimilarityParam.R'
+        'SimilarRtimeParam.R' 'featureGroups.R' 'se.R'
+git_url: https://git.bioconductor.org/packages/MsFeatures
+git_branch: RELEASE_3_18
+git_last_commit: 206e190
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-25 01:32:37 UTC; biocbuild
+Author: Johannes Rainer [aut, cre] (<https://orcid.org/0000-0002-6977-7147>)
+Maintainer: Johannes Rainer <Johannes.Rainer@eurac.edu>
+Built: R 4.3.1; ; 2023-10-25 14:24:36 UTC; windows

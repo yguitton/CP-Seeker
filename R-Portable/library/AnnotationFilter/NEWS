@@ -1,0 +1,32 @@
+CHANGES IN VERSION 1.5.2
+------------------------
+
+USER VISIBLE CHANGES
+
+    o Rename GenenameFilter into GeneNameFilter and deprecate GenenameFilter
+      (issue #22).
+
+
+CHANGES IN VERSION 1.3.1
+------------------------
+
+NEW FEATURES
+
+    o Add DoubleFilter
+
+
+CHANGES IN VERSION 1.1.2
+------------------------
+
+NEW FEATURES
+
+    o supportFilters returns a data.frame with filter class name and field.
+
+
+CHANGES IN VERSION 0.99.5
+--------------------------
+
+NEW FEATURES
+
+    o Add convertFilterExpressionQuoted function.
+    o Add field method.

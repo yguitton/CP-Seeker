@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Linear Models for Microarray Data</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Linear Models for Microarray Data
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,7 +12,7 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;limma&rsquo; version 3.42.2</h2>
+</div><h2>Documentation for package &lsquo;limma&rsquo; version 3.58.1</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
@@ -48,14 +49,14 @@
 <a href="#misc">misc</a>
 </p>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="01Introduction.html">limma-package</a></td>
 <td>Introduction to the LIMMA Package</td></tr>
 </table>
 
-<h2><a name="A">-- A --</a></h2>
+<h2><a id="A">-- A --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="alias2Symbol.html">alias2Symbol</a></td>
 <td>Convert Gene Aliases to Official Gene Symbols</td></tr>
 <tr><td style="width: 25%;"><a href="alias2Symbol.html">alias2SymbolTable</a></td>
@@ -134,9 +135,9 @@
 <td>Average Over Irregular Replicate Probes</td></tr>
 </table>
 
-<h2><a name="B">-- B --</a></h2>
+<h2><a id="B">-- B --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="backgroundcorrect.html">backgroundCorrect</a></td>
 <td>Correct Intensities for Background</td></tr>
 <tr><td style="width: 25%;"><a href="backgroundcorrect.html">backgroundCorrect.matrix</a></td>
@@ -153,9 +154,9 @@
 <td>Between and within sums of squares for matrix</td></tr>
 </table>
 
-<h2><a name="C">-- C --</a></h2>
+<h2><a id="C">-- C --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="camera.html">camera</a></td>
 <td>Competitive Gene Set Test Accounting for Inter-gene Correlation</td></tr>
 <tr><td style="width: 25%;"><a href="camera.html">camera.default</a></td>
@@ -175,7 +176,9 @@
 <tr><td style="width: 25%;"><a href="cbind.html">cbind.RGList</a></td>
 <td>Combine RGList, MAList, EList or EListRaw Objects</td></tr>
 <tr><td style="width: 25%;"><a href="changelog.html">changeLog</a></td>
-<td>Limma Change Log</td></tr>
+<td>Change Log</td></tr>
+<tr><td style="width: 25%;"><a href="chooseLowessSpan.html">chooseLowessSpan</a></td>
+<td>Choose Span for Local-Weighted Regression Smoothing</td></tr>
 <tr><td style="width: 25%;"><a href="classifytestsF.html">classifyTestsF</a></td>
 <td>Genewise Nested F-Tests</td></tr>
 <tr><td style="width: 25%;"><a href="rglist.html">coerce-method</a></td>
@@ -194,9 +197,9 @@
 <td>Cumulative Overlap Analysis of Ordered Lists</td></tr>
 </table>
 
-<h2><a name="D">-- D --</a></h2>
+<h2><a id="D">-- D --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="decideTests.html">decideTests</a></td>
 <td>Multiple Testing Across Genes and Contrasts</td></tr>
 <tr><td style="width: 25%;"><a href="decideTests.html">decideTests.default</a></td>
@@ -244,27 +247,27 @@
 <tr><td style="width: 25%;"><a href="dimnames.html">dimnames&lt;-.RGList</a></td>
 <td>Retrieve the Dimension Names of an RGList, MAList, EList, EListRaw or MArrayLM Object</td></tr>
 <tr><td style="width: 25%;"><a href="dupcor.html">duplicateCorrelation</a></td>
-<td>Correlation Between Duplicates</td></tr>
+<td>Correlation Between Duplicates or Within Blocks</td></tr>
 </table>
 
-<h2><a name="E">-- E --</a></h2>
+<h2><a id="E">-- E --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="ebayes.html">eBayes</a></td>
 <td>Empirical Bayes Statistics for Differential Expression</td></tr>
 <tr><td style="width: 25%;"><a href="EList.html">EList-class</a></td>
-<td>Expression List - class</td></tr>
+<td>Expression List (EList) class</td></tr>
 <tr><td style="width: 25%;"><a href="EList.html">EListRaw-class</a></td>
-<td>Expression List - class</td></tr>
+<td>Expression List (EList) class</td></tr>
 <tr><td style="width: 25%;"><a href="propTrueNull.html">estimate.m0</a></td>
 <td>Estimate Proportion of True Null Hypotheses</td></tr>
 <tr><td style="width: 25%;"><a href="exprsMA.html">exprs.MA</a></td>
 <td>Extract Log-Expression Matrix from MAList</td></tr>
 </table>
 
-<h2><a name="F">-- F --</a></h2>
+<h2><a id="F">-- F --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="fitfdist.html">fitFDist</a></td>
 <td>Moment Estimation of Scaled F-Distribution</td></tr>
 <tr><td style="width: 25%;"><a href="fitfdist.html">fitFDistRobustly</a></td>
@@ -281,9 +284,9 @@
 <td>Rotation Gene Set Tests</td></tr>
 </table>
 
-<h2><a name="G">-- G --</a></h2>
+<h2><a id="G">-- G --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="genas.html">genas</a></td>
 <td>Genuine Association of Gene Expression Profiles</td></tr>
 <tr><td style="width: 25%;"><a href="geneSetTest.html">geneSetTest</a></td>
@@ -310,15 +313,17 @@
 <td>Gene Ontology or KEGG Pathway Analysis</td></tr>
 <tr><td style="width: 25%;"><a href="goana.html">goana.MArrayLM</a></td>
 <td>Gene Ontology or KEGG Pathway Analysis</td></tr>
+<tr><td style="width: 25%;"><a href="goanaTrend.html">goanaTrend</a></td>
+<td>Estimate DE Trend for Gene Ontology or KEGG Pathway Analysis</td></tr>
 <tr><td style="width: 25%;"><a href="gridspotrc.html">gridc</a></td>
 <td>Row and Column Positions on Microarray</td></tr>
 <tr><td style="width: 25%;"><a href="gridspotrc.html">gridr</a></td>
 <td>Row and Column Positions on Microarray</td></tr>
 </table>
 
-<h2><a name="H">-- H --</a></h2>
+<h2><a id="H">-- H --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="head.html">head.EList</a></td>
 <td>Return the First to Last Part of a Data Object</td></tr>
 <tr><td style="width: 25%;"><a href="head.html">head.EListRaw</a></td>
@@ -339,9 +344,9 @@
 <td>Prompt for Method Help Topics</td></tr>
 </table>
 
-<h2><a name="I">-- I --</a></h2>
+<h2><a id="I">-- I --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="ids2indices.html">ids2indices</a></td>
 <td>Convert Gene Identifiers to Indices for Gene Sets</td></tr>
 <tr><td style="width: 25%;"><a href="imageplot.html">imageplot</a></td>
@@ -358,9 +363,9 @@
 <td>Test for Numeric Argument</td></tr>
 </table>
 
-<h2><a name="K">-- K --</a></h2>
+<h2><a id="K">-- K --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="goana.html">kegga</a></td>
 <td>Gene Ontology or KEGG Pathway Analysis</td></tr>
 <tr><td style="width: 25%;"><a href="goana.html">kegga.default</a></td>
@@ -371,9 +376,9 @@
 <td>Kooperberg Model-Based Background Correction for GenePix data</td></tr>
 </table>
 
-<h2><a name="L">-- L --</a></h2>
+<h2><a id="L">-- L --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="TestResults.html">labels.TestResults</a></td>
 <td>Matrix of Test Results - class</td></tr>
 <tr><td style="width: 25%;"><a href="LargeDataObject.html">LargeDataObject-class</a></td>
@@ -398,9 +403,9 @@
 <td>Log Sum of Exponentials</td></tr>
 </table>
 
-<h2><a name="M">-- M --</a></h2>
+<h2><a id="M">-- M --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="normalizeWithinArrays.html">MA.RG</a></td>
 <td>Normalize Within Arrays</td></tr>
 <tr><td style="width: 25%;"><a href="ma3x3.html">ma3x3.matrix</a></td>
@@ -443,9 +448,9 @@
 <td>Rotation Gene Set Tests</td></tr>
 </table>
 
-<h2><a name="N">-- N --</a></h2>
+<h2><a id="N">-- N --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="nec.html">nec</a></td>
 <td>NormExp Background Correction and Normalization Using Control Probes</td></tr>
 <tr><td style="width: 25%;"><a href="nec.html">neqc</a></td>
@@ -488,9 +493,9 @@
 <td>Expected Signal Given Observed Foreground Under Normal+Exp Model</td></tr>
 </table>
 
-<h2><a name="P">-- P --</a></h2>
+<h2><a id="P">-- P --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="plotDensities.html">plotDensities</a></td>
 <td>Plot Expression Densities</td></tr>
 <tr><td style="width: 25%;"><a href="plotDensities.html">plotDensities.default</a></td>
@@ -587,9 +592,9 @@
 <td>Protect Metacharacters</td></tr>
 </table>
 
-<h2><a name="Q">-- Q --</a></h2>
+<h2><a id="Q">-- Q --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="qqt.html">qqf</a></td>
 <td>Student's t or Fisher's F Quantile-Quantile Plot</td></tr>
 <tr><td style="width: 25%;"><a href="qqt.html">qqt</a></td>
@@ -598,9 +603,9 @@
 <td>Spot Quality Weights for Spotted Microarrays</td></tr>
 </table>
 
-<h2><a name="R">-- R --</a></h2>
+<h2><a id="R">-- R --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="rankSumTestwithCorrelation.html">rankSumTestWithCorrelation</a></td>
 <td>Two Sample Wilcoxon-Mann-Whitney Rank Sum Test Allowing For Correlation</td></tr>
 <tr><td style="width: 25%;"><a href="cbind.html">rbind.EList</a></td>
@@ -614,7 +619,7 @@
 <tr><td style="width: 25%;"><a href="read.columns.html">read.columns</a></td>
 <td>Read specified columns from a file</td></tr>
 <tr><td style="width: 25%;"><a href="read.idat.html">read.idat</a></td>
-<td>Read Illumina expression data directly from IDAT files</td></tr>
+<td>Read Illumina expression data from IDAT files</td></tr>
 <tr><td style="width: 25%;"><a href="read.ilmn.html">read.ilmn</a></td>
 <td>Read Illumina Expression Data</td></tr>
 <tr><td style="width: 25%;"><a href="read.ilmn.targets.html">read.ilmn.targets</a></td>
@@ -659,9 +664,11 @@
 <td>Rotation Gene Set Enrichment Analysis</td></tr>
 </table>
 
-<h2><a name="S">-- S --</a></h2>
+<h2><a id="S">-- S --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="sampleInfoFromGEO.html">sampleInfoFromGEO</a></td>
+<td>Read Sample Characteristics From GEO Series Matrix File</td></tr>
 <tr><td style="width: 25%;"><a href="selectmodel.html">selectModel</a></td>
 <td>Select Appropriate Linear Model</td></tr>
 <tr><td style="width: 25%;"><a href="LargeDataObject.html">show-method</a></td>
@@ -681,9 +688,9 @@
 <tr><td style="width: 25%;"><a href="strsplit2.html">strsplit2</a></td>
 <td>Split Composite Names</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">subsetListOfArrays</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">subsetting</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="summary.html">summary.EList</a></td>
 <td>Summaries of Microarray Data Objects</td></tr>
 <tr><td style="width: 25%;"><a href="summary.html">summary.EListRaw</a></td>
@@ -698,9 +705,9 @@
 <td>Matrix of Test Results - class</td></tr>
 </table>
 
-<h2><a name="T">-- T --</a></h2>
+<h2><a id="T">-- T --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="head.html">tail.EList</a></td>
 <td>Return the First to Last Part of a Data Object</td></tr>
 <tr><td style="width: 25%;"><a href="head.html">tail.EListRaw</a></td>
@@ -731,8 +738,6 @@
 <td>Top table of differentially spliced genes or exons</td></tr>
 <tr><td style="width: 25%;"><a href="toptable.html">topTable</a></td>
 <td>Table of Top Genes from Linear Model Fit</td></tr>
-<tr><td style="width: 25%;"><a href="toptable.html">toptable</a></td>
-<td>Table of Top Genes from Linear Model Fit</td></tr>
 <tr><td style="width: 25%;"><a href="toptable.html">topTableF</a></td>
 <td>Table of Top Genes from Linear Model Fit</td></tr>
 <tr><td style="width: 25%;"><a href="toptable.html">topTreat</a></td>
@@ -749,9 +754,9 @@
 <td>Transform t-statistics to standard normal</td></tr>
 </table>
 
-<h2><a name="U">-- U --</a></h2>
+<h2><a id="U">-- U --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="TestResults.html">unique.TestResults</a></td>
 <td>Matrix of Test Results - class</td></tr>
 <tr><td style="width: 25%;"><a href="uniquegenelist.html">uniquegenelist</a></td>
@@ -762,9 +767,9 @@
 <td>Unwrap Duplicate Spot Values from Rows into Columns</td></tr>
 </table>
 
-<h2><a name="V">-- V --</a></h2>
+<h2><a id="V">-- V --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="venn.html">vennCounts</a></td>
 <td>Venn Diagrams</td></tr>
 <tr><td style="width: 25%;"><a href="venn.html">vennDiagram</a></td>
@@ -781,13 +786,13 @@
 <td>Combining observational-level with sample-specific quality weights for RNA-seq analysis</td></tr>
 </table>
 
-<h2><a name="W">-- W --</a></h2>
+<h2><a id="W">-- W --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="weightedmedian.html">weighted.median</a></td>
 <td>Weighted Median</td></tr>
 <tr><td style="width: 25%;"><a href="weightedLowess.html">weightedLowess</a></td>
-<td>Lowess fit with weighting</td></tr>
+<td>LOWESS Smoother with Prior Weights</td></tr>
 <tr><td style="width: 25%;"><a href="geneSetTest.html">wilcoxGST</a></td>
 <td>Mean-rank Gene Set Test</td></tr>
 <tr><td style="width: 25%;"><a href="writefit.html">write.fit</a></td>
@@ -802,9 +807,9 @@
 <td>Spot Quality Weights for Spotted Microarrays</td></tr>
 </table>
 
-<h2><a name="Z">-- Z --</a></h2>
+<h2><a id="Z">-- Z --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="zscore.html">zscore</a></td>
 <td>Transform non-normal random deviates to standard normal</td></tr>
 <tr><td style="width: 25%;"><a href="zscore.html">zscoreGamma</a></td>
@@ -815,9 +820,9 @@
 <td>Transform t-statistics to standard normal</td></tr>
 </table>
 
-<h2><a name="misc">-- misc --</a></h2>
+<h2><a id="misc">-- misc --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="01Introduction.html">01.Introduction</a></td>
 <td>Introduction to the LIMMA Package</td></tr>
 <tr><td style="width: 25%;"><a href="02classes.html">02.Classes</a></td>
@@ -841,16 +846,16 @@
 <tr><td style="width: 25%;"><a href="11RNAseq.html">11.RNAseq</a></td>
 <td>Topic: Analysis of RNA-seq Data</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.EList</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.EListRaw</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.MAList</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.MArrayLM</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.RGList</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting.html">[.TestResults</a></td>
-<td>Subset RGList, MAList, EListRaw, EList or MArrayLM Objects</td></tr>
+<td>Subset RGList, MAList, EListRaw, EList, MArrayLM or TestResults Objects</td></tr>
 </table>
-</body></html>
+</div></body></html>

@@ -1,2 +1,6 @@
-JDEoptim                Nonlinear Constrained and Unconstrained
-                        Optimization via Differential Evolution
+JDEoptim                Bound-Constrained and Nonlinear Constrained
+                        Single-Objective Optimization via Differential
+                        Evolution
+NCDEoptim               Bound-Constrained and Nonlinear Constrained
+                        Multimodal Optimization via Differential
+                        Evolution

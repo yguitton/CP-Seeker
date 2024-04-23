@@ -6,10 +6,11 @@ RGB                     Create RGB Colors
 USSouthPolygon          Polygon for County Map of US South States:
                         Alabama, Georgia, and South Carolina
 XYZ                     Create XYZ Colors
-adjust_transparency     Adjust Transparency of Colors
+adjust_transparency     Adjust or Extract Transparency of Colors
 choose_palette          Graphical User Interface for Choosing HCL Color
                         Palettes
 color-class             Class "color"
+contrast_ratio          W3C Contrast Ratio
 coords                  Extract the Numerical Coordinates of a Color
 cvd                     Color Vision Deficiency (CVD) Conversion Tables
 cvd_emulator            Graphical User Interface to Check Images for

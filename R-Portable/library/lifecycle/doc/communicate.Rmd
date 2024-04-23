@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 options(
   # Pretend we're in the lifecycle package
   "lifecycle:::calling_package" = "lifecycle",
-  # suppress last_warnings() message by default
+  # suppress last_lifecycle_warnings() message by default
   "lifecycle_verbosity" = "warning"
 )
 ```
@@ -69,7 +69,7 @@ Briefly describe why the deprecation occurred and what to use instead.
 #' Add two numbers
 #' 
 #' @description
-#' `r lifecycle::badge("deprecated")
+#' `r lifecycle::badge("deprecated")`
 #' 
 #' This function was deprecated because we realised that it's
 #' a special case of the [sum()] function.
@@ -128,7 +128,7 @@ add_two(1, 2)
 It's good practice to test that you've correctly implemented the deprecation, testing that the deprecated function still works and that it generates a useful warning.
 Using an expectation inside `testthat::expect_snapshot()`[^2] is a convenient way to do this:
 
-[^2]: You can learn more about snapshot testing in `vignette("snapshot", package = "testthat")`.
+[^2]: You can learn more about snapshot testing in `vignette("snapshotting", package = "testthat")`.
 
 ```{r, eval = FALSE}
 test_that("add_two is deprecated", {
@@ -160,11 +160,11 @@ test_that("add_two is deprecated", {
 
 For particularly important functions, you can choose to add two other stages to the deprecation process:
 
--   `deprecated_soft()` is used before `deprecated_warn()`.
+-   `deprecate_soft()` is used before `deprecate_warn()`.
     This function only warns (a) users who try the feature from the global environment and (b) developers who directly use the feature (when running testthat tests).
     There is no warning when the deprecated feature is called indirectly by another package --- the goal is to ensure that warn only the person who has the power to stop using the deprecated feature.
 
--   `deprecated_stop()` comes after `deprecated_warn()` and generates an error instead of a warning.
+-   `deprecate_stop()` comes after `deprecate_warn()` and generates an error instead of a warning.
     The main benefit over simply removing the function is that the user is informed about the replacement.
 
 If you use these stages you'll also need a process for bumping the deprecation stage for major and minor releases.
@@ -185,7 +185,7 @@ To rename a function without breaking existing code, move the implementation to 
 #' Add two numbers
 #' 
 #' @description 
-#' `r lifecycle::badge(deprecated)`
+#' `r lifecycle::badge("deprecated")`
 #' 
 #' `add_two()` was renamed to `number_add()` to create a more
 #' consistent API.
@@ -343,8 +343,10 @@ add_two <- function(x, y, na_rm = TRUE, na.rm = deprecated()) {
     na_rm <- na.rm
   }
   
-  add_two(x, y, na.rm = na_rm)
+  sum(x, y, na.rm = na_rm)
 }
+
+add_two(1, NA, na.rm = TRUE)
 ```
 
 ### Reducing allowed inputs to an argument
@@ -364,3 +366,22 @@ add_two <- function(x, y) {
 add_two(1, 2)
 add_two(1, 1:5)
 ```
+
+## Anything else
+
+You can wrap `what` and `with` in `I()` to deprecate behaviours not otherwise described above:
+
+```{r}
+lifecycle::deprecate_warn(
+  when = "1.0.0",
+  what = I('Setting the global option "pkg.opt" to "foo"')
+)
+
+lifecycle::deprecate_warn(
+  when = "1.0.0",
+  what = I('The global option "pkg.another_opt"'),
+  with = I('"pkg.this_opt"')
+)
+```
+
+Note that your `what` fragment needs to make sense with "was deprecated ..." added to the end, and your `with` fragment needs to make sense in the sentence "Please use `{with}` instead".

@@ -1,8 +1,8 @@
-Chromatogram-class      Representation of chromatographic MS data
-Chromatograms-class     Container for multiple Chromatogram objects
+Chromatogram            Representation of chromatographic MS data
 FeatComp-class          Class '"FeatComp"'
 FeaturesOfInterest-class
                         Features of Interest
+MChromatograms          Container for multiple Chromatogram objects
 MIAPE-class             The "MIAPE" Class for Storing Proteomics
                         Experiment Information
 MSmap-class             Class 'MSmap'
@@ -12,12 +12,12 @@ MSnSet-class            The "MSnSet" Class for MS Proteomics Expression
                         Data and Meta-Data
 MSnSetList-class        Storing multiple related MSnSets
 MSnbaseOptions          MSnbase options
+MSpectra                List of Spectrum objects along with annotations
 MzTab-class             Parse 'MzTab' files
 OnDiskMSnExp-class      The 'OnDiskMSnExp' Class for MS Data And
                         Meta-Data
 ProcessingStep-class    Simple processing step class
 ReporterIons-class      The "ReporterIons" Class
-Spectra                 List of Spectrum objects along with annotations
 Spectrum-class          The "Spectrum" Class
 Spectrum1-class         The "Spectrum1" Class for MS1 Spectra
 Spectrum2-class         The "Spectrum2" Class for MSn Spectra
@@ -50,10 +50,11 @@ estimateMzResolution,MSnExp-method
 estimateMzScattering    Estimate m/z scattering in consecutive scans
 estimateNoise-methods   Noise Estimation for 'Spectrum' instances
 expandFeatureVars       Expand or merge feature variables
-exprsToRatios-methods   Calculate all ratio pairs
 extractPrecSpectra-methods
                         Extracts precursor-specific spectra from an
                         'MSnExp' object
+extractSpectraData      Extract data from MSnbase objects for use in
+                        Spectra
 factorsAsStrings        Converts factors to strings
 featureCV               Calculates coeffivient of variation for
                         features
@@ -71,7 +72,7 @@ iPQF                    iPQF: iTRAQ (and TMT) Protein Quantification
                         based on Features
 iTRAQ4                  iTRAQ 4-plex set
 imageNA2                NA heatmap visualisation for 2 groups
-impute-methods          Quantitative proteomics data imputation
+impute,MSnSet-method    Quantitative proteomics data imputation
 isCentroidedFromFile    Get mode from mzML data file
 itraqdata               Example 'MSnExp' and 'MSnSet' data sets
 listOf                  Tests equality of list elements class
@@ -127,3 +128,4 @@ updateObject,MSnExp-method
 writeMSData,MSnExp,character-method
                         Write MS data to mzML or mzXML files
 writeMgfData-methods    Write an experiment or spectrum to an mgf file
+writeMzTabData          Export an MzTab object as mzTab file.

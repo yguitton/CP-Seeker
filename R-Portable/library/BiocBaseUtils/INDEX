@@ -1,0 +1,6 @@
+                        BiocBaseUtils: Utility and Internal functions
+                        for Bioconductor packages
+Assertions              Suite of helper functions to test for types
+selectSome              Select and return only some entries from a
+                        vector
+setSlots                Convenience function to set slot values

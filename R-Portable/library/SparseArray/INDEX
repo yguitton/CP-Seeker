@@ -1,0 +1,29 @@
+COO_SparseArray-class   COO_SparseArray objects
+SVT_SparseArray-class   SVT_SparseArray objects
+SparseArray             SparseArray objects
+SparseArray-Complex-methods
+                        'Complex' methods for SparseArray objects
+SparseArray-Math-methods
+                        'Math' and 'Math2' methods for SparseArray
+                        objects
+SparseArray-Ops-methods
+                        'Ops' methods for SparseArray objects
+SparseArray-abind       Combine multidimensional SparseArray objects
+SparseArray-aperm       SparseArray transposition
+SparseArray-dim-tuning
+                        Add/drop ineffective dims to/from a SparseArray
+                        object
+SparseArray-misc-methods
+                        Miscellaneous operations on a SparseArray
+                        object
+SparseArray-subassignment
+                        SparseArray subassignment
+SparseArray-subsetting
+                        Subsetting a SparseArray object
+SparseArray-summarization
+                        SparseArray summarization methods
+SparseMatrix-mult       SparseMatrix multiplication and cross-product
+matrixStats-methods     SparseArray col/row summarization methods
+randomSparseArray       Random SparseArray object
+readSparseCSV           Read/write a sparse matrix from/to a CSV file
+rowsum-methods          rowsum() methods for sparse matrices

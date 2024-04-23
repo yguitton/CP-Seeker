@@ -5,26 +5,27 @@ Ontology                Generic Ontology getter
 S3-classes-as-S4-classes
                         S3 classes as S4 classes
 annotation              Accessing annotation information
+aperm                   Transposing an array-like object
 append                  Append elements to a vector-like object
-as.data.frame           Coerce an object into a data frame
+as.data.frame           Coerce to a data frame
+as.list                 Coerce to a list
 as.vector               Coerce an object into a vector
 boxplot                 Box plots
 cbind                   Combine objects by rows or columns
-clusterApply            Apply operations using clusters
-colSums                 Form Row and Column Sums and Means
 combine                 Combining or merging different Bioconductor
                         data structures
-conditions              Accessors and generic functions used in the
-                        context of count datasets
 dbconn                  Accessing SQLite DB information
 density                 Kernel density estimation
-dims                    Get the dimensions of all elements in a
+dge                     Accessors and generic functions used in the
+                        context of count datasets
+dims                    Get the dimensions of each element of a
                         list-like object
 do.call                 Execute a function call
 duplicated              Determine duplicate elements
 eval                    Evaluate an (unevaluated) expression
 evalq                   Evaluate an (unevaluated) expression
 fileName                Accessing the file name of an object
+format                  Format an R object for pretty printing
 funprog                 Common higher-order functions in functional
                         programming languages
 get                     Return the value of a named object
@@ -61,7 +62,7 @@ start                   The start(), end(), width(), and pos() generic
 strand                  Accessing strand information
 subset                  Subsetting vector-like, matrix-like and
                         data-frame-like objects
-t                       Matrix Transponse
+t                       Matrix Transpose
 table                   Cross tabulation and table creation
 tapply                  Apply a function over a ragged array
 testPackage             Run RUnit package unit tests
@@ -74,5 +75,7 @@ updateObject            Update an object to its current class
                         definition
 var                     Variance and Standard Deviation
 weights                 Extract model weights
-which                   Subscript generators
+which                   Which values in an object are considered TRUE?
+which.min               What's the index of the first min or max value
+                        in an object?
 xtabs                   Cross tabulation

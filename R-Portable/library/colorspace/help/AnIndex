@@ -11,6 +11,7 @@ coerce,color,RGB-method	color-class
 coerce,color,sRGB-method	color-class
 coerce,color,XYZ-method	color-class
 color-class	color-class
+contrast_ratio	contrast_ratio
 coords	coords
 coords,color-method	color-class
 cvd	cvd
@@ -28,6 +29,7 @@ divergingx_hcl	divergingx_hcl
 divergingx_palettes	divergingx_hcl
 diverging_hcl	hcl_palettes
 diverging_hsv	rainbow_hcl
+extract_transparency	adjust_transparency
 HCL	polarLUV
 hclcolorpicker	hcl_color_picker
 hclplot	hclplot

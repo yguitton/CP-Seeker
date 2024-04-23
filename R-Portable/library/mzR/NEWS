@@ -1,3 +1,98 @@
+CHANGES IN VERSION 2.35.1
+-------------------------
+ o fix compilation on Fedora 38 / R-4.3.0. Thanks to Christian Iseli! Closes #282
+
+CHANGES IN VERSION 2.33.1
+-------------------------
+ o fix: update to a new PSI-MS OBO for e.g. ZenoTOF CV term
+   Closes #278
+
+CHANGES IN VERSION 2.29.1
+-------------------------
+ o fix: read full spectra data in get3DMap
+   Closes #269.
+
+CHANGES IN VERSION 2.27.6
+-------------------------
+ o Only export certain spectra header parameters if their values are not NA.
+   Closes #266.
+
+CHANGES IN VERSION 2.27.5
+-------------------------
+ o `peaks` method for pwiz backend sets colnames on returned matrices.
+
+CHANGES IN VERSION 2.29.4
+-------------------------
+ o Re-apply fix for compile error on clang by Kurt Hornik, closes #263
+ o Remove text in DESCRIPTION hinting at the RAMP wrapper for mzData removed in 2.29.3
+
+CHANGES IN VERSION 2.29.3
+-------------------------
+ o Update to Proteowizard 3_0_21263
+ o Removed RAMP backend, dropping ability to read mzData
+ o header always returns a data.frame even for a single scan.
+
+CHANGES IN VERSION 2.29.2
+-------------------------
+ o Cleanup in build files
+
+CHANGES IN VERSION 2.29.1
+-------------------------
+ o Pwiz backend partially re-written to avoid segfault on macOS
+   (https://github.com/sneumann/xcms/issues/422).
+
+CHANGES IN VERSION 2.27.2
+-------------------------
+ o Remove support for the ramp backend.
+
+CHANGES IN VERSION 2.27.1
+-------------------------
+ o Add missing atomic_count_sync.hpp BH file (see PR #248 by vjcitn)
+
+CHANGES IN VERSION 2.27.0
+-------------------------
+ o New Bioc devel version
+
+CHANGES IN VERSION 2.25.5
+-------------------------
+ o Fix compile error on clang-11 reported (and fixed!) by Kurt Hornik, closes #244
+
+CHANGES IN VERSION 2.25.4
+-------------------------
+ o Add dependency "rmarkdown" to "suggests:"
+
+CHANGES IN VERSION 2.25.3
+-------------------------
+ o Ensure `header` for CDF returns columns with correct data type.
+
+CHANGES IN VERSION 2.25.2
+-------------------------
+ o Fix issue #238: ensure `header` call returns the same columns for all
+   backends.
+
+CHANGES IN VERSION 2.25.1
+-------------------------
+ o Bump version to trigger new build using latest Rcpp
+
+CHANGES IN VERSION 2.25.0
+-------------------------
+ o New Bioc devel version
+
+CHANGES IN VERSION 2.21.2
+-------------------------
+ o Update email address
+
+CHANGES IN VERSION 2.21.1
+-------------------------
+ o inject a new PSI-MS.obo controlled vocabulary
+   data-version: 4.1.30
+   date: 30:08:2019 16:10
+   saved-by: Gerhard Mayer
+
+CHANGES IN VERSION 2.19.7
+-------------------------
+ o Fix compile error on Windows + Mac (Thanks Mike!)
+
 CHANGES IN VERSION 2.19.6
 -------------------------
  o header for the pwiz backend returns NA instead of 0 for not defined or
@@ -6,7 +101,7 @@ CHANGES IN VERSION 2.19.6
    <2019-09-26 Thu>.
 
 CHANGES IN VERSION 2.19.5
--------------------------   
+-------------------------
  o version bump to force build with latest Rcpp
 
 CHANGES IN VERSION 2.19.4

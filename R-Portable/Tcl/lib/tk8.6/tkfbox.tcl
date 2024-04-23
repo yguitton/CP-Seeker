@@ -310,6 +310,7 @@ proc ::tk::dialog::file::Config {dataName type argList} {
 
     # 5. Parse the -filetypes option
     #
+    set data(origfiletypes) $data(-filetypes)
     set data(-filetypes) [::tk::FDGetFileTypes $data(-filetypes)]
 
     if {![winfo exists $data(-parent)]} {
@@ -462,7 +463,7 @@ proc ::tk::dialog::file::Create {w class} {
     wm protocol $w WM_DELETE_WINDOW [list ::tk::dialog::file::CancelCmd $w]
     $data(upBtn)     configure -command [list ::tk::dialog::file::UpDirCmd $w]
     $data(cancelBtn) configure -command [list ::tk::dialog::file::CancelCmd $w]
-    bind $w <KeyPress-Escape> [list $data(cancelBtn) invoke]
+    bind $w <Escape> [list $data(cancelBtn) invoke]
     bind $w <Alt-Key> [list tk::AltKeyInDialog $w %A]
 
     # Set up event handlers specific to File or Directory Dialogs
@@ -580,9 +581,9 @@ proc ::tk::dialog::file::Update {w} {
     # so the user may still click and cause havoc ...
     #
     set entCursor [$data(ent) cget -cursor]
-    set dlgCursor [$w         cget -cursor]
+    set dlgCursor [$w cget -cursor]
     $data(ent) configure -cursor watch
-    $w         configure -cursor watch
+    $w configure -cursor watch
     update idletasks
 
     $data(icons) deleteall
@@ -632,7 +633,7 @@ proc ::tk::dialog::file::Update {w} {
     # turn off the busy cursor.
     #
     $data(ent) configure -cursor $entCursor
-    $w         configure -cursor $dlgCursor
+    $w configure -cursor $dlgCursor
 }
 
 # ::tk::dialog::file::SetPathSilently --
@@ -908,15 +909,15 @@ proc ::tk::dialog::file::VerifyFileName {w filename} {
 	    }
 	}
 	PATH {
-	    tk_messageBox -icon warning -type ok -parent $w \
-		    -message [mc "Directory \"%1\$s\" does not exist." $path]
+	    tk_messageBox -icon warning -type ok -parent $w -message \
+		    [mc "Directory \"%1\$s\" does not exist." $path]
 	    $data(ent) selection range 0 end
 	    $data(ent) icursor end
 	}
 	CHDIR {
 	    tk_messageBox -type ok -parent $w -icon warning -message  \
-		[mc "Cannot change to the directory\
-                     \"%1\$s\".\nPermission denied." $path]
+		    [mc "Cannot change to the directory\
+			\"%1\$s\".\nPermission denied." $path]
 	    $data(ent) selection range 0 end
 	    $data(ent) icursor end
 	}
@@ -1119,7 +1120,8 @@ proc ::tk::dialog::file::Done {w {selectFilePath ""}} {
 	    && [info exists data(filterType)] && $data(filterType) ne ""
 	} then {
 	    upvar #0 $data(-typevariable) typeVariable
-	    set typeVariable [lindex $data(filterType) 0]
+	    set typeVariable [lindex $data(origfiletypes) \
+		    [lsearch -exact $data(-filetypes) $data(filterType)] 0]
 	}
     }
     bind $data(okBtn) <Destroy> {}
@@ -1169,6 +1171,10 @@ proc ::tk::dialog::file::GlobFiltered {dir type {overrideFilter 0}} {
 	    if {$f eq "." || $f eq ".."} {
 		continue
 	    }
+	    # See ticket [1641721], $f might be a link pointing to a dir
+	    if {$type != "d" && [file isdir [file join $dir $f]]} {
+		continue
+	    }
 	    lappend result $f
 	}
     }
@@ -1176,7 +1182,6 @@ proc ::tk::dialog::file::GlobFiltered {dir type {overrideFilter 0}} {
 }
 
 proc ::tk::dialog::file::CompleteEnt {w} {
-    variable showHiddenVar
     upvar ::tk::dialog::file::[winfo name $w] data
     set f [$data(ent) get]
     if {$data(-multiple)} {

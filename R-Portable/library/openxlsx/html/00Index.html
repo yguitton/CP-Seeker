@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Read, Write and Edit xlsx Files</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Read, Write and Edit xlsx Files
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,16 +12,23 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;openxlsx&rsquo; version 4.2.3</h2>
+</div><h2>Documentation for package &lsquo;openxlsx&rsquo; version 4.2.5.2</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
 </ul>
 
 <h2>Help Pages</h2>
 
 
-<table width="100%">
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="if_null_then.html">%||%</a></td>
+<td>If NULL then ...</td></tr>
+<tr><td style="width: 25%;"><a href="activeSheet.html">activeSheet</a></td>
+<td>Get/set active sheet of the workbook</td></tr>
+<tr><td style="width: 25%;"><a href="activeSheet.html">activeSheet&lt;-</a></td>
+<td>Get/set active sheet of the workbook</td></tr>
 <tr><td style="width: 25%;"><a href="addCreator.html">addCreator</a></td>
 <td>Add another author to the meta data of the file.</td></tr>
 <tr><td style="width: 25%;"><a href="addFilter.html">addFilter</a></td>
@@ -33,8 +41,12 @@
 <td>Check equality of workbooks</td></tr>
 <tr><td style="width: 25%;"><a href="all.equal.html">all.equal.Workbook</a></td>
 <td>Check equality of workbooks</td></tr>
+<tr><td style="width: 25%;"><a href="buildWorkbook.html">buildWorkbook</a></td>
+<td>Build Workbook</td></tr>
 <tr><td style="width: 25%;"><a href="cloneWorksheet.html">cloneWorksheet</a></td>
 <td>Clone a worksheet to a workbook</td></tr>
+<tr><td style="width: 25%;"><a href="col2int.html">col2int</a></td>
+<td>Convert Excel column to integer</td></tr>
 <tr><td style="width: 25%;"><a href="conditionalFormat.html">conditionalFormat</a></td>
 <td>Add conditional formatting to cells</td></tr>
 <tr><td style="width: 25%;"><a href="conditionalFormatting.html">conditionalFormatting</a></td>
@@ -49,8 +61,8 @@
 <td>Copy a Workbook object.</td></tr>
 <tr><td style="width: 25%;"><a href="createComment.html">createComment</a></td>
 <td>create a Comment object</td></tr>
-<tr><td style="width: 25%;"><a href="createNamedRegion.html">createNamedRegion</a></td>
-<td>Create a named region.</td></tr>
+<tr><td style="width: 25%;"><a href="NamedRegion.html">createNamedRegion</a></td>
+<td>Create / delete a named region.</td></tr>
 <tr><td style="width: 25%;"><a href="createStyle.html">createStyle</a></td>
 <td>Create a cell style</td></tr>
 <tr><td style="width: 25%;"><a href="createWorkbook.html">createWorkbook</a></td>
@@ -61,6 +73,8 @@
 <td>Add data validation to cells</td></tr>
 <tr><td style="width: 25%;"><a href="deleteData.html">deleteData</a></td>
 <td>Delete cell data</td></tr>
+<tr><td style="width: 25%;"><a href="NamedRegion.html">deleteNamedRegion</a></td>
+<td>Create / delete a named region.</td></tr>
 <tr><td style="width: 25%;"><a href="freezePane.html">freezePane</a></td>
 <td>Freeze a worksheet pane</td></tr>
 <tr><td style="width: 25%;"><a href="getBaseFont.html">getBaseFont</a></td>
@@ -83,6 +97,8 @@
 <td>Group columns</td></tr>
 <tr><td style="width: 25%;"><a href="groupRows.html">groupRows</a></td>
 <td>Group Rows</td></tr>
+<tr><td style="width: 25%;"><a href="if_null_then.html">if_null_then</a></td>
+<td>If NULL then ...</td></tr>
 <tr><td style="width: 25%;"><a href="insertImage.html">insertImage</a></td>
 <td>Insert an image into a worksheet</td></tr>
 <tr><td style="width: 25%;"><a href="insertPlot.html">insertPlot</a></td>
@@ -103,10 +119,22 @@
 <td>get or set worksheet names</td></tr>
 <tr><td style="width: 25%;"><a href="names.html">names&lt;-.Workbook</a></td>
 <td>get or set worksheet names</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsx_options.html">op.openxlsx</a></td>
+<td>openxlsx Options</td></tr>
 <tr><td style="width: 25%;"><a href="openXL.html">openXL</a></td>
 <td>Open a Microsoft Excel file (xls/xlsx) or an openxlsx Workbook</td></tr>
 <tr><td style="width: 25%;"><a href="openxlsx.html">openxlsx</a></td>
 <td>xlsx reading, writing and editing.</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsxFontSizeLookupTable.html">openxlsxFontSizeLookupTable</a></td>
+<td>Font Size Lookup tables</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsxFontSizeLookupTable.html">openxlsxFontSizeLookupTableBold</a></td>
+<td>Font Size Lookup tables</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsx_options.html">openxlsx_getOp</a></td>
+<td>openxlsx Options</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsx_options.html">openxlsx_options</a></td>
+<td>openxlsx Options</td></tr>
+<tr><td style="width: 25%;"><a href="openxlsx_options.html">openxlsx_setOp</a></td>
+<td>openxlsx Options</td></tr>
 <tr><td style="width: 25%;"><a href="pageBreak.html">pageBreak</a></td>
 <td>add a page break to a worksheet</td></tr>
 <tr><td style="width: 25%;"><a href="pageSetup.html">pageSetup</a></td>
@@ -163,6 +191,8 @@
 <td>Get worksheet visible state.</td></tr>
 <tr><td style="width: 25%;"><a href="showGridLines.html">showGridLines</a></td>
 <td>Set worksheet gridlines to show or hide.</td></tr>
+<tr><td style="width: 25%;"><a href="temp_xlsx.html">temp_xlsx</a></td>
+<td>helper function to create tempory directory for testing purpose</td></tr>
 <tr><td style="width: 25%;"><a href="ungroupColumns.html">ungroupColumns</a></td>
 <td>Ungroup Columns</td></tr>
 <tr><td style="width: 25%;"><a href="ungroupRows.html">ungroupRows</a></td>
@@ -182,4 +212,4 @@
 <tr><td style="width: 25%;"><a href="writeFormula.html">writeFormula</a></td>
 <td>Write a character vector as an Excel Formula</td></tr>
 </table>
-</body></html>
+</div></body></html>

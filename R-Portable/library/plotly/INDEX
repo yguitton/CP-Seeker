@@ -39,7 +39,7 @@ last_plot               Retrieve the last plot to be modified or
 layout                  Modify the layout of a plotly visualization
 mic                     Mic data
 offline                 Plotly Offline
-orca                    Static image exporting
+orca                    Static image exporting via orca
 partial_bundle          Use a partial bundle of plotly.js
 plot_dendro             Plot an interactive dendrogram
 plot_geo                Initiate a plotly-geo object
@@ -63,6 +63,7 @@ raster2uri              Encode a raster object as a data URI
 remove_typedarray_polyfill
                         Remove TypedArray polyfill
 res_mn                  Minnesotan Indian Reservation Lands
+save_image              Save plot as a static image
 schema                  Acquire (and optionally display) plotly's plot
                         schema
 showRGB                 View colors already formatted by toRGB()

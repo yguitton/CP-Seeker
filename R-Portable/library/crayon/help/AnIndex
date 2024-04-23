@@ -22,6 +22,7 @@ combine_styles	combine_styles
 concat	concat
 crayon	crayon
 cyan	crayon
+detect_tty_colors	num_ansi_colors
 drop_style	drop_style
 finish	start.crayon
 finish.crayon	start.crayon

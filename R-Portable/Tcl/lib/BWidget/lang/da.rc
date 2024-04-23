@@ -7,8 +7,8 @@
 
 ! --- symbolic names of buttons -----------------------------------------------
 
-*abortName:   &Annull�r
-*retryName:   P&r�v igen
+*abortName:   &Annullér
+*retryName:   P&røv igen
 *ignoreName:  &Ignorer
 *okName:      &OK
 *cancelName:  &Cancel
@@ -23,9 +23,10 @@
 *underlineName:     Understreg
 *overstrikeName:    Overstreg
 *fontName:          &Font
-*sizeName:          &St�rrelse
+*sizeName:          &Størrelse
 *styleName:         St&il
 *colorPickerName:   F&arve...
+
 
 ! --- symbolic names of label of PasswdDlg dialog -----------------------------
 
@@ -36,17 +37,16 @@
 ! --- resource for SelectFont dialog ------------------------------------------
 
 *SelectFont.title:	    Font-valg
-*SelectFont.sampletext:	    Eksempeltekst ���
+*SelectFont.sampletext:	    Eksempeltekst æøå
 
 
 ! --- resource for MessageDlg dialog ------------------------------------------
 
 *MessageDlg.noneTitle:      Besked
 *MessageDlg.infoTitle:      Information
-*MessageDlg.questionTitle:  Sp�rgsm�l
+*MessageDlg.questionTitle:  Spørgsmål
 *MessageDlg.warningTitle:   Advarsel
 *MessageDlg.errorTitle:     Fejl
-
 
 ! --- resource for PasswdDlg dialog -------------------------------------------
 
@@ -54,6 +54,14 @@
 
 ! --- symbolic names of label of SelectColor dialog ----------------------------
 
-*baseColorsName: Base colors
-*userColorsName: User colors
+*baseColorsName: Grundfarver
+*userColorsName: Brugerdefinerede farver
 
+*yourSelectionName: Dit valg
+*colorSelectorsName: Farvervælger
+
+! --- dynamic help text for SelectColor dialog.  Lines 75 chars max, split by '\n'.
+
+*mouseHelpTextName: Klik eller træk musen i farvervælgeren for at vælge en farve.\nHvis den valgte farve altid er sort, uanset værdierne til venstre,\ntjek intensitetsværdien til højere.\n\nKlik en af "grundfarverne" for at aflæse værdierne fra paletten,\neller for at tildele en, hvis farven er sort.  Hvis du efterfølgende\nbruger farvevælgeren til at ændre en farver, gemmes ændringen under\nbrugerdefinerede farver indtil en ny paletfarve er valgt.
+
+*keyboardHelpTextName: Klik i tekstboksen til venstre i "dit valg" området.\n\nIndtast den ønskede farve i hexadecimalt RGB-format.\nVærdien er gyldig når den består af et antal cifre deleligt med 3,\ni så fald opdateres resten af farvervælgeren.\n\nForlad tekstboksen ved at klikke andetsteds, eller ved at taste\n"Escape" eller "Return". Tekstboksen viser efterfølgende farven i\n24-bit RGB-format, dog arbejder farvevælgeren internt med\n48-bit værdier.\n\nNår tekstboksen ikke har fokus fungerer "Return" og "Escape"\ntasterne lige som henholdsvis "OK" og "Annullér".

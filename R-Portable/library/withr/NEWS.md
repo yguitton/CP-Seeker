@@ -1,3 +1,155 @@
+# withr 3.0.0
+
+## Performance of withr
+
+* `defer()` is now a thin wrapper around `base::on.exit()`. This is
+  possible thanks to two contributions that we made to R 3.5:
+
+  - We added an argument for FIFO cleanup: `on.exit(after = FALSE)`.
+  - Calling `sys.on.exit()` elsewhere than top-level didn't work. This
+    is needed for manual invokation with `deferred_run()`.
+
+  Following this change, `defer()` is now much faster (although still
+  slower than `on.exit()` which is a primitive function and about as
+  fast as it gets). This also increases the compatibility of `defer()`
+  with `on.exit()` (all handlers are now run in the expected order
+  even if they are registered with `on.exit()`) and standalone
+  versions of `defer()`.
+
+
+## Breaking change
+
+* When `source()` is used with a local environment, as opposed to
+  `globalenv()` (the default), you now need to set
+  `options(withr.hook_source = TRUE)` to get proper withr support
+  (running `defer()` or `local_` functions at top-level of a script).
+  THis support is disabled by default in local environments to avoid a
+  performance penalty in normal usage of withr features.
+
+
+## Other features and bugfixes
+
+* `deferred_run()` now reports the number of executed expressions with
+  a message.
+
+* `deferred_run()` can now be run at any point in a knitr file (#235).
+
+,* `local_tempfile()` now writes `lines` in UTF-8 (#210) and always uses 
+  `\n` for newlines (#216).
+
+* `local_pdf()` and friends now correctly restore to the previously 
+  active device (#138).
+
+* `local_()` now works even if withr isn't attached (#207).
+
+* `local_par()` and `with_par()` now work if you don't set any parameters
+  (#238).
+
+* `with_language()` now properly resets the translation cache (#213).
+
+* Fixes for Debian packaging.
+
+
+# withr 2.5.2
+
+* Fixes for CRAN checks.
+
+
+# withr 2.5.1
+
+* Fixes for CRAN checks.
+
+
+# withr 2.5.0
+
+* `defer()` and all `local_*()` functions now work when run inside of
+  a `.Rmd`. The deferred expressions are executed when knitr exits.
+
+* `defer()` and `local_` functions now work within `source()`.
+  The deferred expressions are executed when `source()` exits.
+
+* `with_()` and `local_()` gain a `get` argument. Supply a getter
+  function to create `with` and `local` functions that are robust to
+  early exits.
+
+  When supplied, this restoration pattern is used:
+
+  ```
+  old <- get()
+  on.exit(set(old))
+  set(new)
+  action()
+  ```
+
+  Instead of:
+
+  ```
+  old <- set(new)
+  on.exit(set(old))
+  action()
+  ```
+
+  This ensures proper restoration of the old state when an early exit
+  occurs during `set()` (for instance when a deprecation warning is
+  caught, see #191).
+
+* These `with_` and `local_` functions are now robust to early exits (see next bullet):
+
+  - `_locale()`
+  - `_envvar()`
+  - `_libpaths()`
+  - `_options()`
+  - `_par()`
+  - `_path()`
+  - `_seed()`
+
+* `with_namespace()` and `local_namespace()` now pass `warn.conflicts`
+  to `attach()` (@kyleam, #185).
+
+* `local_rng_version()` and `local_seed()` no longer warn when
+  restoring `sample.kind` to `"Rounding"` (#167).
+
+* `with_seed()` now preserves the current values of `RNGkind()` (#167).
+
+* `with_collate()` is no longer affected by the `LC_COLLATE`
+  environment variable set to "C" (#179).
+
+* Local evaluations in the `globalenv()` (as opposed to top-level
+  ones) are now unwound in the same way as regular environments.
+
+* `local_tempfile()` gains a lines argument so, if desired, you can pre-fill
+  the temporary file with some data.
+
+
+# withr 2.4.3
+
+* Lionel Henry is the new maintainer.
+
+* Handlers registered with the global environment (as happens when `local_()` 
+  is run at the top-level, outside a function) are now automatically run
+  when the R session ends (#173).
+
+* New `with_language()` and `local_language()` to temporarily control the
+  language used for translations (#180).
+
+* `with_seed()` now caches the check for R version, so is now faster (#170)
+
+* `with_makevars()` and `local_makevars()` now eagerly evaluate the `path` argument (#169)
+
+# withr 2.4.2
+
+- `local_options()` now lets you set an option to `NULL` as intended (#156)
+
+- `local_tempfile()` argument `envir` is deprecated, in favor of `.local_envir`.
+  All withr functions except `local_tempfile()` used `.local_envir` to specify environments, so this makes this function consistent with the rest. (#157)
+
+- `with_environment()` now passing `pos` and `warn.conflicts` to `attach()`, as intended (#161).
+
+- `with_seed()` now also sets the RNG via new arguments `.rng_kind`, `.rng_normal_kind` and `.rng_sample_kind`
+  (#162, @AshesITR).
+
+- `with_timezone()` now works after recent changes to `Sys.timezone()` in R-devel (#165)
+
 # withr 2.4.1
 
 - Tests which require `capabilities("cairo")` are now skipped.

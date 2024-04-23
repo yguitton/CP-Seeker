@@ -1,7 +1,7 @@
 Package: affy
-Version: 1.64.0
+Version: 1.80.0
 Title: Methods for Affymetrix Oligonucleotide Arrays
-Author: Rafael A. Irizarry <rafa@jhu.edu>, Laurent Gautier
+Author: Rafael A. Irizarry <rafa@ds.dfci.harvard.edu>, Laurent Gautier
         <lgautier@gmail.com>, Benjamin Milo Bolstad
         <bmb@bmbolstad.com>, and Crispin Miller
         <cmiller@picr.man.ac.uk> with contributions from Magnus
@@ -10,11 +10,13 @@ Author: Rafael A. Irizarry <rafa@jhu.edu>, Laurent Gautier
         Halling <challing@agilixcorp.com>, Wolfgang Huber, James
         MacDonald <jmacdon@u.washington.edu>, Benjamin I. P. Rubinstein,
         Christopher Workman <workman@cbs.dtu.dk>, John Zhang
-Maintainer: Rafael A. Irizarry <rafa@jhu.edu>
+Maintainer: Robert D. Shear <rshear@ds.dfci.harvard.edu>
+URL: https://bioconductor.org/packages/affy
+BugReports: https://github.com/rafalab/affy/issues
 Depends: R (>= 2.8.0), BiocGenerics (>= 0.1.12), Biobase (>= 2.5.5)
 Imports: affyio (>= 1.13.3), BiocManager, graphics, grDevices, methods,
         preprocessCore, stats, utils, zlibbioc
-Suggests: tkWidgets (>= 1.19.0), affydata, widgetTools
+Suggests: tkWidgets (>= 1.19.0), affydata, widgetTools, hgu95av2cdf
 LinkingTo: preprocessCore
 Description: The package contains functions for exploratory
         oligonucleotide array analysis. The dependence on tkWidgets
@@ -38,11 +40,11 @@ Collate: ProgressBarText.R ppset.ttest.R ppsetApply.R expressoWidget.R
 biocViews: Microarray, OneChannel, Preprocessing
 LazyLoad: yes
 git_url: https://git.bioconductor.org/packages/affy
-git_branch: RELEASE_3_10
-git_last_commit: 82d96e6
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: a0d64df
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:20:27 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 12:36:11 UTC; windows
-Archs: i386, x64
+Packaged: 2023-10-24 22:15:27 UTC; biocbuild
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-25 13:38:14 UTC; windows
+Archs: x64

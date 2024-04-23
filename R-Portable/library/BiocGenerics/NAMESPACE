@@ -2,7 +2,6 @@ import(methods)
 import(utils)
 import(graphics)
 import(stats)
-import(parallel)
 
 exportClasses(
     ## from R/S3-classes-as-S4-classes.R:
@@ -10,7 +9,7 @@ exportClasses(
     file, url, gzfile, bzfile, unz, pipe,
     fifo, sockconn, terminal, textConnection,
     gzcon,
-    characterORconnection,
+    character_OR_connection,
     AsIs,
     #table, xtabs,
     dist
@@ -24,6 +23,9 @@ exportClasses(
 
 ### Generics for functions defined in package base:
 export(
+    ## from R/aperm.R:
+    aperm,
+
     ## from R/append.R:
     append,
 
@@ -37,11 +39,7 @@ export(
     as.vector,
 
     ## from R/cbind.R:
-    cbind, rbind,
-
-    ## from R/colSums.R:
-    colSums, rowSums,
-    colMeans, rowMeans,
+    rbind, cbind,
 
     ## from R/do.call.R:
     do.call,
@@ -55,6 +53,9 @@ export(
     ## from R/Extremes.R:
     pmax, pmin, pmax.int, pmin.int,
 
+    ## from R/format.R:
+    format,
+
     ## from R/funprog.R:
     Reduce, Filter, Find, Map, Position,
 
@@ -66,7 +67,7 @@ export(
 
     ## from R/is.unsorted.R:
     is.unsorted,
- 
+
     ## from R/lapply.R:
     lapply, sapply,
 
@@ -131,8 +132,14 @@ export(
     unsplit,
 
     ## from R/which.R:
-    which, which.max, which.min
+    which,
+
+    ## from R/which.min.R:
+    which.min, which.max
 )
+
+S3method(format, list)
+export(format.list)
 
 ### Generics for functions defined in package utils:
 export(
@@ -173,16 +180,6 @@ export(
     xtabs
 )
 
-### Generics for functions defined in package parallel:
-export(
-    ## from R/clusterApply.R:
-    clusterCall, clusterApply, clusterApplyLB,
-    clusterEvalQ, clusterExport,
-    clusterMap, clusterSplit,
-    parLapply, parSapply, parApply, parRapply, parCapply,
-    parLapplyLB, parSapplyLB
-)
-
 
 ### ==========================================================================
 ### Export Bioconductor specific generics and their methods
@@ -198,8 +195,18 @@ export(
     ## from R/dbconn.R:
     dbconn, dbfile,
 
+    ## from R/dge.R:
+    counts, "counts<-",
+    design, "design<-",
+    dispTable, "dispTable<-",
+    sizeFactors, "sizeFactors<-",
+    conditions, "conditions<-",
+    estimateSizeFactors,
+    estimateDispersions,
+    plotDispEsts,
+
     ## from R/dims.R:
-    dims,
+    dims, nrows, ncols,
 
     ## from R/fileName.R:
     fileName,
@@ -247,23 +254,21 @@ exportMethods(
     ## from R/combine.R:
     combine,
 
-    ## from R/updateObject.R:
-    updateObject,
+    ## from R/path.R:
+    basename, "basename<-",
+    dirname, "dirname<-",
 
-    ## from R/dge.R:
-    counts, "counts<-",
-    design, "design<-",
-    dispTable, "dispTable<-",
-    sizeFactors, "sizeFactors<-",
-    conditions, "conditions<-",
-    estimateSizeFactors, 
-    estimateDispersions,
-    plotDispEsts,
+    ## from R/plotMA.R:
     plotMA,
-    plotPCA,
 
     ## from R/strand.R:
-    invertStrand
+    invertStrand,
+
+    ## from R/type.R:
+    type, "type<-",
+
+    ## from R/updateObject.R:
+    updateObject
 )
 
 

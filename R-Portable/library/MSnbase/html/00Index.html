@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Base Functions and Classes for Mass Spectrometry and Proteomics</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Base Functions and Classes for Mass Spectrometry and Proteomics
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,7 +12,7 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;MSnbase&rsquo; version 2.12.0</h2>
+</div><h2>Documentation for package &lsquo;MSnbase&rsquo; version 2.28.1</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
@@ -46,9 +47,9 @@
 </p>
 
 
-<h2><a name="A">-- A --</a></h2>
+<h2><a id="A">-- A --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">abstract-method</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">abstract-method</a></td>
@@ -57,10 +58,10 @@
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">acquisitionNum-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">acquisitionNum-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">acquisitionNum-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">acquisitionNum-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">acquisitionNum-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">acquisitionNum-method</a></td>
@@ -85,6 +86,10 @@
 <td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="aggvar.html">aggvar</a></td>
 <td>Identify aggregation outliers</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">alignRt-method</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">alignRt-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">all.equal-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">analyser</a></td>
@@ -145,14 +150,14 @@
 <td>Generate an average 'MSnSet'</td></tr>
 </table>
 
-<h2><a name="B">-- B --</a></h2>
+<h2><a id="B">-- B --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="bin-methods.html">bin</a></td>
 <td>Bin 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">bin-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">bin-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">bin-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">bin-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
@@ -168,9 +173,11 @@
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 </table>
 
-<h2><a name="C">-- C --</a></h2>
+<h2><a id="C">-- C --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">c-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="calculateFragments-methods.html">calculateFragments</a></td>
 <td>Calculate ions produced by fragmentation.</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">calculateFragments-method</a></td>
@@ -179,10 +186,10 @@
 <td>Calculate ions produced by fragmentation.</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">centroided</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">centroided-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">centroided-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">centroided-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">centroided-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">centroided-method</a></td>
@@ -203,10 +210,6 @@
 <td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="chromatogram-MSnExp-method.html">chromatogram-method</a></td>
 <td>Extract chromatogram object(s)</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">Chromatograms</a></td>
-<td>Container for multiple Chromatogram objects</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">Chromatograms-class</a></td>
-<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">class:MIAPE</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">class:MSnExp</a></td>
@@ -233,22 +236,22 @@
 <td>Clean 'MSnExp', 'Spectrum' or 'Chromatogram' instances</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">clean-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">clean-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">clean-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">clean-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">clean-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">clean-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">clean-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">clean-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="clean-methods.html">clean-methods</a></td>
 <td>Clean 'MSnExp', 'Spectrum' or 'Chromatogram' instances</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">coerce-method</a></td>
-<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">coerce-method</a></td>
 <td>Features of Interest</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">coerce-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">coerce-method</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">coerce-method</a></td>
@@ -259,12 +262,12 @@
 <td>The "MSnProcess" Class</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">coerce-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">coerce-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="MzTab-class.html">coerce-method</a></td>
 <td>Parse 'MzTab' files</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">coerce-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">coerce-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">coerce-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">coerce-method</a></td>
@@ -273,15 +276,15 @@
 <td>Import peptide-spectrum matches</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">collisionEnergy</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">collisionEnergy-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">collisionEnergy-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">collisionEnergy-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">collisionEnergy-method</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">collisionEnergy-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">colnames&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">colnames&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">combine-method</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
@@ -309,6 +312,12 @@
 <td>Class '"FeatComp"'</td></tr>
 <tr><td style="width: 25%;"><a href="commonFeatureNames.html">commonFeatureNames</a></td>
 <td>Keep only common feature names</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">compareChromatograms</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">compareChromatograms-method</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">compareChromatograms-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="compareMSnSets.html">compareMSnSets</a></td>
 <td>Compare two MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="compareSpectra-methods.html">compareSpectra</a></td>
@@ -331,9 +340,9 @@
 <td>Combine spectra to a consensus spectrum</td></tr>
 </table>
 
-<h2><a name="D">-- D --</a></h2>
+<h2><a id="D">-- D --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="calculateFragments-methods.html">defaultNeutralLoss</a></td>
 <td>Calculate ions produced by fragmentation.</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">description-method</a></td>
@@ -364,9 +373,9 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 </table>
 
-<h2><a name="E">-- E --</a></h2>
+<h2><a id="E">-- E --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="estimateMzResolution.html">estimateMzResolution</a></td>
 <td>Estimate the m/z resolution of a spectrum</td></tr>
 <tr><td style="width: 25%;"><a href="estimateMzResolution.html">estimateMzResolution-method</a></td>
@@ -403,12 +412,6 @@
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">exprs-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="exprsToRatios-methods.html">exprsToRatios</a></td>
-<td>Calculate all ratio pairs</td></tr>
-<tr><td style="width: 25%;"><a href="exprsToRatios-methods.html">exprsToRatios-method</a></td>
-<td>Calculate all ratio pairs</td></tr>
-<tr><td style="width: 25%;"><a href="exprsToRatios-methods.html">exprsToRatios-methods</a></td>
-<td>Calculate all ratio pairs</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">exptitle</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">exptitle-method</a></td>
@@ -425,20 +428,22 @@
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="extractPrecSpectra-methods.html">extractPrecSpectra-methods</a></td>
 <td>Extracts precursor-specific spectra from an 'MSnExp' object</td></tr>
+<tr><td style="width: 25%;"><a href="extractSpectraData.html">extractSpectraData</a></td>
+<td>Extract data from MSnbase objects for use in Spectra</td></tr>
 </table>
 
-<h2><a name="F">-- F --</a></h2>
+<h2><a id="F">-- F --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="factorsAsStrings.html">factorsAsStrings</a></td>
 <td>Converts factors to strings</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">fData-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">fData-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">fData-method</a></td>
 <td>Storing multiple related MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">fData-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">fData&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">fData&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">fData&lt;--method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
@@ -450,19 +455,19 @@
 <td>Class '"FeatComp"'</td></tr>
 <tr><td style="width: 25%;"><a href="featureCV.html">featureCV</a></td>
 <td>Calculates coeffivient of variation for features</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">featureData-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">featureData-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">featureData-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">featureData&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">featureData&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">featureNames-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">featureNames-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">featureNames-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">featureNames-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">featureNames&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">featureNames&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">featureNames&lt;--method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
@@ -506,6 +511,10 @@
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="filterIdentificationDataFrame.html">filterIdentificationDataFrame</a></td>
 <td>Filter out unreliable PSMs.</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">filterIntensity-method</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">filterIntensity-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">filterIsolationWindow</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">filterIsolationWindow-method</a></td>
@@ -516,13 +525,13 @@
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">filterMsLevel-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">filterMsLevel-method</a></td>
+<tr><td style="width: 25%;"><a href="MSpectra.html">filterMsLevel-method</a></td>
 <td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="trimMz-methods.html">filterMz</a></td>
 <td>Trims 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">filterMz-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">filterMz-method</a></td>
+<tr><td style="width: 25%;"><a href="MSpectra.html">filterMz-method</a></td>
 <td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">filterMz-method</a></td>
 <td>The "Spectrum" Class</td></tr>
@@ -584,15 +593,15 @@
 <td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">fromFile-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">fromFile-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">fromFile-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">fromFile-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">fromFile-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">fromFile-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">fvarLabels-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">fvarLabels-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">fvarLabels-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
@@ -600,26 +609,24 @@
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 </table>
 
-<h2><a name="G">-- G --</a></h2>
+<h2><a id="G">-- G --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="get.amino.acids.html">get.amino.acids</a></td>
 <td>Amino acids</td></tr>
 <tr><td style="width: 25%;"><a href="get.atomic.mass.html">get.atomic.mass</a></td>
 <td>Atomic mass.</td></tr>
 <tr><td style="width: 25%;"><a href="grepEcols.html">getEcols</a></td>
 <td>Returns the matching column names of indices.</td></tr>
-<tr><td style="width: 25%;"><a href="exprsToRatios-methods.html">getRatios</a></td>
-<td>Calculate all ratio pairs</td></tr>
 <tr><td style="width: 25%;"><a href="getVariableName.html">getVariableName</a></td>
 <td>Return a variable name</td></tr>
 <tr><td style="width: 25%;"><a href="grepEcols.html">grepEcols</a></td>
 <td>Returns the matching column names of indices.</td></tr>
 </table>
 
-<h2><a name="H">-- H --</a></h2>
+<h2><a id="H">-- H --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="hasSpectraOrChromatograms.html">hasChromatograms</a></td>
 <td>Checks if raw data files have any spectra or chromatograms</td></tr>
 <tr><td style="width: 25%;"><a href="hasSpectraOrChromatograms.html">hasSpectra</a></td>
@@ -632,9 +639,9 @@
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 </table>
 
-<h2><a name="I">-- I --</a></h2>
+<h2><a id="I">-- I --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">idSummary</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">idSummary-method</a></td>
@@ -647,13 +654,7 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="imageNA2.html">imageNA2</a></td>
 <td>NA heatmap visualisation for 2 groups</td></tr>
-<tr><td style="width: 25%;"><a href="impute-methods.html">impute</a></td>
-<td>Quantitative proteomics data imputation</td></tr>
-<tr><td style="width: 25%;"><a href="impute-methods.html">impute-method</a></td>
-<td>Quantitative proteomics data imputation</td></tr>
-<tr><td style="width: 25%;"><a href="impute-methods.html">impute-methods</a></td>
-<td>Quantitative proteomics data imputation</td></tr>
-<tr><td style="width: 25%;"><a href="impute-methods.html">imputeMethods</a></td>
+<tr><td style="width: 25%;"><a href="impute.html">impute-method</a></td>
 <td>Quantitative proteomics data imputation</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">instrumentCustomisations</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
@@ -677,20 +678,20 @@
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">intensity-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">intensity-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">intensity-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">intensity-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">intensity-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">intensity-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">ionCount</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">ionCount-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">ionCount-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">ionCount-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">ionCount-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">ionCount-method</a></td>
@@ -717,19 +718,19 @@
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">isCentroided-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">isCentroided-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">isCentroided-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">isCentroided-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">isCentroided-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="isCentroidedFromFile.html">isCentroidedFromFile</a></td>
 <td>Get mode from mzML data file</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">isEmpty-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">isEmpty-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">isEmpty-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">isEmpty-method</a></td>
+<tr><td style="width: 25%;"><a href="MSpectra.html">isEmpty-method</a></td>
 <td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">isEmpty-method</a></td>
 <td>The "Spectrum" Class</td></tr>
@@ -763,9 +764,9 @@
 <td>Example 'MSnExp' and 'MSnSet' data sets</td></tr>
 </table>
 
-<h2><a name="L">-- L --</a></h2>
+<h2><a id="L">-- L --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">lapply-method</a></td>
 <td>Storing multiple related MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">length</a></td>
@@ -790,9 +791,9 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 </table>
 
-<h2><a name="M">-- M --</a></h2>
+<h2><a id="M">-- M --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="makeCamelCase.html">makeCamelCase</a></td>
 <td>Convert to camel case by replacing dots by captial letters</td></tr>
 <tr><td style="width: 25%;"><a href="purityCorrect-methods.html">makeImpuritiesMatrix</a></td>
@@ -803,6 +804,10 @@
 <td>Create a data with missing values</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">MAplot-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">MChromatograms</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">MChromatograms-class</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="meanMzInts.html">meanMzInts</a></td>
 <td>Combine a list of spectra to a single spectrum</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">meanSdPlot-method</a></td>
@@ -819,6 +824,10 @@
 <td>Documenting missing data visualisation</td></tr>
 <tr><td style="width: 25%;"><a href="missing-data.html">missingdata</a></td>
 <td>Documenting missing data visualisation</td></tr>
+<tr><td style="width: 25%;"><a href="MzTab-class.html">moleculeEvidence</a></td>
+<td>Parse 'MzTab' files</td></tr>
+<tr><td style="width: 25%;"><a href="MzTab-class.html">moleculeFeatures</a></td>
+<td>Parse 'MzTab' files</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">ms2df</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">msInfo</a></td>
@@ -835,10 +844,10 @@
 <td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">msLevel-method</a></td>
 <td>Class 'MSmap'</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">msLevel-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">msLevel-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">msLevel-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">msLevel-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">msLevel-method</a></td>
@@ -877,20 +886,24 @@
 <td>Storing multiple related MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">msnsets</a></td>
 <td>Storing multiple related MSnSets</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">MSpectra</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">MSpectra-class</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">mz</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">mz-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">mz-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">mz-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">mz-method</a></td>
 <td>Class 'MSmap'</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">mz-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">mz-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="ReporterIons-class.html">mz-method</a></td>
 <td>The "ReporterIons" Class</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">mz-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">mz-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">mz-method</a></td>
@@ -909,9 +922,9 @@
 <td>Parse 'MzTab' files</td></tr>
 </table>
 
-<h2><a name="N">-- N --</a></h2>
+<h2><a id="N">-- N --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="FeatComp-class.html">names-method</a></td>
 <td>Class '"FeatComp"'</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">names-method</a></td>
@@ -926,7 +939,7 @@
 <td>Storing multiple related MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="naplot.html">naplot</a></td>
 <td>Overview of missing value</td></tr>
-<tr><td style="width: 25%;"><a href="impute-methods.html">naset</a></td>
+<tr><td style="width: 25%;"><a href="impute.html">naset</a></td>
 <td>Quantitative proteomics data imputation</td></tr>
 <tr><td style="width: 25%;"><a href="navMS.html">navMS</a></td>
 <td>Navigate an 'MSnExp' object</td></tr>
@@ -946,6 +959,10 @@
 <td>Normalisation of 'MSnExp', 'MSnSet' and 'Spectrum' objects</td></tr>
 <tr><td style="width: 25%;"><a href="normalise-methods.html">normalize</a></td>
 <td>Normalisation of 'MSnExp', 'MSnSet' and 'Spectrum' objects</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">normalize-method</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">normalize-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">normalize-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="normalise-methods.html">normalize-method</a></td>
@@ -970,9 +987,9 @@
 <td>Combine peptides into proteins.</td></tr>
 </table>
 
-<h2><a name="O">-- O --</a></h2>
+<h2><a id="O">-- O --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">objlog</a></td>
 <td>Storing multiple related MSnSets</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">OnDiskMSnExp</a></td>
@@ -983,14 +1000,14 @@
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 </table>
 
-<h2><a name="P">-- P --</a></h2>
+<h2><a id="P">-- P --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">pData-method</a></td>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">pData-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">pData-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">pData&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">pData&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">pData&lt;--method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
@@ -998,17 +1015,17 @@
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">peaksCount</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">peaksCount-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">peaksCount-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">peaksCount-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">peaksCount-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">peaksCount-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 <tr><td style="width: 25%;"><a href="MzTab-class.html">peptides-method</a></td>
 <td>Parse 'MzTab' files</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">phenoData-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">phenoData-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">phenoData-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
@@ -1018,10 +1035,10 @@
 <td>Peak Detection for 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">pickPeaks-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">pickPeaks-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">pickPeaks-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">pickPeaks-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">pickPeaks-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pickPeaks-method.html">pickPeaks-methods</a></td>
@@ -1032,7 +1049,7 @@
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">plot-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">plot-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">plot-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">plot-method</a></td>
 <td>Class 'MSmap'</td></tr>
@@ -1082,12 +1099,12 @@
 <td>Exploring missing data in 'MSnSet' instances</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">polarity</a></td>
 <td>The "Spectrum" Class</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">polarity-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">polarity-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">polarity-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">polarity-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">polarity-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">polarity-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">polarity-method</a></td>
@@ -1100,10 +1117,10 @@
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precScanNum</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">precScanNum-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">precScanNum-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">precScanNum-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precScanNum-method</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">precScanNum-method</a></td>
@@ -1114,20 +1131,20 @@
 <td>Number of precursor selection events</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precursorCharge</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">precursorCharge-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">precursorCharge-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">precursorCharge-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precursorCharge-method</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">precursorCharge-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precursorIntensity</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">precursorIntensity-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">precursorIntensity-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">precursorIntensity-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precursorIntensity-method</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">precursorIntensity-method</a></td>
@@ -1136,12 +1153,12 @@
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">precursorMz-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">precursorMz-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">precursorMz-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">precursorMz-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">precursorMz-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">precursorMz-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum2-class.html">precursorMz-method</a></td>
 <td>The "Spectrum2" Class for MSn Spectra</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">precursorMz-method</a></td>
@@ -1160,11 +1177,9 @@
 <td>Simple processing step class</td></tr>
 <tr><td style="width: 25%;"><a href="ProcessingStep-class.html">ProcessingStep:OnDiskMSnExp</a></td>
 <td>Simple processing step class</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatogram-class.html">productMz</a></td>
-<td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">productMz-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">productMz-method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">productMz-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MzTab-class.html">proteins-method</a></td>
 <td>Parse 'MzTab' files</td></tr>
@@ -1190,9 +1205,9 @@
 <td>Performs reporter ions purity correction</td></tr>
 </table>
 
-<h2><a name="Q">-- Q --</a></h2>
+<h2><a id="Q">-- Q --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">qual</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">qual-method</a></td>
@@ -1209,9 +1224,9 @@
 <td>Quantifies 'MSnExp' and 'Spectrum' objects</td></tr>
 </table>
 
-<h2><a name="R">-- R --</a></h2>
+<h2><a id="R">-- R --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="readMgfData.html">readMgfData</a></td>
 <td>Import mgf files as 'MSnExp' instances.</td></tr>
 <tr><td style="width: 25%;"><a href="readMSData.html">readMSData</a></td>
@@ -1250,10 +1265,10 @@
 <td>Removes low intensity peaks</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">removePeaks-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">removePeaks-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">removePeaks-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">removePeaks-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">removePeaks-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="removePeaks-methods.html">removePeaks-methods</a></td>
@@ -1294,7 +1309,7 @@
 <td>Features of Interest</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">rmFeaturesOfInterest-methods</a></td>
 <td>Features of Interest</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">rownames&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">rownames&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">rtime</a></td>
 <td>The "Spectrum" Class</td></tr>
@@ -1302,24 +1317,24 @@
 <td>Representation of chromatographic MS data</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">rtime-method</a></td>
 <td>Class 'MSmap'</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">rtime-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">rtime-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">rtime-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">rtime-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">rtime-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 </table>
 
-<h2><a name="S">-- S --</a></h2>
+<h2><a id="S">-- S --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">sampleNames-method</a></td>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">sampleNames-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">sampleNames-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">sampleNames&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">sampleNames&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">sampleNames&lt;--method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
@@ -1331,10 +1346,10 @@
 <td>Normalisation of 'MSnExp', 'MSnSet' and 'Spectrum' objects</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">scanIndex</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">scanIndex-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">scanIndex-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">scanIndex-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">scanIndex-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">scanIndex-method</a></td>
@@ -1349,12 +1364,12 @@
 <td>MSnbase options</td></tr>
 <tr><td style="width: 25%;"><a href="Chromatogram-class.html">show-method</a></td>
 <td>Representation of chromatographic MS data</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">show-method</a></td>
-<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="FeatComp-class.html">show-method</a></td>
 <td>Class '"FeatComp"'</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">show-method</a></td>
 <td>Features of Interest</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">show-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MIAPE-class.html">show-method</a></td>
 <td>The "MIAPE" Class for Storing Proteomics Experiment Information</td></tr>
 <tr><td style="width: 25%;"><a href="MSmap-class.html">show-method</a></td>
@@ -1367,6 +1382,8 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">show-method</a></td>
 <td>Storing multiple related MSnSets</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">show-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="MzTab-class.html">show-method</a></td>
 <td>Parse 'MzTab' files</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">show-method</a></td>
@@ -1375,8 +1392,6 @@
 <td>Simple processing step class</td></tr>
 <tr><td style="width: 25%;"><a href="ReporterIons-class.html">show-method</a></td>
 <td>The "ReporterIons" Class</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">show-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">show-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="MzTab-class.html">smallMolecules</a></td>
@@ -1385,20 +1400,20 @@
 <td>Smooths 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">smooth-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">smooth-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">smooth-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">smooth-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">smooth-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="smooth-methods.html">smooth-methods</a></td>
 <td>Smooths 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">smoothed</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">smoothed-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">smoothed-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">smoothed-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">smoothed-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">smoothed-method</a></td>
@@ -1411,12 +1426,8 @@
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">smoothed&lt;--method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">Spectra</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">spectra</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">Spectra-class</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">spectra-method</a></td>
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">spectra-method</a></td>
@@ -1449,19 +1460,19 @@
 <td>The 'MSnExp' Class for MS Data And Meta-Data</td></tr>
 </table>
 
-<h2><a name="T">-- T --</a></h2>
+<h2><a id="T">-- T --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="MSmap-class.html">t-method</a></td>
 <td>Class 'MSmap'</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">t.MSnSet</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">tic</a></td>
 <td>The "Spectrum" Class</td></tr>
+<tr><td style="width: 25%;"><a href="MSpectra.html">tic-method</a></td>
+<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">tic-method</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">tic-method</a></td>
-<td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="Spectrum-class.html">tic-method</a></td>
 <td>The "Spectrum" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">tic-method</a></td>
@@ -1476,6 +1487,10 @@
 <td>TMT 6/10-plex sets</td></tr>
 <tr><td style="width: 25%;"><a href="TMT6.html">TMT11HCD</a></td>
 <td>TMT 6/10-plex sets</td></tr>
+<tr><td style="width: 25%;"><a href="TMT6.html">TMT16</a></td>
+<td>TMT 6/10-plex sets</td></tr>
+<tr><td style="width: 25%;"><a href="TMT6.html">TMT16HCD</a></td>
+<td>TMT 6/10-plex sets</td></tr>
 <tr><td style="width: 25%;"><a href="TMT6.html">TMT6</a></td>
 <td>TMT 6/10-plex sets</td></tr>
 <tr><td style="width: 25%;"><a href="TMT6.html">TMT6b</a></td>
@@ -1488,6 +1503,12 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">topN-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">transformIntensity</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="Chromatogram-class.html">transformIntensity-method</a></td>
+<td>Representation of chromatographic MS data</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">transformIntensity-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="trimMz-methods.html">trimMz</a></td>
 <td>Trims 'MSnExp' or 'Spectrum' instances</td></tr>
 <tr><td style="width: 25%;"><a href="MSnExp-class.html">trimMz-method</a></td>
@@ -1504,9 +1525,9 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 </table>
 
-<h2><a name="U">-- U --</a></h2>
+<h2><a id="U">-- U --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="FeatComp-class.html">unique1</a></td>
 <td>Class '"FeatComp"'</td></tr>
 <tr><td style="width: 25%;"><a href="FeatComp-class.html">unique1,methods</a></td>
@@ -1531,9 +1552,9 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 </table>
 
-<h2><a name="V">-- V --</a></h2>
+<h2><a id="V">-- V --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="OnDiskMSnExp-class.html">validateOnDiskMSnExp</a></td>
 <td>The 'OnDiskMSnExp' Class for MS Data And Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">varLabels-method</a></td>
@@ -1542,9 +1563,9 @@
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 </table>
 
-<h2><a name="W">-- W --</a></h2>
+<h2><a id="W">-- W --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="makeNaData.html">whichNA</a></td>
 <td>Create a data with missing values</td></tr>
 <tr><td style="width: 25%;"><a href="ReporterIons-class.html">width</a></td>
@@ -1557,7 +1578,7 @@
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="writeMgfData-methods.html">writeMgfData</a></td>
 <td>Write an experiment or spectrum to an mgf file</td></tr>
-<tr><td style="width: 25%;"><a href="Spectra.html">writeMgfData-method</a></td>
+<tr><td style="width: 25%;"><a href="MSpectra.html">writeMgfData-method</a></td>
 <td>List of Spectrum objects along with annotations</td></tr>
 <tr><td style="width: 25%;"><a href="writeMgfData-methods.html">writeMgfData-method</a></td>
 <td>Write an experiment or spectrum to an mgf file</td></tr>
@@ -1567,23 +1588,25 @@
 <td>Write MS data to mzML or mzXML files</td></tr>
 <tr><td style="width: 25%;"><a href="writeMSData.html">writeMSData-method</a></td>
 <td>Write MS data to mzML or mzXML files</td></tr>
+<tr><td style="width: 25%;"><a href="writeMzTabData.html">writeMzTabData</a></td>
+<td>Export an MzTab object as mzTab file.</td></tr>
 </table>
 
-<h2><a name="misc">-- misc --</a></h2>
+<h2><a id="misc">-- misc --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">$-method</a></td>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">$-method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">$-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">$&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">$&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">$&lt;--method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">[-method</a></td>
-<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">[-method</a></td>
 <td>Features of Interest</td></tr>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">[-method</a></td>
+<td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSet-class.html">[-method</a></td>
 <td>The "MSnSet" Class for MS Proteomics Expression Data and Meta-Data</td></tr>
 <tr><td style="width: 25%;"><a href="MSnSetList-class.html">[-method</a></td>
@@ -1594,7 +1617,7 @@
 <td>The "ReporterIons" Class</td></tr>
 <tr><td style="width: 25%;"><a href="pSet-class.html">[-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
-<tr><td style="width: 25%;"><a href="Chromatograms-class.html">[&lt;--method</a></td>
+<tr><td style="width: 25%;"><a href="MChromatograms-class.html">[&lt;--method</a></td>
 <td>Container for multiple Chromatogram objects</td></tr>
 <tr><td style="width: 25%;"><a href="FeaturesOfInterest-class.html">[[-method</a></td>
 <td>Features of Interest</td></tr>
@@ -1605,4 +1628,4 @@
 <tr><td style="width: 25%;"><a href="pSet-class.html">[[-method</a></td>
 <td>Class to Contain Raw Mass-Spectrometry Assays and Experimental Metadata</td></tr>
 </table>
-</body></html>
+</div></body></html>

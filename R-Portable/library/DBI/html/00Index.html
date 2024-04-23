@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: R Database Interface</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> R Database Interface
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,23 +12,30 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;DBI&rsquo; version 1.1.1</h2>
+</div><h2>Documentation for package &lsquo;DBI&rsquo; version 1.2.2</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
 </ul>
 
 <h2>Help Pages</h2>
 
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="DBI-package.html">DBI-package</a></td>
 <td>DBI: R Database Interface</td></tr>
+<tr><td style="width: 25%;"><a href="dot-SQL92Keywords.html">.SQL92Keywords</a></td>
+<td>Keywords according to the SQL-92 standard</td></tr>
 <tr><td style="width: 25%;"><a href="dbAppendTable.html">dbAppendTable</a></td>
 <td>Insert rows into a table</td></tr>
+<tr><td style="width: 25%;"><a href="dbAppendTableArrow.html">dbAppendTableArrow</a></td>
+<td>Insert rows into a table from an Arrow stream</td></tr>
 <tr><td style="width: 25%;"><a href="transactions.html">dbBegin</a></td>
 <td>Begin/commit/rollback SQL transactions</td></tr>
 <tr><td style="width: 25%;"><a href="dbBind.html">dbBind</a></td>
+<td>Bind values to a parameterized/prepared statement</td></tr>
+<tr><td style="width: 25%;"><a href="dbBind.html">dbBindArrow</a></td>
 <td>Bind values to a parameterized/prepared statement</td></tr>
 <tr><td style="width: 25%;"><a href="dbWithTransaction.html">dbBreak</a></td>
 <td>Self-contained SQL transactions</td></tr>
@@ -43,22 +51,30 @@
 <td>Create a connection to a DBMS</td></tr>
 <tr><td style="width: 25%;"><a href="dbCreateTable.html">dbCreateTable</a></td>
 <td>Create a table in the database</td></tr>
+<tr><td style="width: 25%;"><a href="dbCreateTableArrow.html">dbCreateTableArrow</a></td>
+<td>Create a table in the database based on an Arrow object</td></tr>
 <tr><td style="width: 25%;"><a href="dbDataType.html">dbDataType</a></td>
 <td>Determine the SQL data type of an object</td></tr>
 <tr><td style="width: 25%;"><a href="dbDisconnect.html">dbDisconnect</a></td>
 <td>Disconnect (close) a connection</td></tr>
 <tr><td style="width: 25%;"><a href="dbExecute.html">dbExecute</a></td>
-<td>Execute an update statement, query number of rows affected, and then close result set</td></tr>
+<td>Change database state</td></tr>
 <tr><td style="width: 25%;"><a href="dbExistsTable.html">dbExistsTable</a></td>
 <td>Does a table exist?</td></tr>
 <tr><td style="width: 25%;"><a href="dbFetch.html">dbFetch</a></td>
 <td>Fetch records from a previously executed query</td></tr>
+<tr><td style="width: 25%;"><a href="dbFetchArrow.html">dbFetchArrow</a></td>
+<td>Fetch records from a previously executed query as an Arrow object</td></tr>
+<tr><td style="width: 25%;"><a href="dbFetchArrowChunk.html">dbFetchArrowChunk</a></td>
+<td>Fetch the next batch of records from a previously executed query as an Arrow object</td></tr>
 <tr><td style="width: 25%;"><a href="dbGetConnectArgs.html">dbGetConnectArgs</a></td>
 <td>Get connection arguments</td></tr>
 <tr><td style="width: 25%;"><a href="dbGetInfo.html">dbGetInfo</a></td>
 <td>Get DBMS metadata</td></tr>
 <tr><td style="width: 25%;"><a href="dbGetQuery.html">dbGetQuery</a></td>
-<td>Send query, retrieve results and then clear result set</td></tr>
+<td>Retrieve results from a query</td></tr>
+<tr><td style="width: 25%;"><a href="dbGetQueryArrow.html">dbGetQueryArrow</a></td>
+<td>Retrieve results from a query as an Arrow object</td></tr>
 <tr><td style="width: 25%;"><a href="dbGetRowCount.html">dbGetRowCount</a></td>
 <td>The number of rows fetched so far</td></tr>
 <tr><td style="width: 25%;"><a href="dbGetRowsAffected.html">dbGetRowsAffected</a></td>
@@ -79,6 +95,10 @@
 <td>DBIObject class</td></tr>
 <tr><td style="width: 25%;"><a href="DBIResult-class.html">DBIResult-class</a></td>
 <td>DBIResult class</td></tr>
+<tr><td style="width: 25%;"><a href="DBIResultArrow-class.html">DBIResultArrow-class</a></td>
+<td>DBIResultArrow class</td></tr>
+<tr><td style="width: 25%;"><a href="DBIResultArrow-class.html">DBIResultArrowDefault-class</a></td>
+<td>DBIResultArrow class</td></tr>
 <tr><td style="width: 25%;"><a href="dbIsReadOnly.html">dbIsReadOnly</a></td>
 <td>Is this DBMS object read only?</td></tr>
 <tr><td style="width: 25%;"><a href="dbIsValid.html">dbIsValid</a></td>
@@ -96,13 +116,17 @@
 <tr><td style="width: 25%;"><a href="dbQuoteString.html">dbQuoteString</a></td>
 <td>Quote literal strings</td></tr>
 <tr><td style="width: 25%;"><a href="dbReadTable.html">dbReadTable</a></td>
-<td>Copy data frames from database tables</td></tr>
+<td>Read database tables as data frames</td></tr>
+<tr><td style="width: 25%;"><a href="dbReadTableArrow.html">dbReadTableArrow</a></td>
+<td>Read database tables as Arrow objects</td></tr>
 <tr><td style="width: 25%;"><a href="dbRemoveTable.html">dbRemoveTable</a></td>
 <td>Remove a table from the database</td></tr>
 <tr><td style="width: 25%;"><a href="transactions.html">dbRollback</a></td>
 <td>Begin/commit/rollback SQL transactions</td></tr>
 <tr><td style="width: 25%;"><a href="dbSendQuery.html">dbSendQuery</a></td>
 <td>Execute a query on a given database connection</td></tr>
+<tr><td style="width: 25%;"><a href="dbSendQueryArrow.html">dbSendQueryArrow</a></td>
+<td>Execute a query on a given database connection for retrieval via Arrow</td></tr>
 <tr><td style="width: 25%;"><a href="dbSendStatement.html">dbSendStatement</a></td>
 <td>Execute a data manipulation statement on a given database connection</td></tr>
 <tr><td style="width: 25%;"><a href="dbUnquoteIdentifier.html">dbUnquoteIdentifier</a></td>
@@ -111,6 +135,8 @@
 <td>Self-contained SQL transactions</td></tr>
 <tr><td style="width: 25%;"><a href="dbWriteTable.html">dbWriteTable</a></td>
 <td>Copy data frames to database tables</td></tr>
+<tr><td style="width: 25%;"><a href="dbWriteTableArrow.html">dbWriteTableArrow</a></td>
+<td>Copy Arrow objects to database tables</td></tr>
 <tr><td style="width: 25%;"><a href="dbFetch.html">fetch</a></td>
 <td>Fetch records from a previously executed query</td></tr>
 <tr><td style="width: 25%;"><a href="Id.html">Id</a></td>
@@ -140,4 +166,4 @@
 <tr><td style="width: 25%;"><a href="transactions.html">transactions</a></td>
 <td>Begin/commit/rollback SQL transactions</td></tr>
 </table>
-</body></html>
+</div></body></html>

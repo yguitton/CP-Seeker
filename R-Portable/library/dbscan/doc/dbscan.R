@@ -1,20 +1,20 @@
 ### R code from vignette source 'dbscan.Rnw'
 
 ###################################################
-### code chunk number 1: dbscan.Rnw:132-134
+### code chunk number 1: dbscan.Rnw:131-133
 ###################################################
 options(useFancyQuotes = FALSE)
 citation("dbscan")
 
 
 ###################################################
-### code chunk number 2: dbscan.Rnw:592-593
+### code chunk number 2: dbscan.Rnw:591-592
 ###################################################
 options(width = 75)
 
 
 ###################################################
-### code chunk number 3: dbscan.Rnw:596-607
+### code chunk number 3: dbscan.Rnw:595-606
 ###################################################
 library("dbscan")
 
@@ -38,14 +38,14 @@ plot(x, col = true_clusters, pch = true_clusters)
 ###################################################
 ### code chunk number 5: kNNdistplot
 ###################################################
-kNNdistplot(x, k = 3)
-abline(h=.05, col = "red", lty=2)
+kNNdistplot(x, k = 2)
+abline(h=.06, col = "red", lty=2)
 
 
 ###################################################
-### code chunk number 6: dbscan.Rnw:641-643
+### code chunk number 6: dbscan.Rnw:640-642
 ###################################################
-res <- dbscan(x, eps = 0.05, minPts = 3)
+res <- dbscan(x, eps = 0.06, minPts = 3)
 res
 
 

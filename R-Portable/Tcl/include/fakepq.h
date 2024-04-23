@@ -41,6 +41,6 @@ typedef void (*PQnoticeProcessor)(void*, const PGresult*);
 
 #include "pqStubs.h"
 
-MODULE_SCOPE pqStubDefs* pqStubs;
+MODULE_SCOPE const pqStubDefs* pqStubs;
 
 #endif

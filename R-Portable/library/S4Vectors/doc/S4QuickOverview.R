@@ -1,5 +1,4 @@
 ### R code from vignette source 'S4QuickOverview.Rnw'
-### Encoding: ISO8859-1
 
 ###################################################
 ### code chunk number 1: setup
@@ -167,7 +166,7 @@ setMethod("show", "SNPLocations",
 
 
 ###################################################
-### code chunk number 22: S4QuickOverview.Rnw:374-375
+### code chunk number 22: S4QuickOverview.Rnw:383-384
 ###################################################
 snplocs  # just testing
 
@@ -270,7 +269,7 @@ as(snps, "data.frame")  # the 'geneid' slot is ignored
 
 
 ###################################################
-### code chunk number 34: S4QuickOverview.Rnw:527-530
+### code chunk number 34: S4QuickOverview.Rnw:536-539
 ###################################################
 is(snps, "AnnotatedSNPs")     # 'snps' is an AnnotatedSNPs object
 is(snps, "SNPLocations")      # and is also a SNPLocations object

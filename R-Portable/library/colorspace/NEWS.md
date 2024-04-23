@@ -1,10 +1,84 @@
+# colorspace 2.1-0
+
+* Bug fix for color vision deficiency simulations in `simulate_cvd()` based
+  on the work of [Machado _et al._ (2009)](https://doi.org/10.1109/TVCG.2009.113):
+  Following some illustrations from the supplementary materials, the transformations
+  in previous versions of the package had been applied to gamma-corrected sRGB
+  coordinates directly. However, the Machado _et al._ paper implicitly relies
+  on a linear RGB space (see page 1294, column 1) where their linear matrix
+  transformations for simulating color vision deficiencies are applied.
+  Therefore, a new argument `linear = TRUE` has been added to `simulate_cvd()`
+  (and hence in `deutan()`, `protan()`, and `tritan()`) that first maps the
+  provided colors to linearized RGB coordinates, applies the color vision
+  deficiency transformation, and then maps back to gamma-corrected sRGB
+  coordinates. Optionally, `linear = FALSE` can be used to restore the behavior
+  from previous versions where the transformations are applied directly to
+  the sRGB coordinates. For most colors the difference between the two
+  strategies is negligible but for some highly-saturated colors it becomes
+  more noticable, e.g., for red, purple, or orange. Thanks to Matthew Petroff
+  for reporting this issue and to Kenneth Knoblauch for advice and guidance.
+
+* Improvement in `simulate_cvd()` (and hence in `deutan()`, `protan()`, and
+  `tritan()`): When colors are specified as hex strings or named colors, the
+  sRGB coordinates after transformation are rounded appropriately to integers
+  in 0-255. Previous versions implicitly took the floor rather than round of
+  the coordinates.
+
+* Support formal S4 color objects in `simulate_cvd()` (and hence in `deutan()`,
+  `protan()`, and `tritan()`). In that case colors are transformed internally
+  to sRGB coordinates, color vision deficiency is simulated, and then a formal
+  S4 color object (of the same class as the input) is returned. This has the
+  advantage that no rounding is applied as when going through hex color strings.
+  Similarly, for an RGB matrix input, the output is also not rounded anymore.
+
+* Bug fix in `scale_colour_discrete_qualitative()` (and analogously for sequential,
+  diverging, and divergingx) to make sure that the scale functions can also
+  be called within a function whose arguments are controlled by an outer
+  function (reported by Marcelo S. Perlin).
+
+
+# colorspace 2.0-3
+
+* Added the accessible perceptual contrast algorithm (APCA) that is under
+  development for the next major revision of the WCAG as an alternative
+  `algorithm` in `contrast_ratio()`. See <https://github.com/Myndex/SAPC-APCA>.
+
+* Fixed a bug in `lighten()` and `darken()` for the case when some colors
+  were named (e.g., `"blue"`) rather than hex strings only. In that case
+  linear RGB rather than sRGB was incorrectly used internally (reported by
+  Colin Goodall).
+
+
+# colorspace 2.0-2
+
+* New function `contrast_ratio()` for computing and visualizing contrast ratios
+  of pairs of colors as defined in the Web Content Accessibility Guidelines (WCAG)
+  (<https://www.w3.org/TR/WCAG21/>) of the World Wide Web Consortium (W3C).
+
+
+# colorspace 2.0-1
+
+* Added two new palettes from the viridis family (_viridis_/_viridisLite_),
+  namely `"Rocket"` and `"Mako"` in `sequential_hcl()`.
+
+* Assure that all `do.call()` for the `ggplot2` scale functions are made with
+  `envir = parent.frame()` in order to avoid problems with non-standard
+  evaluation, as reported in:
+  <https://stackoverflow.com/questions/66049336/paste-name-in-scale-fill-color-in-colorspace-does-not-work-in-a-loop>
+
+* New function `extract_transparency()` for extracting alpha transparency
+  from color specifications, either as numeric, integer, character or hexmode vectors.
+  This accompanies the previously available function `adjust_transparency()`
+  allowing for more flexible modifications of alpha transparencies in colors.
+
+
 # colorspace 2.0-0
 
 * Release of version 2.0-0 accompanying the publication of the paper
   "colorspace: A Toolbox for Manipulating and Assessing Colors and Palettes"
   in the _Journal of Statistcal Software_ at <https://doi.org/10.18637/jss.v096.i01>.
   The paper is a compact version of the package web page
-  (<http://colorspace.R-Forge.R-project.org/>) including some more discussion
+  (<https://colorspace.R-Forge.R-project.org/>) including some more discussion
   of related methods and software along with some more references to the
   scientific literature.
 
@@ -55,7 +129,7 @@
 
 * New sequential multi-hue palette: Purple-Yellow. This is a slightly
   improved version (i.e., with higher luminance contrast) of the palette
-  used in Figure 4 of [Stauffer _et al._ (2015, BAMS)](https://dx.doi.org/10.1175/BAMS-D-13-00155.1).
+  used in Figure 4 of [Stauffer _et al._ (2015, BAMS)](https://doi.org/10.1175/BAMS-D-13-00155.1).
 
 * New flexible diverging palette Zissou 1 in `divergingx_hcl()`. This closely
   matches the palette of the same name in _wesanderson_. Note that this is
@@ -81,7 +155,7 @@
   visualizations for assessing palettes, more and enhanced shiny and
   Tcl/Tk apps, color vision deficiency emulation, and much more. See
   below for further details. A new web site presenting and documenting
-  the package has been launched at http://colorspace.R-Forge.R-project.org/
+  the package has been launched at https://colorspace.R-Forge.R-project.org/
 
 * Claus O. Wilke and Claire D. McWhite joined the _colorspace_ team,
   adding and enhancing various features, including (but not limited to)

@@ -1,10 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Foundation of vector-like and list-like containers in
 Bioconductor</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Foundation of vector-like and list-like containers in
 Bioconductor
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
@@ -13,7 +14,7 @@ Bioconductor
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;S4Vectors&rsquo; version 0.24.4</h2>
+</div><h2>Documentation for package &lsquo;S4Vectors&rsquo; version 0.40.2</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
@@ -51,9 +52,9 @@ Bioconductor
 </p>
 
 
-<h2><a name="A">-- A --</a></h2>
+<h2><a id="A">-- A --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="FilterRules-class.html">active</a></td>
 <td>Collection of Filter Rules</td></tr>
 <tr><td style="width: 25%;"><a href="FilterRules-class.html">active-method</a></td>
@@ -108,8 +109,8 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">as.data.frame-method</a></td>
 <td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">as.data.frame-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="Hits-class.html">as.data.frame-method</a></td>
+<td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">as.data.frame-method</a></td>
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Pairs-class.html">as.data.frame-method</a></td>
@@ -118,16 +119,14 @@ Bioconductor
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.data.frame-method</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">as.data.frame.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="Hits-class.html">as.data.frame.Hits</a></td>
+<td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.data.frame.Vector</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.double-method</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">as.env</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">as.env-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">as.env</a></td>
+<td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">as.env-method</a></td>
 <td>SimpleList objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.env-method</a></td>
@@ -154,8 +153,16 @@ Bioconductor
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">as.list-method</a></td>
 <td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">as.list-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.list-method</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="Rle-class.html">as.list.Rle</a></td>
+<td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="SimpleList-class.html">as.list.SimpleList</a></td>
+<td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">as.list.TransposedDataFrame</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.list.Vector</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">as.LLint</a></td>
@@ -172,6 +179,8 @@ Bioconductor
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="HitsList-class.html">as.matrix-method</a></td>
 <td>List of Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">as.matrix-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.matrix-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.matrix.Vector</a></td>
@@ -182,6 +191,8 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">as.numeric.LLint</a></td>
 <td>LLint vectors</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">as.raw-method</a></td>
+<td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">as.raw-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">as.table-method</a></td>
@@ -194,13 +205,17 @@ Bioconductor
 <td>Rle objects</td></tr>
 </table>
 
-<h2><a name="B">-- B --</a></h2>
+<h2><a id="B">-- B --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="LLint-class.html">bindROWS</a></td>
-<td>LLint vectors</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">bindROWS-method</a></td>
-<td>DataFrame objects</td></tr>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="bindROWS.html">bindCOLS</a></td>
+<td>Combine objects along their ROWS or COLS</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">bindCOLS-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="bindROWS.html">bindROWS</a></td>
+<td>Combine objects along their ROWS or COLS</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">bindROWS-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">bindROWS-method</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">bindROWS-method</a></td>
@@ -209,43 +224,49 @@ Bioconductor
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">bindROWS-method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">bindROWS-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">bindROWS-method</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="bindROWS.html">bindROWS-method</a></td>
+<td>Combine objects along their ROWS or COLS</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">breakTies</a></td>
 <td>Hits objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">by-method</a></td>
-<td>DataTable objects</td></tr>
 </table>
 
-<h2><a name="C">-- C --</a></h2>
+<h2><a id="C">-- C --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Vector-class.html">c</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">c-method</a></td>
-<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">c-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">c-method</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">c-method</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">cbind-method</a></td>
-<td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">cbind-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">cbind-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
 <tr><td style="width: 25%;"><a href="FilterMatrix-class.html">cbind-method</a></td>
 <td>Matrix for Filter Results</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">cbind-method</a></td>
 <td>Common operations on List objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">cbind.DataFrame</a></td>
-<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">cbind-method</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">cbind.DataFrame</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
+<tr><td style="width: 25%;"><a href="List-utils.html">cbind.List</a></td>
+<td>Common operations on List objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">cbind.RectangularData</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">cbind_mcols_for_display</a></td>
+<td>Display utilities</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">chartr-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">class:DataFrame</a></td>
 <td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">class:DataTable</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">class:DataTable_OR_NULL</a></td>
-<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">class:DataFrameFactor</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">class:DFrame</a></td>
 <td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="FilterRules-class.html">class:expression_OR_function</a></td>
@@ -260,6 +281,8 @@ Bioconductor
 <td>List of Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">class:integer_OR_LLint</a></td>
 <td>LLint vectors</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">class:integer_OR_raw</a></td>
+<td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">class:List</a></td>
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">class:list_OR_List</a></td>
@@ -270,6 +293,8 @@ Bioconductor
 <td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="Pairs-class.html">class:Pairs</a></td>
 <td>Pairs objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">class:RectangularData</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">class:Rle</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">class:SelfHits</a></td>
@@ -286,6 +311,8 @@ Bioconductor
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="HitsList-class.html">class:SortedByQuerySelfHitsList</a></td>
 <td>List of Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">class:TransposedDataFrame</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">class:Vector</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">class:vector_OR_Vector</a></td>
@@ -320,14 +347,28 @@ Bioconductor
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">coerce-method</a></td>
 <td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">coerce-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">coerce-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">colnames-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">colnames-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">colnames&lt;--method</a></td>
 <td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">complete.cases-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">combineCols</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">combineCols-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">combineRows</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">combineRows-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">combineUniqueCols</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">complete.cases-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">Complex-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="show-utils.html">coolcat</a></td>
@@ -354,21 +395,21 @@ Bioconductor
 <td>Common operations on Rle objects</td></tr>
 </table>
 
-<h2><a name="D">-- D --</a></h2>
+<h2><a id="D">-- D --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">DataFrame</a></td>
 <td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">DataFrame-class</a></td>
 <td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">DataTable</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">DataTable-class</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">DataTable_OR_NULL</a></td>
-<td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">DataTable_OR_NULL-class</a></td>
-<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">DataFrame-combine</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">DataFrame-utils</a></td>
+<td>Common operations on DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">DataFrameFactor</a></td>
+<td>DataFrameFactor objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">DataFrameFactor-class</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">decode</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">decode-method</a></td>
@@ -381,28 +422,42 @@ Bioconductor
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">diff.Rle</a></td>
 <td>Common operations on Rle objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">dim-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">dimnames-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">dimnames&lt;--method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">dim-method</a></td>
+<td>DataFrameFactor objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">dim-method</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">dimnames-method</a></td>
+<td>DataFrameFactor objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">dimnames-method</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">dimnames&lt;--method</a></td>
+<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">dimnames&lt;--method</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">dimnames&lt;--method</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">droplevels-method</a></td>
+<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">droplevels-method</a></td>
+<td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">droplevels-method</a></td>
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">droplevels-method</a></td>
 <td>Common operations on Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">droplevels.Factor</a></td>
+<td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">droplevels.List</a></td>
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">droplevels.Rle</a></td>
 <td>Common operations on Rle objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">duplicated-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">duplicated-method</a></td>
+<td>DataFrame comparison methods</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">duplicated-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">duplicated-method</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">duplicated.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">duplicated.DataFrame</a></td>
+<td>DataFrame comparison methods</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">duplicated.Vector</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="integer-utils.html">duplicatedIntegerPairs</a></td>
@@ -411,9 +466,9 @@ Bioconductor
 <td>Some utility functions to operate on integer vectors</td></tr>
 </table>
 
-<h2><a name="E">-- E --</a></h2>
+<h2><a id="E">-- E --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Vector-class.html">elementMetadata</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">elementMetadata-method</a></td>
@@ -454,19 +509,27 @@ Bioconductor
 <td>Collection of Filter Rules</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">extractCOLS</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">extractCOLS-method</a></td>
+<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">extractCOLS-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">extractROWS</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">extractROWS-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">extractROWS-method</a></td>
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">extractROWS-method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">extractROWS-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">extractROWS-method</a></td>
 <td>Subsetting utilities</td></tr>
 </table>
 
-<h2><a name="F">-- F --</a></h2>
+<h2><a id="F">-- F --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Factor-class.html">Factor</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">Factor-class</a></td>
@@ -513,28 +576,38 @@ Bioconductor
 <td>Hits objects</td></tr>
 </table>
 
-<h2><a name="G">-- G --</a></h2>
+<h2><a id="G">-- G --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">getListElement</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">getListElement-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">getListElement-method</a></td>
 <td>List objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">getListElement-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">getListElement-method</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">get_showHeadLines</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">get_showTailLines</a></td>
+<td>Display utilities</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">gsub-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 </table>
 
-<h2><a name="H">-- H --</a></h2>
+<h2><a id="H">-- H --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Vector-class.html">head</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">head-method</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">head-method</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">head.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">head.RectangularData</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">head.Vector</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">Hits</a></td>
@@ -549,15 +622,23 @@ Bioconductor
 <td>List of Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="HitsList-class.html">HitsList-class</a></td>
 <td>List of Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">horizontal_slot_names</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">horizontal_slot_names-method</a></td>
+<td>DataFrame objects</td></tr>
 </table>
 
-<h2><a name="I">-- I --</a></h2>
+<h2><a id="I">-- I --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="LLint-class.html">integer_OR_LLint</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">integer_OR_LLint-class</a></td>
 <td>LLint vectors</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">integer_OR_raw</a></td>
+<td>Factor objects</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">integer_OR_raw-class</a></td>
+<td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">intersect-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-setops.html">intersect-method</a></td>
@@ -570,8 +651,8 @@ Bioconductor
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">is.LLint</a></td>
 <td>LLint vectors</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">is.na-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">is.na-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">is.na-method</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">is.na-method</a></td>
@@ -608,17 +689,21 @@ Bioconductor
 <td>Subsetting utilities</td></tr>
 </table>
 
-<h2><a name="L">-- L --</a></h2>
+<h2><a id="L">-- L --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="List-utils.html">lapply-method</a></td>
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">lapply-method</a></td>
 <td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">length-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">length-method</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">length-method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">length-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">length-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">length-method</a></td>
@@ -653,13 +738,31 @@ Bioconductor
 <td>LLint vectors</td></tr>
 </table>
 
-<h2><a name="M">-- M --</a></h2>
+<h2><a id="M">-- M --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Rle-utils.html">mad-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">mad.Rle</a></td>
 <td>Common operations on Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">makeClassinfoRowForCompactPrinting</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">makeNakedCharacterMatrixForDisplay</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">makeNakedCharacterMatrixForDisplay-method</a></td>
+<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="Hits-class.html">makeNakedCharacterMatrixForDisplay-method</a></td>
+<td>Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="Pairs-class.html">makeNakedCharacterMatrixForDisplay-method</a></td>
+<td>Pairs objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">makeNakedCharacterMatrixForDisplay-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">makeNakedCharacterMatrixForDisplay-method</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">makePrettyMatrixForCompactPrinting</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">make_zero_col_DFrame</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">Map-method</a></td>
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">match</a></td>
@@ -684,6 +787,8 @@ Bioconductor
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">Math2-method</a></td>
 <td>Common operations on Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="subsetting-utils.html">max-method</a></td>
+<td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">mcols</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">mcols-method</a></td>
@@ -704,8 +809,8 @@ Bioconductor
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-merge.html">merge</a></td>
 <td>Merge vector-like objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">merge-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-combine.html">merge-method</a></td>
+<td>Combine DataFrame objects along their rows or columns, or merge them</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-merge.html">merge-method</a></td>
 <td>Merge vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">mergeROWS</a></td>
@@ -724,35 +829,45 @@ Bioconductor
 <td>Annotated class</td></tr>
 <tr><td style="width: 25%;"><a href="Annotated-class.html">metadata&lt;--method</a></td>
 <td>Annotated class</td></tr>
+<tr><td style="width: 25%;"><a href="stack-methods.html">mstack</a></td>
+<td>Stack objects</td></tr>
+<tr><td style="width: 25%;"><a href="stack-methods.html">mstack-method</a></td>
+<td>Stack objects</td></tr>
 </table>
 
-<h2><a name="N">-- N --</a></h2>
+<h2><a id="N">-- N --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="DataTable-class.html">na.exclude-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">na.omit-method</a></td>
-<td>DataTable objects</td></tr>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">na.exclude-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">na.omit-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">names-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">names-method</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Pairs-class.html">names-method</a></td>
 <td>Pairs objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">names-method</a></td>
 <td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">names-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">names&lt;--method</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Pairs-class.html">names&lt;--method</a></td>
 <td>Pairs objects</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">names&lt;--method</a></td>
 <td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">names&lt;--method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="LLint-class.html">NA_LLint_</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">nchar-method</a></td>
 <td>Common operations on Rle objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">NCOL-method</a></td>
-<td>DataTable objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">ncol-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">ncol-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">nlevels</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">nlevels-method</a></td>
@@ -769,6 +884,8 @@ Bioconductor
 <td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">normalizeSingleBracketReplacementValue</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">normalizeSingleBracketReplacementValue-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">normalizeSingleBracketReplacementValue-method</a></td>
 <td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">normalizeSingleBracketSubscript</a></td>
@@ -777,12 +894,10 @@ Bioconductor
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">nRnode-method</a></td>
 <td>Hits objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">NROW-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">NROW-method</a></td>
-<td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">nrow-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">nrow-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">nrun</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">nrun-method</a></td>
@@ -797,9 +912,9 @@ Bioconductor
 <td>Subsetting utilities</td></tr>
 </table>
 
-<h2><a name="O">-- O --</a></h2>
+<h2><a id="O">-- O --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="LLint-class.html">Ops-method</a></td>
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">Ops-method</a></td>
@@ -818,32 +933,32 @@ Bioconductor
 <td>Some utility functions to operate on integer vectors</td></tr>
 </table>
 
-<h2><a name="P">-- P --</a></h2>
+<h2><a id="P">-- P --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Pairs-class.html">Pairs</a></td>
 <td>Pairs objects</td></tr>
 <tr><td style="width: 25%;"><a href="Pairs-class.html">Pairs-class</a></td>
 <td>Pairs objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">parallelSlotNames</a></td>
-<td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="Factor-class.html">parallelSlotNames-method</a></td>
-<td>Factor objects</td></tr>
-<tr><td style="width: 25%;"><a href="FilterRules-class.html">parallelSlotNames-method</a></td>
-<td>Collection of Filter Rules</td></tr>
-<tr><td style="width: 25%;"><a href="Hits-class.html">parallelSlotNames-method</a></td>
-<td>Hits objects</td></tr>
-<tr><td style="width: 25%;"><a href="Pairs-class.html">parallelSlotNames-method</a></td>
-<td>Pairs objects</td></tr>
-<tr><td style="width: 25%;"><a href="SimpleList-class.html">parallelSlotNames-method</a></td>
-<td>SimpleList objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">parallelSlotNames-method</a></td>
-<td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">parallelVectorNames</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">parallelVectorNames-method</a></td>
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">parallelVectorNames-method</a></td>
+<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">parallel_slot_names</a></td>
+<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="Factor-class.html">parallel_slot_names-method</a></td>
+<td>Factor objects</td></tr>
+<tr><td style="width: 25%;"><a href="FilterRules-class.html">parallel_slot_names-method</a></td>
+<td>Collection of Filter Rules</td></tr>
+<tr><td style="width: 25%;"><a href="Hits-class.html">parallel_slot_names-method</a></td>
+<td>Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="Pairs-class.html">parallel_slot_names-method</a></td>
+<td>Pairs objects</td></tr>
+<tr><td style="width: 25%;"><a href="SimpleList-class.html">parallel_slot_names-method</a></td>
+<td>SimpleList objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">parallel_slot_names-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="FilterRules-class.html">params</a></td>
 <td>Collection of Filter Rules</td></tr>
@@ -875,11 +990,13 @@ Bioconductor
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">Position-method</a></td>
 <td>Common operations on List objects</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">printAtomicVectorInAGrid</a></td>
+<td>Display utilities</td></tr>
 </table>
 
-<h2><a name="Q">-- Q --</a></h2>
+<h2><a id="Q">-- Q --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Rle-utils.html">quantile-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">quantile.Rle</a></td>
@@ -892,27 +1009,31 @@ Bioconductor
 <td>Hits objects</td></tr>
 </table>
 
-<h2><a name="R">-- R --</a></h2>
+<h2><a id="R">-- R --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Rle-class.html">rank-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">rank-method</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">rbind-method</a></td>
-<td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">rbind-method</a></td>
-<td>DataTable objects</td></tr>
 <tr><td style="width: 25%;"><a href="FilterMatrix-class.html">rbind-method</a></td>
 <td>Matrix for Filter Results</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">rbind-method</a></td>
 <td>Common operations on List objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataFrame-class.html">rbind.DataFrame</a></td>
-<td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">rbind-method</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">rbind.RectangularData</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">RectangularData</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">RectangularData-class</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-utils.html">Reduce-method</a></td>
 <td>Common operations on List objects</td></tr>
 <tr><td style="width: 25%;"><a href="splitAsList.html">relistToClass</a></td>
 <td>Divide a vector-like object into groups</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">relistToClass-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="HitsList-class.html">relistToClass-method</a></td>
 <td>List of Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="splitAsList.html">relistToClass-method</a></td>
@@ -925,6 +1046,8 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">rep</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">rep-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">rep-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">rep-method</a></td>
@@ -937,6 +1060,8 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">replaceCOLS</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">replaceCOLS-method</a></td>
+<td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">replaceROWS</a></td>
 <td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">replaceROWS-method</a></td>
@@ -971,14 +1096,18 @@ Bioconductor
 <td>Fixed-width running window summaries</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">Rle-utils</a></td>
 <td>Common operations on Rle objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">ROWNAMES</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">ROWNAMES-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="Vector-class.html">ROWNAMES-method</a></td>
-<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">ROWNAMES</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">ROWNAMES-method</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">rownames-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">rownames-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">ROWNAMES&lt;-</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">ROWNAMES&lt;--method</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">rownames&lt;--method</a></td>
 <td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">runLength</a></td>
@@ -1017,9 +1146,9 @@ Bioconductor
 <td>Fixed-width running window summaries</td></tr>
 </table>
 
-<h2><a name="S">-- S --</a></h2>
+<h2><a id="S">-- S --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="character-utils.html">safeExplode</a></td>
 <td>Some utility functions to operate on strings</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">sameAsPreviousROW</a></td>
@@ -1078,6 +1207,10 @@ Bioconductor
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">setListElement-method</a></td>
 <td>Subsetting utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">set_showHeadLines</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">set_showTailLines</a></td>
+<td>Display utilities</td></tr>
 <tr><td style="width: 25%;"><a href="shiftApply-methods.html">shiftApply</a></td>
 <td>Apply a function over subsequences of 2 vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="shiftApply-methods.html">shiftApply-method</a></td>
@@ -1086,8 +1219,8 @@ Bioconductor
 <td>Apply a function over subsequences of 2 vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">show-method</a></td>
 <td>DataFrame objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">show-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">show-method</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">show-method</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="FilterMatrix-class.html">show-method</a></td>
@@ -1104,6 +1237,8 @@ Bioconductor
 <td>Pairs objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">show-method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">show-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="subsetting-utils.html">show-method</a></td>
 <td>Subsetting utilities</td></tr>
 <tr><td style="width: 25%;"><a href="show-utils.html">show-utils</a></td>
@@ -1118,9 +1253,11 @@ Bioconductor
 <td>LLint vectors</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">showAsCell-method</a></td>
 <td>List objects</td></tr>
-<tr><td style="width: 25%;"><a href="Rle-class.html">showAsCell-method</a></td>
-<td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="show-utils.html">showAsCell-method</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">showHeadLines</a></td>
+<td>Display utilities</td></tr>
+<tr><td style="width: 25%;"><a href="show-utils.html">showTailLines</a></td>
 <td>Display utilities</td></tr>
 <tr><td style="width: 25%;"><a href="SimpleList-class.html">SimpleList</a></td>
 <td>SimpleList objects</td></tr>
@@ -1128,12 +1265,18 @@ Bioconductor
 <td>SimpleList objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-runstat.html">smoothEnds-method</a></td>
 <td>Fixed-width running window summaries</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">sort-method</a></td>
+<td>DataFrame comparison methods</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">sort-method</a></td>
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">sort-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">sort-method</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">sort.DataFrame</a></td>
+<td>DataFrame comparison methods</td></tr>
+<tr><td style="width: 25%;"><a href="Rle-class.html">sort.Rle</a></td>
+<td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">sort.Vector</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">SortedByQueryHits</a></td>
@@ -1166,6 +1309,10 @@ Bioconductor
 <td>List of Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="splitAsList.html">splitAsList-method</a></td>
 <td>Divide a vector-like object into groups</td></tr>
+<tr><td style="width: 25%;"><a href="stack-methods.html">stack-method</a></td>
+<td>Stack objects</td></tr>
+<tr><td style="width: 25%;"><a href="stack-methods.html">stack-methods</a></td>
+<td>Stack objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">start-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">sub-method</a></td>
@@ -1178,8 +1325,8 @@ Bioconductor
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">subset</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">subset-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">subset-method</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">subset-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">subset.Vector</a></td>
@@ -1218,15 +1365,21 @@ Bioconductor
 <td>Some utility functions to operate on strings</td></tr>
 </table>
 
-<h2><a name="T">-- T --</a></h2>
+<h2><a id="T">-- T --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Hits-class.html">t-method</a></td>
 <td>Hits objects</td></tr>
 <tr><td style="width: 25%;"><a href="HitsList-class.html">t-method</a></td>
 <td>List of Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">t-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">t.DataFrame</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">t.Hits</a></td>
 <td>Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">t.TransposedDataFrame</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">table-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">table-method</a></td>
@@ -1235,10 +1388,12 @@ Bioconductor
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">tail</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">tail-method</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">tail-method</a></td>
 <td>Vector objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">tail.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">tail.RectangularData</a></td>
+<td>RectangularData objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">tail.Vector</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">to</a></td>
@@ -1251,15 +1406,23 @@ Bioconductor
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">toupper-method</a></td>
 <td>Common operations on Rle objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">transform-method</a></td>
-<td>DataTable objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">transform.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">transform-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">transform-method</a></td>
+<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">transform.DataFrame</a></td>
+<td>Common operations on DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">transform.Vector</a></td>
+<td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">TransposedDataFrame</a></td>
+<td>TransposedDataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">TransposedDataFrame-class</a></td>
+<td>TransposedDataFrame objects</td></tr>
 </table>
 
-<h2><a name="U">-- U --</a></h2>
+<h2><a id="U">-- U --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Factor-class.html">unfactor</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">unfactor-method</a></td>
@@ -1272,18 +1435,20 @@ Bioconductor
 <td>Set operations on vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-setops.html">union.Vector</a></td>
 <td>Set operations on vector-like objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">unique-method</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">unique-method</a></td>
+<td>DataFrame comparison methods</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">unique-method</a></td>
 <td>Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">unique-method</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
-<tr><td style="width: 25%;"><a href="DataTable-class.html">unique.DataTable</a></td>
-<td>DataTable objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-comparison.html">unique.DataFrame</a></td>
+<td>DataFrame comparison methods</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">unique.Vector</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">unlist-method</a></td>
 <td>List objects</td></tr>
+<tr><td style="width: 25%;"><a href="Vector-class.html">unname-method</a></td>
+<td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="character-utils.html">unstrsplit</a></td>
 <td>Some utility functions to operate on strings</td></tr>
 <tr><td style="width: 25%;"><a href="character-utils.html">unstrsplit-method</a></td>
@@ -1292,13 +1457,15 @@ Bioconductor
 <td>DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Hits-class.html">updateObject-method</a></td>
 <td>Hits objects</td></tr>
+<tr><td style="width: 25%;"><a href="SimpleList-class.html">updateObject-method</a></td>
+<td>SimpleList objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">updateObject-method</a></td>
 <td>Vector objects</td></tr>
 </table>
 
-<h2><a name="V">-- V --</a></h2>
+<h2><a id="V">-- V --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Vector-class.html">values</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">values-method</a></td>
@@ -1323,11 +1490,15 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">vector_OR_Vector-class</a></td>
 <td>Vector objects</td></tr>
+<tr><td style="width: 25%;"><a href="RectangularData-class.html">vertical_slot_names</a></td>
+<td>RectangularData objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrame-class.html">vertical_slot_names-method</a></td>
+<td>DataFrame objects</td></tr>
 </table>
 
-<h2><a name="W">-- W --</a></h2>
+<h2><a id="W">-- W --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Rle-utils.html">which-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-utils.html">which.max-method</a></td>
@@ -1344,11 +1515,11 @@ Bioconductor
 <td>Common operations on List objects</td></tr>
 </table>
 
-<h2><a name="X">-- X --</a></h2>
+<h2><a id="X">-- X --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="DataTable-class.html">xtabs-method</a></td>
-<td>DataTable objects</td></tr>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="DataFrame-utils.html">xtabs-method</a></td>
+<td>Common operations on DataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Factor-class.html">xtfrm-method</a></td>
 <td>Factor objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">xtfrm-method</a></td>
@@ -1357,9 +1528,9 @@ Bioconductor
 <td>Compare, order, tabulate vector-like objects</td></tr>
 </table>
 
-<h2><a name="Z">-- Z --</a></h2>
+<h2><a id="Z">-- Z --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="zip-methods.html">zipdown</a></td>
 <td>Convert between parallel vectors and lists</td></tr>
 <tr><td style="width: 25%;"><a href="zip-methods.html">zipdown-method</a></td>
@@ -1372,13 +1543,15 @@ Bioconductor
 <td>Convert between parallel vectors and lists</td></tr>
 </table>
 
-<h2><a name="misc">-- misc --</a></h2>
+<h2><a id="misc">-- misc --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Rle-utils.html">!-method</a></td>
 <td>Common operations on Rle objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-comparison.html">!=-method</a></td>
 <td>Compare, order, tabulate vector-like objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">$-method</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">$-method</a></td>
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">$&lt;--method</a></td>
@@ -1407,6 +1580,8 @@ Bioconductor
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">[-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">[-method</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="FilterMatrix-class.html">[-method</a></td>
 <td>Matrix for Filter Results</td></tr>
 <tr><td style="width: 25%;"><a href="FilterRules-class.html">[-method</a></td>
@@ -1415,6 +1590,8 @@ Bioconductor
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">[-method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">[-method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">[-method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">[&lt;--method</a></td>
@@ -1423,10 +1600,14 @@ Bioconductor
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="Rle-class.html">[&lt;--method</a></td>
 <td>Rle objects</td></tr>
+<tr><td style="width: 25%;"><a href="TransposedDataFrame-class.html">[&lt;--method</a></td>
+<td>TransposedDataFrame objects</td></tr>
 <tr><td style="width: 25%;"><a href="Vector-class.html">[&lt;--method</a></td>
 <td>Vector objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">[[-method</a></td>
 <td>DataFrame objects</td></tr>
+<tr><td style="width: 25%;"><a href="DataFrameFactor-class.html">[[-method</a></td>
+<td>DataFrameFactor objects</td></tr>
 <tr><td style="width: 25%;"><a href="List-class.html">[[-method</a></td>
 <td>List objects</td></tr>
 <tr><td style="width: 25%;"><a href="DataFrame-class.html">[[&lt;--method</a></td>
@@ -1436,4 +1617,4 @@ Bioconductor
 <tr><td style="width: 25%;"><a href="List-class.html">[[&lt;--method</a></td>
 <td>List objects</td></tr>
 </table>
-</body></html>
+</div></body></html>

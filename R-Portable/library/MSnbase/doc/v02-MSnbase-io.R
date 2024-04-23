@@ -1,15 +1,15 @@
-## ----env, echo=FALSE-------------------------------------------------------
+## ----env, echo=FALSE----------------------------------------------------------
 suppressPackageStartupMessages(library("BiocStyle"))
 suppressPackageStartupMessages(library("MSnbase"))
 suppressPackageStartupMessages(library("pRolocdata"))
 
-## ----include_forword, echo=FALSE, results="asis"---------------------------
+## ----include_forword, echo=FALSE, results="asis"------------------------------
 cat(readLines("./Foreword.md"), sep = "\n")
 
-## ----include_bugs, echo=FALSE, results="asis"------------------------------
+## ----include_bugs, echo=FALSE, results="asis"---------------------------------
 cat(readLines("./Bugs.md"), sep = "\n")
 
-## ----readCsvData0----------------------------------------------------------
+## ----readCsvData0-------------------------------------------------------------
 ## The original data for replicate 1, available
 ## from the pRolocdata package
 f0 <- dir(system.file("extdata", package = "pRolocdata"),
@@ -17,10 +17,10 @@ f0 <- dir(system.file("extdata", package = "pRolocdata"),
           pattern = "pr800866n_si_004-rep1.csv")
 csv <- read.csv(f0)
 
-## ----showOrgCsv------------------------------------------------------------
+## ----showOrgCsv---------------------------------------------------------------
 head(csv, n=3)
 
-## ----readCsvData1----------------------------------------------------------
+## ----readCsvData1-------------------------------------------------------------
 ## The quantitation data, from the original data
 f1 <- dir(system.file("extdata", package = "pRolocdata"),
           full.names = TRUE, pattern = "exprsFile.csv")
@@ -34,16 +34,16 @@ f3 <- dir(system.file("extdata", package = "pRolocdata"),
           full.names = TRUE, pattern = "pdataFile.csv")
 pdataCsv <- read.csv(f3)
 
-## ----showExprsFile---------------------------------------------------------
+## ----showExprsFile------------------------------------------------------------
 head(exprsCsv, n = 3)
 
-## ----showFdFile------------------------------------------------------------
+## ----showFdFile---------------------------------------------------------------
 head(fdataCsv, n = 3)
 
-## ----showPdFile------------------------------------------------------------
+## ----showPdFile---------------------------------------------------------------
 pdataCsv
 
-## ----makeMSnSet------------------------------------------------------------
+## ----makeMSnSet---------------------------------------------------------------
 library("MSnbase")
 res <- readMSnSet(exprsFile = f1,
                   featureDataFile = f2,
@@ -51,18 +51,18 @@ res <- readMSnSet(exprsFile = f1,
                   sep = ",")
 res
 
-## ----readMSnSet2-----------------------------------------------------------
+## ----readMSnSet2--------------------------------------------------------------
 ecol <- paste("area", 114:117, sep = ".")
 fname <- "Protein.ID"
 eset <- readMSnSet2(f0, ecol, fname)
 eset
 
-## ----ecols-----------------------------------------------------------------
+## ----ecols--------------------------------------------------------------------
 getEcols(f0, ",")
 grepEcols(f0, "area", ",")
 e <- grepEcols(f0, "area", ",")
 readMSnSet2(f0, e)
 
-## --------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 sessionInfo()
 

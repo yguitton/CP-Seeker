@@ -1,0 +1,407 @@
+---
+title: "Quantitative features for mass spectrometry data"
+author:
+- name: Laurent Gatto
+package: QFeatures
+abstract: >
+ This vignette describes the functionality implemented in the QFeatures
+ package. QFeatures provides infrastructure to manage and process
+ quantitative features for high-throughput mass spectrometry assays,
+ including proteomics and metabolomics. This vignette is distributed under
+ a CC BY-SA license.
+output:
+  BiocStyle::html_document:
+    toc_float: true
+bibliography: QFeatures.bib
+vignette: >
+  %\VignetteIndexEntry{Quantitative features for mass spectrometry data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %%\VignetteKeywords{Mass Spectrometry, MS, MSMS, Proteomics, Metabolomics, Infrastructure, Quantitative }
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r env, message = FALSE, warning = FALSE, echo = FALSE}
+library("QFeatures")
+```
+
+
+# Introduction
+
+The `QFeatures` package provides infrastructure (that is classes to
+store data and the methods to process and manipulate them) to manage
+and analyse quantitative features from mass spectrometry
+experiments. It is based on the `SummarizedExperiment` and
+`MultiAssayExperiment` classes. Assays in a QFeatures object have a
+hierarchical relation: proteins are composed of peptides, themselves
+produced by spectra, as depicted in figure
+\@ref(fig:featuresplot). Throughout the aggregation and processing of
+these data, the relations between assays are tracked and recorded,
+thus allowing users to easily navigate across spectra, peptide and
+protein quantitative data.
+
+
+```{r featuresplot, fig.cap = "Conceptual representation of a `QFeatures` object and the aggregative relation between different assays.", echo = FALSE}
+par(mar = c(0, 0, 0, 0))
+plot(NA, xlim = c(0, 12), ylim = c(0, 20),
+     xaxt = "n", yaxt = "n",
+     xlab = "", ylab = "", bty = "n")
+
+for (i in 0:7)
+    rect(0, i, 3, i+1, col = "lightgrey", border = "white")
+
+
+for (i in 8:12)
+    rect(0, i, 3, i+1, col = "steelblue", border = "white")
+
+for (i in 13:18)
+    rect(0, i, 3, i+1, col = "orange", border = "white")
+
+for (i in 19)
+    rect(0, i, 3, i+1, col = "darkgrey", border = "white")
+
+
+for (i in 5:7)
+    rect(5, i, 8, i+1, col = "lightgrey", border = "white")
+
+for (i in 8:10)
+    rect(5, i, 8, i+1, col = "steelblue", border = "white")
+
+for (i in 11:13)
+    rect(5, i, 8, i+1, col = "orange", border = "white")
+
+for (i in 14)
+    rect(5, i, 8, i+1, col = "darkgrey", border = "white")
+
+rect(9, 8, 12, 8+1, col = "lightgrey", border = "white")
+rect(9, 9, 12, 9+1, col = "steelblue", border = "white")
+rect(9, 10, 12, 10+1, col = "orange", border = "white")
+rect(9, 11, 12, 11+1, col = "darkgrey", border = "white")
+
+segments(3, 8, 5, 8, lty = "dashed")
+segments(3, 6, 5, 7, lty = "dashed")
+segments(3, 4, 5, 6, lty = "dashed")
+segments(3, 0, 5, 5, lty = "dashed")
+
+segments(3, 10, 5, 9, lty = "dashed")
+segments(3, 11, 5, 10, lty = "dashed")
+segments(3, 13, 5, 11, lty = "dashed")
+
+segments(3, 14, 5, 12, lty = "dashed")
+segments(3, 16, 5, 13, lty = "dashed")
+segments(3, 19, 5, 14, lty = "dashed")
+
+segments(3, 20, 5, 15, lty = "dashed")
+
+
+segments(8, 5, 9, 8, lty = "dashed")
+segments(8, 8, 9, 9, lty = "dashed")
+segments(8, 11, 9, 10, lty = "dashed")
+segments(8, 14, 9, 11, lty = "dashed")
+segments(8, 15, 9, 12, lty = "dashed")
+```
+
+In the following sections, we are going to demonstrate how to create a
+single-assay `QFeatures` objects starting from a spreadsheet, how to
+compute the next assays (peptides and proteins), and how these can be
+manipulated and explored.
+
+```{r loadpkg}
+library("QFeatures")
+```
+
+# Creating `QFeatures` object
+
+```{r loaddfr, echo = FALSE}
+data(hlpsms)
+```
+
+While `QFeatures` objects can be created manually (see `?QFeatures`
+for details), most users will probably possess quantitative data in a
+spreadsheet or a dataframe. In such cases, the easiest is to use the
+`readQFeatures` function to extract the quantitative data and metadata
+columns. Below, we load the `hlpsms` dataframe that contains data for
+`r ncol(hlpsms)` PSMs from the TMT-10plex hyperLOPIT spatial
+proteomics experiment from [@Christoforou:2016]. The `ecol` argument
+specifies that columns 1 to 10 contain quantitation data, and that the
+assay should be named `psms` in the returned `QFeatures` object, to
+reflect the nature of the data.
+
+
+```{r readQFeatures}
+data(hlpsms)
+hl <- readQFeatures(hlpsms, ecol = 1:10, name = "psms")
+hl
+```
+
+Below, we see that we can extract an assay using its index or its
+name. The individual assays are stored as *SummarizedExperiment*
+object and further access its quantitative data and metadata using the
+`assay` and `rowData` functions
+
+```{r subsetassay}
+hl[[1]]
+hl[["psms"]]
+head(assay(hl[["psms"]]))
+head(rowData(hl[["psms"]]))
+```
+
+For further details on how to manipulate such objects, refer to the
+`r BiocStyle::Biocpkg("MultiAssayExperiment")` [@Ramos:2017] and
+`r BiocStyle::Biocpkg("SummerizedExperiment")` [@SE] packages.
+
+As illustrated in figure \@ref(fig:featuresplot), an central
+characteristic of `QFeatures` objects is the aggregative relation
+between their assays. This can be obtained with the
+`aggregateFeatures` function that will aggregate quantitative features
+from one assay into a new one. In the next code chunk, we aggregate
+PSM-level data into peptide by grouping all PSMs that were matched the
+same peptide sequence. Below, the aggregation function is set, as an
+example, to the mean. The new assay is named *peptides*.
+
+```{r aggregateFeatures1}
+hl <- aggregateFeatures(hl, "psms", "Sequence", name = "peptides", fun = colMeans)
+hl
+hl[["peptides"]]
+```
+
+Below, we repeat the aggregation operation by grouping peptides into
+proteins as defined by the *ProteinGroupAccessions* variable.
+
+```{r aggregateFeatures2}
+hl <- aggregateFeatures(hl, "peptides", "ProteinGroupAccessions", name = "proteins", fun = colMeans)
+hl
+hl[["proteins"]]
+```
+
+The sample assayed in a `QFeatures` object can be documented in the
+`colData` slot. The `hl` data doens't currently possess any sample
+metadata. These can be addedd as a new `DataFrame` with matching names
+(i.e. the `DataFrame` rownames must be identical assay's colnames) or
+can be added one variable at at time, as shown below.
+
+```{r}
+colData(hl)
+hl$tag <- c("126", "127N", "127C", "128N", "128C", "129N", "129C",
+            "130N", "130C", "131")
+colData(hl)
+```
+
+# Manipulating feature metadata
+
+The `QFeatures` package provides some utility functions that streamline
+the accession and manipulation of the feature metadata.
+
+The feature metadata, more generally referred to as `rowData` in the
+Bioconductor ecosystem, is specific to each assay in a `QFeatures`
+object. Therefore there are as many `rowData` tables as there are
+assays. `rowDataNames` provides a list where each element contains the
+name of the `rowData` columns available in the corresponding assay.
+
+```{r rowDataNames}
+rowDataNames(hl)
+```
+
+We saw above how to get the `rowData` from an assay, but we can also
+extract the `rowData` for all assays by calling the function on the
+`QFeautures` object directly. Similarly to `rowDataNames`, a list is
+returned where each element contains the `rowData` available in the
+corresponding assay.
+
+```{r rowData}
+rowData(hl)
+```
+
+In some cases, we are interested in extracting the `rowData` as a
+single data table. This is easily performed using the `rbindRowData`
+function. The function will automatically select the columns that are
+common to all selected assays.
+
+```{r rbindRowData}
+rbindRowData(hl, i = c("peptides", "proteins"))
+```
+
+We can also replace and add columns in the `rowData`.  This requires
+to provide a `List` where the names of the `List` point to the assay
+to be updated and the elements of the `List` contain `DataFrame`s with
+the replacement values. If the `DataFrame` contains a column that is
+not present in the `rowData`, that column will get added to the
+`rowData`. For instance, let's add a `rowData` variables with the mean
+protein expression as well as the associated standard deviation.
+First, we need to create the `DataFrame` with the mean expression.
+
+```{r}
+dF <- DataFrame(mean = rowSums(assay(hl[["proteins"]])),
+                sd = rowSds(assay(hl[["proteins"]])))
+```
+
+Then, we create the list and name the element `proteins` so that the
+new data is added to the `rowData` of the `proteins` assay. To add
+the list, we insert it back into the `rowData`.
+
+```{r}
+rowData(hl) <- List(proteins = dF)
+```
+
+As shown below, the new `mean` and `sd` variables have been added to the
+`rowData` of the `proteins` assay.
+
+```{r}
+rowData(hl)[["proteins"]]
+```
+
+Note that you can also replace an existing column in the `rowData` by
+naming the column name in the `DataFrame` after the column to replace.
+
+# Subsetting
+
+One particularity of the `QFeatures` infrastructure is that the
+features of the constitutive assays are linked through an aggregative
+relation. This relation is recorded when creating new assays with
+`aggregateFeatures` and is exploited when subsetting `QFeature` by their
+feature names.
+
+In the example below, we are interested in the Stat3B isoform of the
+Signal transducer and activator of transcription 3 (STAT3) with
+accession number P42227-2. This accession number corresponds to a
+feature name in the *proteins* assay. But this protein row was
+computed from 8 peptide rows in the *peptides* assay, themselves
+resulting from the aggregation of 8 rows in the *psms* assay.
+
+```{r stat3}
+stat3 <- hl["P42227-2", , ]
+stat3
+```
+
+We can easily visualise this new *QFeatures* object using `ggplot2`
+once converted into a `data.frame`. See the visualization vignette for
+more details about data exploration from a `QFeatures` object.
+
+```{r plotstat3}
+stat3_df <- data.frame(longFormat(stat3))
+stat3_df$assay <- factor(stat3_df$assay,
+                        levels = c("psms", "peptides", "proteins"))
+library("ggplot2")
+ggplot(data = stat3_df,
+       aes(x = colname,
+           y = value,
+           group = rowname)) +
+    geom_line() + geom_point() +
+    facet_grid(~ assay)
+```
+
+Below we repeat the same operation for the Signal transducer and
+activator of transcription 1 (STAT1) and 3 (STAT3) accession numbers,
+namely P42227-2 and P42225. We obtain a new `QFeatures` instance
+containing 2 proteins, 9 peptides and 10 PSMS. From this, we can
+readily conclude that STAT1 was identified by a single PSM/peptide.
+
+```{r stat}
+stat <- hl[c("P42227-2", "P42225"), , ]
+stat
+```
+
+Below, we visualise the expression profiles for the two proteins.
+
+```{r plotstat}
+stat_df <- data.frame(longFormat(stat))
+stat_df$stat3 <- ifelse(stat_df$rowname %in% stat3_df$rowname,
+                        "STAT3", "STAT1")
+stat_df$assay <- factor(stat_df$assay,
+                        levels = c("psms", "peptides", "proteins"))
+
+ggplot(data = stat_df,
+       aes(x = colname,
+           y = value,
+           group = rowname)) +
+    geom_line() + geom_point() +
+    facet_grid(stat3 ~ assay)
+```
+
+The subsetting by feature names is also available as a call to the
+`subsetByFeature` function, for use with the pipe operator.
+
+```{r subsetByFeature}
+hl |>
+    subsetByFeature("P42227-2")
+
+hl |>
+    subsetByFeature(c("P42227-2", "P42225"))
+```
+
+and possibly
+
+```{r subsetpipe, eval = FALSE}
+hl |>
+    subsetByFeature("P42227-2") |>
+    longFormat() |>
+    as.data.frame |>
+    ggplot(aes(x = colname,
+               y = value,
+               group = rowname)) +
+    geom_line() +
+    facet_grid(~ assay)
+```
+
+to reproduce the line plot.
+
+# Filtering
+
+QFeatures is assays can also be filtered based on variables in their
+respective row data slots using the `filterFeatures` function. The
+filters can be defined using the formula interface or using
+`AnnotationFilter` objects from the `r
+BiocStyle::Biocpkg("AnnotationFilter")` package
+[@AnnotationFilter]. In addition to the pre-defined filters (such as
+`SymbolFilter`, `ProteinIdFilter`, ... that filter on gene symbol,
+protein identifier, ...), this package allows users to define
+arbitrary character or numeric filters using the `VariableFilter`.
+
+```{r varfilter}
+mito_filter <- VariableFilter(field = "markers",
+                              value = "Mitochondrion",
+                              condition = "==")
+mito_filter
+
+qval_filter <- VariableFilter(field = "qValue",
+                              value = 0.001,
+                              condition = "<=")
+qval_filter
+```
+
+These filter can then readily be applied to all assays' row data
+slots. The `mito_filter` will return all PSMs, peptides and proteins
+that were annotated as localising to the mitochondrion.
+
+```{r mito_filter}
+filterFeatures(hl, mito_filter)
+```
+
+The `qval_filter`, on the other hand, will only return a subset of
+PSMs, because the `qValue` variable is only present in the `psms`
+assays. The q-values are only relevant to PSMs and that variable was
+dropped from the other assays.
+
+```{r qval_filter}
+filterFeatures(hl, qval_filter)
+```
+
+The same filters can be created using the forumla interface:
+
+```{r formula_filter}
+filterFeatures(hl, ~ markers == "Mitochondrion")
+filterFeatures(hl, ~ qValue <= 0.001)
+```
+
+
+# Session information {-}
+
+```{r sessioninfo, echo=FALSE}
+sessionInfo()
+```
+
+
+# References {-}

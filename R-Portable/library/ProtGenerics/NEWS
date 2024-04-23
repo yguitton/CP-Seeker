@@ -1,3 +1,79 @@
+CHANGES IN VERSION 1.33.1
+-------------------------
+o rename uniqueMsLevel() to uniqueMsLevels()
+
+CHANGES IN VERSION 1.29.1
+-------------------------
+o Add spectrapply generic
+
+CHANGES IN VERSION 1.27.2
+-------------------------
+o Add addProcessing generic <2022-01-04 Tue>
+
+CHANGES IN VERSION 1.27.1
+-------------------------
+o Add new adjacencyMatrix generic <2021-12-11 Sat>
+
+CHANGES IN VERSION 1.27.0
+-------------------------
+o New Bioc devel version
+
+CHANGES IN VERSION 1.25.1
+-------------------------
+o add bin, compareChromatograms and compareSpectra
+
+CHANGES IN VERSION 1.25.0
+-------------------------
+o Bioc devel (3.14) version bump
+
+CHANGES IN VERSION 1.23.9
+-------------------------
+o Added new uniqueMsLevel generic <2021-04-08 Thu>
+
+CHANGES IN VERSION 1.23.8
+-------------------------
+o Added new filterPrecursorCharge generic <2021-04-06 Tue>
+
+CHANGES IN VERSION 1.23.7
+-------------------------
+o Add ProcessingStep object and related methods (moved from Spectra)
+
+CHANGES IN VERSION 1.23.6
+-------------------------
+o Added quantify generics (moved from MSnbase) <2021-01-02 Sat>
+
+CHANGES IN VERSION 1.23.5
+-------------------------
+o new alignRt generic.
+
+CHANGES IN VERSION 1.23.4
+-------------------------
+o new virtual Param class.
+
+CHANGES IN VERSION 1.23.3
+-------------------------
+o new filterIntensity generic.
+
+CHANGES IN VERSION 1.23.2
+-------------------------
+o new compounds generic.
+
+CHANGES IN VERSION 1.23.1
+-------------------------
+o new calculateFragments generic (moved from MSnbase)
+
+CHANGES IN VERSION 1.19.3
+-------------------------
+o new impute generic
+
+CHANGES IN VERSION 1.19.2
+-------------------------
+o new filterNA generic
+
+CHANGES IN VERSION 1.19.1
+-------------------------
+o new aggregateFeatures generic
+
 CHANGES IN VERSION 1.17.4
 -------------------------
 o New generics needed in Spectra and Chromatograms packages <2019-08-20 Tue>

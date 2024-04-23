@@ -1,0 +1,3 @@
+MsExperimentFiles       A class to store experiment files
+experimentFiles         Managing Mass Spectrometry Experiments
+readMsExperiment        Import MS spectra data of an experiment

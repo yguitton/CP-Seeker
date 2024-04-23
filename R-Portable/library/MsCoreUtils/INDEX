@@ -1,0 +1,32 @@
+aggregate               Aggreagate quantitative features
+between                 Range helper functions
+bin                     Binning
+closest                 Relaxed Value Matching
+coerce                  Coerce functions
+colCounts               Counts the number of features
+distance                Spectra Distance/Similarity Measurements
+entropy                 Spectral entropy
+gnps                    GNPS spectrum similarity scores
+group                   Grouping of numeric values by similarity
+i2index                 Input parameter check for subsetting operations
+impute_matrix           Quantitative mass spectrometry data imputation
+isPeaksMatrix           Check functions
+localMaxima             Local Maxima
+maxi                    Maximum MS Intensity Value
+medianPolish            Return the Median Polish (Robust Twoway
+                        Decomposition) of a matrix
+noise                   Noise Estimation
+normalizeMethods        Quantitative data normalisation
+ppm                     PPM - Parts per Million
+rbindFill               Combine R Objects by Row
+refineCentroids         Refine Peak Centroids
+rla                     Calculate relative log abundances
+robustSummary           Return the Robust Expression Summary of a
+                        matrix
+rt2numeric              Format Retention Time
+smooth                  Smoothing
+sumi                    Summing MS Intensity Values
+validPeaksMatrix        Validation functions
+valleys                 Find Peak Valleys
+vapply1c                vapply wrappers
+which.first             Which is the first/last TRUE value.

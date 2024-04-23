@@ -1,9 +1,13 @@
 useDynLib(MSnbase)
 importFrom(Rcpp, sourceCpp)
 
+
 import(grid)
 import(BiocGenerics)
 import(ProtGenerics)
+importMethodsFrom(ProtGenerics, bin)
+importMethodsFrom(ProtGenerics, spectrapply)
+importClassesFrom(ProtGenerics, ProcessingStep)
 import(BiocParallel)
 import(Biobase)
 import(mzR)
@@ -13,12 +17,16 @@ import(scales)
 import(lattice)
 import(methods)
 
+importFrom(MsCoreUtils, closest, rbindFill,
+           impute_matrix, normalize_matrix,
+           robustSummary, medianPolish,
+           formatRt)
 importFrom(XML, xmlInternalTreeParse, getDefaultNamespace, xpathApply,
            xmlAttrs)
 importFrom(graphics, abline, axis, grid, legend, lines, points, text,
            barplot, layout, par, matplot, mtext)
 importFrom(stats, ave, median, medpolish, quantile, reorder, setNames,
-           weighted.mean, dist, model.matrix, .lm.fit)
+           weighted.mean, dist, model.matrix, .lm.fit, approx, cor)
 importFrom(utils, combn, head, ls.str, object.size,
            packageDescription, packageVersion, read.csv, read.delim,
            read.table, select.list, setTxtProgressBar, tail,
@@ -35,7 +43,7 @@ importFrom(ggplot2, geom_histogram, geom_text, geom_line, geom_point,
 importFrom(MALDIquant, binPeaks, match.closest) ## only using ::: functions
 importFrom(S4Vectors, isEmpty, metadata, DataFrame, replaceROWS, SimpleList,
            endoapply)
-importMethodsFrom(S4Vectors, showAsCell, "mcols<-", mcols, split)
+importMethodsFrom(S4Vectors, showAsCell, "mcols<-", mcols, split, extractROWS)
 importClassesFrom(S4Vectors, SimpleList)
 importFrom(MASS, rlm)
 
@@ -44,10 +52,9 @@ importFrom(MASS, rlm)
 importFrom(pcaMethods, pca, completeObs)
 importFrom(plyr, ddply, llply, summarise)
 importFrom(stats4, plot)
-importFrom(preprocessCore, normalize.quantiles)
-importFrom(vsn, vsn2, meanSdPlot)
+importFrom(vsn, meanSdPlot)
 importFrom(IRanges, IRanges, end, extractList, findOverlaps, start, width,
-           reduce)
+           reduce, NumericList)
 importClassesFrom(IRanges, IRanges)
 importFrom(affy, MAplot, ma.plot, mva.pairs)
 importFrom(mzID, mzID, flatten)
@@ -96,7 +103,6 @@ export(MSnSet,
        aggvar,
        nQuants,
        featureCV,
-       getRatios,
        makeImpuritiesMatrix,
        precSelection,
        precSelectionTable,
@@ -105,7 +111,6 @@ export(MSnSet,
        updateFeatureNames,
        updateSampleNames,
        normalise, ## for normalize method
-       imputeMethods,
        get.amino.acids,
        get.atomic.mass,
        listOf,
@@ -122,18 +127,19 @@ export(MSnSet,
        ## MzTab
        MzTab,
        smallMolecules,
+       moleculeFeatures,
+       moleculeEvidence,
        comments,
        mzTabMode,
        mzTabType,
        readMzTabData,
-       ## old - defunct
        writeMzTabData,
+       ## old - defunct
        readMzTabData_v0.9,
        makeMTD,
        makePEP,
        makePRT,
        ## OnDiskMSnExp
-       ProcessingStep,
        validateOnDiskMSnExp,
        ##options
        MSnbaseOptions,
@@ -142,11 +148,9 @@ export(MSnSet,
        setMSnbaseParallelThresh,
        isMSnbaseFastLoad,
        setMSnbaseFastLoad,
-       ## ProcessingStep
-       executeProcessingStep,
        aggregationFun,
        Chromatogram,
-       Chromatograms,
+       MChromatograms,
        factorsAsStrings,
        makeCamelCase,
        filterIdentificationDataFrame,
@@ -160,7 +164,8 @@ export(MSnSet,
        estimateMzScattering,
        hasSpectra, hasChromatograms,
        mergeFeatureVars, expandFeatureVars,
-       Spectra
+       MSpectra,
+       extractSpectraData
        )
 
 exportClasses(pSet,
@@ -177,10 +182,9 @@ exportClasses(pSet,
               MSmap,
               MzTab,
               OnDiskMSnExp,
-              ProcessingStep,
               Chromatogram,
-              Chromatograms,
-              Spectra
+              MChromatograms,
+              MSpectra
               )
 
 exportMethods(updateObject,
@@ -271,7 +275,6 @@ exportMethods(updateObject,
               scale,
               log,
               trimws,
-              exprsToRatios,
               impute,
               topN,
               filterNA, filterZero,
@@ -323,7 +326,12 @@ exportMethods(updateObject,
               "isolationWindowLowerMz",
               "isolationWindowUpperMz",
               "filterPrecursorMz",
-              "filterIsolationWindow"
+              "filterIsolationWindow",
+	      "alignRt",
+	      "filterIntensity",
+	      c,
+	      compareChromatograms,
+	      transformIntensity
               )
 
 ## methods NOT exported

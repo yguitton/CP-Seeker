@@ -209,15 +209,28 @@
   });
 
   function initStrInput(el) {
+    // Starting with BS5, some Sass variables hold CSS variables (e.g. $font-family-base)
+    if (el.value.match(/var\(--/)) {
+      const bodyStyles = getComputedStyle(document.body);
+      const cssVar = el.value.replace('var(', '').replace(')', '');
+      const val = bodyStyles.getPropertyValue(cssVar);
+      el.value = val;
+    }
   }
 
   $(document).on("change", ".bs-theme-value-select", function(e) {
     var select = $(e.target);
-    if (select.data("id") === "bootswatch") {
-      Shiny.setInputValue("bs_theme_bootswatch", select.val());
+    if (select.data("id") === "preset") {
+      Shiny.setInputValue("bs_theme_preset", select.val());
     } else {
       select.trigger("validinput");
     }
+  });
+
+  $(document).on("change", "#bsthemer-dark-mode", function(ev) {
+    const colorMode = ev.target.checked ? "dark" : "light";
+    document.documentElement.dataset.bsTheme = colorMode;
+    $(window).resize();
   });
 
   function initSelectInput(el) {
@@ -269,7 +282,7 @@
 
   // When the Bootswatch theme changes, apply new input defaults
   var syncing = false;
-  Shiny.addCustomMessageHandler("bs-themer-bootswatch", function(msg) {
+  Shiny.addCustomMessageHandler("bs-themer-preset", function(msg) {
     syncing = true;
     var vals = msg.values;
     var keys = Object.keys(vals);
@@ -290,6 +303,13 @@
     }
     syncing = false;
   })
+
+  // Initialize tooltips in the themer container
+  $(document).ready(function() {
+    document
+      .querySelectorAll('#bsthemerContainer [data-bs-toggle="tooltip"]')
+      .forEach((tooltipNode) => new window.bootstrap.Tooltip(tooltipNode));
+  });
 
   /*** Begin dragging logic ***/
 

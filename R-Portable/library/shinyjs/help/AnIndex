@@ -24,6 +24,7 @@ onevent	onevent
 refresh	refresh
 removeClass	classFuncs
 removeCssClass	classFuncs
+removeEvent	removeEvent
 reset	reset
 runcode	runcode
 runcodeServer	runcode

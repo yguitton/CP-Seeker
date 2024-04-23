@@ -132,6 +132,7 @@ hausdorff_dist          Hausdorff Distance
 haversine               Haversine Formula
 hessenberg              Hessenberg Matrix
 hessian                 Hessian Matrix
+hessvec                 Hessian utilities
 hilb                    Hilbert Matrix
 histc                   Histogram Count (Matlab style)
 histss                  Histogram Bin-width Optimization
@@ -192,7 +193,6 @@ newtonInterp            Lagrange and Newtons Interpolation
 newtonRaphson           Rootfinding through Newton-Raphson or Secant.
 newtonsys               Newton Method for Nonlinear Systems
 nextpow2                Next Power of 2
-nile                    Nile overflow data
 nnz                     Nonzero Elements
 normest                 Estimated Matrix Norm
 nthroot                 Real nth Root
@@ -285,6 +285,7 @@ squareform              Format Distance Matrix (Matlab Style)
 std                     Standard Deviation (Matlab Style)
 std_err                 Standard Error
 steep_descent           Steepest Descent Minimization
+stereographic           Stereographic Projection
 str2num                 Converting string to number (Matlab style)
 strRep                  Find and replace substring
 strTrim                 Remove leading and trailing white space.

@@ -1,0 +1,136 @@
+---
+title: "BiocBaseUtils Quick Start"
+author: "Bioconductor Core Team"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{BiocBaseUtils Quick Start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# BiocBaseUtils
+
+The `BiocBaseUtils` package provides a suite of helper functions designed to
+help developers. Currently, it covers three topics often encountered during
+the development process.
+
+1. Assertions - Type checks for logical, character, and numeric inputs
+2. Slot replacement - Replacing the value of object slots
+3. `show` method - Limiting the output of internal components of a class
+
+# Installation
+
+Install the package directly from Bioconductor:
+
+```{r,eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("BiocBaseUtils")
+```
+
+# Load Package
+
+```{r,include=TRUE,results="hide",message=FALSE,warning=FALSE}
+library(BiocBaseUtils)
+```
+
+# Assertions
+
+We provide a number of functions that helps the developer establish the
+type of class of a particular object. These include `integer`, `numeric`,
+`character`, and `logical`; types often used in R / Bioconductor.
+
+## Logical
+
+```{r}
+isTRUEorFALSE(TRUE)
+isTRUEorFALSE(FALSE)
+isTRUEorFALSE(NA, na.ok = TRUE)
+```
+
+## Character
+
+```{r}
+isScalarCharacter(LETTERS)
+isScalarCharacter("L")
+isCharacter(LETTERS)
+isCharacter(NA_character_, na.ok = TRUE)
+isZeroOneCharacter("")
+isZeroOneCharacter("", zchar = TRUE)
+```
+
+## Numeric
+
+```{r}
+isScalarInteger(1L)
+isScalarInteger(1)
+
+isScalarNumber(1)
+isScalarNumber(1:2)
+```
+
+# Slot replacement
+
+This function is often used in packages that establish formal S4 classes.
+When updating the value of a slot, one often uses the `setSlots` function.
+
+```{r}
+setClass("A", representation = representation(slot1 = "numeric"))
+aclass <- new("A", slot1 = 1:10)
+aclass
+```
+
+Now we use the `setSlots` function to update the values in the object.
+
+```{r}
+aclass <- setSlots(aclass, slot1 = 11:20)
+aclass
+```
+
+Note that `setSlots` provides the same functionality as
+`BiocGenerics:::replaceSlots` but is more consistent with Bioconductor the
+setter and getter language.
+
+# `show` method
+
+The `selectSome` function allows the developer to display a limited amount of
+information from a developed class. Note that the use of the `@` here is due
+to the minimal implementation in the examples provided. The developer should
+always provide an interface to access the internal components of the class
+via an 'accessor' function.
+
+```{r}
+setMethod("show", signature = "A", function(object) {
+    s1info <- getElement(object, "slot1")
+    cat("A sequence:", selectSome(s1info))
+})
+aclass
+```
+
+# Contributing
+
+`BiocBaseUtils` is a work in progress and we welcome contributions. There
+are quite a few often-used utility functions that are yet to be included in the
+package. We would like to keep the dependencies in this package minimal;
+therefore, contributions should mostly use base R.
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
+Please report minimally reproducible bugs at our [github issue page][].
+
+[github issue page]: https://github.com/Bioconductor/BiocBaseUtils/issues

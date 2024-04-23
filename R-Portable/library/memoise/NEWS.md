@@ -1,6 +1,18 @@
+# memoise 2.0.1
+
+# Version 2.0.0.9000
+
+* Winston Chang is now the maintainer.
+
+* The default value for the `hash` argument of `memoise()` is now
+  taken with an indirection in case `memoise()` is called at the
+  top-level of a namespace (r-lib/rlang#1177).
+
+* Fixed a bug in `has_cache()` that caused it to get the value unnecessarily. (#123)
+
 # Version 2.0.0
 
-* Memoise now uses caching objects from the cachem package by default. These caches support automatic pruning, so that they won't grow indefinitely. The older-style cache objects in the memoise package are still supported, but we suggest using new-style caches from cachem. (#112)
+* Memoise now uses caching objects from the cachem package by default. These caches support automatic pruning, so that they won't grow indefinitely. The older-style cache objects in the memoise package are still supported, but we suggest using new-style caches from cachem. (#115)
 
 * Name clashes between function arguments and variables defined when memoising
   no longer occur (@egnha, #43).

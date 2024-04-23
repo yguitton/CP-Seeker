@@ -65,9 +65,12 @@ hbk                     Hawkins, Bradu, Kass's Artificial Data
 heart                   Heart Catherization Data
 huberM                  Safe (generalized) Huber M-Estimator of
                         Location
+huberize                Huberization - Bringing Outliers In
 kootenay                Waterflow Measurements of Kootenay River in
                         Libby and Newgate
 lactic                  Lactic Acid Concentration Measurement Data
+lmc                     Left and Right Medcouple, Robust Measures of
+                        Tail Weight
 lmrob                   MM-type Estimators for Linear Regression
 lmrob..D..fit           Compute Design Adaptive Scale estimate
 lmrob..M..fit           Compute M-estimators of regression
@@ -136,3 +139,4 @@ wagnerGrowth            Wagner's Hannover Employment Growth Data
 weights.lmrob           Extract Robustness and Model Weights
 wgt.himedian            Weighted Hi-Median
 wood                    Modified Data on Wood Specific Gravity
+x30o50                  Extreme Data examples

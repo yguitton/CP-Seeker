@@ -31,18 +31,6 @@ if (this.JSON) {
 	WScript.Quit(1);
 }
 
-// Determine where to keep the error log
-// If deployed to users individually, keep with the deployment (default)
-// If deployed to a central location (e.g. a network share) use a directory in
-// each user's %userprofile%
-
-// Old code 
-// sLogPath = 'log';
-// //' Determine User Home directory
-// var sUPath = oShell.ExpandEnvironmentStrings("%USERPROFILE%");
-// var sLogPath = sUPath + "\\." + oConfig.appname;
-
-// New version 
 // Define the log directory path to store the error log file.
 // It is obtained by going three levels up from the current script's directory.
 var sLogPath = oFSO.GetParentFolderName(oFSO.GetParentFolderName(oFSO.GetParentFolderName(WScript.ScriptFullName))) + "\\Error_log";
@@ -63,11 +51,11 @@ if (!oFSO.FolderExists(sLogPath)) {
 	oFSO.CreateFolder(sLogPath);
 }
 
-// Ajoutez la date dans le nom du fichier error.log
+// Add the date to the error log file name
 var currentDate = new Date();
-// Format de la date : YYYY-MM-DD_HH-MM
+// Date format: YYYY-MM-DD_HH-MM
 var formattedDate = currentDate.getFullYear() + '-' + ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' + ('0' + currentDate.getDate()).slice(-2) + '-' + ('0' + currentDate.getHours()).slice(-2) + 'h-' + ('0' + currentDate.getMinutes()).slice(-2) + 'min';
-sLogFile = 'error_' + formattedDate + '.log';
+var sLogFile = 'error_' + formattedDate + '.log';
 
 //' Define the R interpreter
 var Rbindir = "";
@@ -94,6 +82,10 @@ if (!oFSO.FileExists(RScriptFile)) {
 }
 
 var Outfile        = sLogPath + "\\" + sLogFile;
+
+// Create the error log file if it doesn't exist
+var fOutfile = oFSO.CreateTextFile(Outfile, true);
+fOutfile.Close();
 
 var regPathsContent = oFSO.OpenTextFile('utils\\regpaths.json', 1).ReadAll(); // Load the current content of regpaths.json
 var regPathsObject = JSON.parse(JSON.minify(regPathsContent)); // Convert the JSON content to a JavaScript object

@@ -12,7 +12,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteKeywords{Mass Spectrometry, MS, Metabolomics, Bioinformatics}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{xcms,msdata,MassSpecWavelet,BiocStyle}
+  %\VignetteDepends{xcms,msdata,MassSpecWavelet,BiocStyle,signal}
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
@@ -35,10 +35,10 @@ Prior to any other analysis step, peaks have to be identified in the mass spec
 data. In contrast to the typical metabolomics workflow, in which peaks are
 identified in the chromatographic (time) dimension, in direct injection mass
 spec data sets peaks are identified in the m/z dimension. `r Biocpkg("xcms")`
-uses functionality from the `MassSpecWavelet` package to identify such peaks.
+uses functionality from the *MassSpecWavelet* package to identify such peaks.
 
 Below we load the required packages. For information on the parallel processing
-setup please see the `BiocParallel` vignette.
+setup please see the *BiocParallel* vignette.
 
 ```{r load-libs, message = FALSE, results = "hide"}
 library(xcms)
@@ -54,16 +54,19 @@ the package and load the data set. We create also a `data.frame` describing the
 experimental setup based on the file names.
 
 ```{r load-data, message = FALSE, results = "hide"}
-mzdata_path <- system.file("fticr", package = "msdata")
-mzdata_files <- list.files(mzdata_path, recursive = TRUE, full.names = TRUE)
+mzML_path <- system.file("fticr-mzML", package = "msdata")
+mzML_files <- list.files(mzML_path, recursive = TRUE, full.names = TRUE)
+
+## We're subsetting to 2 samples per condition
+mzML_files <- mzML_files[c(1, 2, 6, 7)]
 
 ## Create a data.frame assigning samples to sample groups, i.e. ham4 and ham5.
-grp <- rep("ham4", length(mzdata_files))
-grp[grep(basename(mzdata_files), pattern = "^HAM005")] <- "ham5"
-pd <- data.frame(filename = basename(mzdata_files), sample_group = grp)
+grp <- rep("ham4", length(mzML_files))
+grp[grep(basename(mzML_files), pattern = "^HAM005")] <- "ham5"
+pd <- data.frame(filename = basename(mzML_files), sample_group = grp)
 
 ## Load the data.
-ham_raw <- readMSData(files = mzdata_files,
+ham_raw <- readMSData(files = mzML_files,
                       pdata = new("NAnnotatedDataFrame", pd),
                       mode = "onDisk")
 ```
@@ -238,3 +241,9 @@ head(featureValues(ham_prep, value = "into"))
 Further analysis, i.e. detection of features/metabolites with significantly
 different abundances, or PCA analyses can be performed on the feature matrix
 using functionality from other R packages, such as `r Biocpkg("limma")`.
+
+# Session information
+
+```{r sessionInfo}
+sessionInfo()
+```

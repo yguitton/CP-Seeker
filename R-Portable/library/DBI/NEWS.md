@@ -1,3 +1,121 @@
+<!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
+
+# DBI 1.2.2 (2024-02-09)
+
+## Bug fixes
+
+- `Id()` does not assign empty names to the components if all arguments are unnamed (#464).
+- Add spec to version control to avoid weird pandoc errors on CRAN (#465).
+
+
+# DBI 1.2.1 (2024-01-12)
+
+## Bug fixes
+
+- Fix `dbWriteTableArrow()` according to spec (#457).
+
+- Fix type inference in default method for `dbCreateTableArrow()` (#450).
+
+## Features
+
+- `dbAppendTableArrow()` returns number of rows (#454).
+
+- Add `temporary` argument to `dbCreateTableArrow()` (#453).
+
+- Avoid coercing `params` in default implementation for `dbSendQueryArrow()` (#447).
+
+- Use `nanoarrow::infer_nanoarrow_schema()` in the default method for `dbCreateTable()` (#445).
+
+## Chore
+
+- Add badge to `DBIResultArrow` class (#452).
+
+- Change maintainer e-mail.
+
+## Documentation
+
+- Finalize Arrow vignette (#451, #455).
+
+- Document new Arrow generics (#444, #449).
+
+- Use dbitemplate (@maelle, #442).
+
+
+# DBI 1.2.0 (2023-12-20)
+
+## Breaking changes
+
+- `dbUnquoteIdentifier()` creates `Id()` objects without component names  and allows non-`NA` character input (#421, #422).
+
+
+## Features
+
+- New generics `dbSendQueryArrow()`, `dbFetchArrow()`, `dbGetQueryArrow()`, `dbReadTableArrow()`, `dbWriteTableArrow()`  (@nbenn, #390),  `dbCreateTableArrow()`, `dbAppendTableArrow()` (#396),
+`dbBindArrow()` (#415) and `dbFetchArrowChunk()` (#424), with default implementations via nanoarrow (#414).
+
+- `Id()` now accepts unnamed components (#417). If names are provided, the components are arranged in SQL order (@eauleaf, #427).
+
+- New `dbIsValid()` method for `"DBIResultArrowDefault"` objects implemented by DBI (#425).
+
+- Implement `dbiDataType()` for objects of class `"blob"`.
+
+## Documentation
+
+- Update pkgdown template (@maelle, #428, #438, #437).
+
+- Clarify repeated parameter binding (#430).
+
+- Deal with sundown of `https://relational.fit.cvut.cz` (#423).
+
+- Correct vignette titles (#419).
+
+- Harmonize table documentation (#400).
+
+- Tweak typo, add families for data retrieval and command execution.
+
+## Testing
+
+- Enable BLOB tests for arrow \>= 10.0.0 (#395).
+
+- Run DBItest for SQLite as part of the checks here (#431).
+
+- Fix checks without suggested packages (#420).
+
+- Fix Windows tests on GHA (#406).
+
+- `testthat::use_testthat(3)` (#416).
+
+
+# DBI 1.1.3 (2022-06-18)
+
+## Features
+
+- `dbAppendTable()` accepts `Id` (#381, @renkun-ken).
+
+
+## Documentation
+
+- `?dbSendQuery` and related methods gain a section "The data retrieval flow" (#386).
+
+- `?dbSendStatement` and related methods gain a section "The command execution flow" (#386).
+
+
+# DBI 1.1.2 (2021-12-19)
+
+## Features
+
+- Use `dbQuoteLiteral()` in default method for `sqlData()` (#362, #371).
+- Update specification with changes from DBItest 1.7.2 (#367).
+
+## Documentation
+
+- The pkgdown documentation for DBI generics (e.g. `?dbConnect`) contains clickable links to all known backends (except ROracle), and an explanatory sentence (#360).
+- `?Id` gains better examples (#295, #370).
+- Elaborate on status of `dbWriteTable()` in the documentation (#352, #372).
+- Make method definition more similar to S3. All `setMethod()` calls refer to top-level functions (#368).
+- `?dbReadTable` and other pages gain pointers to `Id()` and `SQL()` (#359).
+
+
 # DBI 1.1.1 (2021-01-04)
 
 ## Documentation
@@ -15,10 +133,10 @@
 ## Internal
 
 - Switch to GitHub Actions (#326).
-- Update URL in DESCRIPTION.
+- Update URL in `DESCRIPTION`.
 
 
-# DBI 1.1.0
+# DBI 1.1.0 (2019-12-15)
 
 ## New features
 

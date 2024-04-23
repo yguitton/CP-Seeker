@@ -65,6 +65,7 @@ By mastering these concepts, you'll not only be able to leverage the advantages 
 ## Sass Basics {#basics}
 
 ```{r setup, include=FALSE}
+library(sass)
 knitr::opts_chunk$set(
   collapse = TRUE,
   message = FALSE,
@@ -75,35 +76,56 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Variables
+### Variables {#variables}
 
-[Sass variables](https://sass-lang.com/guide#topic-2) are a great mechanism for simplifying and exposing CSS logic to users. To create a variable, assign a value (likely a CSS [property value](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics)) to a name, then refer to it by name in downstream Sass code. In this minimal example, we create a `body-bg` variable then use it to generate a single [style rule](https://sass-lang.com/documentation/style-rules), but as we'll see later, variables can also be used inside of other arbitrary Sass code (e.g., functions, mixins, etc).
+[Sass variables](https://sass-lang.com/guide#topic-2) are a great mechanism for simplifying and exposing CSS logic to users. To create a variable, assign a value (likely a CSS [property value](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/CSS_basics)) to a name, then refer to it by name in downstream Sass code. In this minimal example, we create a `body-bg` variable then use it to generate a single [style rule](https://sass-lang.com/documentation//style-rules), but as we'll see later, variables can also be used inside of other arbitrary Sass code (e.g., functions, mixins, etc).
 
-```{r}
+```r
 library(sass)
 variable <- "$body-bg: red;"
 rule <- "body { background-color: $body-bg; }"
 sass(input = list(variable, rule))
 ```
 
+```css
+/* CSS */
+body { 
+  background-color: red;
+}
+```
+
 A more convenient and readable way to create Sass variables in R is to use a named `list()`. Also, it's a good idea to add the ` !default` flag after the value since it provides users of your Sass an opportunity to set their own value. We'll learn more about defaults in [layering](#layering), but for now, just note that the `!default` flag says use this value only if that variable isn't already defined:
 
-```{r}
+```r
 user_default <- list("body-bg" = "blue !default")
 default <- list("body-bg" = "red !default")
 sass(input = list(user_default, default, rule))
 ```
 
+```css
+/* CSS */
+body { 
+  background-color: blue;
+}
+```
+
 ### Functions {#functions}
 
-Sass comes with a variety of [built-in functions](https://sass-lang.com/documentation/modules) (i.e., you don't have to [import](#imports) anything to start using them) which are useful for working with CSS values ([colors](https://sass-lang.com/documentation/modules/color), [numbers](https://sass-lang.com/documentation/modules/math), [strings](https://sass-lang.com/documentation/modules/string), etc). These built-in functions are primarily useful modifying or combining CSS values in such a way that isn't possible with CSS. Here we use the `rgba()` to add alpha blending to `black` and assign the result to a variable.^[Oh, by the way, the value of a variable may be an expression.]
+Sass comes with a variety of [built-in functions](https://sass-lang.com/documentation//modules) (i.e., you don't have to [import](#imports) anything to start using them) which are useful for working with CSS values ([colors](https://sass-lang.com/documentation//modules/color), [numbers](https://sass-lang.com/documentation//modules/math), [strings](https://sass-lang.com/documentation//modules/string), etc). These built-in functions are primarily useful modifying or combining CSS values in such a way that isn't possible with CSS. Here we use the `rgba()` to add alpha blending to `black` and assign the result to a variable.^[Oh, by the way, the value of a variable may be an expression.]
 
-```{r}
+```r
 variable <- list("body-bg" = "rgba(black, 0.8)")
 sass(input = list(variable, rule))
 ```
 
-Sass also provides the ability to define your own functions through the [`@function` at-rule](https://sass-lang.com/documentation/at-rules/function). Like functions in most languages, there are four main components to a function definition: (1) the function `name`, (2) the function argument/inputs (e.g., `arg1`, `arg2`), (3) the function body which contains statements (i.e., `statement1`, `statement2`, etc.), and finally (4) a return `value`.
+```css
+/* CSS */
+body {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+```
+
+Sass also provides the ability to define your own functions through the [`@function` at-rule](https://sass-lang.com/documentation//at-rules/function). Like functions in most languages, there are four main components to a function definition: (1) the function `name`, (2) the function argument/inputs (e.g., `arg1`, `arg2`), (3) the function body which contains statements (i.e., `statement1`, `statement2`, etc.), and finally (4) a return `value`.
 
 ```r
 @function name(arg1, arg2) {
@@ -130,7 +152,7 @@ For an example of where creating your function becomes useful, consider this `co
 
 By saving this function to a file named `color-contrast.scss`, it can then be [imported](#imports) and used in the following way. For a live example of this in action, consider [this Shiny app](https://gallery.shinyapps.io/sass-font/) which allows the user to interactively choose a background color and the title's font color automatically updates to an appropriate color contrast. [See here](#shiny-dynamic) for more on allowing **shiny** users to influence styling on the page using **sass**.
 
-```{r}
+```r
 sass(
   list(
     variable,
@@ -143,14 +165,22 @@ sass(
 )
 ```
 
-**NOTE**: [Bootstrap 4 Sass](https://getbootstrap.com/docs/4.0/getting-started/theming/) provides it's own color contrasting function, named `color-yiq()`, which does essentially the same thing as `color-contrast()`, and is easy to use via `bootstrap_sass()` function the **bslib** package (this function automatically imports Bootstrap's variables, functions, and mixins):
+```css
+/* CSS */
+body {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+}
+```
+
+**NOTE**: `bslib::bs_theme()` provides it's own, more sophisticated, version of `color-contrast()` that you can use like so:  `sass::sass_partial("body{color: color-contrast($body-bg)}", bs_theme())`
 
 ```{r, eval=FALSE, ref.label='bs_sass'}
 ```
 
 ### Importing {#imports}
 
-In practice, you'll want to write your Sass code in `.scss` ([or `.sass`](https://sass-lang.com/documentation/syntax)) files (instead of inside R strings). That way you can leverage things like syntax highlighting in RStudio (or your favorite IDE) and make it easier for others to import your Sass into their workflow. For example, if I have `.scss` file in my working directory, say `my-style.scss`, I can compile it this way:
+In practice, you'll want to write your Sass code in `.scss` ([or `.sass`](https://sass-lang.com/documentation//syntax)) files (instead of inside R strings). That way you can leverage things like syntax highlighting in RStudio (or your favorite IDE) and make it easier for others to import your Sass into their workflow. For example, if I have `.scss` file in my working directory, say `my-style.scss`, I can compile it this way:
 
 ```r
 sass(sass_file("my-style.scss"))
@@ -161,51 +191,96 @@ knitr::include_graphics('my-style.png')
 ```
 
 ```css
+/* CSS */
 body {
   background-color: rgba(0, 0, 0, 0.8);
 }
 ```
 
-This works because `sass_file()` uses `sass_import()` to generate an `@import` at-rule. If you visit the [docs for `@import`](https://sass-lang.com/documentation/at-rules/import), you'll notice there's more you can do that import local `.scss`, like import local or remote `.css` files, import font files, and more.
+This works because `sass_file()` uses `sass_import()` to generate an `@import` at-rule. If you visit the [docs for `@import`](https://sass-lang.com/documentation//at-rules/import), you'll notice there's more you can do that import local `.scss`, like import local or remote `.css` files, import font files, and more. Note also that `{sass}` also provides tools that make importing of local font files easier -- see `font_google()` to learn more.
+
+## Font imports {#file-import}
+
+Importing font file(s) directly in Sass/CSS/HTML can be a headache to implement. This is especially true if you want to serve font files so that a custom font renders on any client machine, even if the client is without an internet connection. To make this easier, `{sass}` provides a `font_google()` which can be used to download, cache, import, and serve the relevant font files all at once.
+
+```r
+library(htmltools)
+
+my_font <- list("my-font" = font_google("Pacifico"))
+css <- sass(
+  list(
+    my_font,
+    list("body {font-family: $my-font}")
+  )
+)
+
+shinyApp(
+  fluidPage(
+    "Hello",
+    tags$style(css)
+  ), 
+  function(...) {}
+)
+```
+
+```{r, echo = FALSE, out.width='30%'}
+knitr::include_graphics('hello-pacifico.png')
+```
+
+To import non-Google fonts, use either `font_link()` or `font_face()`. The former is for importing fonts via a remote URL whereas the former could be use to import any font locally (or remotely).
 
 ### Mixins {#mixins}
 
-Similar to how functions are useful for encapsulating _computation_ in a reusable unit, [mixins](https://sass-lang.com/documentation/at-rules/mixin) are useful for doing the same with _styling rules_ (i.e., packaging them into a reusable unit).
-Technically speaking, mixins are similar to functions in that they require a `name`, may have arguments, as well as any number of statements. However, they differ in that they require the return value to be a [style rule](https://sass-lang.com/documentation/style-rules), and when called, need to be `@include`d in a larger style rule in order to generate any CSS.
+Similar to how functions are useful for encapsulating _computation_ in a reusable unit, [mixins](https://sass-lang.com/documentation//at-rules/mixin) are useful for doing the same with _styling rules_ (i.e., packaging them into a reusable unit).
+Technically speaking, mixins are similar to functions in that they require a `name`, may have arguments, as well as any number of statements. However, they differ in that they require the return value to be a [style rule](https://sass-lang.com/documentation//style-rules), and when called, need to be `@include`d in a larger style rule in order to generate any CSS.
 
-For some examples, please see the [Sass mixin documentation](https://sass-lang.com/documentation/at-rules/mixin).
+For some examples, please see the [Sass mixin documentation](https://sass-lang.com/documentation//at-rules/mixin).
 
 ### More basics
 
-This vignette intentionally doesn't try to re-invent the existing and wonderful [Sass documentation](https://sass-lang.com/documentation). There you'll find many more useful things as you start to write more Sass, such as [control flow](https://sass-lang.com/documentation/at-rules/control), [lists](https://sass-lang.com/documentation/values/lists), [maps](https://sass-lang.com/documentation/values/maps), [interpolation](https://sass-lang.com/documentation/interpolation), and more.
+This vignette intentionally doesn't try to re-invent the existing and wonderful [Sass documentation](https://sass-lang.com/documentation/). There you'll find many more useful things as you start to write more Sass, such as [control flow](https://sass-lang.com/documentation//at-rules/control), [lists](https://sass-lang.com/documentation//values/lists), [maps](https://sass-lang.com/documentation//values/maps), [interpolation](https://sass-lang.com/documentation//interpolation), and more.
 
 ## Composable sass {#layering}
 
-To make Sass code more composable with other Sass code (e.g., allowing others to change your variable defaults or import a function or mixin you've defined), consider partitioning your Sass code into a `sass::sass_layer()`. The main idea is to split your Sass into 3 parts: `defaults` (i.e. variable defaults), `declarations` (i.e., [functions](#functions), [mixins](#mixins), etc), and `rules` (i.e., styling rules).
+To make Sass code more composable with other Sass code (e.g., allowing others to change your variable defaults or import a function or mixin you've defined), consider partitioning your Sass code into a `sass::sass_layer()`. The main idea is to split your Sass into 4 parts: [`functions`](#functions), `defaults` (i.e. [variable defaults](#variables)), [`mixins`](#mixins), and `rules` (i.e., styling rules).
 
-```{r}
+```r
 layer1 <- sass_layer(
-  defaults = list("body-bg" = "white !default"),
-  declarations = sass_file("color-contrast.scss"),
+  functions = sass_file("color-contrast.scss"),
+  defaults = list("body-bg" = "black !default"),
   rules = "body{background-color: $body-bg; color: color-contrast($body-bg)}"
 )
-sass(layer1)
+as_sass(layer1)
 ```
 
-This allows downstream `sass_layer()`s to be `sass_bundle()`d into a single layer, where those downstream layers are granted higher priority. More specifically, this means:
+```css
+/* CSS */
+body {
+  background-color: black;
+  color: white;
+}
+```
+
+This allows downstream `sass_layer()`s to be `sass_bundle()`d into a single layer, where `defaults` in downstream layers are granted higher priority. More specifically, this means:
 
 * `defaults` for `layer2` are placed _before_ `defaults` for `layer1`.
   * Allowing downstream Sass to override variable defaults in upstream Sass.
-* `declarations` for `layer2` are placed _after_ `declarations` for `layer1`.
-  * Allowing downstream Sass to use functions and mixins defined in upstream Sass.
 * `rules` for `layer2` are placed _after_ `rules` for `layer1`.
   * Allows downstream rules to take precedence over upstream rules ([precedence](https://css-tricks.com/precedence-css-order-css-matters/) matters when there are multiple rules with the same level of [specificity](https://css-tricks.com/specifics-on-css-specificity/)).
 
-```{r}
+```r
 layer2 <- sass_layer(
   defaults = list("body-bg" = "white !default")
 )
 sass(sass_bundle(layer1, layer2))
+```
+
+```css
+/* CSS */
+body {
+  background-color: white;
+  color: black;
+}
 ```
 
 ### Resolving relative imports {#imports-relative}
@@ -246,7 +321,7 @@ sass(
 
 By default, `sass()` outputs `'expanded'` CSS meaning there are lots of white-space and line-breaks included to make it more readable by humans. Computers don't need all those unnecessary characters, so to speed up your page load time when you go to include the CSS in [**shiny**](#shiny) or [**rmarkdown**](#rmarkdown), consider removing them altogether with `output_style = "compressed"`:
 
-```{r}
+```r
 sass(
   sass_file("my-style.scss"),
   options = sass_options(output_style = "compressed")
@@ -255,7 +330,7 @@ sass(
 
 ### Source maps {#source-maps}
 
-When compressing the CSS output, it can be useful to include a [source map](https://www.richfinelli.com/what-is-a-css-source-maps/) so that it's easier to inspect the CSS from the website. The easiest way to include a source map is to set `source_map_embed = TRUE`:
+When compressing the CSS output, it can be useful to include a [source map](https://web.dev/articles/source-maps) so that it's easier to inspect the CSS from the website. The easiest way to include a source map is to set `source_map_embed = TRUE`:
 
 ```r
 sass(
@@ -269,15 +344,31 @@ sass(
 
 ### Caching {#caching}
 
-Sometimes calling `sass()` can be computationally expensive, in which case, it can be useful to leverage its caching capability. Caching is automatically enabled in non-interactive sessions, but you can set the `sass.cache` option to `TRUE` to enable it universally, and/or use `sass_cache_options(cache = TRUE)` to enable for specific calls to `sass()`. See `sass_cache_options()` for more details about how caching works.
+Sometimes calling `sass()` can be computationally expensive, in which case, it can be useful to leverage its caching capability. Caching is enabled by default, unless Shiny's Developer Mode (`shiny::devmode()`) is enabled. To explicitly enable (disable), set `options(sass.cache = )` to `TRUE` (or `FALSE`):
 
 ```r
-options(sass.cache = TRUE)
-sass(
-  sass_file("my-style.scss"),
-  cache_options = sass_cache_options(cache = TRUE)
+withr::with_options(
+  list(sass.cache = TRUE),
+  sass(sass_file("my-style.scss"))
 )
 ```
+
+You can also configure the location, size, and age of file caching via `sass_file_cache()`, which can be passed directly to a `sass()` call:
+
+```r
+sass(
+  sass_file("my-style.scss"),
+  cache = sass_file_cache(getwd(), max_size = 100 * 1024^2)
+)
+```
+
+Or used with `sass_cache_set_dir()` to configure the file cache globally:
+
+```r
+sass_cache_set_dir(getwd(), sass_file_cache(getwd(), max_size = 100 * 1024^2))
+```
+
+Note that the location of the file cache defaults to `sass_cache_context_dir()`, which depends on the context in which it's running. When inside a Shiny app, the cache location is relative to the app's directory so the cache can persist and be shared across R processes. Otherwise, the context directory is a OS and package specific caching directory.
 
 ## In shiny {#shiny}
 

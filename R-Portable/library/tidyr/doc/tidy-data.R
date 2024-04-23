@@ -1,14 +1,26 @@
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 set.seed(1014)
 options(dplyr.print_max = 10)
 
 ## -----------------------------------------------------------------------------
-classroom <- read.csv("classroom.csv", stringsAsFactors = FALSE)
+library(tibble)
+classroom <- tribble(
+  ~name,    ~quiz1, ~quiz2, ~test1,
+  "Billy",  NA,     "D",    "C",
+  "Suzy",   "F",    NA,     NA,
+  "Lionel", "B",    "C",    "B",
+  "Jenny",  "A",    "A",    "B"
+  )
 classroom
 
 ## -----------------------------------------------------------------------------
-read.csv("classroom2.csv", stringsAsFactors = FALSE)
+tribble(
+  ~assessment, ~Billy, ~Suzy, ~Lionel, ~Jenny,
+  "quiz1",     NA,     "F",   "B",     "A",
+  "quiz2",     "D",    NA,    "C",     "A",
+  "test1",     "C",    NA,    "B",     "B"
+  )
 
 ## ----setup, message = FALSE---------------------------------------------------
 library(tidyr)
@@ -120,7 +132,7 @@ rank <- billboard3 %>%
   select(song_id, date, week, rank)
 rank
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(purrr)
 #  paths <- dir("data", pattern = "\\.csv$", full.names = TRUE)
 #  names(paths) <- basename(paths)

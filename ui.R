@@ -67,10 +67,10 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
 			shinydashboard::menuSubItem("Integration", icon = shiny::icon("cog"), tabName = "process")#,
 			#shinydashboard::menuSubItem("Linear regression", icon = shiny::icon("table"), tabName = "regression")
 		),
-		shinydashboard::menuItem('Explore data', icon = shiny::icon('bar-chart-o'), 
+		shinydashboard::menuItem('Explore data', icon = shiny::icon("table"),
 			shinydashboard::menuSubItem("Results", icon = shiny::icon("table"), tabName = "process_results"), 
-			shinydashboard::menuSubItem("TIC/EIC & MS", icon = shiny::icon("bar-chart-o"), tabName = "EIC"), 
-			shinydashboard::menuSubItem("Figures", icon = shiny::icon("bar-chart-o"), tabName = "graphics")
+			shinydashboard::menuSubItem("TIC/EIC & MS", icon = shiny::icon("chart-simple"), tabName = "EIC"), 
+			shinydashboard::menuSubItem("Figures", icon = shiny::icon("chart-simple"), tabName = "graphics")
 		),
 		shinydashboard::menuItem("Export Results", tabName = "sectors", icon = icon("download"),
         	radioButtons("export_format", "Document format", c("Excel", "CSV"),inline = FALSE, selected = 1),

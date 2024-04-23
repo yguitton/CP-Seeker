@@ -1,5 +1,4 @@
 ### R code from vignette source 'pcaMethods.Rnw'
-### Encoding: ISO8859-1
 
 ###################################################
 ### code chunk number 1: pcaMethods.Rnw:102-114

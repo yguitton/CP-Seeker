@@ -1,3 +1,48 @@
+# fs 1.6.3
+
+* No user visible changes.
+
+# fs 1.6.2
+
+* `path_ext_set()` can now handle extensions that contain a `.`, e.g. `csv.gz` (@mgirlich, #415).
+
+# fs 1.6.1
+
+No user visible changes.
+
+# fs 1.6.0
+
+* inputs to `path_real()` and `path_join()` are coerced to character for consistency with other functions (@raymondben, #370)
+
+* fs uses libuv 1.44.2 now.
+
+# fs 1.5.2
+
+* `file_create()` and `dir_create()` now return the correct path when `...` arguments are used (@davidchall, #333).
+
+* `dir_create(recurse = FALSE)` now correctly handles `...` arguments (@davidchall, #333).
+
+* `file_exists()` now expands `~` again (#325).
+
+* `dir_copy()` works when `path` has length >1 (#360).
+
+# fs 1.5.1
+
+* Gábor Csárdi is now the maintainer.
+
+* fs is now licensed as MIT (#301).
+
+* `dir_create()` now restores the previous umask (#293)
+
+* `file_exists()` is now much faster (#295)
+
+* `options(fs.fs_path.shorten)` can now be used to control how paths are shortened in tibbles.
+  The default value is "front", valid alternatives are "back", "middle" and "abbreviate". (#335)
+
+* `options(fs.use_tibble = FALSE)` can now be used to disable use of tibbles (#295).
+
+* `path_tidy()` now works with non-UTF8 encoded paths (@shrektan, #321).
+
 # fs 1.5.0
 
 * The libuv release used by fs was updated to 1.38.1

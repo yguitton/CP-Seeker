@@ -1,7 +1,7 @@
 Package: mzID
 Type: Package
 Title: An mzIdentML parser for R
-Version: 1.24.0
+Version: 1.40.0
 Authors@R: c(person(given = "Laurent", family = "Gatto",
 		    email = "laurent.gatto@uclouvain.be",
 		    comment = c(ORCID = "0000-0002-1520-2268"),
@@ -30,14 +30,14 @@ Collate: 'aaa.R' 'generics.R' 'mzIDpsm.R' 'mzIDpeptides.R'
         'mzIDCollection.R' 'mzID-constructor.R' 'mzID-package.R'
 RoxygenNote: 5.0.1
 git_url: https://git.bioconductor.org/packages/mzID
-git_branch: RELEASE_3_10
-git_last_commit: 25c38b7
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 3622ef6
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: no
-Packaged: 2019-10-30 02:21:29 UTC; biocbuild
+Packaged: 2023-10-25 01:39:46 UTC; biocbuild
 Author: Laurent Gatto [ctb, cre] (<https://orcid.org/0000-0002-1520-2268>),
   Thomas Pedersen [aut] (<https://orcid.org/0000-0002-6977-7147>),
   Vladislav Petyuk [ctb]
 Maintainer: Laurent Gatto <laurent.gatto@uclouvain.be>
-Built: R 3.6.1; ; 2019-10-30 13:46:31 UTC; windows
+Built: R 4.3.1; ; 2023-10-25 14:26:41 UTC; windows

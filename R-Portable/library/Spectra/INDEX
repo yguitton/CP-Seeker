@@ -1,0 +1,18 @@
+MsBackend               Mass spectrometry data backends
+MsBackendCached         Base MsBackend class providing data caching
+                        mechanism
+applyProcessing         The Spectra class to manage and access MS data
+chunkapply              Apply a function stepwise to chunks of data
+combinePeaksData        Combine peaks with similar m/z across spectra
+countIdentifications    Count the number of identifications per scan
+estimatePrecursorIntensity
+                        Estimate Precursor Intensities
+filterFourierTransformArtefacts
+                        Fast fourier transform artefact filter
+joinPeaks               Join (map) peaks of two spectra
+neutralLoss             Calculate Neutral Loss Spectra
+plotMzDelta             MZ delta Quality Control
+spectra-plotting        Plotting Spectra
+spectraVariableMapping
+                        Mapping between spectra variables and data file
+                        fields

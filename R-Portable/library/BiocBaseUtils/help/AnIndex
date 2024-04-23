@@ -1,0 +1,11 @@
+Assertions	Assertions
+isCharacter	Assertions
+isScalarCharacter	Assertions
+isScalarInteger	Assertions
+isScalarLogical	Assertions
+isScalarNumber	Assertions
+isTRUEorFALSE	Assertions
+isZeroOneCharacter	Assertions
+replaceSlots	setSlots
+selectSome	selectSome
+setSlots	setSlots

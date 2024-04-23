@@ -10,7 +10,7 @@ importFrom("graphics", "abline", "axis", "barplot", "coplot", "image",
            "legend", "lines", "matplot", "mtext", "panel.smooth",
            "par", "plot", "plot.new", "plot.window", "points", "polygon", "rect",
            "segments", "text", "title")
-importFrom("stats", "approx", "approxfun", "as.dendrogram", "as.dist", "cmdscale",
+importFrom("stats", "approx", "approxfun", "as.dendrogram", "as.dist",
            "coef", "contr.sum", "contrasts<-", "cov", "cov2cor",
            "dist", "density", "df", "dhyper", "dnorm", "filter", "fitted",
            "hat", "hclust", "integrate", "isoreg", "lm", "lm.fit", "lm.wfit", "loess",
@@ -21,6 +21,7 @@ importFrom("stats", "approx", "approxfun", "as.dendrogram", "as.dist", "cmdscale
            "qnorm", "qt", "quantile", "residuals", "rnorm", "sd",
            "uniroot", "var", "weighted.mean")
 importFrom("utils", "getFromNamespace", "head", "read.delim", "read.table", "tail", "write.table")
+importFrom("statmod", "gauss.quad.prob", "mixedModel2Fit", "remlscore")
 if( tools:::.OStype() == "windows" ) importFrom("utils", "winMenuAddItem")
 
 S3method("[",MAList)

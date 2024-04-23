@@ -126,19 +126,22 @@ get_theoric <- function(formulas, charge, resolution = NULL) {
 #' 		\item iso string isotope annotation in the form "A+/-"
 #'}
 get_isotope_annot <- function(isotopic_pattern) {
-	if (class(isotopic_pattern) == "character") return(data.frame(matrix(, 
-		nrow = 0, ncol = 3, dimnames = list(c(), 
-			c("mz", "abundance", "iso")))))
-	mz_A <- isotopic_pattern[which.max(isotopic_pattern[, 2]), 1]
-	weights <- isotopic_pattern[, 2] / sum(isotopic_pattern[, 2])
-	isos <- round(isotopic_pattern[, 1] - mz_A)
-	isos[which(isos == 0)] <- ""
-	isos[which(isos > 0)] <- paste0("+", isos[which(isos > 0)])
-	isos <- paste0("A", isos)
-	isotopic_pattern <- data.frame(mz = isotopic_pattern[, 1], 
-		abundance = isotopic_pattern[, 2], weight = weights, iso = isos, 
-		stringsAsFactors = FALSE)
-	isotopic_pattern[order(isotopic_pattern$abundance, decreasing = TRUE), ]
+  if (is.character(isotopic_pattern)) {
+    return(data.frame(matrix(, nrow = 0, ncol = 3, dimnames = list(c(), c("mz", "abundance", "iso")))))
+  } else {
+    mz_A <- isotopic_pattern[which.max(isotopic_pattern[, 2]), 1]
+    weights <- isotopic_pattern[, 2] / sum(isotopic_pattern[, 2])
+    isos <- round(isotopic_pattern[, 1] - mz_A)
+    isos[which(isos == 0)] <- ""
+    isos[which(isos > 0)] <- paste0("+", isos[which(isos > 0)])
+    isos <- paste0("A", isos)
+    isotopic_pattern <- data.frame(mz = isotopic_pattern[, 1], 
+                                   abundance = isotopic_pattern[, 2], 
+                                   weight = weights, 
+                                   iso = isos, 
+                                   stringsAsFactors = FALSE)
+    return(isotopic_pattern[order(isotopic_pattern$abundance, decreasing = TRUE), ])
+  }
 }
 
 #' @title Get patterns status

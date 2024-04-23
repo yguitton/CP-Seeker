@@ -1,22 +1,22 @@
-## ----setup, echo = FALSE, results = "hide"---------------------------------
+## ----setup, echo = FALSE, results = "hide"------------------------------------
 options(signif = 3, digits = 3)
 knitr::opts_chunk$set(tidy = FALSE, cache = TRUE, autodep = TRUE, fig.height = 5.5,
                       message = FALSE, error = FALSE, warning = TRUE)
 set.seed(0xdada)
 
-## ----overv1, results = "hide"----------------------------------------------
+## ----overv1, results = "hide"-------------------------------------------------
 library("vsn")
 data("kidney")
 xnorm = justvsn(kidney)
 
-## ----overv2----------------------------------------------------------------
+## ----overv2-------------------------------------------------------------------
 M = exprs(xnorm)[,1] - exprs(xnorm)[,2]
 
-## ----overv3, results = "hide"----------------------------------------------
+## ----overv3, results = "hide"-------------------------------------------------
 fit = vsn2(kidney)
 ynorm = predict(fit, kidney)
 
-## ----overv4, echo = FALSE, results = "hide"--------------------------------
+## ----overv4, echo = FALSE, results = "hide"-----------------------------------
 stopifnot(
   max(abs(exprs(xnorm) - exprs(ynorm))) < 1e-16, 
   max(abs(exprs(xnorm) - exprs(fit)))   < 1e-16,
@@ -48,14 +48,14 @@ meanSdPlot(xnorm, ranks = FALSE)
 ## ----nkid-histM, fig.cap = "Histogram of generalised log-ratios for the kidney example data.", fig.small = TRUE----
 hist(M, breaks = 100, col = "#d95f0e")
 
-## ----lymphoma--------------------------------------------------------------
+## ----lymphoma-----------------------------------------------------------------
 data("lymphoma")
 dim(lymphoma)
 
-## ----pDatalym--------------------------------------------------------------
+## ----pDatalym-----------------------------------------------------------------
 pData(lymphoma)
 
-## ----lymjustvsn, results = "hide"------------------------------------------
+## ----lymjustvsn, results = "hide"---------------------------------------------
 lym = justvsn(lymphoma)
 
 ## ----lym-sdmean, fig.cap = "Standard deviation versus rank of the mean for the lymphoma example data", fig.height = 4, fig.small = TRUE----
@@ -73,12 +73,12 @@ j = "DLCL-0032"
 smoothScatter(A[,j], M[,j], main=j, xlab="A", ylab="M", pch=".")
 abline(h=0, col="red")
 
-## ----loadaffy1, results = "hide", warning = FALSE--------------------------
+## ----loadaffy1, results = "hide", warning = FALSE-----------------------------
 library("affydata")
 data("Dilution")
 d_vsn = vsnrma(Dilution)
 
-## ----loadaffy2, results = "hide"-------------------------------------------
+## ----loadaffy2, results = "hide"----------------------------------------------
 d_rma = rma(Dilution)
 
 ## ----affy, fig.height=3.75, fig.wide = TRUE, fig.cap = paste0("Results of `vsnrma` and `rma` on the Dilution data. Array 1 was hybridised with ", pData(Dilution)$liver[1], "$\\mu$g RNA from liver, Array 3 with ", pData(Dilution)$liver[3], "$\\mu$g of the same RNA.")----
@@ -93,7 +93,7 @@ plot(exprs(d_rma)[,1], exprs(d_vsn)[,1],
      xlab = "rma", ylab = "vsn", asp = 1, xlim = ax, ylim = ax, main = "array 1", pch = ".")
 abline(a = 0,  b =1, col = "#ff0000d0")
 
-## ----loadlimma, results = "hide"-------------------------------------------
+## ----loadlimma, results = "hide"----------------------------------------------
 library("limma")
 wg = which(lymphoma$dye=="Cy3")
 wr = which(lymphoma$dye=="Cy5")
@@ -104,10 +104,10 @@ lymRG = new("RGList", list(
 
 lymNCS = justvsn(lymRG)
 
-## ----lymNCS----------------------------------------------------------------
+## ----lymNCS-------------------------------------------------------------------
 lymNCS
 
-## ----addmeta---------------------------------------------------------------
+## ----addmeta------------------------------------------------------------------
 vmd = data.frame(
   labelDescription = I(c("array ID", "sample in G", "sample in R")),
   channel = c("_ALL", "G", "R"),
@@ -131,11 +131,11 @@ adf = new("AnnotatedDataFrame",
 
 phenoData(lymNCS) = adf 
 
-## ----lymM------------------------------------------------------------------
+## ----lymM---------------------------------------------------------------------
 lymM = (assayData(lymNCS)$R - 
         assayData(lymNCS)$G)
 
-## ----design----------------------------------------------------------------
+## ----design-------------------------------------------------------------------
 design = model.matrix( ~ lymNCS$sampR)
 lf = lmFit(lymM, design[, 2, drop=FALSE])
 lf = eBayes(lf)
@@ -147,7 +147,7 @@ pdat = t(lymM[order(lf$p.value)[1:5],])
 matplot(pdat, lty = 1, type = "b", lwd = 2, col=hsv(seq(0,1,length=5), 0.7, 0.8), 
   ylab = "M", xlab = "arrays")
 
-## ----makebg----------------------------------------------------------------
+## ----makebg-------------------------------------------------------------------
 rndbg = function(x, off, fac)
    array(off + fac * runif(prod(dim(x))), dim = dim(x))
 
@@ -155,10 +155,10 @@ lymRGwbg    = lymRG
 lymRGwbg$Rb = rndbg(lymRG, 100, 30)
 lymRGwbg$Gb = rndbg(lymRG,  50, 20)
 
-## ----justvsnwbg, message = FALSE-------------------------------------------
+## ----justvsnwbg, message = FALSE----------------------------------------------
 lymESwbg = justvsn(lymRGwbg[, 1:3], backgroundsubtract=TRUE)
 
-## ----pinId-----------------------------------------------------------------
+## ----pinId--------------------------------------------------------------------
 ngr = ngc = 4L
 nsr = nsc = 24L
 arrayGeometry = data.frame(
@@ -166,10 +166,10 @@ arrayGeometry = data.frame(
   spotrow = rep(1:nsr, each = nsc, times=ngr*ngc),
   pin = rep(1:(ngr*ngc), each = nsr*nsc))
 
-## ----strata, results = "hide"----------------------------------------------
+## ----strata, results = "hide"-------------------------------------------------
 EconStr = justvsn(lymRG[, 1], strata = arrayGeometry$pin)
 
-## ----nostrata, results = "hide"--------------------------------------------
+## ----nostrata, results = "hide"-----------------------------------------------
 EsenzaStr = justvsn(lymRG[, 1])
 
 ## ----figstrata2, fig.small = TRUE, fig.cap = "Scatterplot of normalised and transformed intensities for the red channel of Array 1. Values on the $x$-axis correspond to normalisation without strata (`EsenzaStr`), values on the $y$-axis to normalisation with strata (`EconStr`). The different colours correspond to the 16 different strata."----
@@ -183,14 +183,14 @@ plot(assayData(EsenzaStr)$R[,j],
      ylab = "print-tip strata",
      main = sampleNames(lymNCS)$R[j])
 
-## ----miss1-----------------------------------------------------------------
+## ----miss1--------------------------------------------------------------------
 lym2 = lymphoma
 nfeat = prod(dim(lym2))
 wh = sample(nfeat, nfeat/10)
 exprs(lym2)[wh] = NA
 table(is.na(exprs(lym2)))
 
-## ----miss2, results = "hide"-----------------------------------------------
+## ----miss2, results = "hide"--------------------------------------------------
 fit1 = vsn2(lymphoma, lts.quantile=1)
 fit2 = vsn2(lym2, lts.quantile=1)
 
@@ -209,21 +209,21 @@ for(j in 1:2){
   abline(a = 0, b = 1, col = "blue")
 }
 
-## ----spikein, warning = FALSE, message = FALSE-----------------------------
+## ----spikein, warning = FALSE, message = FALSE--------------------------------
 spikeins = 100:200
 spfit = vsn2(kidney[spikeins,], lts.quantile=1)
 nkid = predict(spfit, newdata=kidney)
 
-## ----ref1, results = "hide"------------------------------------------------
+## ----ref1, results = "hide"---------------------------------------------------
 ref = vsn2(lymphoma[, ismp[1:7]])
 
-## ----ref2, results = "hide"------------------------------------------------
+## ----ref2, results = "hide"---------------------------------------------------
 f8 = vsn2(lymphoma[, ismp[8]], reference = ref)
 
-## ----ref3, results = "hide"------------------------------------------------
+## ----ref3, results = "hide"---------------------------------------------------
 fall = vsn2(lymphoma[, ismp])
 
-## ----ref4------------------------------------------------------------------
+## ----ref4---------------------------------------------------------------------
 coefficients(f8)[,1,]
 coefficients(fall)[,8,]
 
@@ -231,20 +231,20 @@ coefficients(fall)[,8,]
 plot(exprs(f8), exprs(fall)[,8], pch = ".", asp = 1)
 abline(a = 0, b = 1, col = "red")
 
-## ----hiddenchecks, echo = FALSE--------------------------------------------
+## ----hiddenchecks, echo = FALSE-----------------------------------------------
 stopifnot(length(ismp)==8L)
 maxdiff = max(abs(exprs(f8) - exprs(fall)[,8])) 
 if(maxdiff>0.3)
   stop(sprintf("maxdiff is %g", maxdiff))
 
-## ----nkid-calib1-----------------------------------------------------------
+## ----nkid-calib1--------------------------------------------------------------
 coef(fit)[1,,]
 
-## ----nkid-calib2-----------------------------------------------------------
+## ----nkid-calib2--------------------------------------------------------------
 bkid = kidney
 exprs(bkid)[,1] = 0.25*(500+exprs(bkid)[,1])
 
-## ----nkid-calib3, results = "hide"-----------------------------------------
+## ----nkid-calib3, results = "hide"--------------------------------------------
 bfit = vsn2(bkid)
 
 ## ----nkid-calib4, warning = FALSE, fig.cap = "Scatterplot for the badly biased `bkid` data: log-log scale.", fig.small = TRUE----
@@ -264,7 +264,7 @@ plot(exprs(lym)[,1], exprs(lym_qvsn)[, 1],
   main="lym_qvsn vs lym", pch=".", 
   ylab="lym_qvsn[,1]", xlab="lym[,1]")
 
-## ----calcshrink, echo = FALSE, results = "hide"----------------------------
+## ----calcshrink, echo = FALSE, results = "hide"-------------------------------
 log2.na = function(x){
   w = which(x>0)
   res = rep(as.numeric(NA), length(x))
@@ -334,6 +334,6 @@ plot(A[,j], M[,j], pch = 16, cex = 0.3,
   col = ifelse(arrayGeometry$spotrow%in%(22:23), "orange", "black"))
 abline(h = 0, col = "blue")
 
-## ----sessionInfo-----------------------------------------------------------
+## ----sessionInfo--------------------------------------------------------------
 sessionInfo()
 

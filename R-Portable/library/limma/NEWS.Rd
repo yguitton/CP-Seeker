@@ -2,100 +2,562 @@
 \title{limma News}
 \encoding{UTF-8}
 
-\section{Version 3.42.0}{\itemize{
 
-\item
-  New head() and tail() methods for all limma data classes.
+\section{Version 3.58.0}{\itemize{
 
-\item
-  New unique() and subsetting methods for TestResults objects.
-  Previously a
-  subsetted TestResults object became an ordinary numeric matrix, but
-  now the TestResults class is preserved. Single index subsetting is
-  also allowed but produces a numeric vector.
+  \item
+  New argument `covariate` for vooma(), which allows the variance
+  trend to depend on extra covariates in addition to average
+  log-expression.
 
-\item
-  roast() and mroast() now use less memory. Memory usage now
-  remains bounded regardless of the number of rotations used.
-  Both functions are faster than before when \code{approx.zscore=TRUE}.
-  A new argument `legacy` is added to allow users to turn these improvements
-  off if they wish to reproduce numerical results from limma 3.40.0 exactly.
-  The default number of rotations `nrot` is increased  
-  from 999 to 1999.
-  A bug has been fixed for roast() and mroast() when `index` is a character vector of geneids or
-  rownames. Previously this usage failed.
+  \item
+  New argument 'group' to simplify the typical calling sequence for removeBatchEffect().
+  The `group` argument provides an alternative and possibly simpler way to specify the experimental conditions to be preserved.
 
-\item
-  Complete rewrite of zscoreT(), which is now somewhat faster and
-  offer two new options for the normalizing transformation. The new
-  argument `method` indicates which transformation is used when
-  `approx=TRUE`. The default approximation method is changed from
-  "hill" to "bailey".
-  zscoreT() now allows NA values when `approx=TRUE` and works
-  correctly for all valid df values.  Previously `approx=TRUE`
-  returned NA results for `df` infinite or <= 0.05. A simple robust
-  approximation from Wallace (1959) has been introduced to handle
-  very large or very small `df` values. Previously `approx=FALSE`
-  treated any `df` greater than 10000 as infinite; this threshold is
-  now raised to 1e300.
+  \item
+  treat() now works when there are NA coefficients. Previously it gave
+  an error if any estimated coefficient was NA.
 
-\item
-  tZScore() is slightly faster.
+  \item
+  Fix behaviour of topTable() with `adjust.method=NULL` so that it
+  gives "BH" adjustment as documented. Previously the argument was
+  passed to p.adjust(), which gave "holm" adjustment.
 
-\item
-  New argument `gene.weights` for fry() so as to match the arguments
-  and behavior of mroast(). Previously gene weights could be input to
-  fry() only through the `index` argument.
-  fry's mixed p-values now take account of gene weights.
-  Previously gene weights were not used in fry's mixed
-  p-value calculation.
+  \item
+  Convert Introduction vignette from Sweave/pdf from to Rmarkdown/html.
+  The Introduction vignette is also somewhat expanded.
 
-\item
-  Add arguments `block`, `correlation` and `weights` to voom() and
-  remove the `...` argument.
+  \item
+  cameraPR() has been addeed to the `10GeneSetTests.Rd` help topic.
 
-\item
-  Update the arguments of voomWithQualityWeights() to match the
-  revisions to arrayWeights() in limma 3.40.0.
-  Add new argument `var.group`.
+  \item
+  The pdf limma User's Guide is now formally listed as a vignette.
 
-\item
-  New arguments `xlab`, `ylab` and `main` for plotFB(). The default
-  plot title now includes the column name from the data object.
-  Default for `pch` increased to 0.3.
+  \item
+  Non-user-visible changes:
+  limma now imports statmod rather than suggesting it.
+  BiocStyle has been added to the Suggests field of DESCRIPTION.
 
-\item
-  plotWithHighlights and plotMD.MArrayLM now gives special treatment
-  to the case that `status` is a TestResults object.
-
-\item
-  Update Yoruba case study in User's Guide to call voom() and
-  duplicateCorrelation() twice each instead of once.
-
-\item
-  Update Users Guide: update Rsubread reference, correct remarks
-  about prior distribution for 1/sigma^2 in Section 13.2 and rerun
-  the Yoruba and Pasilla case studies.
-
-\item
-  Use "RNA-seq" and "ChIP-seq" consistently in the documentation instead of
-  "RNA-Seq" and "ChIP-Seq".
-
-\item
-  All uses of the approx() function now set
-  `ties=list("ordered",mean)`, except for fitFDistRobustly()
-  which uses `ties=mean`.
-  The change was prompted by a change in
-  R 3.6.0 whereby using the default for `ties` generates a warning
-  message whenever ties are present in `x`. The new code gives the
-  same results but is very slightly faster and avoids the warning
-  message.
-  limma now depends on R >= 3.6.0 because of this change.
-
-\item
-  Fix bug in barcodeplot() when `index` or `index2` are character
-  vectors.
 }}
+
+
+\section{Version 3.56.0}{\itemize{
+
+  \item
+  Rename readSampleInfoFromGEO() to sampleInfoFromGEO().
+
+  \item
+  Add new argument `p.value` for topGO() and topKEGG().
+
+  \item
+  Fix a problem with inconsistent pathway names from KEGG. Due to a
+  change on the KEGG website, pathway names from getGeneKEGGLinks()
+  have "path:" prefixes but pathway names from getKEGGPathwayNames()
+  do not. To make the pathway names consistent, getGeneKEGGLinks() now
+  removes the "path:" prefix.
+
+  \item
+  eBayes() now checks whether `fit` is a list object before
+  undertaking other tests.
+
+  \item
+  Revise voom.Rd to specify that y-values in voom plot are sqrt
+  residual standard deviations.
+
+  \item
+  Update out-of-date URLs in the help pages and the User's Guide.
+  Convert reference URLs to DOIs.
+
+  \item
+  Convert CITATION to use the newer bibentry() instead of citEntry().
+
+}}
+
+
+\section{Version 3.54.0}{\itemize{
+
+  \item
+  New function goanaTrend() to estimate a covariate-dependent trend in
+  the probability of differential expression for use in goana() and
+  kegga() with `trend=TRUE`. The trend estimated by goanaTrend() is
+  squeezed slightly towards constancy to provide stability when the
+  number of DE genes is small. The amount of squeezing decreases with
+  the number of DE genes.
+
+  goana() and kegga() now call goanaTrend() when the `trend` argument
+  is used. When `plot=TRUE` the plot is now created by goanaTrend()
+  instead of by barcodeplot().
+
+  \item
+  Rename argument `prior.prob` to `null.prob` in goana() and kegga().
+
+  \item
+  Update goana() and kegga() code to catch NA gene IDs or covariate
+  values.
+
+  \item
+  goana() and kegga() no longer give an error when a trend is
+  estimated but there are no DE genes.
+
+  \item
+  kegga() now uses https instead of http links when reading from rest.kegg.jp.
+
+  \item
+  Add new argument `fc` to topTable() and topTableF().
+  Change default for `lfc` to NULL instead of 0.
+
+  \item
+  lmFit() now checks explicitly for NAs in the design matrix.
+
+  \item
+  Update references listed on help pages to use DOIs instead of URLs.
+
+}}
+
+
+\section{Version 3.52.0}{\itemize{
+
+  \item
+  New function readSampleInfoFromGEO().
+
+  \item
+  Allow the `trend` argument of eBayes() to specify a general variance
+  covariate.
+
+  \item
+
+  More detailed checking and error messages when the `object` input to
+  lmFit() is a data.frame.
+
+  \item
+  Improve checking for incorrectly specified `contrasts` argument in
+  contrasts.fit().
+
+}}
+
+
+\section{Version 3.50.0}{\itemize{
+
+  \item
+  Improve help pages for fry() and barcodeplot().
+
+  \item
+  Revise Section 18.1.10 of User's Guide so that coloring of
+  X and Y genes is consistent between plots.
+
+  \item
+  Fix bug in the MDS class method of plotMDS() (introduced in the previous release) when new `dim.plot`
+  values are set.
+
+  \item
+  Fix bug in read.idat() when `annotation` contains NA values.
+
+}}
+
+
+\section{Version 3.48.0}{
+
+  \subsection{New functionality}{\itemize{
+
+    \item
+    Explicitly setting `weights=NULL` in a call to lmFit() no longer
+    over-rides the `weights` value found in `object`.
+    Default settings in lmFit() changed from `ndups=` and `spacing=1`
+    to `ndups=NULL` and `spacing=NULL`, although this doesn't change function behavior
+    from a user point of view.
+
+    \item
+    A number of improvements to duplicateCorrelation() to make the results more robust
+    and to make the interface consistent with lmFit().
+    duplicateCorrelation() sets `weights` same as lmFit(). Setting
+    `weights=NULL` in the function call no longer overwrites weights
+    found in `object`.
+    duplicateCorrelation() now checks whether the block factor is
+    spanned by the design matrix. If so, it returns intrablock
+    correlations of zero with a warning. Previously this usage error
+    was not specifically trapped and could lead to correlations that
+    were or NA or close to 1 depending on floating point errors.
+    duplicateCorrelation() now issues a simplified message when design
+    is not of full rank and uses message() to do so instead of cat().
+    In terms of output, duplicateCorrelation() now bounds the genewise correlations away
+    from the upper and lower bounds by 0.01 so that the correlation
+    matrix will always be positive-definite.
+    There is also a fix to the value returned by duplicateCorrelation() when no blocks or
+    duplicates are present.
+
+    \item
+    New argument `fc` for treat() so that the fold-change threshold can
+	optionally be specified on the fold-change scale rather than as a
+	log2-fold-change.
+
+    \item
+    plotMDS() no longer calls cmdscale() but instead performs the necessary
+    eigenvector computations directly. Proportion of variance explained
+    by each dimension is now computed and is optionally added to the dimension labels.
+    The `ndim` argument is now
+    removed. All eigenvectors are now stored so that plotMDS.MDS does
+    not need to recompute them when different dimensions are plotted.
+
+    \item
+    New arguments `path` and `bgxpath` for read.idat().
+    read.idat() now checks for gzipped IDAT files and, if detected,
+    gives an informative error message.
+    read.idat() now checks for existence of input files before calling
+    illuminaio read functions.
+
+  }}
+
+  \subsection{Other code improvements}{\itemize{
+
+    \item
+    The average log-expression column written by write.fit() now has
+	column heading "AveExpr" to match the output from topTable().
+	The column was previously called "A".
+ 
+  }}
+
+  \subsection{Documentation}{\itemize{
+
+    \item
+    Additional documentation for the `design` argument of `lmFit`
+    using the term "samples" instead of "arrays" and mentioning that
+    the design matrix defaults to `object$design` when that component
+    is not NULL.
+ 
+    \item
+    duplicateCorrelation() help page revised including new code example.
+ 
+    \item
+    Help page for voom() now explains that the design matrix will be
+    set from the `group` factor of the DGEList object if available.
+ 
+    \item
+    coolmap() help page now clarifies which heatmap.2() arguments are
+    reserved and which can be included in the coolmap call.
+ 
+  }}
+
+  \subsection{Bug fixes}{\itemize{
+ 
+    \item
+    Fix typo in voom() warning when negative counts are detected.
+ 
+  }}
+}
+
+
+\section{Version 3.46.0}{
+
+  \subsection{New functionality}{\itemize{
+
+    \item
+    New function chooseLowessSpan().
+
+    \item
+    fitFDist() with a non-NULL `covariate` now fits a smoother trend
+    (with fewer spline knots) than before unless there are at least
+    30 observations. This also affects squeezeVar() and eBayes() with
+    `trend=TRUE`.
+
+    \item
+    New argument `output.style` to weightedLowess().
+
+    \item
+    write.fit() now outputs a blank column heading for the row names
+    so that the number of column names in the delimited output file
+    will agree with the number of columns (similar to write.csv in the
+    base package).
+
+  }}
+
+  \subsection{Code improvements}{\itemize{
+
+    \item
+    Subsetting and contrasts.fit() now work on MArrayLM objects even
+    if the cov.coefficients component is absent.
+
+    \item
+    volcanoplot() now prompts user to run eBayes() if the object
+    doesn't contain p-values.
+
+    \item
+    Add checks and more informative error messages to getEAWP() and
+    lmFit() when the data object is missing, NULL or has zero rows.
+
+    \item
+    Subsetting for RGList, MAList, EListRaw, EList, MArrayLM or
+    TestResults objects now accepts arguments other than `i` or `j`
+    but ignores them without an error. This is relevant if a user
+    adds a `drop` argument by analogy with matrix subsetting. Previously
+    that produced an error.
+
+    \item
+    Subsetting of TestResults now requires two arguments, same as all
+    of the other data object classes listed above. Previously single
+    index subsetting (for example object[i]) was allowed.
+
+    \item
+    Improved treatment of zero weights by weighted.median().
+
+    \item
+    More consistent use of rep.int(), rep_len() and rep() throughout
+    the package.
+
+    \item
+    Replace NA with NA_real_ where appropriate.
+
+    \item
+    Add a message to topTableF() to warn that the function is
+    obsolete and will be removed in a future version of limma.
+    Remove usages of topTableF() from the User's Guide.
+
+    \item
+    Remove obsolete function toptable(), which has been officially 
+    deprecated in favor of topTable() since 1 Feb 2018.
+
+  }}
+
+  \subsection{Documentation}{\itemize{
+
+    \item
+    Revise and expand the weightedLowess help page.
+
+    \item
+    Add more explanation about "heirarchical" method in the details
+    section of the decideTests() help page.
+
+    \item
+    Add Note to voom help page to emphasise that voom is not an appropriate
+    tool to analyse expresssion measures that have been normalized for library size.
+
+    \item
+    Revise the help page for plotMDS() to clarify that the function can
+    produce PCA plots as well as PCoA plots.
+
+    \item
+    Add example to EList-class help page.
+
+    \item
+    Edits to the eBayes help page.
+
+    \item
+    Edit concept entries for help files (for reference manual index).
+
+  }}
+
+  \subsection{Bug fixes}{\itemize{
+
+    \item
+    Revise write.fit() so that column names of the output file are
+    correct when `digits=NULL` and the `fit` object contains only one
+    coefficient column. Previously the same contrast name was repeated
+    as the column name for the coefficients, t-statistics and p.values,
+    making them hard to distinguish.
+ 
+    \item
+    Bug fix to arrayWeights() when `y` contains NAs, the design matrix
+    has several columns and some but not all genes have no residual df.
+
+  }}
+}
+
+
+\section{Version 3.44.0}{
+
+  \subsection{New functionality}{\itemize{
+
+    \item
+    Add new argument `package` to changeLog(). changeLog() now works
+    for any package rather than only for limma.
+
+  }}
+
+  \subsection{Code improvements}{\itemize{
+
+    \item
+    Improved treatment of NA coefficients by contrasts.fit().
+    contrasts.fit() has always removed coefficients that were NA because
+    of singularities in the design matrix, but any extra NA coefficients
+    caused by NA expression values would cause all the stdev.unscaled
+    values returned by contrasts.fit() to be NA for those genes.
+    contrasts.fit() now returns non-NA coefficients and
+    non-NA stdev.unscaled values if all the NA coefficients are
+    multiplied by zero contrast multipliers.
+
+    \item
+    Speed improvement for contrasts.fit() if some input coefficients are
+    not involved (have zero multipliers) in any of the contrasts.
+
+    \item
+    contrasts.fit() now preserves the `pivot` component of the fit
+    object instead of removing it.
+
+    \item
+    voom now checks explicitly for NA or negative counts and gives an
+    informative error message.
+
+    \item
+    fitFDist() now allows a covariate trend even with fewer than 4
+    useable observations. (Useable means positive residual df and
+    finite variance and covariate values.)
+
+    \item
+    Internal code cleaned up to avoid partial matching of function
+    arguments, attributes or list component names. The automatic package
+    tests are now run with the warnPartialMatchArgs,
+    warnPartialMatchAttr and warnPartialMatchDollar options all set to
+    TRUE.
+
+  }}
+
+  \subsection{Documentation}{\itemize{
+
+    \item
+    More explanation of `covariates` argument to removeBatchEffects().
+
+  }}
+
+  \subsection{Bug fixes}{\itemize{
+ 
+    \item
+    Fix bug in contrasts.fit() when some coefficients are NA due to NA
+    expression values and the corresponding contrast multipliers are
+    zero. The new code fixes the improvement originally introduced in
+    limma 3.35.9. The new code will return non-NA contrasts if the NA
+    coefficients all get 0 weight in the contrast. Previous code was
+    correct if all genes had the same NA coefficients but could give an
+    avoidable NA result if some genes had NA coefficients but the
+    first gene did not.
+
+    \item
+    Improvements to subsetting MArrayLM objects by column. Previously
+    the presence of non-estimable coefficients sometimes caused the
+    cov.coefficient matrix to be subsetted incorrectly; that is now
+    fixed. Subsetting zero columns is now allowed even when F-statistics
+    are present.
+
+    \item
+    Fix to classifyTestsF() when one or more of the coefficients have
+    zero variance. Previously the zero variance will introduce NAs into
+    the correlation matrix and hence cause an error. This is now
+    avoided. This also fixes eBayes() when one or more of the
+    coefficients are identically zero (usually caused by an all-zero
+    contrast).
+
+  }}
+}
+
+
+\section{Version 3.42.0}{
+
+  \subsection{New functionality}{\itemize{
+
+    \item
+     New head() and tail() methods for all limma data classes.
+
+    \item
+    New unique() and subsetting methods for TestResults objects.
+    Previously a
+    subsetted TestResults object became an ordinary numeric matrix, but
+    now the TestResults class is preserved. Single index subsetting is
+    also allowed but produces a numeric vector.
+
+    \item
+    New argument `gene.weights` for fry() so as to match the arguments
+    and behavior of mroast(). Previously gene weights could be input to
+    fry() only through the `index` argument.
+    fry's mixed p-values now take account of gene weights.
+    Previously gene weights were not used in fry's mixed
+    p-value calculation.
+
+    \item
+    Add arguments `block`, `correlation` and `weights` to voom() and
+    remove the `...` argument.
+
+    \item
+    Update the arguments of voomWithQualityWeights() to match the
+    revisions to arrayWeights() in limma 3.40.0.
+    Add new argument `var.group`.
+
+    \item
+    New arguments `xlab`, `ylab` and `main` for plotFB(). The default
+    plot title now includes the column name from the data object.
+    Default for `pch` increased to 0.3.
+
+    \item
+    plotWithHighlights and plotMD.MArrayLM now gives special treatment
+    to the case that `status` is a TestResults object.
+
+  }}
+
+  \subsection{Code improvements}{\itemize{
+
+    \item
+    roast() and mroast() now use less memory. Memory usage now
+    remains bounded regardless of the number of rotations used.
+    Both functions are faster than before when \code{approx.zscore=TRUE}.
+    A new argument `legacy` is added to allow users to turn these improvements
+    off if they wish to reproduce numerical results from limma 3.40.0 exactly.
+    The default number of rotations `nrot` is increased  
+    from 999 to 1999.
+    A bug has been fixed for roast() and mroast() when `index` is a character vector of geneids or
+    rownames. Previously this usage failed.
+
+    \item
+    Complete rewrite of zscoreT(), which is now somewhat faster and
+    offer two new options for the normalizing transformation. The new
+    argument `method` indicates which transformation is used when
+    `approx=TRUE`. The default approximation method is changed from
+    "hill" to "bailey".
+    zscoreT() now allows NA values when `approx=TRUE` and works
+    correctly for all valid df values.  Previously `approx=TRUE`
+    returned NA results for `df` infinite or <= 0.05. A simple robust
+    approximation from Wallace (1959) has been introduced to handle
+    very large or very small `df` values. Previously `approx=FALSE`
+    treated any `df` greater than 10000 as infinite; this threshold is
+    now raised to 1e300.
+
+    \item
+    tZScore() is slightly faster.
+
+    \item
+    All uses of the approx() function now set
+    `ties=list("ordered",mean)`, except for fitFDistRobustly()
+    which uses `ties=mean`.
+    The change was prompted by a change in
+    R 3.6.0 whereby using the default for `ties` generates a warning
+    message whenever ties are present in `x`. The new code gives the
+    same results but is very slightly faster and avoids the warning
+    message.
+    limma now depends on R >= 3.6.0 because of this change.
+
+  }}
+
+  \subsection{Documentation}{\itemize{
+
+    \item
+    Update Yoruba case study in User's Guide to call voom() and
+    duplicateCorrelation() twice each instead of once.
+
+    \item
+    Update Users Guide: update Rsubread reference, correct remarks
+    about prior distribution for 1/sigma^2 in Section 13.2 and rerun
+    the Yoruba and Pasilla case studies.
+
+    \item
+    Use "RNA-seq" and "ChIP-seq" consistently in the documentation instead of
+    "RNA-Seq" and "ChIP-Seq".
+
+  }}
+
+ \subsection{Bug fixes}{\itemize{
+
+   \item
+   Fix bug in barcodeplot() when `index` or `index2` are character
+   vectors.
+
+  }}
+}
 
 
 \section{Version 3.40.0}{\itemize{

@@ -171,9 +171,11 @@ harmmean	mean
 hausdorff_dist	hausdorff
 haversine	haversine
 heapSort	sorting
+hessdiag	hessutils
 hessenberg	hessenberg
 hessian	hessian
 hessian_csd	complexstep
+hessvec	hessutils
 hilb	hilb
 histc	histc
 histss	histss
@@ -237,6 +239,7 @@ lsqsep	lsqnonlin
 lu	lu
 lufact	lu
 lusys	lu
+lu_crout	lu
 magic	magic
 matlab	matlab
 mergeOrdered	sorting
@@ -264,7 +267,6 @@ newtonInterp	newtonInterp
 newtonRaphson	newtonRaphson
 newtonsys	newtonsys
 nextpow2	nextpow2
-nile	nile
 nnz	nnz
 Norm	norm
 normest	normest
@@ -411,6 +413,8 @@ squareform	squareform
 std	std
 std_err	std_err
 steep_descent	steep_descent
+stereographic	stereographic
+stereographic_inv	stereographic
 str2num	str2num
 strcat	strcat
 strcmp	strcmp

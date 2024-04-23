@@ -1,0 +1,165 @@
+useDynLib(SparseArray)
+
+import(methods)
+importFrom(stats, setNames, rnorm, rpois)
+importClassFrom(Matrix, dgCMatrix, lgCMatrix, dgRMatrix, lgRMatrix)
+importFrom(Matrix, sparseMatrix, crossprod, tcrossprod)
+
+import(BiocGenerics)
+import(MatrixGenerics)
+import(S4Vectors)
+import(IRanges)
+import(XVector)
+import(S4Arrays)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 classes
+###
+
+exportClasses(
+    ## SparseArray-class.R:
+    SparseArray, SparseMatrix,
+
+    ## COO_SparseArray-class.R:
+    COO_SparseArray, COO_SparseMatrix,
+
+    ## SVT_SparseArray-class.R:
+    NULL_OR_list, SVT_SparseArray, SVT_SparseMatrix
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S3 methods
+###
+
+S3method(aperm, COO_SparseArray)
+S3method(aperm, SVT_SparseArray)
+
+S3method(as.array, COO_SparseArray)
+S3method(as.array, SVT_SparseArray)
+
+S3method(mean, SparseArray)
+
+S3method(range, COO_SparseArray)
+S3method(range, SVT_SparseArray)
+
+S3method(rowsum, dgCMatrix)
+S3method(rowsum, SVT_SparseMatrix)
+
+S3method(t, SVT_SparseMatrix)
+
+### We also export them thru the export() directive so that (a) they can be
+### called directly, (b) tab-completion on the name of the generic shows them,
+### and (c) methods() doesn't asterisk them.
+
+export(
+    aperm.COO_SparseArray,
+    aperm.SVT_SparseArray,
+
+    as.array.COO_SparseArray,
+    as.array.SVT_SparseArray,
+
+    range.COO_SparseArray,
+    range.SVT_SparseArray,
+
+    rowsum.dgCMatrix,
+    rowsum.SVT_SparseMatrix,
+
+    t.SVT_SparseMatrix
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 methods for generics not defined in SparseArray
+###
+
+exportMethods(
+    ## Methods for generics defined in the base package:
+    dim, dimnames, "dimnames<-",
+    "[", "[<-",
+    "[[",
+    as.array,
+    t,
+    which,
+    anyNA,
+    any, all, min, max, range, sum, prod,  # "Summary" group generic
+    mean,
+    var, sd,
+    nchar,
+    crossprod, tcrossprod, "%*%",
+    "+", "-", Arith, "!", Logic, Math, round, signif, Complex,
+
+    ## Methods for generics defined in the methods package:
+    coerce, show,
+    Compare,
+
+    ## Methods for generics defined in the BiocGenerics package:
+    cbind, rbind,
+    type, "type<-",
+
+    ## Methods for generics defined in the MatrixGenerics package:
+    colAnyNAs, rowAnyNAs,
+    colAnys, rowAnys, colAlls, rowAlls,
+    colMins, rowMins, colMaxs, rowMaxs, colRanges, rowRanges,
+    colSums, rowSums, colProds, rowProds, colMeans, rowMeans,
+    colVars, rowVars, colSds, rowSds,
+    colMedians, rowMedians,
+
+    ## Methods for generics defined in the S4Vectors package:
+    bindROWS,
+
+    ## Methods for generics defined in the S4Arrays package:
+    rowsum, aperm, abind, extract_array, is_sparse
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
+
+export(
+    ## SparseArray-class.R:
+    sparsity,
+
+    ## COO_SparseArray-class.R:
+    COO_SparseArray,
+
+    ## SVT_SparseArray-class.R:
+    SVT_SparseArray, SparseArray,
+
+    ## randomSparseArray.R:
+    randomSparseArray, randomSparseMatrix,
+    poissonSparseArray, poissonSparseMatrix,
+
+    ## readSparseCSV.R:
+    writeSparseCSV, readSparseCSV, readSparseTable
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 generics defined in SparseArray, and corresponding methods
+###
+
+export(
+    ## SparseArray-class.R:
+    nzcount, nzwhich, nzvals,
+
+    ## COO_SparseArray-class.R:
+    nzcoo, nzdata,
+
+    ## extract_sparse_array.R:
+    extract_sparse_array,
+
+    ## read_block_as_sparse.R:
+    read_block_as_sparse
+)
+
+### Same list as above.
+exportMethods(
+    nzcount, nzwhich, nzvals,
+    nzcoo, nzdata,
+    extract_sparse_array,
+    read_block_as_sparse
+)
+

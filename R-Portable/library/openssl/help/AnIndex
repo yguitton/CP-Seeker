@@ -17,6 +17,7 @@ bignum_mod_inv	bignum
 blake2b	hash
 blake2s	hash
 ca_bundle	certificates
+certificates	certificates
 cert_verify	certificates
 curve25519	curve25519
 decrypt_envelope	encrypt_envelope
@@ -33,6 +34,8 @@ encrypt	rsa_encrypt
 encrypt_envelope	encrypt_envelope
 envelope	encrypt_envelope
 fingerprint	fingerprint
+fips_mode	openssl_config
+hash	hash
 hashing	hash
 hmac	hash
 keygen	keygen
@@ -46,6 +49,8 @@ openssl	openssl
 openssl_config	openssl_config
 pfx	pkcs12
 pkcs12	pkcs12
+pkcs7_decrypt	pkcs7
+pkcs7_encrypt	pkcs7
 rand_bytes	rand_bytes
 rand_num	rand_bytes
 read_cert	read_key
@@ -69,11 +74,18 @@ sha1	hash
 sha2	hash
 sha224	hash
 sha256	hash
+sha3	hash
 sha384	hash
 sha512	hash
+signatures	signatures
 signature_create	signatures
 signature_verify	signatures
+ssl_ctx	ssl_ctx
+ssl_ctx_add_cert_to_store	ssl_ctx
+ssl_ctx_curl_version_match	ssl_ctx
+ssl_ctx_set_verify_callback	ssl_ctx
 write_der	write_pem
+write_openssh_pem	write_pem
 write_p12	pkcs12
 write_p7b	pkcs12
 write_pem	write_pem

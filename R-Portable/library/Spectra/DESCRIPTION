@@ -1,0 +1,71 @@
+Package: Spectra
+Title: Spectra Infrastructure for Mass Spectrometry Data
+Version: 1.12.0
+Description: The Spectra package defines an efficient infrastructure
+   for storing and handling mass spectrometry spectra and functionality to
+   subset, process, visualize and compare spectra data. It provides different
+   implementations (backends) to store mass spectrometry data. These comprise
+   backends tuned for fast data access and processing and backends for very
+   large data sets ensuring a small memory footprint.
+Authors@R: c(person(given = "RforMassSpectrometry Package Maintainer",
+                    email = "maintainer@rformassspectrometry.org",
+                    role = "cre"),
+             person(given = "Laurent", family = "Gatto",
+                    email = "laurent.gatto@uclouvain.be",
+                    role = "aut",
+                    comment = c(ORCID = "0000-0002-1520-2268")),
+             person(given = "Johannes", family = "Rainer",
+                    email = "Johannes.Rainer@eurac.edu",
+                    role = "aut",
+                    comment = c(ORCID = "0000-0002-6977-7147")),
+             person(given = "Sebastian", family = "Gibb",
+                    email = "mail@sebastiangibb.de",
+                    role = "aut",
+                    comment = c(ORCID = "0000-0001-7406-4443")),
+             person(given = "Jan", family = "Stanstrup",
+                    email = "stanstrup@gmail.com",
+                    role = "ctb",
+                    comment = c(ORCID = "0000-0003-0541-7369")),
+             person(given = "Nir", family = "Shahaf",
+                    email = "gabbianon@gmail.com",
+                    role = "ctb"))
+Depends: R (>= 4.0.0), S4Vectors, BiocParallel, ProtGenerics (>=
+        1.33.1)
+Imports: methods, IRanges, MsCoreUtils (>= 1.7.5), graphics, grDevices,
+        stats, tools, utils, fs, BiocGenerics, MetaboCoreUtils
+Suggests: testthat, knitr (>= 1.1.0), msdata (>= 0.19.3), roxygen2,
+        BiocStyle (>= 2.5.19), mzR (>= 2.19.6), rhdf5 (>= 2.32.0),
+        rmarkdown, vdiffr (>= 1.0.0), msentropy, patrick
+License: Artistic-2.0
+LazyData: false
+VignetteBuilder: knitr
+BugReports: https://github.com/RforMassSpectrometry/Spectra/issues
+URL: https://github.com/RforMassSpectrometry/Spectra
+biocViews: Infrastructure, Proteomics, MassSpectrometry, Metabolomics
+RoxygenNote: 7.2.3
+Roxygen: list(markdown=TRUE)
+Collate: 'hidden_aliases.R' 'AllGenerics.R' 'MsBackend-functions.R'
+        'MsBackend.R' 'MsBackendCached.R'
+        'MsBackendDataFrame-functions.R' 'MsBackendDataFrame.R'
+        'MsBackendHdf5Peaks-functions.R' 'MsBackendHdf5Peaks.R'
+        'MsBackendMemory-functions.R' 'MsBackendMemory.R'
+        'MsBackendMzR-functions.R' 'MsBackendMzR.R'
+        'Spectra-functions.R' 'Spectra.R' 'Spectra-neutralLoss.R'
+        'countIdentifications.R' 'fft_spectrum.R' 'functions-util.R'
+        'mz-delta-functions.R' 'peak-list-functions.R'
+        'peaks-functions.R' 'plotting-functions.R' 'zzz.R'
+git_url: https://git.bioconductor.org/packages/Spectra
+git_branch: RELEASE_3_18
+git_last_commit: f0abdfa
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-25 03:24:25 UTC; biocbuild
+Author: RforMassSpectrometry Package Maintainer [cre],
+  Laurent Gatto [aut] (<https://orcid.org/0000-0002-1520-2268>),
+  Johannes Rainer [aut] (<https://orcid.org/0000-0002-6977-7147>),
+  Sebastian Gibb [aut] (<https://orcid.org/0000-0001-7406-4443>),
+  Jan Stanstrup [ctb] (<https://orcid.org/0000-0003-0541-7369>),
+  Nir Shahaf [ctb]
+Maintainer: RforMassSpectrometry Package Maintainer <maintainer@rformassspectrometry.org>
+Built: R 4.3.1; ; 2023-10-25 14:52:59 UTC; windows

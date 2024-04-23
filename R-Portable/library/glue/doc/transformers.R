@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ glue("{x}: {1:5*}", .transformer = collapse_transformer(sep = ", "))
 shell_transformer <- function(type = c("sh", "csh", "cmd", "cmd2")) {
   type <- match.arg(type)
   function(text, envir) {
-    res <- eval(parse(text = text, keep.source = FALSE), envir)
+    res <- identity_transformer(text, envir)
     shQuote(res)
   }
 }
@@ -49,7 +49,12 @@ command <- glue_sh("cat {filename}")
 command
 system(command)
 
-## ---- eval = require("emo")---------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
+if (file.exists("test")) {
+  unlink("test")
+}
+
+## ----eval = require("emo")----------------------------------------------------
 #  emoji_transformer <- function(text, envir) {
 #    if (grepl("[*]$", text)) {
 #      text <- sub("[*]$", "", text)
@@ -71,23 +76,41 @@ sprintf_transformer <- function(text, envir) {
   if (m != -1) {
     format <- substring(regmatches(text, m), 2)
     regmatches(text, m) <- ""
-    res <- eval(parse(text = text, keep.source = FALSE), envir)
-    do.call(sprintf, list(glue("%{format}f"), res))
+    res <- identity_transformer(text, envir)
+    do.call(sprintf, list(glue("%{format}"), res))
   } else {
-    eval(parse(text = text, keep.source = FALSE), envir)
+    identity_transformer(text, envir)
   }
 }
 
 glue_fmt <- function(..., .envir = parent.frame()) {
   glue(..., .transformer = sprintf_transformer, .envir = .envir)
 }
-glue_fmt("π = {pi:.2}")
+glue_fmt("π = {pi:.3f}")
+
+## -----------------------------------------------------------------------------
+signif_transformer <- function(digits = 3) {
+    force(digits)
+    function(text, envir) {
+        x <- identity_transformer(text, envir)
+        if (is.numeric(x)) {
+            signif(x, digits = digits)
+        } else {
+            x
+        }
+    }
+}
+glue_signif <- function(..., .envir = parent.frame()) {
+  glue(..., .transformer = signif_transformer(3), .envir = .envir)
+}
+
+glue_signif("π = {pi}; 10π = {10*pi}; 100π = {100*pi}")
 
 ## -----------------------------------------------------------------------------
 safely_transformer <- function(otherwise = NA) {
   function(text, envir) {
     tryCatch(
-      eval(parse(text = text, keep.source = FALSE), envir),
+      identity_transformer(text, envir),
       error = function(e) if (is.language(otherwise)) eval(otherwise) else otherwise)
   }
 }

@@ -1,8 +1,10 @@
 check.cdf.type	check.cdf.type
 get.celfile.dates	get.celfile.dates
+Read.CC.Generic	affyio-internal
 read.cdffile.list	read.cdffile.list
 read.celfile	read.celfile
 read.celfile.header	read.celfile.header
 read.celfile.probeintensity.matrices	read.celfile.probeintensity.matrices
+Read.CYCHP	affyio-internal
 read_abatch	read_abatch
 read_abatch_stddev	read_abatch

@@ -17,7 +17,7 @@ writeLines(sgr.string)
 
 ## ----comment="", results="asis", echo=FALSE-----------------------------------
 styles <- c(
-  getOption("fansi.style"),  # default style
+  getOption("fansi.style", dflt_css()),  # default style
   "PRE.fansi CODE {background-color: transparent;}",
   "PRE.fansi-error {background-color: #DDAAAA;}",
   "PRE.fansi-warning {background-color: #DDDDAA;}",

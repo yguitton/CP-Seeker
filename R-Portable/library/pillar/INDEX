@@ -1,8 +1,10 @@
 align                   Alignment helper
-ctl_new_pillar          Customize your tibble subclass
+ctl_new_pillar          Customize the appearance of simple pillars in
+                        your tibble subclass
+ctl_new_pillar_list     Customize the appearance of compound pillars in
+                        your tibble subclass
 dim_desc                Format dimensions
 format_glimpse          Format a vector for horizontal printing
-format_tbl              Formatting of tbl objects
 format_type_sum         Format a type summary
 get_extent              Calculate display width
 glimpse                 Get a glimpse of your data
@@ -15,6 +17,7 @@ new_pillar_type         Prepare a column type for formatting
 pillar                  Object for formatting a vector suitable for
                         tabular display
 pillar-package          pillar: Coloured Formatting for Columns
+pillar_options          Package options
 pillar_shaft            Column data
 style_num               Styling helpers
 tbl_format_body         Format the body of a tibble

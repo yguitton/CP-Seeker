@@ -1,3 +1,15 @@
+# generics 0.1.3
+
+* New `rank_results()` generic.
+
+# generics 0.1.2
+
+* New `forecast()` and `accuracy()` generics.
+
+# generics 0.1.1
+
+* New `tune_args()` generic.
+
 # generics 0.1.0
 
 * Maintainer changed to Hadley Wickham.
@@ -13,5 +25,3 @@
 # `generics` 0.0.1
 
 First CRAN version
-
-

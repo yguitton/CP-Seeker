@@ -1,0 +1,26 @@
+addElements             Combine chemical formulae
+adductFormula           Calculate a table of adduct (ionic) formulas
+adductNames             Retrieve names of supported adducts
+calculateKendrickMass   Kendrick mass defects
+calculateMass           Calculate exact mass
+containsElements        Check if one formula is contained in another
+convertMtime            Convert migration times to effective mobility
+correctRindex           2-point correction of RIs
+countElements           Count elements in a chemical formula
+formula2mz              Calculate mass-to-charge ratio from a formula
+indexRtime              Convert retention times to retention indices
+internalStandardMixNames
+                        Get names of internal standard mixes provided
+                        by the package
+internalStandards       Get definitions for internal standards
+isotopicSubstitutionMatrix
+                        Definitions of isotopic substitutions
+isotopologues           Identfying isotopologue peaks in MS data
+mass2mz                 Calculate mass-to-charge ratio
+mclosest                Extract closest values in a pairwise manner
+                        between two matrices
+multiplyElements        Multiply chemical formulas by a scalar
+mz2mass                 Calculate neutral mass
+pasteElements           Create chemical formula from a named vector
+standardizeFormula      Standardize a chemical formula
+subtractElements        subtract two chemical formula

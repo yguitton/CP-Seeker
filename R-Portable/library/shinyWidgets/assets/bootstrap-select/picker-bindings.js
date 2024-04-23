@@ -11,8 +11,16 @@ $.extend(pickerInputBinding, {
     return $(el).val();
   },
   setValue: function setValue(el, value) {
+    var callback = $(el).data("callback");
+    var shinyInputBinding = $(el).data("shinyInputBinding");
+    $(el).selectpicker("destroy");
     $(el).val(value);
-    $(el).selectpicker("refresh");
+    $(el).data("callback", callback);
+    $(el).data("shinyInputBinding", shinyInputBinding);
+    this.initialize(el);
+    $(el).on("changed.bs.select.pickerInput", function(event) {
+      callback();
+    });
   },
   getState: function getState(el) {
     // Store options in an array of objects, each with with value and label
@@ -32,18 +40,18 @@ $.extend(pickerInputBinding, {
   },
   receiveMessage: function receiveMessage(el, data) {
     var $el = $(el);
+    var callback = $(el).data("callback");
+    var shinyInputBinding = $(el).data("shinyInputBinding");
 
     if (data.hasOwnProperty("options")) {
-      var callback = $(el).data("callback");
       $(el).selectpicker("destroy");
       if (data.clearOptions) {
-        var shinyInputBinding = $(el).data("shinyInputBinding");
         $(el).removeData();
         $(el).data("callback", callback);
         $(el).data("shinyInputBinding", shinyInputBinding);
       }
       $(el).data(data.options);
-      $(el).selectpicker();
+      this.initialize(el);
       $(el).on("changed.bs.select.pickerInput", function(event) {
         callback();
       });
@@ -51,9 +59,14 @@ $.extend(pickerInputBinding, {
 
     // This will replace all the choices
     if (data.hasOwnProperty("choices")) {
-      // Clear existing choices and add each new one
+      $(el).selectpicker("destroy");
       $el.empty().append(data.choices);
-      $(el).selectpicker("refresh");
+      $(el).data("callback", callback);
+      $(el).data("shinyInputBinding", shinyInputBinding);
+      this.initialize(el);
+      $(el).on("changed.bs.select.pickerInput", function(event) {
+        callback();
+      });
     }
 
     if (data.hasOwnProperty("value")) {
@@ -67,7 +80,7 @@ $.extend(pickerInputBinding, {
         .find('label[for="' + Shiny.$escape(el.id) + '"]')
         .text(data.label);
 
-    $(el).selectpicker("refresh");
+    //$(el).selectpicker("refresh");
     $(el).trigger("change");
   },
   subscribe: function subscribe(el, callback) {
@@ -81,12 +94,14 @@ $.extend(pickerInputBinding, {
   },
   initialize: function initialize(el) {
     $(el).selectpicker();
-    $(el).on("shown.bs.select", function(e) {
-      Shiny.setInputValue(el.id + "_open", true);
-    });
-    $(el).on("hidden.bs.select", function(e) {
-      Shiny.setInputValue(el.id + "_open", false);
-    });
+    if ($(el).attr("data-state-input") === "true") {
+      $(el).on("shown.bs.select", function(e) {
+        Shiny.setInputValue(el.id + "_open", true);
+      });
+      $(el).on("hidden.bs.select", function(e) {
+        Shiny.setInputValue(el.id + "_open", false);
+      });
+    }
     // TEMPORARY FIX FOR SHINY V1.6.0
     $(document).off("focusout.dropdown.data-api");
   }

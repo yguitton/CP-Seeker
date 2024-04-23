@@ -1,0 +1,36 @@
+                        MultiAssayExperiment: Build an integrative
+                        multi-assay container
+ExperimentList          Represent multiple experiments as a
+                        List-derivative 'ExperimentList'
+ExperimentList-class    ExperimentList - A container for
+                        multi-experiment data
+MatchedAssayExperiment-class
+                        MatchedAssayExperiment - A matched-samples
+                        MultiAssayExperiment class
+MultiAssayExperiment    Construct an integrative representation of
+                        multi-omic data with 'MultiAssayExperiment'
+MultiAssayExperiment-class
+                        MultiAssayExperiment - An integrative
+                        multi-assay class for experiment data
+MultiAssayExperiment-helpers
+                        A group of helper functions for manipulating
+                        and cleaning a MultiAssayExperiment
+MultiAssayExperiment-methods
+                        Accessing and modifying information in
+                        MultiAssayExperiment
+MultiAssayExperimentToMAF
+                        Convert MultiAssayExperiment to MAF class
+hasAssay                Checking assay method for any class
+listToMap               Convert map from data.frame or DataFrame to
+                        list and vice versa
+miniACC                 Adrenocortical Carcinoma (ACC)
+                        MultiAssayExperiment
+prepMultiAssay          Prepare a 'MultiAssayExperiment' instance
+reexports               Objects exported from other packages
+saveHDF5MultiAssayExperiment
+                        Save a MultiAssayExperiment class object to
+                        HDF5 and Rds files
+subsetBy                Subsetting a MultiAssayExperiment object
+upsetSamples            Create a generalized Venn Diagram analog for
+                        sample membership in multiple assays, using the
+                        upset algorithm in 'UpSetR'

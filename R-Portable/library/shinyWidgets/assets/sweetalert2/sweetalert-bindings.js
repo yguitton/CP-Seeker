@@ -1,23 +1,27 @@
 /*jshint
-  jquery:true
+  jquery:true,
+  evil: true
 */
 /*global Swal, CharacterData, DocumentType, Shiny */
 
 // Sweet-Alert Bindings
 
 Shiny.addCustomMessageHandler("sweetalert-sw", function(data) {
+  //console.log(data);
   if (data.as_html) {
     var elsw = document.createElement("span");
     elsw.innerHTML = data.config.text;
     data.config.html = elsw;
-    Swal.fire(data.config).then(function(value) {
+    data.config.willClose = function(value) {
       var els = $("#" + data.sw_id);
       els.each(function(i, el) {
+        //console.log(el);
         window.Shiny.unbindAll(el, true);
         $(el).remove();
         return true;
       });
-    });
+    };
+    Swal.fire(data.config);
   } else {
     Swal.fire(data.config);
   }
@@ -25,24 +29,35 @@ Shiny.addCustomMessageHandler("sweetalert-sw", function(data) {
 
 Shiny.addCustomMessageHandler("sweetalert-sw-confirm", function(data) {
   Shiny.onInputChange(data.id, null);
+  function set_confirmation_input(id, result, cancelOnDismiss) {
+    if (cancelOnDismiss) {
+      if (result.value) {
+        Shiny.onInputChange(id, true);
+      } else {
+        Shiny.onInputChange(id, false);
+      }
+    } else {
+      if (result.value) {
+        Shiny.onInputChange(id, true);
+      } else {
+        if (result.isDismissed && result.dismiss == "cancel") {
+          Shiny.onInputChange(id, false);
+        } else {
+          Shiny.onInputChange(id, null);
+        }
+      }
+    }
+  }
   if (!data.as_html) {
     Swal.fire(data.swal).then(function(result) {
-      if (result.value) {
-        Shiny.onInputChange(data.id, true);
-      } else {
-        Shiny.onInputChange(data.id, false);
-      }
+      set_confirmation_input(data.id, result, data.cancelOnDismiss);
     });
   } else {
     //var elsw = document.createElement("span");
     //elsw.innerHTML = data.swal.text;
     //data.swal.html = elsw;
     Swal.fire(data.swal).then(function(result) {
-      if (result.value) {
-        Shiny.onInputChange(data.id, true);
-      } else {
-        Shiny.onInputChange(data.id, false);
-      }
+      set_confirmation_input(data.id, result, data.cancelOnDismiss);
       var els = $("#" + data.sw_id);
       els.each(function(i, el) {
         window.Shiny.unbindAll(el, true);
@@ -56,6 +71,11 @@ Shiny.addCustomMessageHandler("sweetalert-sw-confirm", function(data) {
 Shiny.addCustomMessageHandler("sweetalert-sw-input", function(data) {
   if (data.reset_input) {
     Shiny.setInputValue(data.id, null);
+  }
+  if (data.eval instanceof Array) {
+    $.each(data.eval, function (i, x) {
+      data.swal[x] = eval("(" + data.swal[x][0] + ")");
+    });
   }
   Swal.fire(data.swal).then(function(result) {
     Shiny.setInputValue(data.id, result.value, { priority: "event" });

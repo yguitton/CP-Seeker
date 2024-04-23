@@ -1,4 +1,4 @@
-## ---- echo = FALSE------------------------------------------------------------
+## ----echo = FALSE-------------------------------------------------------------
 knitr::opts_chunk$set(comment = "#>", collapse = TRUE)
 
 ## -----------------------------------------------------------------------------
@@ -7,6 +7,8 @@ library(DBI)
 ## -----------------------------------------------------------------------------
 mydb <- dbConnect(RSQLite::SQLite(), "my-db.sqlite")
 dbDisconnect(mydb)
+
+## ----echo = FALSE-------------------------------------------------------------
 unlink("my-db.sqlite")
 
 ## -----------------------------------------------------------------------------
@@ -26,7 +28,7 @@ dbGetQuery(mydb, 'SELECT * FROM mtcars LIMIT 5')
 dbGetQuery(mydb, 'SELECT * FROM iris WHERE "Sepal.Length" < 4.6')
 
 ## -----------------------------------------------------------------------------
-dbGetQuery(mydb, 'SELECT * FROM iris WHERE "Sepal.Length" < :x', 
+dbGetQuery(mydb, 'SELECT * FROM iris WHERE "Sepal.Length" < :x',
   params = list(x = 4.6))
 
 ## -----------------------------------------------------------------------------

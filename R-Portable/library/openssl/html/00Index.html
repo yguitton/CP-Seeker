@@ -1,10 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Toolkit for Encryption, Signatures and Certificates Based on
 OpenSSL</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Toolkit for Encryption, Signatures and Certificates Based on
 OpenSSL
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
@@ -13,7 +14,7 @@ OpenSSL
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;openssl&rsquo; version 1.4.3</h2>
+</div><h2>Documentation for package &lsquo;openssl&rsquo; version 2.1.2</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
@@ -23,7 +24,7 @@ OpenSSL
 <h2>Help Pages</h2>
 
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="openssl.html">openssl-package</a></td>
 <td>Toolkit for Encryption, Signatures and Certificates based on OpenSSL</td></tr>
 <tr><td style="width: 25%;"><a href="aes_cbc.html">aes_cbc</a></td>
@@ -60,6 +61,8 @@ OpenSSL
 <td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="certificates.html">ca_bundle</a></td>
 <td>X509 certificates</td></tr>
+<tr><td style="width: 25%;"><a href="certificates.html">certificates</a></td>
+<td>X509 certificates</td></tr>
 <tr><td style="width: 25%;"><a href="certificates.html">cert_verify</a></td>
 <td>X509 certificates</td></tr>
 <tr><td style="width: 25%;"><a href="curve25519.html">curve25519</a></td>
@@ -92,6 +95,10 @@ OpenSSL
 <td>Envelope encryption</td></tr>
 <tr><td style="width: 25%;"><a href="fingerprint.html">fingerprint</a></td>
 <td>OpenSSH fingerprint</td></tr>
+<tr><td style="width: 25%;"><a href="openssl_config.html">fips_mode</a></td>
+<td>OpenSSL Configuration Info</td></tr>
+<tr><td style="width: 25%;"><a href="hash.html">hash</a></td>
+<td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="hash.html">hashing</a></td>
 <td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="hash.html">hmac</a></td>
@@ -118,6 +125,10 @@ OpenSSL
 <td>PKCS7 / PKCS12 bundles</td></tr>
 <tr><td style="width: 25%;"><a href="pkcs12.html">pkcs12</a></td>
 <td>PKCS7 / PKCS12 bundles</td></tr>
+<tr><td style="width: 25%;"><a href="pkcs7.html">pkcs7_decrypt</a></td>
+<td>Encrypt/decrypt pkcs7 messages</td></tr>
+<tr><td style="width: 25%;"><a href="pkcs7.html">pkcs7_encrypt</a></td>
+<td>Encrypt/decrypt pkcs7 messages</td></tr>
 <tr><td style="width: 25%;"><a href="rand_bytes.html">rand_bytes</a></td>
 <td>Generate random bytes and numbers with OpenSSL</td></tr>
 <tr><td style="width: 25%;"><a href="rand_bytes.html">rand_num</a></td>
@@ -162,15 +173,29 @@ OpenSSL
 <td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="hash.html">sha256</a></td>
 <td>Vectorized hash/hmac functions</td></tr>
+<tr><td style="width: 25%;"><a href="hash.html">sha3</a></td>
+<td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="hash.html">sha384</a></td>
 <td>Vectorized hash/hmac functions</td></tr>
 <tr><td style="width: 25%;"><a href="hash.html">sha512</a></td>
 <td>Vectorized hash/hmac functions</td></tr>
+<tr><td style="width: 25%;"><a href="signatures.html">signatures</a></td>
+<td>Signatures</td></tr>
 <tr><td style="width: 25%;"><a href="signatures.html">signature_create</a></td>
 <td>Signatures</td></tr>
 <tr><td style="width: 25%;"><a href="signatures.html">signature_verify</a></td>
 <td>Signatures</td></tr>
+<tr><td style="width: 25%;"><a href="ssl_ctx.html">ssl_ctx</a></td>
+<td>Hooks to manipulate the SSL context for curl requests</td></tr>
+<tr><td style="width: 25%;"><a href="ssl_ctx.html">ssl_ctx_add_cert_to_store</a></td>
+<td>Hooks to manipulate the SSL context for curl requests</td></tr>
+<tr><td style="width: 25%;"><a href="ssl_ctx.html">ssl_ctx_curl_version_match</a></td>
+<td>Hooks to manipulate the SSL context for curl requests</td></tr>
+<tr><td style="width: 25%;"><a href="ssl_ctx.html">ssl_ctx_set_verify_callback</a></td>
+<td>Hooks to manipulate the SSL context for curl requests</td></tr>
 <tr><td style="width: 25%;"><a href="write_pem.html">write_der</a></td>
+<td>Export key or certificate</td></tr>
+<tr><td style="width: 25%;"><a href="write_pem.html">write_openssh_pem</a></td>
 <td>Export key or certificate</td></tr>
 <tr><td style="width: 25%;"><a href="pkcs12.html">write_p12</a></td>
 <td>PKCS7 / PKCS12 bundles</td></tr>
@@ -187,4 +212,4 @@ OpenSSL
 <tr><td style="width: 25%;"><a href="keygen.html">x25519_keygen</a></td>
 <td>Generate Key pair</td></tr>
 </table>
-</body></html>
+</div></body></html>

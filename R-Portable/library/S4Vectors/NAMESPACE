@@ -1,7 +1,7 @@
 useDynLib(S4Vectors)
 
 import(methods)
-importFrom(utils, head, tail, head.matrix, tail.matrix, getS3method)
+importFrom(utils, head, tail, head.matrix, tail.matrix, getS3method, stack)
 importFrom(stats, cov, cor, median, quantile,
            smoothEnds, runmed, window, "window<-", aggregate,
            na.omit, na.exclude, complete.cases, setNames, terms)
@@ -17,17 +17,20 @@ import(BiocGenerics)
 exportClasses(
     character_OR_NULL, vector_OR_factor, atomic,
     LLint, integer_OR_LLint,
-    DataTable,
+    RectangularData,
     NSBS,
     Annotated,
-    DataTable_OR_NULL, Vector, vector_OR_Vector,
+    DataFrame_OR_NULL,
+    Vector, vector_OR_Vector,
     Hits, SelfHits, SortedByQueryHits, SortedByQuerySelfHits,
     Rle,
-    Factor,
+    integer_OR_raw, Factor,
     List, list_OR_List,
     SimpleList,
     HitsList, SortedByQueryHitsList,
     DataFrame, DFrame,
+    DataFrameFactor,
+    TransposedDataFrame,
     Pairs,
     expression_OR_function, FilterRules, FilterMatrix
 )
@@ -46,10 +49,13 @@ S3method(anyDuplicated, Rle)
 S3method(as.character, LLint)
 
 S3method(as.data.frame, Vector)
-S3method(as.data.frame, DataTable)
+S3method(as.data.frame, Hits)
 
 S3method(as.integer, LLint)
 
+S3method(as.list, Rle)
+S3method(as.list, SimpleList)
+S3method(as.list, TransposedDataFrame)
 S3method(as.list, Vector)
 
 S3method(as.logical, LLint)
@@ -60,18 +66,21 @@ S3method(as.numeric, LLint)
 
 S3method(as.vector, Rle)
 
+S3method(cbind, RectangularData)
+S3method(cbind, List)
 S3method(cbind, DataFrame)
 
 S3method(diff, Rle)
 
-S3method(droplevels, List)
 S3method(droplevels, Rle)
+S3method(droplevels, Factor)
+S3method(droplevels, List)
 
-S3method(duplicated, DataTable)
 S3method(duplicated, Vector)
+S3method(duplicated, DataFrame)
 
-S3method(head, DataTable)
 S3method(head, LLint)
+S3method(head, RectangularData)
 S3method(head, Vector)
 
 S3method(intersect, Vector)
@@ -84,7 +93,7 @@ S3method(median, Rle)
 
 S3method(quantile, Rle)
 
-S3method(rbind, DataFrame)
+S3method(rbind, RectangularData)
 
 S3method(rev, Vector)
 S3method(rev, Rle)
@@ -94,6 +103,9 @@ S3method(setdiff, Vector)
 S3method(setequal, Vector)
 
 S3method(sort, Vector)
+S3method(sort, Rle)
+S3method(sort, List)
+S3method(sort, DataFrame)
 
 S3method(subset, Vector)
 
@@ -103,18 +115,20 @@ S3method(summary, Rle)
 
 S3method(t, Hits)
 S3method(t, HitsList)
+S3method(t, DataFrame)
+S3method(t, TransposedDataFrame)
 
-S3method(tail, DataTable)
 S3method(tail, LLint)
+S3method(tail, RectangularData)
 S3method(tail, Vector)
 
-S3method(transform, DataTable)
 S3method(transform, Vector)
+S3method(transform, DataFrame)
 
 S3method(union, Vector)
 
-S3method(unique, DataTable)
 S3method(unique, Vector)
+S3method(unique, DataFrame)
 
 S3method(window, LLint)
 S3method(window, Vector)
@@ -132,10 +146,13 @@ export(
     as.character.LLint,
 
     as.data.frame.Vector,
-    as.data.frame.DataTable,
+    as.data.frame.Hits,
 
     as.integer.LLint,
 
+    as.list.Rle,
+    as.list.SimpleList,
+    as.list.TransposedDataFrame,
     as.list.Vector,
 
     as.logical.LLint,
@@ -146,18 +163,21 @@ export(
 
     as.vector.Rle,
 
+    cbind.RectangularData,
+    cbind.List,
     cbind.DataFrame,
 
     diff.Rle,
 
     droplevels.Rle,
+    droplevels.Factor,
     droplevels.List,
 
-    duplicated.DataTable,
     duplicated.Vector,
+    duplicated.DataFrame,
 
-    head.DataTable,
     head.LLint,
+    head.RectangularData,
     head.Vector,
 
     intersect.Vector,
@@ -170,7 +190,7 @@ export(
 
     quantile.Rle,
 
-    rbind.DataFrame,
+    rbind.RectangularData,
 
     rev.Vector,
     rev.Rle,
@@ -180,6 +200,9 @@ export(
     setequal.Vector,
 
     sort.Vector,
+    sort.Rle,
+    sort.List,
+    sort.DataFrame,
 
     subset.Vector,
 
@@ -189,18 +212,20 @@ export(
 
     t.Hits,
     t.HitsList,
+    t.DataFrame,
+    t.TransposedDataFrame,
 
-    tail.DataTable,
     tail.LLint,
+    tail.RectangularData,
     tail.Vector,
 
-    transform.DataTable,
     transform.Vector,
+    transform.DataFrame,
 
     union.Vector,
 
-    unique.DataTable,
     unique.Vector,
+    unique.DataFrame,
 
     window.LLint,
     window.Vector
@@ -208,16 +233,13 @@ export(
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Export S4 methods for generics not defined in S4Vectors
+### Export S4 methods for generics NOT defined in this package
 ###
 
 exportMethods(
     ## Methods for generics defined in the base package:
     length, names, "names<-",
-    nrow, ncol, dim,
-    NROW, NCOL,
-    rownames, "rownames<-",
-    colnames, "colnames<-",
+    dim, nrow, ncol,
     dimnames, "dimnames<-",
     is.na, anyNA,
     as.logical, as.integer, as.numeric,
@@ -235,7 +257,6 @@ exportMethods(
     merge,
     t,
     by,
-    transform,
     nchar, substr, substring, levels, "levels<-", droplevels,
     "[[", "[[<-", "$", "$<-",
     lengths,
@@ -247,7 +268,7 @@ exportMethods(
     coerce, show,
 
     ## Methods for generics defined in the utils package:
-    head, tail,
+    head, tail, stack,
 
     ## Methods for generics defined in the stats package:
     var, cov, cor, sd, window, aggregate, na.omit, na.exclude, complete.cases,
@@ -256,10 +277,12 @@ exportMethods(
     summary,
 
     ## Methods for generics defined in the BiocGenerics package:
-    cbind, rbind,
+    rownames, "rownames<-",
+    colnames, "colnames<-",
+    rbind, cbind,
     lapply, sapply,
     Reduce, Filter,
-    unlist,
+    unlist, unname,
     do.call,
     union, intersect, setdiff, setequal,
     xtabs,
@@ -275,16 +298,20 @@ exportMethods(
 
 export(
     ## S4-utils.R:
-    setValidity2, new2, setMethods,
+    I, setValidity2, new2, setMethods,
 
     ## show-utils.R:
     coolcat,
+    get_showHeadLines, set_showHeadLines,
+    get_showTailLines, set_showTailLines,
+    printAtomicVectorInAGrid,
+    cbind_mcols_for_display,
+    makePrettyMatrixForCompactPrinting,
+    makeClassinfoRowForCompactPrinting,
 
     ## utils.R:
     wmsg,
     .Call2,
-    get_showHeadLines, get_showTailLines,
-    printAtomicVectorInAGrid,
 
     ## normarg-utils.R:
     isTRUEorFALSE, isSingleInteger, isSingleNumber, isSingleString,
@@ -313,6 +340,9 @@ export(
     safeExplode,
     svn.time,
 
+    ## RectangularData-class.R:
+    combineUniqueCols,
+
     ## Hits-class.R:
     queryHits, subjectHits,
     queryLength, subjectLength,
@@ -340,7 +370,10 @@ export(
     HitsList,
 
     ## DataFrame-class.R:
-    DataFrame,
+    DataFrame, make_zero_col_DFrame,
+
+    ## DataFrameFactor-class:
+    DataFrameFactor,
 
     ## Pairs-class.R:
     Pairs,
@@ -351,15 +384,15 @@ export(
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Export S4 generics defined in S4Vectors + export corresponding methods
+### Export S4 generics defined in S4Vectors, and corresponding methods
 ###
 
 export(
     ## show-utils.R:
-    classNameForDisplay, showAsCell,
+    classNameForDisplay, showAsCell, makeNakedCharacterMatrixForDisplay,
 
-    ## LLint-class.R:
-    bindROWS,
+    ## bindROWS.R:
+    bindROWS, bindCOLS,
 
     ## isSorted.R:
     isConstant, isSorted, isStrictlySorted,
@@ -373,18 +406,20 @@ export(
     ## character-utils.R:
     unstrsplit,
 
-    ## DataTable-class.R:
-    ROWNAMES,
-    as.env,
+    ## RectangularData-class.R:
+    vertical_slot_names, horizontal_slot_names,
+    ROWNAMES, "ROWNAMES<-",
+    combineRows, combineCols,
 
     ## Annotated-class.R:
     metadata, "metadata<-",
 
     ## Vector-class.R:
-    parallelSlotNames, parallelVectorNames,
+    parallel_slot_names, parallelVectorNames,
     elementMetadata, mcols, values,
     "elementMetadata<-", "mcols<-", "values<-",
     rename,
+    as.env,
 
     ## Vector-comparison.R:
     pcompare,
@@ -421,14 +456,20 @@ export(
     ## HitsList-class.R:
     space,
 
+    ## DataFrame-utils.R:
+    transform,
+
     ## Pairs-class.R:
     first, "first<-", second, "second<-", zipup, zipdown,
 
-    ## expand-methods.R
-    expand,
-
     ## FilterRules-class.R:
     active, "active<-", evalSeparately, subsetByFilter, params, filterRules,
+
+    ## mstack-methods.R
+    mstack,
+
+    ## expand-methods.R
+    expand,
 
     ## shiftApply-methods.R:
     shiftApply
@@ -436,21 +477,23 @@ export(
 
 ### Exactly the same list as above.
 exportMethods(
-    classNameForDisplay, showAsCell,
-    bindROWS,
+    classNameForDisplay, showAsCell, makeNakedCharacterMatrixForDisplay,
+    bindROWS, bindCOLS,
     isConstant, isSorted, isStrictlySorted,
     NSBS,
     normalizeSingleBracketReplacementValue,
     extractROWS, replaceROWS,
     getListElement, setListElement,
     unstrsplit,
-    ROWNAMES,
-    as.env,
+    vertical_slot_names, horizontal_slot_names,
+    ROWNAMES, "ROWNAMES<-",
+    combineRows, combineCols,
     metadata, "metadata<-",
-    parallelSlotNames, parallelVectorNames,
+    parallel_slot_names, parallelVectorNames,
     elementMetadata, mcols, values,
     "elementMetadata<-", "mcols<-", "values<-",
     rename,
+    as.env,
     pcompare,
     sameAsPreviousROW,
     selfmatch,
@@ -466,9 +509,11 @@ exportMethods(
     relistToClass, splitAsList,
     revElements,
     space,
+    transform,
     first, "first<-", second, "second<-", zipup, zipdown,
-    expand,
     active, "active<-", evalSeparately, subsetByFilter, params, filterRules,
+    mstack,
+    expand,
     shiftApply
 )
 

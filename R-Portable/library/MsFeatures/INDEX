@@ -1,0 +1,16 @@
+corRows                 Correlate rows of a numeric matrix
+featureGroups           Get or set feature group definitions from an
+                        object
+groupClosest            Group values with differences below threshold
+groupConsecutive        Grouping of sorted values into sets with
+                        smallest differences
+groupFeatures           General Feature Grouping Concept
+groupFeatures-similar-abundance
+                        Group features based on abundance similarities
+                        across samples
+groupFeatures-similar-rtime
+                        Group features based on approximate retention
+                        times
+groupSimilarityMatrix   Group rows of a diagonal matrix using a
+                        threshold
+se                      Quantified LC-MS preprocessing result test data

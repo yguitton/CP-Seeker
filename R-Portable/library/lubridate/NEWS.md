@@ -1,8 +1,109 @@
+Version 1.9.3
+=============
+
+### NEW FEATURES
+
+* [#682](https://github.com/tidyverse/lubridate/issues/682#issuecomment-1635910435) Add type="year_start/end" argument to `quarter()` which produces a complete description of the quarter.
+
+### BUG FIXES
+
+* [#1109](https://github.com/tidyverse/lubridate/issues/1109) Fix recycling of the year slot in `as.period(unit = "month")` with Periods and Intervals.
+* [#1133](https://github.com/tidyverse/lubridate/issues/1133) Don't error on addition on infinite periods.
+
+Version 1.9.2
+=============
+
+### BUG FIXES
+
+* [#1104](https://github.com/tidyverse/lubridate/issues/1104) Fix incorrect parsing of months when %a format is present.
+
+### OTHER
+
+* Adapt to internal name changes in R-devel
+
+Version 1.9.1
+=============
+
+### NEW FEATURES
+
+* `as_datetime()` accepts multiple formats in format argument, just like `as_date()` does.
+
+### BUG FIXES
+
+* [#1091](https://github.com/tidyverse/lubridate/issues/1091) Fix formatting of numeric inputs to parse_date_time.
+* [#1092](https://github.com/tidyverse/lubridate/issues/1092) Fix regression in `ymd_hm` on locales where `p` format is not defined.
+* [#1097](https://github.com/tidyverse/lubridate/issues/1097) Fix `as_date("character")` to work correctly with formats that include extra characters.
+* [#1098](https://github.com/tidyverse/lubridate/issues/1098) Roll over the month boundary in `make_dateime()` when units exceed their maximal values.
+* [#1090](https://github.com/tidyverse/lubridate/issues/1090) timechange has been moved from Depends to Imports.
+
+Version 1.9.0
+=============
+
+### NEW FEATURES
+
+* `roll` argument to updating and time-zone manipulation functions is deprecated in favor of a new `roll_dst` parameter.
+* [#1042](https://github.com/tidyverse/lubridate/issues/1042) `as_date` with character inputs accepts multiple formats in `format` argument. When `format` is supplied, the input string is parsed with `parse_date_time` instead of the old `strptime`.
+* [#1055](https://github.com/tidyverse/lubridate/issues/1055) Implement `as.integer` method for Duration, Period and Interval classes.
+* [#1061](https://github.com/tidyverse/lubridate/issues/1061) Make `year<-`, `month<-` etc. accessors truly generic. In order to make them work with arbitrary class XYZ, it's enough to define a `reclass_date.XYZ` method.
+* [#1061](https://github.com/tidyverse/lubridate/issues/1061) Add support for `year<-`, `month<-` etc. accessors for `data.table`'s IDate and ITime objects.
+* [#1017](https://github.com/tidyverse/lubridate/issues/1017) `week_start` argument in all lubridate functions now accepts full and abbreviated names of the days of the week.
+* The assignment value `wday<-` can be a string either in English or as provided by the current locale.
+* Date rounding functions accept a date-time `unit` argument for rounding to a vector of date-times.
+* [#1005](https://github.com/tidyverse/lubridate/issues/1005) `as.duration` now allows for full roundtrip `duration -> as.character -> as.duration`
+* [#911](https://github.com/tidyverse/lubridate/issues/911) C parsers treat multiple spaces as one (just like strptime does)
+* `stamp` gained new argument `exact=FALSE` to indicate whether `orders` argument is an exact strptime formats string or not.
+* [#1001](https://github.com/tidyverse/lubridate/issues/1001) Add `%within` method with signature (Interval, list), which was documented but not implemented.
+* [#941](https://github.com/tidyverse/lubridate/issues/941) `format_ISO8601()` gained a new option `usetz="Z"` to format time zones with a "Z" and convert the time to the UTC time zone.
+* [#931](https://github.com/tidyverse/lubridate/issues/931) Usage of `Period` objects in rounding functions is explicitly documented.
+
+### BUG FIXES
+
+* [#1036](https://github.com/tidyverse/lubridate/issues/1036) `%within%` now correctly works with flipped intervals
+* [#1085](https://github.com/tidyverse/lubridate/issues/1085) `as_datetime()` now preserves the time zone of the POSIXt input.
+* [#1072](https://github.com/tidyverse/lubridate/issues/1072) Names are now handled correctly when combining multiple Period or Interval objects.
+* [#1003](https://github.com/tidyverse/lubridate/issues/1003) Correctly handle r and R formats in locales which have no p format
+* [#1074](https://github.com/tidyverse/lubridate/issues/1074) Fix concatination of named Period, Interval and Duration vectors.
+* [#1044](https://github.com/tidyverse/lubridate/issues/1044) POSIXlt results returned by `fast_strptime()` and `parse_date_time2()` now have a recycled `isdst` field.
+* [#1069](https://github.com/tidyverse/lubridate/issues/1069) Internal code handling the addition of period months and years no longer generates partially recycled POSIXlt objects.
+* Fix rounding of POSIXlt objects
+* [#1007](https://github.com/tidyverse/lubridate/issues/1007) Internal lubridate formats are no longer propagated to stamp formater.
+* `train` argument in `parse_date_time` now takes effect. It was previously ignored.
+* [#1004](https://github.com/tidyverse/lubridate/issues/1004) Fix `c.POSIXct` and `c.Date` on empty single POSIXct and Date vectors.
+* [#1013](https://github.com/tidyverse/lubridate/issues/1013) Fix c(`POSIXct`,`POSIXlt`) heterogeneous concatenation.
+* [#1002](https://github.com/tidyverse/lubridate/issues/1002) Parsing only with format `j` now works on numeric inputs.
+* `stamp()` now correctly errors when no formats could be guessed.
+* Updating a date with timezone (e.g. `tzs = "UTC"`) now returns a POSIXct.
+
+### INTERNALS
+
+* `lubridate` is now relying on `timechange` package for update and time-zone computation. Google's CCTZ code is no longer part of the package.
+* `lubridate`'s updating logic is now built on top of `timechange` package.
+* Change implementation of `c.Period`, `c.Duration` and `c.Interval` from S4 to S3.
+
+Version 1.8.0
+=============
+
+### NEW FEATURES
+
+* [#960](https://github.com/tidyverse/lubridate/issues/960) `c.POSIXct` and `c.Date` can deal with heterogeneous object types (e.g `c(date, datetime)` works as expected)
+
+### BUG FIXES
+
+* [#994](https://github.com/tidyverse/lubridate/issues/994) Subtracting two duration or two period objects no longer results in an ambiguous dispatch note.
+* `c.Date` and `c.POSIXct` correctly deal with empty vectors.
+
+* `as_datetime(date, tz=XYZ)` returns the date-time object with HMS set to 00:00:00 in the corresponding `tz`
+
+### CHANGES
+
+* [#966](https://github.com/tidyverse/lubridate/pull/966) Lubridate is now built with cpp11 (contribution of @DavisVaughan)
+
 Version 1.7.10
 ==============
 
 ### NEW FEATURES
 
+* [#955](https://github.com/tidyverse/lubridate/pull/955) Add `type` argument to `quarter()` for more control over the returned class
 * `fast_strptime()` and `parse_date_time2()` now accept multiple formats and apply them in turn
 
 ### BUG FIXES

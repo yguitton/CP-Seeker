@@ -4,15 +4,19 @@ author: "James Wondrasek, Kirill Müller"
 date: "17/03/2020"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{"Advanced DBI Usage"}
+  %\VignetteIndexEntry{Advanced DBI Usage}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
 library(knitr)
-opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(error = Sys.getenv("IN_PKGDOWN") != "true" || (getRversion() < "3.5"))
+opts_chunk$set(
+  echo = TRUE,
+  error = Sys.getenv("IN_PKGDOWN") != "true" || (getRversion() < "3.5"),
+  # FIXME: Bring back when relational.fit clone is up
+  eval = FALSE
+)
 
 knit_print.data.frame <- function(x, ...) {
   print(head(x, 3))
@@ -28,12 +32,12 @@ registerS3method("knit_print", "data.frame", "knit_print.data.frame")
 ## Who this tutorial is for
 
 This tutorial is for you if you need to use a richer set of SQL features such as data manipulation queries, parameterized queries and queries performed using SQL's transaction features.
-See `vignette("DBI", package = "DBI")` for a more basic tutorial covering connections and execution of simple queries.
+See `vignette("DBI", package = "DBI")` for a more basic tutorial covering connecting to DBMS and executing simple queries.
 
 ## How to run more complex queries using DBI
 
 `dbGetQuery()` works by calling a number of functions behind the scenes.
-If you need more control, you can manually build your own query, retrieve results at your selected rate, and release the resources involved, by calling the same functions.
+If you need more control you can manually build your own query, retrieve results at your selected rate, and release the resources involved by calling the same functions.
 
 These functions are:
 
@@ -91,9 +95,9 @@ DBI supports two ways to avoid SQL injection attacks from user-supplied paramete
 
 Quoting of parameter values is performed using the function `dbQuoteLiteral()`, which supports many R data types, including date and time.[^quote-string]
 
-[^quote-string]: An older method, `dbQuoteString()`, was used to quote string values only. The `dbQuoteLiteral()` method forwards to `dbQuoteString()` for character vectors, users do not need to distinguish between these two cases.
+[^quote-string]: An older method, `dbQuoteString()`, was used to quote string values only. The `dbQuoteLiteral()` method forwards to `dbQuoteString()` for character vectors. Users do not need to distinguish between these two cases.
 
-In cases where users may be supplying table or column names to use in the query for data retrieval, those names, or identifiers, must also be escaped.
+In cases where users may be supplying table or column names to use in the query for data retrieval, those names or identifiers must also be escaped.
 As there may be DBMS-specific rules for escaping these identifiers, DBI provides the function `dbQuoteIdentifier()` to generate a safe string representation.
 
 ```{r quote}
@@ -101,7 +105,7 @@ As there may be DBMS-specific rules for escaping these identifiers, DBI provides
 safe_id <- dbQuoteIdentifier(con, "rating")
 safe_param <- dbQuoteLiteral(con, "G")
 
-query <- paste0("SELECT title, ", safe_id, " FROM film WHERE ", safe_id, " = ", safe_param )
+query <- paste0("SELECT title, ", safe_id, " FROM film WHERE ", safe_id, " = ", safe_param)
 query
 
 res <- dbSendQuery(con, query)
@@ -125,11 +129,16 @@ head(df, 3)
 ### Parameterized queries
 
 Rather than performing the parameter substitution ourselves, we can push it to the DBMS by including placeholders in the query.
-Different DBMS use different placeholder schemes, DBI passes through the SQL expression.
-MariaDB uses a `?` for each parameter and expects an unnamed list of literal values for each placeholder in the query.
+Different DBMS use different placeholder schemes, DBI passes through the SQL expression unchanged.
+
+MariaDB uses a question mark (?) as placeholder and expects an unnamed list of parameter values.
 Other DBMS may use named parameters.
+We recommend consulting the documentation for the DBMS you are using.
+As an example, a web search for "mariadb parameterized queries" leads to the documentation for the [`PREPARE` statement](https://mariadb.com/kb/en/prepare-statement/) which mentions:
+
+> Within the statement, "?" characters can be used as parameter markers to indicate where data values are to be bound to the query later when you execute it.
+
 Currently there is no list of which placeholder scheme a particular DBMS supports.
-For now all we can recommend is consulting the documentation for the DBMS driver you are using.
 
 Placeholders only work for literal values.
 Other parts of the query, e.g. table or column identifiers, still need to be quoted with `dbQuoteIdentifier()`.
@@ -141,7 +150,7 @@ It takes a list and its members are substituted in order for the placeholders wi
 params <- list("G")
 safe_id <- dbQuoteIdentifier(con, "rating")
 
-query <- paste("SELECT * FROM film WHERE ", safe_id, " = ?")
+query <- paste0("SELECT * FROM film WHERE ", safe_id, " = ?")
 query
 
 res <- dbSendQuery(con, query, params = params)
@@ -153,8 +162,8 @@ Below is an example query using multiple placeholders with the MariaDB driver.
 The placeholders are supplied as a list of values ordered to match the position of the placeholders in the query.
 
 ```{r multi-param}
-q_params <- list('G', 90)
-query <- paste("SELECT title, rating, length FROM film WHERE rating = ? and length >= ?")
+q_params <- list("G", 90)
+query <- "SELECT title, rating, length FROM film WHERE rating = ? AND length >= ?"
 
 res <- dbSendQuery(con, query, params = q_params)
 dbFetch(res, n = 3)
@@ -180,6 +189,17 @@ Secondly, `dbBind()` can be used to execute the same statement with multiple val
 ```{r bind_quotestring}
 res <- dbSendQuery(con, "SELECT * FROM film WHERE rating = ?")
 dbBind(res, list(c("G", "PG")))
+dbFetch(res, n = 3)
+dbClearResult(res)
+```
+
+Use a list of vectors if your query has multiple parameters:
+
+```{r bind-multi-param}
+q_params <- list(c("G", "PG"), c(90, 120))
+query <- "SELECT title, rating, length FROM film WHERE rating = ? AND length >= ?"
+
+res <- dbSendQuery(con, query, params = q_params)
 dbFetch(res, n = 3)
 dbClearResult(res)
 ```
@@ -224,9 +244,14 @@ dbGetRowsAffected(rs)
 dbClearResult(rs)
 
 dbReadTable(con, "cars")
+```
 
+Do not forget to disconnect from the database at the end.
+
+```{r}
 dbDisconnect(con)
 ```
+
 
 ## SQL transactions with DBI
 
@@ -240,19 +265,29 @@ dbWriteTable(con, "cash", data.frame(amount = 100))
 dbWriteTable(con, "account", data.frame(amount = 2000))
 
 withdraw <- function(amount) {
-  # All operations are carried out as logical unit:
+  # All operations must be carried out as logical unit:
   dbExecute(con, "UPDATE cash SET amount = amount + ?", list(amount))
   dbExecute(con, "UPDATE account SET amount = amount - ?", list(amount))
 }
 
 withdraw_transacted <- function(amount) {
+  # Ensure atomicity
   dbBegin(con)
+
+  # Perform operation
   withdraw(amount)
+
+  # Persist results
   dbCommit(con)
 }
 
-withdraw(300)
+withdraw_transacted(300)
+```
 
+After withdrawing 300 credits, the cash is increased and the account is decreased by this amount.
+The transaction ensures that either both operations succeed, or no change occurs.
+
+```{r}
 dbReadTable(con, "cash")
 dbReadTable(con, "account")
 ```
@@ -280,7 +315,9 @@ dbReadTable(con, "cash")
 dbReadTable(con, "account")
 ```
 
-Use `dbWithTransaction()` as a safe way to open a transaction, call `dbCommit()` on success and call `dbRollback()` on error.
+`dbWithTransaction()` simplifies using transactions. 
+Pass it a connection and the code you want to run as a transaction. 
+It will execute the code and call `dbCommit()` on success and call `dbRollback()` if an error is thrown.
 
 ```{r error = TRUE}
 withdraw_safely <- function(amount) {

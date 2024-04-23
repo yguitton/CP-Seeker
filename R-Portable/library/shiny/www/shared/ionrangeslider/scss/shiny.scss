@@ -1,4 +1,5 @@
 /* 'shiny' skin for Ion.RangeSlider, largely based on the 'big' skin, but with smaller dimensions, grayscale grid text, and without gradients
+© Posit, PBC, 2023
 © RStudio, Inc, 2014
 © Denis Ineshin, 2014  https://github.com/IonDen
 © guybowden, 2014  https://github.com/guybowden
@@ -19,8 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-// Re-define font-family on .irs to make it configurable
-$font-family: Arial, sans-serif !default;
+$font-family: $font-family-base !default;
 .irs {
   font-family: $font-family;
 }
@@ -36,8 +36,8 @@ $font-family: Arial, sans-serif !default;
   $custom_radius: 3px !default;
 
   // "High-level" coloring
-  $bg:     white !default;
-  $fg:     black !default;
+  $bg:     $body-bg !default;
+  $fg:     color-contrast($body-bg) !default;
   $accent: #428bca !default;
 
   // "Low-level" coloring, borders, and fonts
@@ -52,7 +52,7 @@ $font-family: Arial, sans-serif !default;
   $handle_border:      1px solid mix($bg, $fg, 67%) !default;
   $handle_box_shadow:  1px 1px 3px rgba($bg, 0.3) !default;
 
-  $minmax_text_color:  mix($bg, $fg, 20%) !default;
+  $minmax_text_color:  null !default;
   $minmax_bg_color:    rgba($fg, 0.1) !default;
   $minmax_font_size:   10px !default;
   $minmax_line_height: 1.333 !default;
@@ -64,7 +64,7 @@ $font-family: Arial, sans-serif !default;
 
   $grid_major_color:  $fg !default;
   $grid_minor_color:  mix($bg, $fg, 60%) !default;
-  $grid_text_color:   mix($bg, $fg, 10%) !default;
+  $grid_text_color:   null !default;
 
 
   height: 40px;
@@ -80,6 +80,19 @@ $font-family: Arial, sans-serif !default;
     background-color: $line_bg_color;
     border: $line_border;
     @include border-radius-shim($line_height);
+
+    // Increase the touch target area of the slider line
+    overflow: visible;
+    &::before {
+      content: "";
+      display: block;
+      position: relative;
+      cursor: s-resize; // downward arrow
+      width: 100%;
+      height: $handle_height;
+      top: -(($handle_height - $line_height / 2) / 2);
+      z-index: 1; // raise touch area above grid
+    }
   }
 
   .#{$name}-bar {
@@ -88,9 +101,22 @@ $font-family: Arial, sans-serif !default;
     border-top: 1px solid $bar_color;
     border-bottom: 1px solid $bar_color;
     background: $bar_color;
+    cursor: s-resize; // downard arrow, overwritten when a range
+    z-index: 2;
 
     &--single {
       @include border-radius-shim($line_height 0 0 $line_height);
+    }
+
+    // Increase the touch target area of the slider bar
+    &::before {
+      content: "";
+      display: block;
+      position: relative;
+      width: 100%;
+      height: $handle_height;
+      top: -(($handle_height - $line_height / 2) / 2);
+      z-index: 2; // raise touch area above line touch target
     }
   }
 
@@ -115,6 +141,7 @@ $font-family: Arial, sans-serif !default;
     background-color: $handle_color;
     box-shadow: $handle_box_shadow;
     border-radius: $handle_width;
+    z-index: 2;
 
     &.state_hover,
     &:hover {

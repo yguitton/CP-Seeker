@@ -1,6 +1,5 @@
-citHeader("Please cite the paper below for the limma software itself.  Please also try to cite the appropriate methodology articles that describe the statistical methods implemented in limma, depending on which limma functions you are using.  The methodology articles are listed in Section 2.1 of the limma User's Guide.")
-
-citEntry(entry="article",
+bibentry(
+	bibtype = "article",
 	author = c(person(c("Matthew","E"),"Ritchie"),
 	           person("Belinda","Phipson"),
 	           person("Di","Wu"),

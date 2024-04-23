@@ -1,0 +1,198 @@
+useDynLib(S4Arrays)
+
+import(methods)
+importFrom(stats, setNames)
+importClassFrom(Matrix, dgCMatrix, lgCMatrix, dgRMatrix, lgRMatrix)
+
+importFrom(crayon, make_style)
+importFrom(abind, abind)
+
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 classes
+###
+
+exportClasses(
+    ## Array-class.R:
+    Array,
+
+    ## ArrayGrid-class.R:
+    ArrayViewport, DummyArrayViewport, SafeArrayViewport,
+    ArrayGrid, DummyArrayGrid, ArbitraryArrayGrid, RegularArrayGrid
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S3 methods
+###
+
+S3method(aperm, DummyArrayGrid)
+S3method(aperm, ArbitraryArrayGrid)
+S3method(aperm, RegularArrayGrid)
+
+S3method(as.array, Array)
+
+S3method(as.character, Array)
+S3method(as.character, ArrayGrid)
+
+S3method(as.complex, Array)
+
+S3method(as.data.frame, Array)
+
+S3method(as.integer, Array)
+
+S3method(as.logical, Array)
+
+S3method(as.matrix, Array)
+
+S3method(as.numeric, Array)
+
+S3method(as.raw, Array)
+
+S3method(as.vector, Array)
+
+S3method(t, Array)
+
+### We also export them thru the export() directive so that (a) they can be
+### called directly, (b) tab-completion on the name of the generic shows them,
+### and (c) methods() doesn't asterisk them.
+
+export(
+    aperm.DummyArrayGrid,
+    aperm.ArbitraryArrayGrid,
+    aperm.RegularArrayGrid,
+
+    as.array.Array,
+
+    as.character.Array,
+    as.character.ArrayGrid,
+
+    as.complex.Array,
+
+    as.data.frame.Array,
+
+    as.integer.Array,
+
+    as.logical.Array,
+
+    as.matrix.Array,
+
+    as.numeric.Array,
+
+    as.raw.Array,
+
+    as.vector.Array,
+
+    t.Array
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 methods for generics not defined in S4Arrays
+###
+
+exportMethods(
+    ## Methods for generics defined in the base package:
+    length,
+    dim, "dim<-", dimnames,
+    drop,
+    "[", "[<-",
+    "[[",
+    lengths,
+    as.array, as.matrix, as.data.frame, as.vector,
+    as.logical, as.integer, as.numeric, as.complex, as.character, as.raw,
+    which,
+    min, max, range, sum, prod, any, all,   # "Summary" group generic
+    mean,
+    anyNA,
+    var,
+    nchar,
+
+    ## Methods for generics defined in the methods package:
+    coerce, show,
+
+    ## Methods for generics defined in the BiocGenerics package:
+    cbind, rbind,
+    t, aperm,
+    dims,
+    type,
+
+    ## Methods for generics defined in the S4Vectors package:
+    bindROWS,
+    showAsCell, isEmpty,
+
+    ## Methods for generics defined in the IRanges package:
+    ranges, start, end, width
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
+
+export(
+    ## aperm2.R:
+    aperm2,
+
+    ## array_selection.R:
+    Lindex2Mindex, Mindex2Lindex,
+
+    ## ArrayGrid-class.R:
+    DummyArrayViewport, ArrayViewport, makeNindexFromArrayViewport,
+    DummyArrayGrid, ArbitraryArrayGrid, RegularArrayGrid,
+
+    ## read_block.R:
+    read_block
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S4 generics defined in S4Arrays, and corresponding methods
+###
+
+export(
+    ## rowsum.R:
+    rowsum, colsum,
+
+    ## abind.R:
+    abind, arbind, acbind,
+
+    ## dim-tuning-utils.R:
+    tune_Array_dims,
+
+    ## ArrayGrid-class.R:
+    refdim, maxlength, downsample,
+
+    ## mapToGrid.R:
+    mapToGrid, mapToRef,
+
+    ## extract_array.R:
+    extract_array,
+
+    ## is_sparse.R:
+    is_sparse, "is_sparse<-",
+
+    ## read_block.R:
+    read_block_as_dense,
+
+    ## write_block.R:
+    write_block
+)
+
+### Same list as above.
+exportMethods(
+    colsum,          # no rowsum() method defined in S4Arrays!
+    abind, arbind, acbind,
+    refdim, maxlength, downsample,
+    mapToGrid, mapToRef,
+    extract_array,
+    is_sparse,
+    #"is_sparse<-",  # no methods defined in S4Arrays!
+    read_block_as_dense,
+    write_block
+)
+

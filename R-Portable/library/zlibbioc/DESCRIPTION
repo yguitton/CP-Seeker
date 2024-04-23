@@ -1,7 +1,7 @@
 Package: zlibbioc
 Type: Package
 Title: An R packaged zlib-1.2.5
-Version: 1.32.0
+Version: 1.48.2
 Author: Martin Morgan
 Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 Description: This package uses the source code of zlib-1.2.5 to create
@@ -9,16 +9,20 @@ Description: This package uses the source code of zlib-1.2.5 to create
   means (most Linux and Mac users should have system-level access to
   zlib, and no direct need for this package). See the vignette for
   instructions on use.
-URL: http://bioconductor.org/packages/release/bioc/html/Zlibbioc.html
+Suggests: BiocStyle, knitr
+biocViews: Infrastructure
+URL: https://bioconductor.org/packages/zlibbioc
+BugReports: https://github.com/Bioconductor/zlibbioc/issues
 License: Artistic-2.0 + file LICENSE
 LazyLoad: yes
-biocViews: Infrastructure
+VignetteBuilder: knitr
 git_url: https://git.bioconductor.org/packages/zlibbioc
-git_branch: RELEASE_3_10
-git_last_commit: 2e5b107
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 260bc44
+git_last_commit_date: 2024-03-13
+Repository: Bioconductor 3.18
+Date/Publication: 2024-03-13
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:54:30 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 14:25:49 UTC; windows
-Archs: i386, x64
+Packaged: 2024-03-14 02:36:15 UTC; biocbuild
+Built: R 4.3.3; x86_64-w64-mingw32; 2024-03-14 12:23:37 UTC; windows
+Archs: x64

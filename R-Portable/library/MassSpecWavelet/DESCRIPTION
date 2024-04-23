@@ -1,21 +1,54 @@
 Package: MassSpecWavelet
 Type: Package
-Title: Mass spectrum processing by wavelet-based algorithms
-Version: 1.52.0
-Date: 2014-03-18
-Depends: waveslim
-Suggests: xcms, caTools
-Author: Pan Du, Warren Kibbe, Simon Lin
-Maintainer: Pan Du <dupan.mail@gmail.com>
-Description: Processing Mass Spectrometry spectrum by using wavelet based algorithm
+Title: Peak Detection for Mass Spectrometry data using wavelet-based
+        algorithms
+Version: 1.68.0
+Encoding: UTF-8
+Date: 2023-04-11
+Authors@R: c(
+    person(given = "Pan",
+           family = "Du",
+           role = c("aut")),
+    person(given = "Warren",
+           family = "Kibbe",
+           role = c("aut")),
+    person(given = "Simon",
+           family = "Lin",
+           role = c("aut")),
+    person(given = "Sergio",
+           family = "Oller Moreno",
+           email = "sergioller@gmail.com",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-8994-1549"))
+    )
+Description: Peak Detection in Mass Spectrometry data is one of the important
+ preprocessing steps. The performance of peak detection affects subsequent
+ processes, including protein identification, profile alignment and biomarker
+ identification. Using Continuous Wavelet Transform (CWT), this package provides
+ a reliable algorithm for peak detection that does not require any type of
+ smoothing or previous baseline correction method, providing more consistent
+ results for different spectra. See <doi:10.1093/bioinformatics/btl355} for further
+ details.
+URL: https://github.com/zeehio/MassSpecWavelet
+BugReports: http://github.com/zeehio/MassSpecWavelet/issues
 License: LGPL (>= 2)
-biocViews: ImmunoOncology, MassSpectrometry, Proteomics
+Suggests: signal, waveslim, BiocStyle, knitr, rmarkdown, RUnit, bench
+biocViews: ImmunoOncology, MassSpectrometry, Proteomics, PeakDetection
+VignetteBuilder: knitr
+RoxygenNote: 7.2.1
+Roxygen: list(markdown = TRUE)
 git_url: https://git.bioconductor.org/packages/MassSpecWavelet
-git_branch: RELEASE_3_10
-git_last_commit: 11469a7
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 99ece70
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:30:23 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 13:37:13 UTC; windows
-Archs: i386, x64
+Packaged: 2023-10-25 01:05:17 UTC; biocbuild
+Author: Pan Du [aut],
+  Warren Kibbe [aut],
+  Simon Lin [aut],
+  Sergio Oller Moreno [aut, cre]
+    (<https://orcid.org/0000-0002-8994-1549>)
+Maintainer: Sergio Oller Moreno <sergioller@gmail.com>
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-25 14:18:32 UTC; windows
+Archs: x64

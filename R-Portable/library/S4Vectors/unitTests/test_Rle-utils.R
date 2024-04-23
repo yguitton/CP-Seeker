@@ -108,6 +108,8 @@ test_Rle_numerical <- function() {
     checkEqualsNumeric(cor(x, y, use = "complete"), cor(xRle, yRle, use = "complete"))
     checkIdentical(sd(x), sd(xRle))
     checkEqualsNumeric(sd(x, na.rm = TRUE), sd(xRle, na.rm = TRUE))
+    checkIdentical(8, median(Rle(8)))
+    checkIdentical(8L, median(Rle(8L)))
     checkIdentical(median(x), median(xRle))
     checkIdentical(median(x, na.rm = TRUE), median(xRle, na.rm = TRUE))
     checkIdentical(quantile(x, na.rm = TRUE), quantile(xRle, na.rm = TRUE))
@@ -577,7 +579,7 @@ test_Rle_runq_integer <- function() {
     x <- Rle(x0)
     k <- 3 
     for (i in 1:3) {
-        target1 <- unlist(.naive_runq(x0, k, i, na.rm=TRUE))
+        target1 <- as.integer(unlist(.naive_runq(x0, k, i, na.rm=TRUE)))
         current <- as.vector(runq(x, k, i, na.rm=TRUE))
         checkIdentical(unname(target1), current)
 
@@ -590,7 +592,7 @@ test_Rle_runq_integer <- function() {
     x <- Rle(x0)
     i <- 1
     for (k in 1:6) {
-        target1 <- unlist(.naive_runq(x0, k, i, na.rm=TRUE))
+        target1 <- as.integer(unlist(.naive_runq(x0, k, i, na.rm=TRUE)))
         current <- as.vector(runq(x, k, i, na.rm=TRUE))
         checkIdentical(target1, current)
 

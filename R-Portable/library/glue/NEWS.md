@@ -1,5 +1,78 @@
+# glue 1.7.0
+
+* If rlang is installed, glue will generate more informative errors if an
+  interpolated expression either can't be parsed or fails to evaluate (#229).
+
+* `+` now works in more situations, and gives errors when one side isn't a 
+  character vector. It no longer automatically applies glue interpolation to
+  a non-glue input, if there is one. You'll need to do that yourself (#286).
+
+* `glue_collapse(character())` (and hence `glue_sql_collapse(character())`) now
+  return `""`, so that they always return a single string (#88).
+
+* `glue_sql()` now collapses an empty vector to `""` not `"NULL"` (#272).
+
+* `glue_sql()` now uses `DBI::dbQuoteLiteral()` for all object types. This 
+  should increase fidelity of escaping for different object types (#279).
+
+* The "Speed of glue" vignette has been converted to an article, which allows
+  several package to be removed from `Suggests` (and re-located to
+  `Config/Needs/website`). The code got a light refresh, including a switch
+  from microbenchmark to bench and more modern use of ggplot2.
+
+* Add `$(C_VISIBILITY)` to compiler flags to hide internal symbols from the dll (#284 @lionel-).
+
+# glue 1.6.2
+
+* Modify a test for better forward compatibility with R.
+
+# glue 1.6.1
+
+* glue now registers its custom knitr engines in a way that is more robust to namespace-loading edge cases that can arise during package installation (#254).
+
+# glue 1.6.0
+
+* `glue()`, `glue_data()`, `glue_col()`, and `glue_data_col()` gain a new `.literal` argument, which controls how quotes and the comment character are treated when parsing the expression string (#235). This is mostly useful when using a custom transformer.
+
+* Trailing whitespace-only lines don't interfere with indentation (#247).
+
+# glue 1.5.1
+
+* Jennifer Bryan is now the maintainer.
+
+* The existing custom language engines for knitr, `glue` and `glue_sql`, are documented in a new vignette (#71). *Detail added after release: glue now sets up registration of these engines in `.onLoad()`.*
+
+* `glue_col()` gives special treatment to styling functions from the crayon package, e.g. `glue_col("{blue foo}")` "just works" now, even if crayon is not attached (but is installed) (#241).
+
+* Unterminated backticks trigger the same error as unterminated single or double quotes (#237).
+
+* `glue_sql()` collapses zero-length `DBI::SQL` object into `DBI::SQL("NULL")` (#244 @shrektan).
+
+# glue 1.5.0
+
+## Breaking changes
+
+* Long deprecated function `collapse()` has been removed (#213)
+
+## New functions and arguments
+
+* New `glue_sql_collapse()` function to collapse inputs and return a `DBI::SQL()` object (#103).
+
+* `glue()` gains a new `.comment` argument, to control the comment character (#193).
+* `glue()` gains a new `.null` argument, to control the value to replace `NULL` values with (#217, @echasnovski).
+
+## Bugfixes and minor changes
+
+* `sql_quote_transformer()` is now allows whitespace after the trailing `*` (#218).
+* `compare_proxy.glue()` method defined so glue objects can be compared to strings in testthat 3e without errors (#212)
+* `print.glue()` no longer prints an empty newline for 0 length inputs (#214)
+* Unterminated comments in glue expression now throw an error (#227, @gaborcsardi)
+* Unterminated quotes in glue expressions now throw an error (#226, @gaborcsardi)
+
+
 # glue 1.4.2
 
+* `glue_safe()` gives a slightly nicer error message
 * The required version of R is now 3.2 (#189)
 * `glue_sql()` now collapses `DBI::SQL()` elements correctly (#192 @shrektan)
 * The internal `compare()` method gains a `...` argument, for compatibility with testthat 3.0.0
@@ -60,8 +133,8 @@
 ## Breaking changes
 
 * The `evaluate()` function has been removed. Changes elsewhere in glue made
-  the implementation trivial so it was removed for clarities sake. Previous
-  uses can be replaced by `eval(parse(text = text), envir)`.
+  the implementation trivial so it was removed for the sake of clarity.
+  Previous uses can be replaced by `eval(parse(text = text), envir)`.
 
 * `collapse()` has been renamed to `glue_collapse()` to avoid namespace
   collisions with `dplyr::collapse()`.

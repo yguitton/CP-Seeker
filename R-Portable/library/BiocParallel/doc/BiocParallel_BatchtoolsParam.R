@@ -39,10 +39,6 @@ param
 fname <- batchtoolsTemplate("slurm")
 cat(readLines(fname), sep="\n")
 
-## ----eval=FALSE------------------------------------------------------------
-#  echo 'batchtools::doJobCollection("<%= uri %>")' |\
-#      ArbitraryRcommand --no-save --slave
-
 ## ----simple_sge_example, eval=FALSE----------------------------------------
 #  library(BiocParallel)
 #  

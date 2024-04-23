@@ -51,7 +51,7 @@ importFrom(stats, approx, density, IQR, lm, loess, loess.control,
            splinefun, t.test, terms, var, wilcox.test)
 
 importFrom(utils, available.packages, contrib.url, data, flush.console,
-           install.packages, object.size)
+           install.packages, object.size, packageVersion)
 
 ##export everything that does not start with a .
 exportPattern("^[^\\.]")
@@ -62,3 +62,11 @@ exportMethods(show, boxplot, image, exprs, "exprs<-", featureNames, geneNames, s
               se.exprs, updateObject)
 
 exportClasses("AffyBatch")
+
+## S3 methods
+
+S3method(plot, ProbeSet)
+S3method("$", AffyBatch)
+S3method(barplot, ProbeSet)
+S3method(merge, AffyBatch)
+S3method(pairs, AffyBatch)

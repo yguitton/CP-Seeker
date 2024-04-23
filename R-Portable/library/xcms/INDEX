@@ -3,8 +3,6 @@ AutoLockMass-methods    Automatic parameter for Lock mass fixing
 CalibrantMassParam-class
                         Calibrant mass based calibration of
                         chromatgraphic peaks
-FillChromPeaksParam-class
-                        Integrate areas of missing peaks
 GenericParam-class      Generic parameter class
 ProcessHistory-class    Tracking data processing
 SSgauss                 Gaussian Model
@@ -12,18 +10,13 @@ XCMSnExp-class          Data container storing xcms preprocessing
                         results
 XChromatograms          Containers for chromatographic and peak
                         detection data
+[,XCMSnExp,ANY,ANY,ANY-method
+                        XCMSnExp filtering and subsetting
 [,xcmsRaw,logicalOrNumeric,missing,missing-method
                         Subset an xcmsRaw object by scans
 absent                  Determine which peaks are absent / present in a
                         sample class
 adjustRtime             Alignment: Retention time correction methods.
-adjustRtime-obiwarp     Align retention times across samples using
-                        Obiwarp
-adjustRtime-peakGroups
-                        Retention time correction based on alignment of
-                        house keeping peak groups
-align,Chromatogram,Chromatogram-method
-                        Aligning chromatographic data
 applyAdjustedRtime      Replace raw with adjusted retention times
 bin,XCMSnExp-method     XCMSnExp data manipulation methods inherited
                         from MSnbase
@@ -34,12 +27,13 @@ breaks_on_nBins         Generate breaks for binning
 c.xcmsSet               Combine xcmsSet objects
 calibrate               Calibrate peaks for correcting unprecise m/z
                         values
-chromPeakSpectra        Extract (MS2) spectra associated with
-                        chromatographic peaks
+chromPeakChromatograms
+                        Extract an ion chromatogram for each
+                        chromatographic peak
+chromPeakSpectra        Extract spectra associated with chromatographic
+                        peaks
 chromatogram,XCMSnExp-method
                         Extracting chromatograms
-chromatographic-peak-detection
-                        Chromatographic peak detection methods.
 collect-methods         Collect MS^n peaks into xcmsFragments
 correlate,Chromatogram,Chromatogram-method
                         Correlate chromatograms
@@ -70,22 +64,28 @@ do_groupChromPeaks_nearest
                         using a nearest neighbor approach
 do_groupPeaks_mzClust   Core API function for peak grouping using
                         mzClust
+estimatePrecursorIntensity
+                        Estimate precursor intensity for MS level 2
+                        spectra
 etg                     Empirically Transformed Gaussian function
 exportMetaboAnalyst     Export data for use in MetaboAnalyst
 extractMsData,OnDiskMSnExp-method
                         DEPRECATED: Extract a 'data.frame' containing
                         MS data
+feature-grouping        Compounding of LC-MS features
 featureChromatograms    Extract ion chromatograms for each feature
-featureSpectra          Extract (MS2) spectra associated with features
+featureSpectra          Extract spectra associated with features
 featureSummary          Simple feature summaries
-featureValues,XCMSnExp-method
-                        Accessing mz-rt feature data values
+fillChromPeaks          Gap Filling
 fillPeaks               Integrate areas of missing peaks
 fillPeaks.MSW           Integrate areas of missing peaks in FTICR-MS
                         data
 fillPeaks.chrom         Integrate areas of missing peaks
+filterColumnsIntensityAbove,MChromatograms-method
+                        Filtering sets of chromatographic data
 filterFeatureDefinitions
-                        XCMSnExp filtering and subsetting
+                        Next Generation 'xcms' Result Object
+findChromPeaks          Chromatographic Peak Detection
 findChromPeaks,Chromatogram,CentWaveParam-method
                         centWave-based peak detection in purely
                         chromatographic data
@@ -142,17 +142,18 @@ group-methods           Group peaks from different samples together
 group.density           Group peaks from different samples together
 group.mzClust           Group Peaks via High Resolution Alignment
 group.nearest           Group peaks from different samples together
-groupChromPeaks         Correspondence: Chromatographic peak grouping
-                        methods.
-groupChromPeaks-density
-                        Peak grouping based on time dimension peak
-                        densities
-groupChromPeaks-mzClust
-                        High resolution peak grouping for single
-                        spectra samples
-groupChromPeaks-nearest
-                        Peak grouping based on proximity in the mz-rt
-                        space
+groupChromPeaks         Correspondence: group chromatographic peaks
+                        across samples
+groupFeatures-abundance-correlation
+                        Compounding/feature grouping based on
+                        similarity of abundances across samples
+groupFeatures-eic-similarity
+                        Compounding/feature grouping based on
+                        similarity of extracted ion chromatograms
+groupFeatures-similar-rtime
+                        Compounding/feature grouping based on similar
+                        retention times
+groupOverlaps           Group overlapping ranges
 groupnames              Generate unque names for peak groups
 groupnames,XCMSnExp-method
                         Generate unique group (feature) names based on
@@ -172,6 +173,8 @@ isolationWindowTargetMz,OnDiskMSnExp-method
 levelplot,xcmsRaw-method
                         Plot log intensity image of a xcmsRaw object
 loadRaw-methods         Read binary data from a source
+loadXcmsData            LC-MS preprocessing result test data sets
+manualChromPeaks        Manual peak integration and feature definition
 medianFilter            Apply a median filter to a matrix
 msn2xcmsRaw             Copy MSn data in an xcmsRaw to the MS slots
 overlappingFeatures     Identify overlapping features
@@ -185,7 +188,7 @@ peaksWithMatchedFilter
 phenoDataFromPaths      Derive experimental design from file paths
 plot.xcmsEIC            Plot extracted ion chromatograms from multiple
                         files
-plotAdjustedRtime       Visualization of alignment results
+plotAdjustedRtime       Visualization of Alignment Results
 plotChrom               Plot extracted ion chromatograms from the
                         profile matrix
 plotChromPeakDensity,XCMSnExp-method
@@ -193,8 +196,12 @@ plotChromPeakDensity,XCMSnExp-method
                         retention time axis
 plotChromPeaks          General visualizations of peak detection
                         results
+plotChromatogramsOverlay
+                        Plot multiple chromatograms into the same plot
 plotEIC                 Plot extracted ion chromatograms for specified
                         m/z range
+plotFeatureGroups       Plot feature groups in the m/z-retention time
+                        space
 plotMsData              DEPRECATED: Create a plot that combines a XIC
                         and a mz/rt 2D plot for one sample
 plotPeaks               Plot a grid of a large number of peaks
@@ -206,26 +213,30 @@ plotSpec                Plot mass spectra from the profile matrix
 plotSurf                Plot profile matrix 3D surface using OpenGL
 plotTIC                 Plot total ion count
 plotrt                  Plot retention time deviation profiles
-profMat-xcmsSet         The profile matrix
+profMat,MsExperiment-method
+                        The profile matrix
 profMedFilt             Median filtering of the profile matrix
 profMethod              Get and set method for generating profile data
 profRange               Specify a subset of profile mode data
 profStep                Get and set m/z step for generating profile
                         data
+quantify,XCMSnExp-method
+                        Accessing mz-rt feature data values
 rawEIC                  Get extracted ion chromatograms for specified
                         m/z range
 rawMat-methods          Get a raw data matrix
 reconstructChromPeakSpectra
                         Data independent acquisition (DIA): reconstruct
                         MS2 spectra
+refineChromPeaks        Refine Identified Chromatographic Peaks
+removeIntensity,Chromatogram-method
+                        Remove intensities from chromatographic data
 retcor-methods          Correct retention time from different samples
 retcor.obiwarp          Align retention times across samples with
                         Obiwarp
 retcor.peakgroups       Align retention times across samples
 retexp                  Set retention time window to a specified width
-rla                     Calculate relative log abundances 'rla'
-                        calculates the relative log abundances (RLA,
-                        see reference) on a 'numeric' vector.
+rla                     Calculate relative log abundances
 sampnames               Get sample names
 showError,xcmsSet-method
                         Extract processing errors
@@ -261,7 +272,6 @@ xcmsFragments           Constructor for xcmsFragments objects which
                         holds Tandem MS peaks
 xcmsFragments-class     Class xcmsFragments, a class for handling
                         Tandem MS and MS$^n$ data
-xcmsPapply              _Deprecated_: xcmsPapply
 xcmsPeaks-class         A matrix of peaks
 xcmsRaw                 Constructor for xcmsRaw objects which reads
                         NetCDF/mzXML files

@@ -1,20 +1,625 @@
-03 Feb 2020: limma 3.42.2
+30 Oct 2023: limma 3.58.1
 
-- The previous revision to contrasts.fit() caused an error if the
+- Minor edits to decideTests.Rd.
+
+- Update limma-Tests.Rout.save for Bioconductor 3.18 organism
+  packages.
+
+25 Oct 2023: limma 3.58.0 (Bioconductor 3.18 Release Branch)
+
+24 Oct 2023: limma 3.57.12
+
+- Add warning to lmFit() and more explanation to lmFit.Rd to explain
+  that correlation cannot be combined with method="robust".
+
+18 Oct 2023: limma 3.57.11
+
+- Update NEWS.Rd for imminent Bioconductor 3.18 Release.
+
+11 Oct 2023: limma 3.57.10
+
+- Fix behaviour of topTable() with `adjust.method=NULL` so that it
+  gives "BH" adjustment as documented. Previously the argument was
+  passed to p.adjust() which gave "holm" adjustment.
+
+29 Sep 2023: limma 3.57.9
+
+- Simplify the x-axis for the mean-variance plot from vooma() when
+  `covariate` is non-NULL. The x-axis is now the fitted values for the
+  multiple regression of the quarter-root-variances on log-expression
+  and the covariate.
+
+23 Sep 2023: limma 3.57.8
+
+- New argument `covariate` for vooma().
+
+02 Aug 2023: limma 3.57.7
+
+- limma now imports statmod rather than suggesting it.
+
+19 Jun 2023: limma 3.57.6
+
+- Add BiocStyle to Suggests field of DESCRIPTION.
+
+18 Jun 2023: limma 3.57.5
+
+- Add cameraPR() to 10GeneSetTests.Rd help topic.
+
+11 Jun 2023: limma 3.57.4
+
+- Use LaTeX includepdf to import usersguide.pdf into Sweave vignette.
+
+- Expand Introduction vignette.
+
+10 Jun 2023: limma 3.57.3
+
+- Convert Introduction vignette from Sweave and pdf to Rmarkdown and
+  html.
+
+ 3 Jun 2023: limma 3.57.2
+
+- Add new argument 'group' for removeBatchEffect(). Revise help page
+  example to use the new argument.
+
+ 6 May 2023: limma 3.57.1
+
+- treat() now works when there are NA coefficients. Previously it gave
+  an error if any estimated coefficient was NA.
+
+25 Apr 2023: limma 3.57.0 (Bioconductor 3.18 Developmental Branch)
+25 Apr 2023: limma 3.56.0 (Bioconductor 3.17 Release Branch)
+
+22 Apr 2023: limma 3.55.10
+
+- Revisions to Notes section at the end of the User's Guide. Refer to
+  package description and help pages instead listing individual
+  co-authors. Remove citations of software projects using limma
+  because most are out-of-date.
+
+22 Apr 2023: limma 3.55.9
+
+- Update NEWS.Rd for imminent Bioconductor 3.17 Release.
+
+21 Apr 2023: limma 3.55.8
+
+- Update URLs in help pages.
+
+- Update URL for Rsubread RNAseqCaseStudy in User's Guide.
+
+- Convert CITATION to bibentry() instead of citEntry().
+
+10 Apr 2023: limma 3.55.7
+
+- Update limma-Tests.Rout.save for R 4.3.0beta and new Bioconductor
+  organism packages.
+
+28 Mar 2023: limma 3.55.6
+
+- Update two reference URLs in propTrueNull() help page.
+
+28 Feb 2023: limma 3.55.5
+
+- Fix a problem with inconsistent pathway names from KEGG. Due to a
+  change on the KEGG website, pathway names from getGeneKEGGLinks()
+  have "path:" prefixes but pathway names from getKEGGPathwayNames()
+  do not. To make the pathway names consistent, getGeneKEGGLinks() now
+  removes the "path:" prefix.
+
+- New (non-exported) function .removePrefix().
+
+26 Jan 2023: limma 3.55.4
+
+- Update NEWS.Rd.
+
+- Minor correction to sampleInfoFromGEO() help page details section.
+
+26 Jan 2023: limma 3.55.3
+
+- Rename readSampleInfoFromGEO() to sampleInfoFromGEO().
+
+22 Dec 2022: limma 3.55.2
+
+- Add new argument `p.value` for topGO() and topKEGG().
+
+29 Nov 2022: limma 3.55.1
+
+- eBayes() now checks whether `fit` is a list object before
+  undertaking other tests.
+
+- Revise voom.Rd to specify that y-values in voom plot are sqrt
+  residual standard deviations.
+
+- Update limma-Tests.Rout.save for Bioc 3.16 annotation packages.
+
+ 2 Nov 2022: limma 3.55.0 (Bioconductor 3.17 Developmental Branch)
+ 2 Nov 2022: limma 3.54.0 (Bioconductor 3.16 Release Branch)
+
+29 Oct 2022: limma 3.53.11
+
+- Fix typos in User's Guide. Update some spellings to American
+  English.
+
+26 Sep 2022: limma 3.53.10
+
+- Fix bug introduced in 3.53.9 whereby kegga.MArrayLM was returning GO
+  results instead of KEGG results.
+
+18 Sep 2022: limma 3.53.9
+
+- Rename argument `prior.prob` to `null.prob` in goana() and kegga().
+
+18 Sep 2022: limma 3.53.8
+
+- New function goanaTrend() to estimate a covariate-dependent trend in
+  the probability of differential expression for use in goana() and
+  kegga() with `trend=TRUE`. The trend estimated by goanaTrend() is
+  squeezed slightly towards constancy to provide stability when the
+  number of DE genes is small. The amount of squeezing decreases with
+  the number of DE genes.
+
+- goana() and kegga() now call goanaTrend() when the `trend` argument
+  is used. When `plot=TRUE` the plot is now created by goanaTrend()
+  instead of by barcodeplot().
+
+11 Sep 2022: limma 3.53.7
+
+- Update goana() and kegga() code to catch NA gene IDs or covariate
+  values.
+
+- goana() and kegga() no longer give an error when a trend is
+  estimated but there are no DE genes.
+
+- Trends estimated by goana() and kegga() are now squeezed slightly
+  towards constancy to provide stability when the number of DE genes
+  is small.
+
+20 Aug 2022: limma 3.53.6
+
+- Add new argument `fc` to topTable() and topTableF().
+  Change default for `lfc` to NULL instead of 0.
+
+24 Jul 2022: limma 3.53.5
+
+- Update help page reference URLs with DOIs.
+
+11 Jul 2022: limma 3.53.4
+
+- Fix typos in camera.Rd.
+
+ 5 Jun 2022: limma 3.53.3
+
+- Use https instead of http links when reading from rest.kegg.jp.
+
+15 May 2022: limma 3.53.2
+
+- lmFit() now checks explicitly for NAs in the design matrix.
+
+10 May 2022: limma 3.53.1
+
+- Update alias2Symbol.Rd for Bioconductor 3.16.
+
+27 Apr 2022: limma 3.53.0 (Bioconductor 3.16 Developmental Branch)
+27 Apr 2022: limma 3.52.0 (Bioconductor 3.15 Release Branch)
+
+15 Apr 2022: limma 3.51.8
+
+- Update News.Rd ready for the Bioconductor 3.15 release.
+
+- Rerun package tests using the latest developmental packages,
+  including organism packages.
+
+ 8 Apr 2022: limma 3.51.7
+
+- Update reference in vooma() help page.
+
+ 6 Apr 2022: limma 3.51.6
+
+- Fix bug on lmFit() when `object` is a data.frame. lmFit() was not
+  adding `Amean` to the output object in that case. Bug was introduced
+  in limma 3.51.3.
+
+17 Feb 2022: limma 3.51.5
+
+- Fix typo ggplots to gplots in details section of coolmap() help page.
+
+10 Feb 2022: limma 3.51.4
+
+- Allow the `trend` argument of eBayes() to specify a general variance
+  covariate.
+
+14 Jan 2022: limma 3.51.3
+
+- More detailed checking and error messages when the `object` input to
+  lmFit() is a data.frame.
+
+19 Dec 2021: limma 3.51.2
+
+- New function readSampleInfoFromGEO().
+
+27 Nov 2021: limma 3.51.1
+
+- Improve checking for incorrectly specified `contrasts` argument in
+  contrasts.fit().
+
+- Rerun case study in Section 17.4 of the User's Guide
+  (time-course experiment with Agilent rat microarrays)
+
+27 Oct 2021: limma 3.51.0 (Bioconductor 3.15 Developmental Branch)
+27 Oct 2021: limma 3.50.0 (Bioconductor 3.14 Release Branch)
+
+24 Oct 2021: limma 3.49.5
+
+- Update News.Rd ready for the Bioconductor 3.14 release.
+
+- Rerun package tests using the latest developmental packages,
+  including organism packages.
+
+ 8 Aug 2021: limma 3.49.4
+
+- Expand details section of help page of barcodeplot().
+
+ 6 Aug 2021: limma 3.49.3
+
+- Fix bug in plotMDS.MDS() (introduced in 3.47.12) when new `dim.plot`
+  values are set.
+
+ 3 Aug 2021: limma 3.49.2
+
+- Fix bug in read.idat() when `annotation` contains NA values.
+
+- Revise plots in Section 18.1.10 of User's Guide so that coloring of
+  X and Y genes is consistent.
+
+24 Jun 2021: limma 3.49.1
+
+- Expand explanation of fry() mixed p-values on the fry() help page.
+ 
+20 May 2021: limma 3.49.0 (Bioconductor 3.14 Developmental Branch)
+20 May 2021: limma 3.48.0 (Bioconductor 3.13 Release Branch)
+
+18 May 2021: limma 3.47.16
+ 
+- Fix minor bug in kegga.default() when there is only one pathway and
+  `trend=TRUE`.
+
+- Add `var.explained` argument to plotMDS.default().
+
+10 May 2021: limma 3.47.15
+ 
+- Use \doi{} for accessing doi URLs in help pages.
+
+ 9 May 2021: limma 3.47.14
+ 
+- Update test output for Bioconductor 3.13 organism packages.
+
+- Update NEWS.Rd for Bioconductor 3.13 release.
+
+ 1 May 2021: limma 3.47.13
+ 
+- Fix typo in voom() warning when negative counts are detected.
+
+28 Mar 2021: limma 3.47.12
+
+- Rewrite the MDS calculations performed by plotMDS(). The function no
+  longer calls cmdscale() but instead performs the necessary
+  eigenvector computations directly. Proportion of variance explained
+  by each dimension is now computed. The `ndim` argument is now
+  removed. All eigenvectors are now stored so that plotMDS.MDS does
+  not need to recompute them when different dimensions are plotted.
+
+24 Mar 2021: limma 3.47.11
+
+- The average log-expression column written by write.fit() now has
+  column heading "AveExpr" to match the output from topTable().
+  The column was previously called "A".
+
+ 8 Mar 2021: limma 3.47.10
+
+- New argument `fc` for treat() so that the fold-change threshold can
+  optionally be specified on the fold-change scale rather than as a
+  log2-fold-change.
+
+- Additional documentation for the `design` argument of `lmFit`
+  using the term "samples" instead of "arrays" and mentioning that
+  the design matrix defaults to `object$design` when that component
+  is not NULL.
+
+ 8 Mar 2021: limma 3.47.9
+
+- Help page for voom() now explains that the design matrix will be
+  set from the `group` factor of the DGEList object if available.
+
+16 Feb 2021: limma 3.47.8
+
+- The upper/lower calculation introduced yesterday in
+  duplicateCorrelation() didn't allow for NA correlations for some
+  genes. Now fixed.
+
+- Edit duplicateCorrelation() help page including new code example.
+
+15 Feb 2021: limma 3.47.7
+
+- duplicateCorrelation() now bounds the genewise correlations away
+  from the upper and lower bounds by 0.01 so that the correlation
+  matrix will be positive-definite.
+
+31 Jan 2021: limma 3.47.6
+
+- duplicateCorrelation() now sets `weights` same as lmFit(). Setting
+  `weights=NULL` in the function call no longer overwrites weights
+  found in `object`.
+
+31 Jan 2021: limma 3.47.5
+
+- duplicateCorrelation() now checks whether the block factor is
+  spanned by the design matrix. If so, it returns intrablock
+  correlations of zero with a warning. Previously this usage error
+  was not specifically trapped and could lead to correlations that
+  were or NA or close to 1 depending on floating point errors.
+
+- duplicateCorrelation() now issues a simplified message when design
+  is not of full rank and uses message() to do so instead of cat().
+
+- Fix to value returned by duplicateCorrelation() when no blocks or
+  duplicates are present.
+
+31 Jan 2021: limma 3.47.4
+
+- Edit coolmap() help page to clarify which heatmap.2() arguments are
+  reserved and which can be included in the coolmap call.
+
+22 Dec 2020: limma 3.47.3
+
+- Add new arguments `path` and `bgxpath` for read.idat().
+
+- read.idat() now checks for existence of input files before calling
+  illuminaio read functions.
+
+20 Dec 2020: limma 3.47.2
+
+- read.idat() now checks for gzipped IDAT files and, if detected,
+  gives an informative error message.
+
+22 Nov 2020: limma 3.47.1
+
+- Explicitly setting `weights=NULL` in a call to lmFit() no longer
+  over-rides the `weights` value found in `object`.
+
+- Default settings in lmFit() changed from `ndups=` and `spacing=1`
+  to `ndups=NULL` and `spacing=NULL`. No change to function behavior
+  from a user point of view.
+
+28 Oct 2020: limma 3.47.0 (Bioconductor 3.13 Developmental Branch)
+28 Oct 2020: limma 3.46.0 (Bioconductor 3.12 Release Branch)
+
+19 Oct 2020: limma 3.45.19
+
+- Subsetting and contrasts.fit() now work on MArrayLM objects even
+  if the cov.coefficients component is absent.
+
+18 Oct 2020: limma 3.45.18
+
+- Add Note to voom.Rd to emphasise that voom is not an appropriate
+  tool to analyse TPM, FPKM, CPM or any similar measures normalized
+  for library size.
+
+17 Oct 2020: limma 3.45.17
+
+- In voom.Rd, recommend voomLmFit as an alternative for sparse counts.
+
+17 Oct 2020: limma 3.45.16
+
+- Update package test output file for org.Hs.eg.db version 3.12.0.
+
+16 Oct 2020: limma 3.45.15
+
+- Update NEWS.Rd ready for the Bioconductor 3.12 release.
+
+- volcanoplot() now prompts user to run eBayes() if the object
+  doesn't contain p-values.
+
+12 Sep 2020: limma 3.45.14
+
+- Revise the help page for plotMDS() to clarify that the function can
+  produce PCA plots as well as PCoA plots.
+
+ 3 Sep 2020: limma 3.45.13
+
+- Revise write.fit() so that column names of the output file are
+  correct when `digits=NULL` and the `fit` object contains only one
+  coefficient column. Previously the same contrast name was repeated
+  as the column name for the coefficients, t-statistics and p.values,
+  making them hard to distinguish.
+
+ 2 Sep 2020: limma 3.45.12
+
+- write.fit() now outputs a blank column heading for the row names
+  so that the number of column names in the delimited output file
+  will agree with the number of columns (similar to write.csv in the
+  base package).
+
+- Add more explanation about "heirarchical" method in the details
+  section of the decideTests() help page.
+
+24 Aug 2020: limma 3.45.11
+
+- Edits to the eBayes help page.
+
+ 7 Aug 2020: limma 3.45.10
+
+- Add checks and more informative error messages to getEAWP() and
+  lmFit() when the data object is missing, NULL or has zero rows.
+
+14 Jul 2020: limma 3.45.9
+
+- Add new function chooseLowessSpan().
+
+11 Jul 2020: limma 3.45.8
+
+- fitFDist() with a non-NULL `covariate` now fits a smoother trend
+  (with fewer spline knots) than before unless there are at least
+  30 observations. This also affects squeezeVar() and eBayes() with
+  `trend=TRUE`.
+
+12 Jun 2020: limma 3.45.7
+
+- The previous change to TestResults subsetting caused an error in
+  plotWithHighlights() if `status` was a TestResults object and
+  `values` was not NULL. Now fixed.
+
+- Rerun the E.coli and mammary subset case studies in the User's
+  Guide.
+
+10 Jun 2020: limma 3.45.6
+
+- Subsetting for RGList, MAList, EListRaw, EList, MArrayLM or
+  TestResults objects now accepts arguments other than `i` or `j`
+  but ignores them without an error. This is relevant if a user
+  adds a `drop` argument by analogy with matrix subsetting. Previously
+  that produced an error.
+
+- Subsetting of TestResults now requires two arguments, same as all
+  of the other data object classes listed above. Previously single
+  index subsetting (for example object[i]) was allowed.
+
+- Add example to EList-class help page.
+
+ 9 Jun 2020: limma 3.45.5
+
+- Improved treatment of zero weights by weighted.median().
+
+- Minor revisions to weightedLowess help page.
+
+- Edit concept entries for help files.
+
+- More consistent use of rep.int(), rep_len() and rep() throughout
+  the package.
+
+- Replace NA with NA_real_ where appropriate.
+
+ 8 Jun 2020: limma 3.45.4
+
+- Add new argument `output.style` to weightedLowess().
+
+- Revise and expand the weightedLowess help page.
+
+ 6 Jun 2020: limma 3.45.3
+
+- Add a message to topTableF() to warn that the function is
+  obsolete and will be removed in a future version of limma.
+  Remove usages of topTableF() from the User's Guide.
+
+ 6 Jun 2020: limma 3.45.2
+
+- Remove obsolete function toptable(), which has been officially 
+  deprecated in favor of topTable() since 1 Feb 2018.
+
+- Update test file results to match updated organism packages.
+
+28 Apr 2020: limma 3.45.1
+
+- Bug fix to arrayWeights() when `y` contains NAs, the design matrix
+  has several columns and some but not all genes have no residual df.
+
+28 Apr 2020: limma 3.45.0 (Bioconductor 3.12 Developmental Branch)
+28 Apr 2020: limma 3.44.0 (Bioconductor 3.11 Release Branch)
+
+26 Apr 2020: limma 3.43.11
+
+- Update installation section of User's Guide.
+
+26 Apr 2020: limma 3.43.10
+
+- Update NEWS.Rd for imminent Bioconductor 3.11 release.
+
+- Add references to edgeR::voomLmFit() in the voom() and
+  voomWithQualityWeights() help pages.
+
+26 Apr 2020: limma 3.43.9
+
+- fitFDist() now allows a covariate trend even with fewer than 4
+  useable observations. (Useable means positive residual df and
+  finite variance and covariate values.)
+
+14 Apr 2020: limma 3.43.8
+
+- Add new argument `package` to changeLog(). changeLog() now works
+  for any package rather than only for limma.
+
+12 Apr 2020: limma 3.43.7
+
+This revision consists of code speed-ups:
+- Convert code usages of any(is.na(x)) to anyNA(x).
+- Convert code usages of all(!x) to !any(x).
+- Convert code usages of all(df.residual==0) to max(df.residual)==0.
+
+12 Apr 2020: limma 3.43.6
+
+- Fix to classifyTestsF() when one or more of the coefficients have
+  zero variance. Previously the zero variance will introduce NAs into
+  the correlation matrix and hence cause an error. This is now
+  avoided. This also fixes eBayes() when one or more of the
+  coefficients are identically zero (usually caused by an all-zero
+  contrast).
+
+ 6 Mar 2020: limma 3.43.5
+
+- Improved treatment of NA coefficients by contrasts.fit().
+  contrasts.fit() has always removed coefficients that were NA because
+  of singularities in the design matrix, but any extra NA coefficients
+  caused by NA expression values would cause all the stdev.unscaled
+  values returned by contrasts.fit() to be NA for those genes.
+  contrasts.fit() now returns non-NA coefficients and
+  non-NA stdev.unscaled values if all the NA coefficients are
+  multiplied by zero contrast multipliers.
+
+- Speed improvement for contrasts.fit() if some input coefficients are
+  not involved (have zero multipliers) in any of the contrasts.
+
+- contrasts.fit() now preserves the `pivot` component of the fit
+  object instead of removing it.
+
+- More explanation of `covariates` argument to removeBatchEffects().
+
+- Improvements to subsetting MArrayLM objects by column. Previously
+  the presence of non-estimable coefficients sometimes caused the
+  cov.coefficient matrix to be subsetted incorrectly; that is now
+  fixed. Subsetting zero columns is now allowed even when F-statistics
+  are present.
+
+16 Feb 2020: limma 3.43.4
+
+- voom now checks explicitly for NA or negative counts and gives an
+  informative error message.
+
+- Cleaning up of internal code to avoid partial matching of function
+  arguments, attributes or list component names. The automatic package
+  tests are now run with the warnPartialMatchArgs,
+  warnPartialMatchAttr and warnPartialMatchDollar options all set to
+  TRUE.
+
+03 Feb 2020: limma 3.43.3
+
+- The previous change to contrasts.fit() caused an error if the
   contrast matrix had 0 columns. That case is now handled again.
 
-29 Jan 2020: limma 3.42.1
-
-- Fix bug in contrasts.fit() when some coefficients are NA and the
-  corresponding contrast coefficients are zero. The new code will
-  give non-NA contrasts if the NA coefficients all get 0 weight in
-  the contrast. Previous code was correct if all genes had the same
-  NA coefficients but could an avoidable NA result if some genes had
-  NA coefficients but the first gene did not.
+29 Jan 2020: limma 3.43.2
 
 - contrasts.fit() is now faster in the case that most elements of the
   `contrasts` argument are zero.
 
+28 Jan 2020: limma 3.43.1
+
+- Fix bug in contrasts.fit() when some coefficients are NA due to NA
+  expression values and the corresponding contrast multipliers are
+  zero. The new code fixes the improvement originally introduced in
+  limma 3.35.9. The new code will return non-NA contrasts if the NA
+  coefficients all get 0 weight in the contrast. Previous code was
+  correct if all genes had the same NA coefficients but could give an
+  avoidable NA result if some genes had NA coefficients but the
+  first gene did not.
+
+30 Oct 2019: limma 3.43.0 (Bioconductor 3.11 Developmental Branch)
 30 Oct 2019: limma 3.42.0 (Bioconductor 3.10 Release Branch)
 
 28 Oct 2019: limma 3.41.20
@@ -409,10 +1014,16 @@ org.Hs.eg.db 3.8.1
 
 16 Feb 2018: limma 3.35.9
 
-- In the past, contrasts.fit() always returned NA contrasts for genes
-  with any NA fitted coefficients. contrasts.fit() will now ignore an
-  NA coefficient if the contrast multiplier is zero for that
-  coefficient.
+- Improved treatment of NA coefficients by contrasts.fit().
+  contrasts.fit() has always removed coefficients that were NA because
+  of singularities in the design matrix, but any extra NA coefficients
+  caused by NA expression values would cause all the coefficients
+  returned by contrasts.fit() to be NA for those genes.
+  contrasts.fit() now returns non-NA coefficients if the input NA
+  coefficients are multiplied by zero contrast multipliers.
+  This improvement is only for the coefficients themselves. The
+  corresponding stdev.unscaled values returned by constrasts.fit()
+  for such genes will still be NA.
 
  4 Feb 2018: limma 3.35.8
 

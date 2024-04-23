@@ -81,6 +81,7 @@ hide_legend	hide_legend
 highlight	highlight
 highlight_key	highlight_key
 hobbs	hobbs
+kaleido	save_image
 knit_print.api_grid	knit_print.api_grid
 knit_print.api_grid_local	knit_print.api_grid_local
 knit_print.api_plot	knit_print.api_plot
@@ -115,6 +116,7 @@ print.api	print.api
 print.api_grid	print.api_grid
 print.api_grid_local	print.api_grid_local
 print.api_plot	print.api_plot
+print.kaleidoScope	print.kaleidoScope
 rangeslider	rangeslider
 raster2uri	raster2uri
 reexports	reexports
@@ -125,6 +127,7 @@ rename_	reexports
 rename_.plotly	plotly_data
 renderPlotly	plotly-shiny
 res_mn	res_mn
+save_image	save_image
 schema	schema
 select	reexports
 select.plotly	plotly_data

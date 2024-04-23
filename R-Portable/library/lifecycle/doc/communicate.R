@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -7,11 +7,11 @@ knitr::opts_chunk$set(
 options(
   # Pretend we're in the lifecycle package
   "lifecycle:::calling_package" = "lifecycle",
-  # suppress last_warnings() message by default
+  # suppress last_lifecycle_warnings() message by default
   "lifecycle_verbosity" = "warning"
 )
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  #' `r lifecycle::badge("experimental")`
 #  #' `r lifecycle::badge("deprecated")`
 #  #' `r lifecycle::badge("superseded")`
@@ -25,7 +25,7 @@ lifecycle::deprecate_warn("1.0.0", "fun(old_arg)", "fun(new_arg)")
 #' Add two numbers
 #' 
 #' @description
-#' `r lifecycle::badge("deprecated")
+#' `r lifecycle::badge("deprecated")`
 #' 
 #' This function was deprecated because we realised that it's
 #' a special case of the [sum()] function.
@@ -59,7 +59,7 @@ add_two <- function(x, y) {
 
 add_two(1, 2)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  test_that("add_two is deprecated", {
 #    expect_snapshot({
 #      x <- add_two(1, 1)
@@ -67,13 +67,13 @@ add_two(1, 2)
 #    })
 #  })
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  test_that("add_two returns the sum of its inputs", {
 #    withr::local_options(lifecycle_verbosity = "quiet")
 #    expect_equal(add_two(1, 1), 2)
 #  })
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  test_that("add_two is deprecated", {
 #    expect_snapshot(add_two(1, 1))
 #  })
@@ -82,7 +82,7 @@ add_two(1, 2)
 #' Add two numbers
 #' 
 #' @description 
-#' `r lifecycle::badge(deprecated)`
+#' `r lifecycle::badge("deprecated")`
 #' 
 #' `add_two()` was renamed to `number_add()` to create a more
 #' consistent API.
@@ -180,8 +180,10 @@ add_two <- function(x, y, na_rm = TRUE, na.rm = deprecated()) {
     na_rm <- na.rm
   }
   
-  add_two(x, y, na.rm = na_rm)
+  sum(x, y, na.rm = na_rm)
 }
+
+add_two(1, NA, na.rm = TRUE)
 
 ## -----------------------------------------------------------------------------
 add_two <- function(x, y) {
@@ -194,4 +196,16 @@ add_two <- function(x, y) {
 
 add_two(1, 2)
 add_two(1, 1:5)
+
+## -----------------------------------------------------------------------------
+lifecycle::deprecate_warn(
+  when = "1.0.0",
+  what = I('Setting the global option "pkg.opt" to "foo"')
+)
+
+lifecycle::deprecate_warn(
+  when = "1.0.0",
+  what = I('The global option "pkg.another_opt"'),
+  with = I('"pkg.this_opt"')
+)
 

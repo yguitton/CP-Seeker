@@ -1,4 +1,4 @@
-## ---- echo = FALSE, message = FALSE---------------------------------------------------------------
+## ----echo = FALSE, message = FALSE----------------------------------------------------------------
 require(data.table)
 knitr::opts_chunk$set(
   comment = "#",
@@ -6,6 +6,7 @@ knitr::opts_chunk$set(
      tidy = FALSE,
     cache = FALSE,
  collapse = TRUE)
+.old.th = setDTthreads(1)
 
 ## ----echo = FALSE---------------------------------------------------------------------------------
 options(width = 100L)
@@ -60,8 +61,8 @@ DT.c1
 str(DT.c1) ## gender column is character type now!
 
 ## -------------------------------------------------------------------------------------------------
-colA = paste("dob_child", 1:3, sep = "")
-colB = paste("gender_child", 1:3, sep = "")
+colA = paste0("dob_child", 1:3)
+colB = paste0("gender_child", 1:3)
 DT.m2 = melt(DT, measure = list(colA, colB), value.name = c("dob", "gender"))
 DT.m2
 
@@ -72,7 +73,39 @@ DT.m2 = melt(DT, measure = patterns("^dob", "^gender"), value.name = c("dob", "g
 DT.m2
 
 ## -------------------------------------------------------------------------------------------------
+(two.iris = data.table(datasets::iris)[c(1,150)])
+
+## -------------------------------------------------------------------------------------------------
+melt(two.iris, measure.vars = measure(part, dim, sep="."))
+
+## -------------------------------------------------------------------------------------------------
+melt(two.iris, measure.vars = measure(value.name, dim, sep="."))
+
+## -------------------------------------------------------------------------------------------------
+melt(two.iris, measure.vars = measure(part, value.name, sep="."))
+
+## -------------------------------------------------------------------------------------------------
+DT.m3 = melt(DT, measure = measure(value.name, child=as.integer, sep="_child"))
+DT.m3
+
+## -------------------------------------------------------------------------------------------------
+(who <- data.table(id=1, new_sp_m5564=2, newrel_f65=3))
+melt(who, measure.vars = measure(
+  diagnosis, gender, ages, pattern="new_?(.*)_(.)(.*)"))
+
+## -------------------------------------------------------------------------------------------------
+melt(who, measure.vars = measure(
+  diagnosis, gender, ages,
+  ymin=as.numeric,
+  ymax=function(y)ifelse(y=="", Inf, as.numeric(y)),
+  pattern="new_?(.*)_(.)(([0-9]{2})([0-9]{0,2}))"
+))
+
+## -------------------------------------------------------------------------------------------------
 ## new 'cast' functionality - multiple value.vars
 DT.c2 = dcast(DT.m2, family_id + age_mother ~ variable, value.var = c("dob", "gender"))
 DT.c2
+
+## ----echo=FALSE-----------------------------------------------------------------------------------
+setDTthreads(.old.th)
 

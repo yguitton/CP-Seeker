@@ -1,20 +1,20 @@
-## ----startup, results='hide', echo=FALSE, message=FALSE------------------
+## ----startup, results='hide', echo=FALSE, message=FALSE-----------------------
 library(mzID)
 ps.options(pointsize=12)
 
 
-## ----parsing, tidy=TRUE--------------------------------------------------
+## ----parsing, tidy=TRUE-------------------------------------------------------
 exampleFiles <- list.files(system.file('extdata', package = 'mzID'), 
                            pattern = '*.mzid', full.names = TRUE)
 mzResults <- mzID(exampleFiles[5])
 mzResults
 
 
-## ----class_overview, tidy=TRUE-------------------------------------------
+## ----class_overview, tidy=TRUE------------------------------------------------
 showClass('mzID')
 
 
-## ----flattening, tidy=TRUE-----------------------------------------------
+## ----flattening, tidy=TRUE----------------------------------------------------
 flatResults <- flatten(mzResults)
 names(flatResults)
 nrow(flatResults)
@@ -23,7 +23,7 @@ nrow(flatResults)
 length(mzResults)
 
 
-## ----inspection, tidy=TRUE-----------------------------------------------
+## ----inspection, tidy=TRUE----------------------------------------------------
 flatResults$length
 nchar(flatResults$sequence)
 substr(flatResults$sequence, 1, 10)

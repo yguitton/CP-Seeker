@@ -1,3 +1,4 @@
+# nolint start
 
 options("scipen" = 10000)
 
@@ -15,7 +16,7 @@ font <- tolower(gsub(" ", ".", gsub("\\.xlsx", "", files2)))
 strs <- "openxlsxFontSizeLookupTable <- \ndata.frame("
 allWidths <- rep(8.43, 29)
 names(allWidths) <- 1:29
-for(i in 1:length(files)){
+for(i in seq_along(files)){
   
   f <- font[[i]]
   widths <- round(as.numeric(read.xlsx(files[[i]])[2,]), 6)
@@ -42,7 +43,7 @@ font <- tolower(gsub(" ", ".", gsub("\\-bold.xlsx", "", files2)))
 strsBold <- "openxlsxFontSizeLookupTableBold <- \ndata.frame("
 allWidths <- rep(8.43, 29)
 names(allWidths) <- 1:29
-for(i in 1:length(files)){
+for(i in seq_along(files)){
   
   f <- font[[i]]
   widths <- round(as.numeric(read.xlsx(files[[i]])[2,]), 6)
@@ -60,3 +61,4 @@ cat(allStrs)
 
 
 
+# nolint end

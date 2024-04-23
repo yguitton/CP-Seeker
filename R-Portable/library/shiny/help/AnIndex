@@ -36,12 +36,11 @@ conditionStackTrace	stacktrace
 conditionStackTrace<-	stacktrace
 createRenderFunction	createRenderFunction
 createWebDependency	createWebDependency
-dataTableOutput	tableOutput
+dataTableOutput	renderDataTable
 dateInput	dateInput
 dateRangeInput	dateRangeInput
 dblclickOpts	clickOpts
 debounce	debounce
-deprecatedReactives	deprecatedReactives
 devmode	devmode
 devmode_inform	devmode
 dialogViewer	viewer
@@ -56,7 +55,7 @@ enableBookmarking	enableBookmarking
 eventReactive	observeEvent
 exportTestValues	exportTestValues
 exprToFunction	exprToFunction
-extractStackTrace	stacktrace
+ExtendedTask	ExtendedTask
 fileInput	fileInput
 fillCol	fillRow
 fillPage	fillPage
@@ -67,7 +66,6 @@ fixedRow	fixedPage
 flowLayout	flowLayout
 fluidPage	fluidPage
 fluidRow	fluidPage
-formatStackTrace	stacktrace
 freezeReactiveVal	freezeReactiveValue
 freezeReactiveValue	freezeReactiveValue
 getCurrentOutputInfo	getCurrentOutputInfo
@@ -104,7 +102,7 @@ incProgress	withProgress
 inputPanel	inputPanel
 insertTab	insertTab
 insertUI	insertUI
-installExprFunction	installExprFunction
+installExprFunction	createRenderFunction
 invalidateLater	invalidateLater
 in_devmode	devmode
 is.key_missing	reexports
@@ -114,7 +112,7 @@ is.shiny.appobj	shiny.appobj
 is.singleton	reexports
 isolate	isolate
 isRunning	isRunning
-isTruthy	req
+isTruthy	isTruthy
 key_missing	reexports
 knitr_methods	knitr_methods
 knit_print.reactive	knitr_methods
@@ -151,6 +149,7 @@ onRestore	onBookmark
 onRestored	onBookmark
 onSessionEnded	onFlush
 onStop	onStop
+onUnhandledError	onFlush
 outputOptions	outputOptions
 p	reexports
 pageWithSidebar	pageWithSidebar
@@ -165,18 +164,13 @@ print.shiny.appobj	shiny.appobj
 printError	stacktrace
 printStackTrace	stacktrace
 Progress	Progress
-quoToFunction	quoToFunction
+quoToFunction	createRenderFunction
 radioButtons	radioButtons
 reactive	reactive
 reactiveConsole	reactiveConsole
 reactiveFileReader	reactiveFileReader
-reactivePlot	deprecatedReactives
 reactivePoll	reactivePoll
-reactivePrint	deprecatedReactives
-reactiveTable	deprecatedReactives
-reactiveText	deprecatedReactives
 reactiveTimer	reactiveTimer
-reactiveUI	deprecatedReactives
 reactiveVal	reactiveVal
 reactiveValues	reactiveValues
 reactiveValuesToList	reactiveValuesToList
@@ -234,7 +228,6 @@ shinyUI	shinyUI
 showBookmarkUrlModal	showBookmarkUrlModal
 showModal	showModal
 showNotification	showNotification
-showReactLog	reactlog
 showTab	showTab
 sidebarLayout	sidebarLayout
 sidebarPanel	sidebarLayout
@@ -251,7 +244,7 @@ stopApp	stopApp
 strong	reexports
 submitButton	submitButton
 suppressDependencies	reexports
-tableOutput	tableOutput
+tableOutput	renderTable
 tabPanel	tabPanel
 tabPanelBody	tabPanel
 tabsetPanel	tabsetPanel

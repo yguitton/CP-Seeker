@@ -16,7 +16,8 @@
 .psi.ggw.findc	psiFindc
 .psi.lqq.findc	psiFindc
 .psi2ipsi	M.psi
-.signflip	pkg-internal
+.regularize.Mpsi	M.psi
+.signflip	robustbase-internal
 .vcov.avar1	lmrob
 .vcov.w	lmrob
 .wgtFUN.covComed	covComed
@@ -56,7 +57,7 @@ covPlot	covPlot
 CrohnD	CrohnD
 cushny	cushny
 delivery	delivery
-doScale	pkg-internal
+doScale	robustbase-internal
 education	education
 epilepsy	epilepsy
 estimethod	estimethod
@@ -68,7 +69,10 @@ functionX-class	functionX-class
 functionXal-class	functionXal-class
 glmrob	glmrob
 glmrobBY.control	glmrob.control
+glmrobMqle	robustbase-internal
 glmrobMqle.control	glmrob.control
+glmrobMqleDiffQuasiDevB	robustbase-internal
+glmrobMqleDiffQuasiDevPois	robustbase-internal
 glmrobMT.control	glmrob.control
 h.alpha.n	h.alpha.n
 hampelPsi	psiFunc
@@ -76,11 +80,13 @@ hard.rejection	covOGK
 hatvalues.lmrob	summary.lmrob
 hbk	hbk
 heart	heart
+huberize	huberize
 huberM	huberM
 huberPsi	psiFunc
-internals	pkg-internal
+internals	robustbase-internal
 kootenay	kootenay
 lactic	lactic
+lmc	lmc-rmc
 lmrob	lmrob
 lmrob..D..fit	lmrob..D..fit
 lmrob..M..fit	lmrob..M..fit
@@ -95,7 +101,7 @@ ltsPlot	ltsPlot
 ltsReg	ltsReg
 ltsReg.default	ltsReg
 ltsReg.formula	ltsReg
-mahalanobisD	pkg-internal
+mahalanobisD	robustbase-internal
 mc	mc
 Mchi	M.psi
 milk	milk
@@ -125,6 +131,7 @@ possumDiv	possumDiv
 predict.glmrob	predict.glmrob
 predict.lmrob	predict.lmrob
 predict.nlrob	nlrob
+print.glmrob	robustbase-internal
 print.lmrob	print.lmrob
 print.lts	ltsReg
 print.mcd	covMcd
@@ -142,7 +149,8 @@ radarImage	radarImage
 rankMM	rankMM
 residuals.glmrob	residuals.glmrob
 residuals.nlrob	nlrob
-robMD	pkg-internal
+rmc	lmc-rmc
+robMD	robustbase-internal
 robustbase-deprecated	tukeyPsi1
 rowMedians	colMedians
 rrcov.control	rrcov.control
@@ -171,6 +179,7 @@ tolEllipsePlot	tolEllipsePlot
 toxicity	toxicity
 tukeyChi	tukeyPsi1
 tukeyPsi1	tukeyPsi1
+update.lmrobCtrl	lmrob.control
 vaso	vaso
 vcov.glmrob	summary.glmrob
 vcov.lmrob	summary.lmrob
@@ -180,3 +189,4 @@ weights.glmrob	weights.lmrob
 weights.lmrob	weights.lmrob
 wgt.himedian	wgt.himedian
 wood	wood
+x30o50	xtrData

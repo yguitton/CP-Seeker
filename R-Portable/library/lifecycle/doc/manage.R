@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -14,11 +14,11 @@ data_frame <- function(...) {
 ## -----------------------------------------------------------------------------
 df1 <- data_frame(x = 1, y = 2)
 #> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_warnings()` to see where this warning was generated.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 df2 <- data_frame(a = "apple", b = "banana")
 
-## ---- eval = FALSE------------------------------------------------------------
-#  lifecycle::last_warnings()
+## ----eval = FALSE-------------------------------------------------------------
+#  lifecycle::last_lifecycle_warnings()
 #  #> [[1]]
 #  #> <deprecated>
 #  #> message: `data_frame()` was deprecated in tibble 1.1.0.
@@ -31,7 +31,7 @@ options(lifecycle_verbosity = "warning")
 df1 <- data_frame(x = 1, y = 2)
 df2 <- data_frame(a = "apple", b = "banana")
 
-## ---- error = TRUE------------------------------------------------------------
+## ----error = TRUE-------------------------------------------------------------
 options("lifecycle_verbosity" = "error")
 df1 <- data_frame(x = 1, y = 2)
 

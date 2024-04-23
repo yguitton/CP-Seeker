@@ -1,104 +1,104 @@
-## ----setup, include=FALSE, cache=FALSE-----------------------------------
+## ----setup, include=FALSE, cache=FALSE----------------------------------------
 library("knitr")
 opts_chunk$set(tidy.opts=list(width.cutoff=45), tidy=FALSE, fig.align="center",
                fig.height=4.25, comment=NA, prompt=TRUE)
 
-## ----env, echo=FALSE-----------------------------------------------------
+## ----env, echo=FALSE----------------------------------------------------------
 suppressPackageStartupMessages(library("MALDIquant"))
 
-## ----mqsetup, eval=FALSE-------------------------------------------------
+## ----mqsetup, eval=FALSE------------------------------------------------------
 #  install.packages(c("MALDIquant", "MALDIquantForeign"))
 
-## ----mqlibrary, eval=FALSE-----------------------------------------------
+## ----mqlibrary, eval=FALSE----------------------------------------------------
 #  library("MALDIquant")
 
-## ----mqobjects-----------------------------------------------------------
+## ----mqobjects----------------------------------------------------------------
 s <- createMassSpectrum(mass=1:10, intensity=1:10,
                         metaData=list(name="Spectrum1"))
 s
 
-## ----mqaccess------------------------------------------------------------
+## ----mqaccess-----------------------------------------------------------------
 mass(s)
 intensity(s)
 metaData(s)
 
-## ----mqdataimport--------------------------------------------------------
+## ----mqdataimport-------------------------------------------------------------
 data(fiedler2009subset)
 
-## ----mqdataimport2-------------------------------------------------------
+## ----mqdataimport2------------------------------------------------------------
 length(fiedler2009subset)
 fiedler2009subset[1:2]
 
-## ----mqqclength----------------------------------------------------------
+## ----mqqclength---------------------------------------------------------------
 any(sapply(fiedler2009subset, isEmpty))
 table(sapply(fiedler2009subset, length))
 
-## ----mqqcregular---------------------------------------------------------
+## ----mqqcregular--------------------------------------------------------------
 all(sapply(fiedler2009subset, isRegular))
 
-## ----mqqcplots-----------------------------------------------------------
+## ----mqqcplots----------------------------------------------------------------
 plot(fiedler2009subset[[1]])
 plot(fiedler2009subset[[16]])
 
-## ----mqvs----------------------------------------------------------------
+## ----mqvs---------------------------------------------------------------------
 spectra <- transformIntensity(fiedler2009subset,
                               method="sqrt")
 
-## ----mqsm----------------------------------------------------------------
+## ----mqsm---------------------------------------------------------------------
 spectra <- smoothIntensity(spectra, method="SavitzkyGolay",
                            halfWindowSize=10)
 
-## ----mqve----------------------------------------------------------------
+## ----mqve---------------------------------------------------------------------
 baseline <- estimateBaseline(spectra[[16]], method="SNIP",
                              iterations=100)
 plot(spectra[[16]])
 lines(baseline, col="red", lwd=2)
 
-## ----mqbc----------------------------------------------------------------
+## ----mqbc---------------------------------------------------------------------
 spectra <- removeBaseline(spectra, method="SNIP",
                           iterations=100)
 plot(spectra[[1]])
 
-## ----mqcb----------------------------------------------------------------
+## ----mqcb---------------------------------------------------------------------
 spectra <- calibrateIntensity(spectra, method="TIC")
 
-## ----mqpa----------------------------------------------------------------
+## ----mqpa---------------------------------------------------------------------
 spectra <- alignSpectra(spectra,
                         halfWindowSize=20,
                         SNR=2,
                         tolerance=0.002,
                         warpingMethod="lowess")
 
-## ----mqav1---------------------------------------------------------------
+## ----mqav1--------------------------------------------------------------------
 samples <- factor(sapply(spectra,
                          function(x)metaData(x)$sampleName))
 
-## ----mqav2---------------------------------------------------------------
+## ----mqav2--------------------------------------------------------------------
 avgSpectra <- averageMassSpectra(spectra, labels=samples,
                                  method="mean")
 
-## ----mqpd1---------------------------------------------------------------
+## ----mqpd1--------------------------------------------------------------------
 noise <- estimateNoise(avgSpectra[[1]])
 plot(avgSpectra[[1]], xlim=c(4000, 5000), ylim=c(0, 0.002))
 lines(noise, col="red")
 lines(noise[,1], noise[, 2]*2, col="blue")
 
-## ----mqpd2---------------------------------------------------------------
+## ----mqpd2--------------------------------------------------------------------
 peaks <- detectPeaks(avgSpectra, method="MAD",
                      halfWindowSize=20, SNR=2)
 plot(avgSpectra[[1]], xlim=c(4000, 5000), ylim=c(0, 0.002))
 points(peaks[[1]], col="red", pch=4)
 
-## ----mqpb----------------------------------------------------------------
+## ----mqpb---------------------------------------------------------------------
 peaks <- binPeaks(peaks, tolerance=0.002)
 
-## ----mqfp----------------------------------------------------------------
+## ----mqfp---------------------------------------------------------------------
 peaks <- filterPeaks(peaks, minFrequency=0.25)
 
-## ----mqim----------------------------------------------------------------
+## ----mqim---------------------------------------------------------------------
 featureMatrix <- intensityMatrix(peaks, avgSpectra)
 head(featureMatrix[, 1:3])
 
-## ----sessioninfo, echo=FALSE, results="asis"-----------------------------
+## ----sessioninfo, echo=FALSE, results="asis"----------------------------------
 toLatex(sessionInfo(), locale=FALSE)
 

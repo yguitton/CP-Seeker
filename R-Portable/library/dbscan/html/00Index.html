@@ -1,58 +1,88 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head><title>R: Density Based Clustering of Applications with Noise (DBSCAN) and
-Related Algorithms</title>
+<!DOCTYPE html>
+<html>
+<head><title>R: Density-Based Spatial Clustering of Applications with Noise
+(DBSCAN) and Related Algorithms</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
-<h1> Density Based Clustering of Applications with Noise (DBSCAN) and
-Related Algorithms
+</head><body><div class="container">
+<h1> Density-Based Spatial Clustering of Applications with Noise
+(DBSCAN) and Related Algorithms
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
 <hr/>
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;dbscan&rsquo; version 1.1-6</h2>
+</div><h2>Documentation for package &lsquo;dbscan&rsquo; version 1.1-12</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
 </ul>
 
 <h2>Help Pages</h2>
 
 
-<table width="100%">
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="dbscan-package.html">dbscan-package</a></td>
+<td>dbscan: Density-Based Spatial Clustering of Applications with Noise (DBSCAN) and Related Algorithms</td></tr>
 <tr><td style="width: 25%;"><a href="NN.html">adjacencylist</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
-<tr><td style="width: 25%;"><a href="NN.html">adjacencylist.frNN</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
-<tr><td style="width: 25%;"><a href="NN.html">adjacencylist.kNN</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
-<tr><td style="width: 25%;"><a href="reachability.html">as.dendrogram</a></td>
-<td>Density Reachability Structures</td></tr>
-<tr><td style="width: 25%;"><a href="reachability.html">as.dendrogram.reachability</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>NN - Nearest Neighbors Superclass</td></tr>
+<tr><td style="width: 25%;"><a href="frNN.html">adjacencylist.frNN</a></td>
+<td>Find the Fixed Radius Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="kNN.html">adjacencylist.kNN</a></td>
+<td>Find the k Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="NN.html">adjacencylist.NN</a></td>
+<td>NN - Nearest Neighbors Superclass</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">as.dendrogram</a></td>
+<td>Coersions to Dendrogram</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">as.dendrogram.default</a></td>
+<td>Coersions to Dendrogram</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">as.dendrogram.hclust</a></td>
+<td>Coersions to Dendrogram</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">as.dendrogram.hdbscan</a></td>
+<td>Coersions to Dendrogram</td></tr>
+<tr><td style="width: 25%;"><a href="optics.html">as.dendrogram.optics</a></td>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">as.dendrogram.reachability</a></td>
+<td>Coersions to Dendrogram</td></tr>
 <tr><td style="width: 25%;"><a href="reachability.html">as.reachability</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>Reachability Distances</td></tr>
 <tr><td style="width: 25%;"><a href="reachability.html">as.reachability.dendrogram</a></td>
-<td>Density Reachability Structures</td></tr>
-<tr><td style="width: 25%;"><a href="reachability.html">as.reachability.optics</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>Reachability Distances</td></tr>
+<tr><td style="width: 25%;"><a href="optics.html">as.reachability.optics</a></td>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">components</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">comps</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">comps.dist</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">comps.frNN</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">comps.kNN</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="comps.html">comps.sNN</a></td>
+<td>Find Connected Components in a Nearest-neighbor Graph</td></tr>
+<tr><td style="width: 25%;"><a href="hdbscan.html">coredist</a></td>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="dbscan.html">DBSCAN</a></td>
-<td>DBSCAN</td></tr>
+<td>Density-based Spatial Clustering of Applications with Noise (DBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="dbscan.html">dbscan</a></td>
-<td>DBSCAN</td></tr>
+<td>Density-based Spatial Clustering of Applications with Noise (DBSCAN)</td></tr>
+<tr><td style="width: 25%;"><a href="dendrogram.html">dendrogram</a></td>
+<td>Coersions to Dendrogram</td></tr>
 <tr><td style="width: 25%;"><a href="pointdensity.html">density</a></td>
 <td>Calculate Local Density at Each Data Point</td></tr>
 <tr><td style="width: 25%;"><a href="DS3.html">DS3</a></td>
 <td>DS3: Spatial data with arbitrary shapes</td></tr>
 <tr><td style="width: 25%;"><a href="optics.html">extractDBSCAN</a></td>
-<td>OPTICS</td></tr>
-<tr><td style="width: 25%;"><a href="fosc.html">extractFOSC</a></td>
-<td>Framework for Optimal Selection of Clusters</td></tr>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
+<tr><td style="width: 25%;"><a href="extractFOSC.html">extractFOSC</a></td>
+<td>Framework for the Optimal Extraction of Clusters from Hierarchies</td></tr>
 <tr><td style="width: 25%;"><a href="optics.html">extractXi</a></td>
-<td>OPTICS</td></tr>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
 <tr><td style="width: 25%;"><a href="frNN.html">frNN</a></td>
 <td>Find the Fixed Radius Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="frNN.html">frnn</a></td>
@@ -62,11 +92,13 @@ Related Algorithms
 <tr><td style="width: 25%;"><a href="glosh.html">glosh</a></td>
 <td>Global-Local Outlier Score from Hierarchies</td></tr>
 <tr><td style="width: 25%;"><a href="hdbscan.html">HDBSCAN</a></td>
-<td>HDBSCAN</td></tr>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="hdbscan.html">hdbscan</a></td>
-<td>HDBSCAN</td></tr>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="hullplot.html">hullplot</a></td>
 <td>Plot Convex Hulls of Clusters</td></tr>
+<tr><td style="width: 25%;"><a href="dbscan.html">is.corepoint</a></td>
+<td>Density-based Spatial Clustering of Applications with Noise (DBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="jpclust.html">jpclust</a></td>
 <td>Jarvis-Patrick Clustering</td></tr>
 <tr><td style="width: 25%;"><a href="kNN.html">kNN</a></td>
@@ -74,45 +106,65 @@ Related Algorithms
 <tr><td style="width: 25%;"><a href="kNN.html">knn</a></td>
 <td>Find the k Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="kNNdist.html">kNNdist</a></td>
-<td>Calculate and plot the k-Nearest Neighbor Distance</td></tr>
+<td>Calculate and Plot k-Nearest Neighbor Distances</td></tr>
 <tr><td style="width: 25%;"><a href="kNNdist.html">kNNdistplot</a></td>
-<td>Calculate and plot the k-Nearest Neighbor Distance</td></tr>
+<td>Calculate and Plot k-Nearest Neighbor Distances</td></tr>
 <tr><td style="width: 25%;"><a href="lof.html">LOF</a></td>
 <td>Local Outlier Factor Score</td></tr>
 <tr><td style="width: 25%;"><a href="lof.html">lof</a></td>
 <td>Local Outlier Factor Score</td></tr>
 <tr><td style="width: 25%;"><a href="moons.html">moons</a></td>
 <td>Moons Data</td></tr>
+<tr><td style="width: 25%;"><a href="hdbscan.html">mrdist</a></td>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="NN.html">NN</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
-<tr><td style="width: 25%;"><a href="NN.html">nn</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
+<td>NN - Nearest Neighbors Superclass</td></tr>
 <tr><td style="width: 25%;"><a href="optics.html">OPTICS</a></td>
-<td>OPTICS</td></tr>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
 <tr><td style="width: 25%;"><a href="optics.html">optics</a></td>
-<td>OPTICS</td></tr>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
 <tr><td style="width: 25%;"><a href="hdbscan.html">plot.hdbscan</a></td>
-<td>HDBSCAN</td></tr>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="NN.html">plot.NN</a></td>
-<td>Nearest Neighbors Auxiliary Functions</td></tr>
+<td>NN - Nearest Neighbors Superclass</td></tr>
+<tr><td style="width: 25%;"><a href="optics.html">plot.optics</a></td>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
 <tr><td style="width: 25%;"><a href="reachability.html">plot.reachability</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>Reachability Distances</td></tr>
 <tr><td style="width: 25%;"><a href="pointdensity.html">pointdensity</a></td>
 <td>Calculate Local Density at Each Data Point</td></tr>
 <tr><td style="width: 25%;"><a href="dbscan.html">predict.dbscan_fast</a></td>
-<td>DBSCAN</td></tr>
+<td>Density-based Spatial Clustering of Applications with Noise (DBSCAN)</td></tr>
+<tr><td style="width: 25%;"><a href="hdbscan.html">predict.hdbscan</a></td>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
 <tr><td style="width: 25%;"><a href="optics.html">predict.optics</a></td>
-<td>OPTICS</td></tr>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
+<tr><td style="width: 25%;"><a href="dbscan.html">print.dbscan_fast</a></td>
+<td>Density-based Spatial Clustering of Applications with Noise (DBSCAN)</td></tr>
+<tr><td style="width: 25%;"><a href="frNN.html">print.frNN</a></td>
+<td>Find the Fixed Radius Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="frNN.html">print.frnn</a></td>
+<td>Find the Fixed Radius Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="jpclust.html">print.general_clustering</a></td>
+<td>Jarvis-Patrick Clustering</td></tr>
 <tr><td style="width: 25%;"><a href="hdbscan.html">print.hdbscan</a></td>
-<td>HDBSCAN</td></tr>
+<td>Hierarchical DBSCAN (HDBSCAN)</td></tr>
+<tr><td style="width: 25%;"><a href="kNN.html">print.kNN</a></td>
+<td>Find the k Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="optics.html">print.optics</a></td>
+<td>Ordering Points to Identify the Clustering Structure (OPTICS)</td></tr>
 <tr><td style="width: 25%;"><a href="reachability.html">print.reachability</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>Reachability Distances</td></tr>
+<tr><td style="width: 25%;"><a href="sNN.html">print.sNN</a></td>
+<td>Find Shared Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="reachability.html">reachability</a></td>
-<td>Density Reachability Structures</td></tr>
+<td>Reachability Distances</td></tr>
+<tr><td style="width: 25%;"><a href="reachability.html">reachability_plot</a></td>
+<td>Reachability Distances</td></tr>
 <tr><td style="width: 25%;"><a href="sNN.html">sNN</a></td>
-<td>Shared Nearest Neighbors</td></tr>
+<td>Find Shared Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="sNN.html">snn</a></td>
-<td>Shared Nearest Neighbors</td></tr>
+<td>Find Shared Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="sNNclust.html">sNNclust</a></td>
 <td>Shared Nearest Neighbor Clustering</td></tr>
 <tr><td style="width: 25%;"><a href="sNNclust.html">snnclust</a></td>
@@ -121,7 +173,9 @@ Related Algorithms
 <td>Find the Fixed Radius Nearest Neighbors</td></tr>
 <tr><td style="width: 25%;"><a href="kNN.html">sort.kNN</a></td>
 <td>Find the k Nearest Neighbors</td></tr>
+<tr><td style="width: 25%;"><a href="NN.html">sort.NN</a></td>
+<td>NN - Nearest Neighbors Superclass</td></tr>
 <tr><td style="width: 25%;"><a href="sNN.html">sort.sNN</a></td>
-<td>Shared Nearest Neighbors</td></tr>
+<td>Find Shared Nearest Neighbors</td></tr>
 </table>
-</body></html>
+</div></body></html>

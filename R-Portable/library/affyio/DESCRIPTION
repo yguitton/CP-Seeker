@@ -1,5 +1,5 @@
 Package: affyio
-Version: 1.56.0
+Version: 1.72.0
 Title: Tools for parsing Affymetrix data files
 Author: Ben Bolstad <bmb@bmbolstad.com>
 Maintainer: Ben Bolstad <bmb@bmbolstad.com>
@@ -11,11 +11,11 @@ URL: https://github.com/bmbolstad/affyio
 biocViews: Microarray, DataImport, Infrastructure
 LazyLoad: yes
 git_url: https://git.bioconductor.org/packages/affyio
-git_branch: RELEASE_3_10
-git_last_commit: fd0e865
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 2f97a7e
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:19:09 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 12:36:27 UTC; windows
-Archs: i386, x64
+Packaged: 2023-10-24 22:14:27 UTC; biocbuild
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-25 13:38:21 UTC; windows
+Archs: x64

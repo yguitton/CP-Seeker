@@ -1,0 +1,53 @@
+Package: QFeatures
+Title: Quantitative features for mass spectrometry data
+Version: 1.12.0
+Authors@R: c(person("Laurent", "Gatto",
+                    email = "laurent.gatto@uclouvain.be",
+                    comment = c(ORCID = "0000-0002-1520-2268"),
+                    role = c("aut", "cre")),
+             person("Christophe", "Vanderaa",
+                    email = "christophe.vanderaa@uclouvain.be",
+                    comment = c(ORCID = "0000-0001-7443-5427"),
+                    role = "aut"))
+Description: The QFeatures infrastructure enables the management and
+   processing of quantitative features for high-throughput mass
+   spectrometry assays. It provides a familiar Bioconductor user
+   experience to manages quantitative data across different assay
+   levels (such as peptide spectrum matches, peptides and proteins) in
+   a coherent and tractable format.
+Depends: R (>= 4.0), MultiAssayExperiment
+Imports: methods, stats, utils, S4Vectors, IRanges,
+        SummarizedExperiment, BiocGenerics, ProtGenerics (>= 1.27.1),
+        AnnotationFilter, lazyeval, Biobase, MsCoreUtils (>= 1.7.2),
+        igraph, plotly
+Suggests: SingleCellExperiment, Matrix, HDF5Array, msdata, ggplot2,
+        gplots, dplyr, limma, DT, shiny, shinydashboard, testthat,
+        knitr, BiocStyle, rmarkdown, vsn, preprocessCore, matrixStats,
+        imputeLCMD, pcaMethods, impute, norm, ComplexHeatmap
+biocViews: Infrastructure, MassSpectrometry, Proteomics, Metabolomics
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
+VignetteBuilder: knitr
+BugReports: https://github.com/RforMassSpectrometry/QFeatures/issues
+URL: https://github.com/RforMassSpectrometry/QFeatures
+Collate: 'AllGenerics.R' 'AssayLinks.R' 'QFeatures-class.R'
+        'QFeatures-constructors.R' 'QFeatures-functions.R'
+        'QFeatures-processing.R' 'QFeatures-filter.R'
+        'QFeatures-missing-data.R' 'QFeatures-aggregation.R'
+        'QFeatures-imputation.R' 'QFeatures-join.R'
+        'QFeatures-validity.R' 'SummarizedExperiment-methods.R'
+        'subsetBy-methods.R' 'data.R' 'reduce.R' 'utils.R' 'display.R'
+Roxygen: list(markdown=TRUE)
+RoxygenNote: 7.2.3
+git_url: https://git.bioconductor.org/packages/QFeatures
+git_branch: RELEASE_3_18
+git_last_commit: fc44d63
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-25 02:24:54 UTC; biocbuild
+Author: Laurent Gatto [aut, cre] (<https://orcid.org/0000-0002-1520-2268>),
+  Christophe Vanderaa [aut] (<https://orcid.org/0000-0001-7443-5427>)
+Maintainer: Laurent Gatto <laurent.gatto@uclouvain.be>
+Built: R 4.3.1; ; 2023-10-25 14:35:34 UTC; windows

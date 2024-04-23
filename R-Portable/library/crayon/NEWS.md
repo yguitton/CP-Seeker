@@ -1,3 +1,26 @@
+# crayon 1.5.2
+
+* crayon functions now mark their output with the right encoding,
+  if their input was marked (#136, #138).
+
+# 1.5.1
+
+* crayon now does not fail to install from source if the utils package
+  is not loaded (#133).
+
+# 1.5.0
+
+* You can use the new `cli.default_num_colors` option to set the default
+  number of ANSI colors, only if ANSI support is otherwise detected.
+  See the details in the manual of `num_ansi_colors()`. (From cli.)
+
+* crayon now install cleanly on R 3.4.x and R 3.5.x on Windows (#131).
+
+# 1.4.2
+
+* Better ANSI support detection if there is an active `sink()`.
+
+* Support ANSI markup in RStudio jobs.
 
 # 1.4.1
 
@@ -22,7 +45,7 @@
 
 * `reset` style now restores previous style for text following it (@brodieG,
   #35).
-  
+
 * Warnings are no longer generated when the INSIDE_EMACS environment variable is
   set but does not include a version number.
 

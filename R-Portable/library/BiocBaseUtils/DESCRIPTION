@@ -1,0 +1,37 @@
+Package: BiocBaseUtils
+Title: General utility functions for developing Bioconductor packages
+Version: 1.4.0
+Authors@R: c(
+  person("Marcel", "Ramos", , "marcel.ramos@roswellpark.org",
+    c("aut", "cre"), c(ORCID = "0000-0002-3242-0582")
+  ),
+  person("Martin", "Morgan", , "martin.morgan@roswellpark.org", "ctb"
+  ),
+  person("Hervé", "Pagès", , "hpages.on.github@gmail.com", "ctb")
+  )
+Description: The package provides utility functions related to package
+  development. These include functions that replace slots, and selectors
+  for show methods. It aims to coalesce the various helper functions
+  often re-used throughout the Bioconductor ecosystem.
+Imports: methods, utils
+Depends: R (>= 4.2.0)
+Suggests: knitr, rmarkdown, BiocStyle, tinytest
+License: Artistic-2.0
+Encoding: UTF-8
+biocViews: Software, Infrastructure
+BugReports: https://www.github.com/Bioconductor/BiocBaseUtils/issues
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+git_url: https://git.bioconductor.org/packages/BiocBaseUtils
+git_branch: RELEASE_3_18
+git_last_commit: 441d95a
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-24 22:36:52 UTC; biocbuild
+Author: Marcel Ramos [aut, cre] (<https://orcid.org/0000-0002-3242-0582>),
+  Martin Morgan [ctb],
+  Hervé Pagès [ctb]
+Maintainer: Marcel Ramos <marcel.ramos@roswellpark.org>
+Built: R 4.3.1; ; 2023-10-25 13:43:47 UTC; windows

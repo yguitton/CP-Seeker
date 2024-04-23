@@ -1,3 +1,11 @@
+# shinyjs 2.1.0 (2021-12-20)
+
+- New feature: you can now reset all inputs on the page by calling `reset()` with no arguments (#222)
+- New feature: Add a `removeEvent()` function which removes events added to HTML elements with `onclick()` or `onevent()` (#244)
+- Fix bug: `disable()` did not work on nested download buttons (#223)
+- Fix bug: Don't automatically namespace ID arguments in custom extendShinyjs functions (#229)
+- Fix bug: ensure that `extendShinyjs()` functions don't overwrite native {shinyjs} functions (#230)
+
 # shinyjs 2.0.0 (2020-08-24)
 
 - **IMPORTANT CHANGE** Remove commercial license (it only existed because some big companies asked for it, but it ended up being a bigger headache for 99% of the community)

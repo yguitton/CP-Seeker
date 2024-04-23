@@ -1,5 +1,5 @@
 Package: preprocessCore
-Version: 1.48.0
+Version: 1.64.0
 Title: A collection of pre-processing functions
 Author: Ben Bolstad <bmb@bmbolstad.com>
 Maintainer: Ben Bolstad <bmb@bmbolstad.com>
@@ -13,11 +13,11 @@ Collate: normalize.quantiles.R quantile_extensions.R
 LazyLoad: yes
 biocViews: Infrastructure
 git_url: https://git.bioconductor.org/packages/preprocessCore
-git_branch: RELEASE_3_10
-git_last_commit: 84da519
-git_last_commit_date: 2019-10-29
-Date/Publication: 2019-10-29
+git_branch: RELEASE_3_18
+git_last_commit: 887abd3
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
 NeedsCompilation: yes
-Packaged: 2019-10-30 01:19:09 UTC; biocbuild
-Built: R 3.6.1; i386-w64-mingw32; 2019-10-30 13:56:13 UTC; windows
-Archs: i386, x64
+Packaged: 2023-10-25 02:17:26 UTC; biocbuild
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-25 14:33:55 UTC; windows
+Archs: x64

@@ -1,3 +1,4 @@
+WinBox                  WinBox
 actionBttn              Awesome action button
 actionGroupButtons      Actions Buttons Group Inputs
 addSpinner              Display a spinner above an output when this one
@@ -17,10 +18,13 @@ circleButton            Circle Action button
 closeSweetAlert         Close Sweet Alert
 colorPickr              Color Pickr
 colorSelectorInput      Color Selector Input
+create_tree             Create choice structure for 'treeInput()'
 currencyInput           Format Numeric Inputs
 demoAirDatepicker       Some examples on how to use airDatepickerInput
 demoNoUiSlider          Some examples on how to use noUiSliderInput
 demoNumericRange        An example showing how numericRangeInput works
+demoVirtualSelect       Demo for 'virtualSelectInput()'
+deprecated              Deprecated function
 downloadBttn            Create a download 'actionBttn'
 drop-menu-interaction   Interact with Drop Menu
 dropMenu                Drop Menu
@@ -29,6 +33,8 @@ dropdown                Dropdown
 dropdownButton          Dropdown Button
 execute_safely          Execute an expression safely in server
 html-dependencies       HTML dependencies
+html_dependency_winbox
+                        Winbox JavaScript Dependencies
 inputSweetAlert         Launch an input text dialog
 knobInput               Knob Input
 materialSwitch          Material Design Switch Input Control
@@ -39,6 +45,7 @@ numericRangeInput       Numeric Range Input
 pickerGroup-module      Picker Group
 pickerInput             Select Picker Input Control
 pickerOptions           Options for 'pickerInput'
+prepare_choices         Prepare choices for 'virtualSelectInput()'
 prettyCheckbox          Pretty Checkbox Input
 prettyCheckboxGroup     Pretty Checkbox Group Input Control
 prettyRadioButtons      Pretty radio Buttons Input Control
@@ -51,8 +58,6 @@ searchInput             Search Input
 selectizeGroup-module   Selectize Group
 setBackgroundColor      Custom background color for your shinyapp
 setBackgroundImage      Custom background image for your shinyapp
-setShadow               Custom shadows
-setSliderColor          Color editor for sliderInput
 shinyWidgets            shinyWidgets: Custom inputs widgets for Shiny.
 shinyWidgetsGallery     Launch the shinyWidget Gallery
 show_toast              Show a toast notification
@@ -65,10 +70,12 @@ sweetalert-confirmation
 switchInput             Bootstrap Switch Input Control
 textInputAddon          Text with Add-on Input Control
 textInputIcon           Create a text input control with icon(s)
+time-input              Time input
 toggleDropdownButton    Toggle a dropdown menu
 tooltipOptions          Tooltip options
-updateAirDateInput      Change the value of 'airDatepickerInput' on the
-                        client
+treeInput               Tree Input Widget
+updateAirDateInput      Change the value of 'airDatepickerInput()' on
+                        the client
 updateAutonumericInput
                         Update an Autonumeric Input Object
 updateAwesomeCheckbox   Change the value of an awesome checkbox input
@@ -80,6 +87,7 @@ updateAwesomeRadio      Change the value of a radio input on the client
 updateCheckboxGroupButtons
                         Change the value of a checkboxes group buttons
                         input on the client
+updateColorPickr        Update color pickr server-side
 updateCurrencyInput     Update a Formatted Numeric Input Widget
 updateKnobInput         Change the value of a knob input on the client
 updateMaterialSwitch    Change the value of a materialSwitch input on
@@ -119,13 +127,13 @@ updateSwitchInput       Change the value of a switch input on the
                         client
 updateTextInputIcon     Change the value of a text input icon on the
                         client
+updateTreeInput         Update Tree Input
 updateVerticalTabsetPanel
                         Update selected vertical tab
-useArgonDash            Use 'argonDash' in 'shiny'
-useBs4Dash              Use 'bs4Dash' in 'shiny'
-useShinydashboard       Use 'shinydashboard' in 'shiny'
-useShinydashboardPlus   Use 'shinydashboardPlus' in 'shiny'
+updateVirtualSelect     Update virtual select from server
 useSweetAlert           Load Sweet Alert dependencies
-useTablerDash           Use 'tablerDash' in 'shiny'
 vertical-tab            Vertical tab panel
+virtualSelectInput      Virtual Select Input
 wNumbFormat             Format numbers in noUiSliderInput
+wbControls              WinBox controls
+wbOptions               WinBox Options

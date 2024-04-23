@@ -1,3 +1,62 @@
+# dbscan 1.1-12 (2023-11-28)
+
+## Bugfix
+* point_density checks now for missing values (reported by soelderer)
+* Removed C++11 specification.
+* ANN.cpp: fixed Rprintf warning.
+
+# dbscan 1.1-11 (2022-10-26)
+
+## New Features
+* kNNdistplot gained parameter minPts.
+* dbscan now retains information on distance method and border points.
+* HDBSCAN now supports long vectors to work with larger distance matrices. 
+* conversion from dist to kNN and frNN is now more memory efficient. It does no longer 
+  coerce the dist object into a matrix of double the size, but extract the distances directly
+  from the dist object.
+* Better description of how predict uses only Euclidean distances and more error checking.
+* The package now exports a new generic for as.dendrogram().
+
+## Bugfix
+* is.corepoint() now uses the correct epsilon value (reported by Eng Aun).
+* functions now check for cluster::dissimilariy objects which have class dist 
+  but missing attributes.
+
+# dbscan 1.1-10 (2022-01-14)
+
+## New Features
+* is.corepoint() for DBSCAN.
+* coredist() and mrdist() for HDBSCAN.
+* find connected components with comps().
+
+## Changes
+* reachability plot now shows all undefined distances as a dashed line.
+
+## Bugfix
+* memory leak in mrd calculation fixed.
+
+# dbscan 1.1-9 (2022-01-10)
+
+## Changes
+* We use now roxygen2.  
+
+## New Features
+* Added predict for hdbscan (as suggested by moredatapls)
+
+# dbscan 1.1-8 (2021-04-26)
+
+## Bugfixes
+* LOF: fixed numerical issues with k-nearest neighbor distance on Solaris.
+
+# dbscan 1.1-7 (2021-04-21)
+
+## Bugfixes
+* Fixed description of k in knndistplot and added minPts argument.
+* Fixed bug for tied distances in lof (reported by sverchkov).
+
+## Changes
+* lof: the density parameter was changes to minPts to be consistent with the original paper and dbscan. Note that minPts = k + 1.
+
 # dbscan 1.1-6 (2021-02-24)
 
 ## Improvements 

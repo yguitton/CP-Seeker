@@ -26,10 +26,8 @@ bindings <- list.files(
   recursive = TRUE,
   full.names = TRUE
 )
-# remove pickr not used
-bindings <- setdiff(bindings, "inst/assets/pickr/pickr-bindings.js")
-# remove air-datepicker that is not used
-bindings <- setdiff(bindings, "inst/assets/air-datepicker/datepicker-bindings.js")
+# add utils
+bindings <- c("inst/assets/utils.js", bindings)
 
 # check for errors
 jshint_file(input = bindings, options = jshint_options(jquery = TRUE, globals = list("Shiny")))
@@ -65,5 +63,5 @@ css_files <- css_files[
   ]
 
 
-crass_file(input = css_files, output = "inst/assets/shinyWidgets.min.css")
+jstools::crass_file(input = css_files, output = "inst/assets/shinyWidgets.min.css")
 

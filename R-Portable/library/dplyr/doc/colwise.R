@@ -1,14 +1,14 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 set.seed(1014)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  df %>%
 #    group_by(g1, g2) %>%
 #    summarise(a = mean(a), b = mean(b), c = mean(c), d = mean(d))
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  df %>%
 #    group_by(g1, g2) %>%
 #    summarise(across(a:d, mean))
@@ -18,12 +18,12 @@ library(dplyr, warn.conflicts = FALSE)
 
 ## -----------------------------------------------------------------------------
 starwars %>% 
-  summarise(across(where(is.character), ~ length(unique(.x))))
+  summarise(across(where(is.character), n_distinct))
 
 starwars %>% 
   group_by(species) %>% 
   filter(n() > 1) %>% 
-  summarise(across(c(sex, gender, homeworld), ~ length(unique(.x))))
+  summarise(across(c(sex, gender, homeworld), n_distinct))
 
 starwars %>% 
   group_by(homeworld) %>% 
@@ -102,10 +102,10 @@ df <- tibble(x = 1:4, y = rnorm(4))
 df %>% mutate(across(where(is.numeric), rescale01))
 
 ## -----------------------------------------------------------------------------
-starwars %>% distinct(across(contains("color")))
+starwars %>% distinct(pick(contains("color")))
 
 ## -----------------------------------------------------------------------------
-starwars %>% count(across(contains("color")), sort = TRUE)
+starwars %>% count(pick(contains("color")), sort = TRUE)
 
 ## -----------------------------------------------------------------------------
 starwars %>% 
@@ -115,10 +115,7 @@ starwars %>%
 starwars %>% 
   filter(if_all(everything(), ~ !is.na(.x)))
 
-## -----------------------------------------------------------------------------
-starwars %>% filter(across(everything(), ~ !is.na(.x)))
-
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  df %>%
 #    group_by(g1, g2) %>%
 #    summarise(
@@ -127,14 +124,14 @@ starwars %>% filter(across(everything(), ~ !is.na(.x)))
 #      n = n(),
 #    )
 
-## ---- results = FALSE---------------------------------------------------------
-df %>% mutate_if(is.numeric, mean, na.rm = TRUE)
+## ----results = FALSE----------------------------------------------------------
+df %>% mutate_if(is.numeric, ~mean(.x, na.rm = TRUE))
 # ->
-df %>% mutate(across(where(is.numeric), mean, na.rm = TRUE))
+df %>% mutate(across(where(is.numeric), ~mean(.x, na.rm = TRUE)))
 
 df %>% mutate_at(vars(c(x, starts_with("y"))), mean)
 # ->
-df %>% mutate(across(c(x, starts_with("y")), mean, na.rm = TRUE))
+df %>% mutate(across(c(x, starts_with("y")), mean))
 
 df %>% mutate_all(mean)
 # ->

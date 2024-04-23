@@ -67,13 +67,25 @@ test_DataFrame_construction <- function() {
                  data.frame(score = score, swiss = swiss[1:3,]))
 
   ## identity
-  df <- DataFrame(A=I(list(1:3)))
-  checkIdentical(as.data.frame(df), data.frame(A=I(list(1:3))))
+  DF <- DataFrame(A=I(list(1:3)), B=I(list(1:4)))
+  DF[[2]] <- I(DF[[2]])
+  df <- data.frame(A=I(list(1:3)), B=I(list(1:4)))
+  df[[1]] <- unclass(df[[1]])
+  checkIdentical(as.data.frame(DF), df)
   
   ## recycling
   DF <- DataFrame(1, score)
   checkIdentical(DF[[1]], rep(1, 3)) 
   checkIdentical(DF[[2]], score) 
+
+  ## Non-S4 columns for which is.object() is TRUE (a.k.a. S3-typed columns)
+  foo <- package_version(c("3.4.99", "5.2", "2.0"))
+  bar <- as.POSIXlt(c(123123, 124235235, 96546546))
+  DF <- DataFrame(foo=foo, bar=bar)
+  checkTrue(validObject(DF))
+  checkIdentical(dim(DF), c(3L, 2L))
+  checkIdentical(colnames(DF), c("foo", "bar"))
+  checkIdentical(as.data.frame(DF), data.frame(foo=foo, bar=bar))
 }
 
 test_DataFrame_coerce <- function() {
@@ -150,9 +162,14 @@ test_DataFrame_subset <- function() {
   ##               swiss[c(1, NA, 1:2, NA),])
 
   checkIdentical(as.data.frame(sw["Courtelary",]), swiss["Courtelary",])
+
   subswiss <- swiss[1:5,1:4]
   subsw <- sw[1:5,1:4]
-  checkIdentical(as.data.frame(subsw["C",]), subswiss["C",]) # partially matches
+
+  ## Starting with S4Vectors 0.31.3, we no longer support partial matching on
+  ## the rownames of a DataFrame.
+  #checkIdentical(as.data.frame(subsw["C",]), subswiss["C",]) # partially matches
+
   ## NOTE: NA subsetting not yet supported for XVectors
   ##checkIdentical(as.data.frame(subsw["foo",]), # bad row name
   ##               subswiss["foo",]) 
@@ -173,7 +190,7 @@ test_DataFrame_dimnames_replace <- function() {
   colnames(sw) <- cn[1]
   colnames(swiss) <- cn[1]
   checkIdentical(colnames(sw), colnames(swiss))
-  rn <- seq(nrow(sw))
+  rn <- seq_len(nrow(sw))
   rownames(sw) <- rn
   checkIdentical(rownames(sw), as.character(rn))
   checkException(rownames(sw) <- rn[1], silent = TRUE)
@@ -246,13 +263,14 @@ test_DataFrame_replace <- function() {
   sw1[nrow(sw1)+(1:2),] <- NA; swiss1[nrow(swiss1)+(1:2),] <- NA
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1["NewCol"] <- seq(nrow(sw1)); swiss1["NewCol"] <- seq(nrow(sw1))
+  sw1["NewCol"] <- seq_len(nrow(sw1)); swiss1["NewCol"] <- seq_len(nrow(sw1))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1[ncol(sw1)+1L] <- seq(nrow(sw1)); swiss1[ncol(swiss1)+1L] <- seq(nrow(sw1))
+  sw1[ncol(sw1)+1L] <- seq_len(nrow(sw1))
+  swiss1[ncol(swiss1)+1L] <- seq_len(nrow(sw1))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1[,"NewCol"] <- seq(nrow(sw1)); swiss1[,"NewCol"] <- seq(nrow(sw1))
+  sw1[,"NewCol"] <- seq_len(nrow(sw1)); swiss1[,"NewCol"] <- seq_len(nrow(sw1))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
   sw1["NewCity","NewCol"] <- 0
@@ -267,16 +285,16 @@ test_DataFrame_replace <- function() {
   swiss1[nrow(swiss1)+(1:2),] <- data.frame(NA)
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1["NewCol"] <- DataFrame(seq(nrow(sw1)))
-  swiss1["NewCol"] <- data.frame(seq(nrow(sw1)))
+  sw1["NewCol"] <- DataFrame(seq_len(nrow(sw1)))
+  swiss1["NewCol"] <- data.frame(seq_len(nrow(sw1)))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1[ncol(sw1)+1L] <- DataFrame(seq(nrow(sw1)))
-  swiss1[ncol(swiss1)+1L] <- data.frame(seq(nrow(sw1)))
+  sw1[ncol(sw1)+1L] <- DataFrame(seq_len(nrow(sw1)))
+  swiss1[ncol(swiss1)+1L] <- data.frame(seq_len(nrow(sw1)))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
-  sw1[,"NewCol"] <- DataFrame(seq(nrow(sw1)))
-  swiss1[,"NewCol"] <- data.frame(seq(nrow(sw1)))
+  sw1[,"NewCol"] <- DataFrame(seq_len(nrow(sw1)))
+  swiss1[,"NewCol"] <- data.frame(seq_len(nrow(sw1)))
   checkIdentical(as.data.frame(sw1), swiss1)
   sw1 <- sw; swiss1 <- swiss
   sw1["NewCity","NewCol"] <- DataFrame(0)
@@ -299,53 +317,25 @@ test_DataFrame_replace <- function() {
 
   sw1 <- sw
   mcols(sw1) <- DataFrame(id = seq_len(ncol(sw1)))
-  sw1["NewCol"] <- DataFrame(seq(nrow(sw1)))
+  sw1["NewCol"] <- DataFrame(seq_len(nrow(sw1)))
   checkIdentical(mcols(sw1, use.names=TRUE),
                  DataFrame(id = c(seq_len(ncol(sw1)-1), NA),
                            row.names = colnames(sw1)))
-}
 
-## combining
-test_DataFrame_combine <- function() {
-  data(swiss)
-  rn <- rownames(swiss)
-  sw <- DataFrame(swiss, row.names=rn)
-  swisssplit <- split(swiss, swiss$Education)
- 
-  ## rbind
-  checkIdentical(rbind(DataFrame(), DataFrame()), DataFrame())
-  score <- c(X=1L, Y=3L, Z=NA)
-  DF <- DataFrame(score)
-  checkIdentical(rbind(DF, DF)[[1]], c(score, score))
-  zr <- sw[FALSE,]
-  checkIdentical(rbind(DataFrame(), zr, zr[,1:2]), zr)
-  checkIdentical(as.data.frame(rbind(DataFrame(), zr, sw)), swiss)
-  target <- do.call(rbind, swisssplit)
-  current <- do.call(rbind, lapply(swisssplit, DataFrame))
-  rownames(target) <- rownames(current) <- NULL
-  checkIdentical(target, as.data.frame(current))
-  DF <- DataFrame(A=I(list(1:3)))
-  df <- as.data.frame(DF)
-  checkIdentical(as.data.frame(rbind(DF, DF)), rbind(df, df))
-  
-  ## combining factors
-  df1 <- data.frame(species = c("Mouse", "Chicken"), n = c(5, 6))
-  DF1 <- DataFrame(df1)
-  df2 <- data.frame(species = c("Human", "Chimp"), n = c(1, 2))
-  DF2 <- DataFrame(df2)
-  df12 <- rbind(df1, df2)
-  rownames(df12) <- NULL
-  checkIdentical(as.data.frame(rbind(DF1, DF2)), df12)
- 
-  checkIdentical(rownames(rbind(sw, DataFrame(swiss))),
-                 c(rownames(swiss), rownames(swiss)))
-  checkIdentical(rownames(do.call(rbind, lapply(swisssplit, DataFrame))),
-                 unlist(lapply(swisssplit, rownames), use.names=FALSE))
-
-  checkException(rbind(sw[,1:2], sw), silent = TRUE)
-  other <- sw
-  colnames(other)[1] <- "foo"
-  checkException(rbind(other, sw), silent = TRUE)
+  ## Non-S4 columns for which is.object() is TRUE (a.k.a. S3-typed columns)
+  foo <- package_version(c("3.4.99", "5.2", "2.0"))
+  bar <- as.POSIXlt(c(123123, 124235235, 96546546))
+  DF <- DataFrame(normal=1:3, foo=foo, bar=bar)
+  DF$normal <- letters[1:3]
+  checkTrue(validObject(DF))
+  checkIdentical(DF$foo, foo)
+  checkIdentical(DF$bar, bar)
+  DF$foo <- rev(foo)
+  checkTrue(validObject(DF))
+  checkIdentical(DF$foo, rev(foo))
+  DF$bar <- bar
+  checkTrue(validObject(DF))
+  checkIdentical(DF$bar, bar)
 }
 
 test_DataFrame_looping <- function() {

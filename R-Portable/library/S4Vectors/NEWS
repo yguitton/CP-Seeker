@@ -1,3 +1,191 @@
+CHANGES IN VERSION 0.40.0
+-------------------------
+
+NEW FEATURES
+
+    o Subscript now can be any 1D array-like object when subsetting a
+      Vector derivative.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Drop empty "DataFrame and DataFrameList objects" section from
+      S4VectorsOverview.Rnw vignette.
+
+BUG FIXES
+
+    o Fix incorrect C-level if statement in Rle_utils.c
+
+
+CHANGES IN VERSION 0.38.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o The RleTricks vignette was converted from Rnw to Rmd (thanks to
+      Beryl Kanali and Jen Wokaty for this conversion).
+
+BUG FIXES
+
+    o Improve support of DFrame objects with S3-typed columns (commit 3b83d5f).
+
+    o Fix bug in internal helper bindROWS2() (commit 05cfd3c).
+
+
+CHANGES IN VERSION 0.36.0
+-------------------------
+
+NEW FEATURES
+
+    o Implement DataFrameFactor objects. See '?DataFrameFactor'.
+
+    o Add droplevels() method for Factor objects.
+
+    o Factor objects now use a raw vector instead of an integer vector to store
+      their internal index when they have 255 levels or less. This greatly
+      reduces their memory footprint.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Subsetting a DataFrame object no longer tries to keep its colnames
+      unique.
+
+
+CHANGES IN VERSION 0.34.0
+-------------------------
+
+NEW FEATURES
+
+    o Implement subassignment of TransposedDataFrame objects.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o DataFrame is now a virtual class! This completes the replacement of
+      DataFrame with DFrame announced in September 2019. See:
+      https://www.bioconductor.org/help/course-materials/2019/BiocDevelForum/02-DataFrame.pdf
+
+BUG FIXES
+
+    o Avoid spurious warnings when DataFrame() is supplied a DataFrameList.
+
+    o Fix bug in combineRows(DataFrame(), DataFrame(ref=IRanges(1:2, 10))).
+
+    o Fix display of TransposedDataFrame objects with more than 11 rows.
+
+    o Fix isEmpty() on ordinary lists and derivatives.
+
+    o Fix handling of nested DataFrames in combineUniqueCols().
+
+    o Make sure internal helper lowestListElementClass() does not lose
+      the "package" attribute of the returned class (fixes issue #103).
+
+
+CHANGES IN VERSION 0.32.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Subsetting a DataFrame object by row names no longer uses partial
+      matching.
+
+
+CHANGES IN VERSION 0.30.0
+-------------------------
+
+NEW FEATURES
+
+    o Add combineRows(), combineCols(), and combineUniqueCols() for DataFrame
+      objects. These are more flexible versions of rbind() and cbind() that
+      don't require the objects to combine to have the same columns or rows.
+
+    o Add unname() generic and a method for Vector objects.
+
+DEPRECATED AND DEFUNCT
+
+    o Remove parallelSlotNames(). Was deprecated in BioC 3.11 and defunct in
+      BioC 3.12.
+
+BUG FIXES
+
+    o Fix long-standing bug in rbind() method for DataFrame objects. The bug
+      was causing rbind() to return an incorrect result when the columns of
+      the DataFrame objects to combine were a mix of ordinary lists and other
+      list-like objects like IntegerList objects (defined in the IRanges
+      package).
+
+    o Fix issues in DataFrame printing (commits 735c6b7f and 89b045e7).
+
+    o Fix bug in expand() when the DataFrame object to expand has one or none
+      unselected columns (commit a8f839bb).
+
+
+CHANGES IN VERSION 0.28.0
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Replaced DataTable class with RectangularData class.
+
+    o Replaced DataTable_OR_NULL with DataFrame_OR_NULL class.
+
+    o Add parallel_slot_names() generic and methods for Vector derivatives.
+      This replaces vertical_slot_names().  The concept of "vertical" and
+      "horizontal" slots is now a RectangularData concept only i.e. only
+      RectangularData derivatives should define vertical_slot_names() and
+      horizontal_slot_names() methods. For RectangularData derivatives that
+      are also Vector derivatives, one of the two methods should typically
+      be defined as a synonym of parallel_slot_names().  For example
+      horizontal_slot_names() now returns parallel_slot_names() on a
+      DataFrame derivative and vertical_slot_names() will return
+      parallel_slot_names() on a SummarizedExperiment derivative.
+
+    o makeClassinfoRowForCompactPrinting() is now exported.
+
+    o showAsCell() now trims strings that are > 22 characters.
+
+    o Small tweak to show() method for Rle objects. Now it uses showAsCell()
+      instead of as.character() for more compact display of the run values
+      of the Rle object, and for consistency with other show() methods (e.g.
+      with method for DataFrame objects).
+
+DEPRECATED AND DEFUNCT
+
+    o parallelSlotNames() is now defunct (after being deprecated in BioC 3.11).
+
+BUG FIXES
+
+    o Fix coercion from SimpleList to DataFrame.
+
+    o Fix bug in showAsCell() on ordinary data frames.
+
+    o Make sure showAsCell() works on a list of non-subsettable objects.
+
+
+CHANGES IN VERSION 0.26.0
+-------------------------
+
+NEW FEATURES
+
+    o Add TransposedDataFrame objects.
+
+    o Add make_zero_col_DFrame() for constructing a zero-column DFrame object.
+      Intended for developers to use in other packages and typically not needed
+      by the end user.
+
+    o Add internal generic makeNakedCharacterMatrixForDisplay() to facilitate
+      implementation of show() methods. Also add cbind_mcols_for_display()
+      helper for use within makeNakedCharacterMatrixForDisplay() methods.
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Rename parallelSlotNames() internal generic -> vertical_slot_names().
+      Also add new horizontal_slot_names() internal generic (no methods yet).
+
+BUG FIXES
+
+    o Fix bug causing segfault in C function 'select_hits()' when 'nodup'
+      is TRUE.
+
+
 CHANGES IN VERSION 0.24.0
 -------------------------
 

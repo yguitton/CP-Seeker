@@ -1,3 +1,21 @@
+# gtable 0.3.4
+
+* Fix package doc links
+
+# gtable 0.3.3
+
+* Specify minimum rlang version
+
+# gtable 0.3.2
+
+* General upkeep
+
+# gtable 0.3.1
+
+* Re-documented to fix HTML issues in `.Rd`.
+
+* gtable has been re-licensed as MIT (#85).
+
 # gtable 0.3.0
 
 * Made a range of internal changes to increase performance of gtable 

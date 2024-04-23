@@ -1,5 +1,4 @@
 % !Rnw weave = Sweave
-%\documentclass[article]{jss}
 \documentclass[nojss]{jss}
 
 % Package includes
@@ -33,7 +32,7 @@
 \mathchardef\mhyphen="2D % Define a "math hyphen"
 \newcommand{\cmark}{\ding{51}} % checkmark
 
-%% \VignetteIndexEntry{Fast Density-based Clustering}
+%% \VignetteIndexEntry{Fast Density-based Clustering (DBSCAN and OPTICS)}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%
@@ -621,11 +620,11 @@ plot(x, col = true_clusters, pch = true_clusters)
 The resulting data set is shown in Figure~\ref{fig:sampleData}.
 
 To apply DBSCAN, we need to decide on the neighborhood radius~\code{eps} and
-the density threshold~\code{minPts}. The rule of thumb for minPts is to use at least the number of dimensions of the data set plus one. In our case, this is 3. For eps, we can plot the points' kNN distances (i.e., the distance to the $k$th nearest neighbor) in decreasing order and look for a knee in the plot. The idea behind this heuristic is that points located inside of clusters will have a small $k$-nearest neighbor distance, because they are close to other points in the same cluster, while noise points are isolated and will have a rather large kNN distance. \pkg{dbscan} provides a function called \code{kNNdistplot()} to make this easier. For $k$ we use the \code{minPts} value of 3.
+the density threshold~\code{minPts}. The rule of thumb for minPts is to use at least the number of dimensions of the data set plus one. In our case, this is 3. For eps, we can plot the points' kNN distances (i.e., the distance to the $k$th nearest neighbor) in decreasing order and look for a knee in the plot. The idea behind this heuristic is that points located inside of clusters will have a small $k$-nearest neighbor distance, because they are close to other points in the same cluster, while noise points are isolated and will have a rather large kNN distance. \pkg{dbscan} provides a function called \code{kNNdistplot()} to make this easier. For $k$ we use \code{minPts} - 1 since DBSCAN's  \code{minPts} include the actual data point and the $k$th nearest neighbors distance does not.
 
 <<fig=TRUE, include=FALSE, label=kNNdistplot, width=7, height=4>>=
-kNNdistplot(x, k = 3)
-abline(h=.05, col = "red", lty=2)
+kNNdistplot(x, k = 2)
+abline(h=.06, col = "red", lty=2)
 @
 \begin{figure}
 \centering
@@ -634,18 +633,17 @@ abline(h=.05, col = "red", lty=2)
 \label{fig:kNNdistplot}
 \end{figure}
 
-The kNN distance plot is shown in Figure~\ref{fig:kNNdistplot}. A knee is visible at around a 3-NN distance of 0.05. We have manually added a horizontal
+The kNN distance plot is shown in Figure~\ref{fig:kNNdistplot}. A knee is visible at around a 2-NN distance of 0.06. We have manually added a horizontal
 line for reference.
 
 Now we can perform the clustering with the chosen parameters.
 <<>>=
-res <- dbscan(x, eps = 0.05, minPts = 3)
+res <- dbscan(x, eps = 0.06, minPts = 3)
 res
 @
 
-The resulting clustering identified one large cluster with 185 member points
-and 2 medium size clusters of between 87 and 89 points, three very small
-clusters and 30 noise points (represented by cluster id 0). The available
+The resulting clustering identified one large cluster with 191 member points, two medium clusters with around 90 points, several very small
+clusters and 15 noise points (represented by cluster id 0). The available
 fields can be directly accessed using the list extraction operator \code{$}.
 For example, the cluster assignment information can be used to plot the data
 with the clusters identified by different labels and colors.
@@ -664,7 +662,9 @@ The scatter plot in Figure~\ref{fig:dbscanPlot} shows that the clustering
 algorithm correctly identified the upper two clusters, but merged the lower two
 clusters because the region between them has a high enough density. The small
 clusters are isolated groups of 3 points (passing $\mathit{minPts}$) and the
-noise points isolated points. \pkg{dbscan} also provides a plot that adds
+noise points isolated points. These small clusters can be suppressed by using a larger number for \code{minPts}.
+
+\pkg{dbscan} also provides a plot that adds
 convex cluster hulls to the scatter plot shown in Figure~\ref{fig:dbscanHullPlot}.
 
 <<fig=TRUE, include=FALSE, label=dbscanHullPlot, width=5, height=5>>=
@@ -908,7 +908,9 @@ the R15 validation data set used for maximum variance based clustering approach 
 the well-known spatial data set t4.8k used for validation of the CHAMELEON algorithm~\citep{karypis1999chameleon},
 along with a variety of shape data sets commonly found in clustering validation papers~\citep{gionis2007clustering, zahn1971graph, chang2008robust, jain2005law, fu2007flame}.
 
-We performed the comparison with ELKI version 0.7, PyClustering 0.6.6, \pkg{fpc} 2.1-10, \pkg{dbscan} 0.9-8, SPMF v2.10, WEKA 3.8.0, SciKit-Learn 0.17.1 on a MacBook Pro equipped with an 2.5 GHz Intel Core i7 processor, running OS X El Capitan 10.11.6.
+In 2019, we performed a comparison between \pkg{dbscan} 0.9-8, \pkg{fpc} 2.1-10, ELKI version 0.7, PyClustering 0.6.6, SPMF v2.10, WEKA 3.8.0, SciKit-Learn 0.17.1 on a MacBook Pro equipped with a 2.5 GHz Intel Core i7 processor, running OS X El Capitan 10.11.6.
+Note that newer versions of all mentioned software packages have been released since then. Changes in data structures and added optimization may result in significant improvements in runtime for different packages.
+
 All data sets where normalized to the unit interval, [0, 1], per dimension to standardize neighbor queries. For all data sets we used $\mathit{minPts} = 2$ and $\epsilon = 0.10$ for DBSCAN. For OPTICS, $\mathit{minPts} = 2$ with a large $\epsilon = 1$ was used.
 We replicated each run for each data set 15 times and report
 the average runtime here.
@@ -916,6 +918,7 @@ Figures~\ref{fig:dbscan_bench}
 and \ref{fig:optics_bench}
 shows the runtimes. The datasets are sorted from easiest to hardest
 and the algorithm in the legend are sorted from on average fastest to slowest.
+Dimensionality, used distance function, data set size, and other data characteristics have a substantial impact on runtime performance.
 The results show that the implementation in $\pkg{dbscan}$
 compares very favorably to the other implementations (but note that we did not enable data indexing in ELKI, and used a very small $\mathit{minPts}$).
 

@@ -1,3 +1,54 @@
+2.1.2
+ - MacOS: avoid linking against legacy versions of openssl
+
+2.1.1
+ - Windows: update to openssl 3.1.2 + arm support
+
+2.1.0
+ - Windows and autobrew binaries have been bumped to libssl 3.1.1. (MacOS CRAN
+   binaries use libssl from CRAN 'recipes' which is currently libssl 1.1.1)
+ - Added sha3() function
+
+2.0.6
+ - Add new functions pkcs7_encrypt and pkcs7_decrypt
+ - Fix snprintf bug in hash functions
+
+2.0.5
+ - Replace sprintf with snprintf for CRAN
+
+2.0.4
+ - Fix strict-prototype warnings for CRAN
+
+2.0.3
+ - New function write_openssh_pem to support ed25519 in libssh2/gert
+
+2.0.2
+ - Disable tests that require internet access to comply with AON policy
+
+2.0.1
+ - Fix a unit test for a changed error message in openssl 3.0.2
+
+2.0.0
+ - The default fingerprint() for keys has changed from md5 to sha256. This is
+   a breaking change, but in line with other software phasing out md5, and needed
+   to support systems where use of MD5 has been disabled to comply with FIPS.
+ - Make the test-suite pass under FIPS on RHEL 8.
+ - New family of ssl_ctx functions to manipulate an SSL context from inside curl
+   https requests.
+ - Rd manuals have been markdownified
+
+1.4.6
+ - Update unit tests to new pki.goog test servers
+
+1.4.5
+ - Tweaks and fixes for upcoming OpenSSLv3. Once OpenSSLv3 is released we should
+   port the deprecated functions, but for now we keep supporting OpenSSL 1.0.2.
+
+1.4.4
+ - Fix rand_bytes for large input
+ - Remove some legacy Windows workarounds from R 3.2
+ - Windows: upgrade libs to openssl 1.1.1k
+
 1.4.3
  - Fix a harmless compiler warning for CRAN
 

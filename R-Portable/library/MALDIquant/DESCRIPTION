@@ -1,13 +1,28 @@
 Package: MALDIquant
-Version: 1.19.3
-Date: 2019-05-12
+Version: 1.22.2
+Date: 2024-01-22
 Title: Quantitative Analysis of Mass Spectrometry Data
-Authors@R: c(person("Sebastian", "Gibb", role=c("aut", "cre"),
+Authors@R: c(
+    person(
+        given = "Sebastian", family = "Gibb",
         email="mail@sebastiangibb.de",
-        comment=c(ORCID="0000-0001-7406-4443")), person("Korbinian",
-        "Strimmer", role="ths",
-        comment=c(ORCID="0000-0001-7917-2056")))
-Depends: R (>= 3.2.0), methods
+        comment=c(ORCID="0000-0001-7406-4443"),
+        role = c("aut", "cre")
+    ),
+    person(
+        given = "Korbinian", family = "Strimmer",
+        comment=c(ORCID="0000-0001-7917-2056"),
+        role="ths"
+    ),
+    person(given = "Sigurdur", family = "Smarason", role = "ctb"),
+    person(
+        given = "Laurent", family = "Gatto",
+        email = "laurent.gatto@uclouvain.be",
+        comment = c(ORCID = "0000-0002-1520-2268"),
+        role = "ctb"
+    ),
+    person(given = "Paolo", family = "Inglese", role = "ctb"))
+Depends: R (>= 4.0.0), methods
 Imports: parallel
 Suggests: knitr, testthat (>= 0.8)
 Description: A complete analysis pipeline for matrix-assisted laser
@@ -21,18 +36,22 @@ Description: A complete analysis pipeline for matrix-assisted laser
         measurements as well as allowing spectra with different
         resolutions.
 License: GPL (>= 3)
-URL: http://strimmerlab.org/software/maldiquant/
+URL: https://strimmerlab.github.io/software/maldiquant/,
         https://github.com/sgibb/MALDIquant/
 BugReports: https://github.com/sgibb/MALDIquant/issues/
 LazyLoad: yes
 VignetteBuilder: knitr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.3.0
+Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2019-05-12 19:16:55 UTC; sebastian
+Packaged: 2024-01-22 21:01:17 UTC; sebastian
 Author: Sebastian Gibb [aut, cre] (<https://orcid.org/0000-0001-7406-4443>),
-  Korbinian Strimmer [ths] (<https://orcid.org/0000-0001-7917-2056>)
+  Korbinian Strimmer [ths] (<https://orcid.org/0000-0001-7917-2056>),
+  Sigurdur Smarason [ctb],
+  Laurent Gatto [ctb] (<https://orcid.org/0000-0002-1520-2268>),
+  Paolo Inglese [ctb]
 Maintainer: Sebastian Gibb <mail@sebastiangibb.de>
 Repository: CRAN
-Date/Publication: 2019-05-12 19:50:03 UTC
-Built: R 3.6.3; x86_64-w64-mingw32; 2021-03-29 18:41:34 UTC; windows
-Archs: i386, x64
+Date/Publication: 2024-01-22 21:42:48 UTC
+Built: R 4.3.3; x86_64-w64-mingw32; 2024-04-21 00:47:00 UTC; windows
+Archs: x64

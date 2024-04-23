@@ -1,4 +1,5 @@
 generics-package	generics-package
+accuracy	accuracy
 as.difftime	coercion-time-difference
 as.difftime.default	coercion-time-difference
 as.factor	coercion-factor
@@ -13,8 +14,10 @@ equation	equation
 estfun	estfun
 evaluate	evaluate
 explain	explain
+explore	explore
 fit	fit
 fit_xy	fit_xy
+forecast	forecast
 generate	generate
 generics	generics-package
 glance	glance
@@ -25,6 +28,7 @@ is.element	setops
 learn	learn
 min_grid	min_grid
 prune	prune
+rank_results	rank_results
 refit	refit
 required_pkgs	required_pkgs
 setdiff	setops
@@ -34,6 +38,7 @@ specify	specify
 tidy	tidy
 train	train
 tunable	tunable
+tune_args	tune_args
 union	setops
 varying_args	varying_args
 var_imp	var_imp

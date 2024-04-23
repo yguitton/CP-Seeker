@@ -6,36 +6,55 @@ Description: The S4Vectors package defines the Vector and List virtual classes
 	vectors and lists in R. Package developers can easily implement
 	vector-like or list-like objects as concrete subclasses of Vector or
 	List. In addition, a few low-level concrete subclasses of general
-	interest (e.g. DataFrame, Rle, and Hits) are implemented in the
-	S4Vectors package itself (many more are implemented in the IRanges
+	interest (e.g. DataFrame, Rle, Factor, and Hits) are implemented in
+	the S4Vectors package itself (many more are implemented in the IRanges
 	package and in other Bioconductor infrastructure packages).
-Version: 0.24.4
-Encoding: UTF-8
-Author: H. Pagès, M. Lawrence and P. Aboyoun
-Maintainer: Bioconductor Package Maintainer <maintainer@bioconductor.org>
 biocViews: Infrastructure, DataRepresentation
-Depends: R (>= 3.3.0), methods, utils, stats, stats4, BiocGenerics (>=
-        0.31.1)
-Suggests: IRanges, GenomicRanges, SummarizedExperiment, Matrix,
-        DelayedArray, ShortRead, graph, data.table, RUnit, BiocStyle
+URL: https://bioconductor.org/packages/S4Vectors
+BugReports: https://github.com/Bioconductor/S4Vectors/issues
+Version: 0.40.2
 License: Artistic-2.0
-Collate: S4-utils.R show-utils.R utils.R normarg-utils.R LLint-class.R
-        isSorted.R subsetting-utils.R vector-utils.R integer-utils.R
-        character-utils.R raw-utils.R eval-utils.R map_ranges_to_runs.R
-        DataTable-class.R Annotated-class.R Vector-class.R
-        Vector-comparison.R Vector-setops.R Vector-merge.R Hits-class.R
-        Hits-comparison.R Hits-setops.R Rle-class.R Rle-utils.R
-        Factor-class.R List-class.R List-comparison.R splitAsList.R
-        List-utils.R SimpleList-class.R HitsList-class.R
-        DataFrame-class.R DataFrame-comparison.R Pairs-class.R
-        expand-methods.R FilterRules-class.R aggregate-methods.R
-        shiftApply-methods.R zzz.R
+Encoding: UTF-8
+Authors@R: c(
+	person("Hervé", "Pagès", role=c("aut", "cre"),
+		email="hpages.on.github@gmail.com"),
+	person("Michael", "Lawrence", role="aut"),
+	person("Patrick", "Aboyoun", role="aut"),
+	person("Aaron", "Lun", role="ctb"),
+	person("Beryl", "Kanali", role="ctb",
+		comment="Converted 'RleTricks' vignette from Sweave to RMarkdown."))
+Depends: R (>= 4.0.0), methods, utils, stats, stats4, BiocGenerics (>=
+        0.37.0)
+Suggests: IRanges, GenomicRanges, SummarizedExperiment, Matrix,
+        DelayedArray, ShortRead, graph, data.table, RUnit, BiocStyle,
+        knitr
+VignetteBuilder: knitr
+Collate: S4-utils.R show-utils.R utils.R normarg-utils.R bindROWS.R
+        LLint-class.R isSorted.R subsetting-utils.R vector-utils.R
+        integer-utils.R character-utils.R raw-utils.R eval-utils.R
+        map_ranges_to_runs.R RectangularData-class.R Annotated-class.R
+        DataFrame_OR_NULL-class.R Vector-class.R Vector-comparison.R
+        Vector-setops.R Vector-merge.R Hits-class.R Hits-comparison.R
+        Hits-setops.R Rle-class.R Rle-utils.R Factor-class.R
+        List-class.R List-comparison.R splitAsList.R List-utils.R
+        SimpleList-class.R HitsList-class.R DataFrame-class.R
+        DataFrame-combine.R DataFrame-comparison.R DataFrame-utils.R
+        DataFrameFactor-class.R TransposedDataFrame-class.R
+        Pairs-class.R FilterRules-class.R stack-methods.R
+        expand-methods.R aggregate-methods.R shiftApply-methods.R zzz.R
 git_url: https://git.bioconductor.org/packages/S4Vectors
-git_branch: RELEASE_3_10
-git_last_commit: 0287f96
-git_last_commit_date: 2020-04-03
-Date/Publication: 2020-04-09
+git_branch: RELEASE_3_18
+git_last_commit: 8cd5cb3
+git_last_commit_date: 2023-11-23
+Date/Publication: 2023-11-23
 NeedsCompilation: yes
-Packaged: 2020-04-10 02:06:26 UTC; biocbuild
-Built: R 3.6.3; i386-w64-mingw32; 2020-04-10 13:52:44 UTC; windows
-Archs: i386, x64
+Packaged: 2023-11-24 02:29:15 UTC; biocbuild
+Author: Hervé Pagès [aut, cre],
+  Michael Lawrence [aut],
+  Patrick Aboyoun [aut],
+  Aaron Lun [ctb],
+  Beryl Kanali [ctb] (Converted 'RleTricks' vignette from Sweave to
+    RMarkdown.)
+Maintainer: Hervé Pagès <hpages.on.github@gmail.com>
+Built: R 4.3.2; x86_64-w64-mingw32; 2023-11-24 13:39:16 UTC; windows
+Archs: x64

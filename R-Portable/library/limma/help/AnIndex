@@ -65,6 +65,7 @@ cbind.EListRaw	cbind
 cbind.MAList	cbind
 cbind.RGList	cbind
 changeLog	changelog
+chooseLowessSpan	chooseLowessSpan
 classifyTestsF	classifytestsF
 coerce,RGList,exprSet2-method	rglist
 contrastAsCoef	contrastAsCoef
@@ -122,6 +123,7 @@ gls.series	gls.series
 goana	goana
 goana.default	goana
 goana.MArrayLM	goana
+goanaTrend	goanaTrend
 gridc	gridspotrc
 gridr	gridspotrc
 head.EList	head
@@ -273,6 +275,7 @@ Roast-class	roast
 roast.default	roast
 romer	romer
 romer.default	romer
+sampleInfoFromGEO	sampleInfoFromGEO
 selectModel	selectmodel
 show,LargeDataObject-method	LargeDataObject
 show,MDS-method	plotMDS
@@ -305,7 +308,6 @@ topKEGG	topGO
 topRomer	topRomer
 topSplice	topSplice
 topTable	toptable
-toptable	toptable
 topTableF	toptable
 topTreat	toptable
 treat	ebayes

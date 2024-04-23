@@ -1,7 +1,87 @@
 RELEASE HISTORY OF THE "MALDIquant" PACKAGE
 ===========================================
 
-CHANGES IN MALDIquant VERSION 1.19.2 [2019-05-12]:
+
+CHANGES IN MALDIquant VERSION 1.22.2 [2024-01-22]:
+--------------------------------------------------
+
+INTERNAL CHANGES
+
+* Fix spaces in error message of `determineWarpingFunctions`.
+* Fix VignetteEngine NOTE.
+
+
+CHANGES IN MALDIquant VERSION 1.22.1 [2023-03-20]:
+--------------------------------------------------
+
+* Use symbols instead of names in `.Call` for faster lookup of C functions.
+
+
+CHANGES IN MALDIquant VERSION 1.22 [2022-11-10]:
+------------------------------------------------
+
+BUGFIXES
+
+* Fix merging metadata with `NA` values; affected functions:
+  `mergeMassSpectra`, `mergeMassPeaks`, `averageSpectra`.
+  Thanks to Petr Hasler <petr.hasler@upol.cz> for reporting.
+
+MODIFICATIONS
+
+* Fix Paolo's family name in `DESCRIPTION` file.
+
+
+CHANGES IN MALDIquant VERSION 1.21 [2021-12-19]:
+------------------------------------------------
+
+MODIFICATIONS
+
+* Reduce memory requirement for `filterPeaks`, especially for very sparse peak
+  lists by rewriting `filterPeaks` and `.as.matrix.MassObjectList` to use a
+  `list` internally instead of a `matrix`; see #71.
+  Contributed by Paolo Inglese <p.inglese@outlook.com> (@paoloinglese).
+
+INTERNAL CHANGES
+
+* Remove `is.null(getGeneric(...))` tests before setting generics for
+  S4 methods to avoid errors in package loading (especially with
+  `pkgload::load_all()`).
+
+
+CHANGES IN MALDIquant VERSION 1.20 [2021-07-29]:
+------------------------------------------------
+
+NEW FEATURES
+
+* `binPeaks` gains a new method `"reference"` to bin to the first given
+  `MassPeaks` object; see #69.
+  Thanks to Alexander Bartel (@ndevln) for the suggestion.
+
+MODIFICATIONS
+
+* Don't run example in `MALDIquant-parallel` manual page to avoid long example
+  runtime WARNING in R CMD check.
+* Change URLs from http to https where possible.
+
+
+CHANGES IN MALDIquant VERSION 1.19.5 [2020-04-02]:
+--------------------------------------------------
+
+BUGFIXES
+
+* Don't import `plot` from graphics to fix error in R-devel (R 4.0.0)
+* Bump required R version to 4.0.0.
+
+
+CHANGES IN MALDIquant VERSION 1.19.4 [2019-08-08]:
+--------------------------------------------------
+
+BUGFIXES
+
+* Use `data(fiedler2009subset)` in manual page to avoid WARNING on R-devel.
+
+
+CHANGES IN MALDIquant VERSION 1.19.3 [2019-05-12]:
 --------------------------------------------------
 
 BUGFIXES

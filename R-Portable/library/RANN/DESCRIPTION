@@ -22,5 +22,5 @@ NeedsCompilation: yes
 Packaged: 2019-01-08 19:24:15 UTC; jefferis
 Repository: CRAN
 Date/Publication: 2019-01-08 20:00:04 UTC
-Built: R 3.6.3; x86_64-w64-mingw32; 2021-03-29 18:28:09 UTC; windows
-Archs: i386, x64
+Built: R 4.3.3; x86_64-w64-mingw32; 2024-04-21 00:42:30 UTC; windows
+Archs: x64

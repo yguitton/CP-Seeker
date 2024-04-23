@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Make Dealing with Dates a Little Easier</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Make Dealing with Dates a Little Easier
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,10 +12,11 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;lubridate&rsquo; version 1.7.10</h2>
+</div><h2>Documentation for package &lsquo;lubridate&rsquo; version 1.9.3</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 <li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
 </ul>
 
 <h2>Help Pages</h2>
@@ -45,9 +47,9 @@
 </p>
 
 
-<h2><a name="A">-- A --</a></h2>
+<h2><a id="A">-- A --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="mplus.html">add_with_rollback</a></td>
 <td>Add and subtract months to a date without exceeding the last day of the new month</td></tr>
 <tr><td style="width: 25%;"><a href="am.html">am</a></td>
@@ -74,18 +76,18 @@
 <td>Convert an object to a date or date-time</td></tr>
 </table>
 
-<h2><a name="C">-- C --</a></h2>
+<h2><a id="C">-- C --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="round_date.html">ceiling_date</a></td>
 <td>Round, floor and ceiling methods for date-time objects</td></tr>
 <tr><td style="width: 25%;"><a href="cyclic_encoding.html">cyclic_encoding</a></td>
 <td>Cyclic encoding of date-times</td></tr>
 </table>
 
-<h2><a name="D">-- D --</a></h2>
+<h2><a id="D">-- D --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="date_utils.html">Date</a></td>
 <td>Various date utilities</td></tr>
 <tr><td style="width: 25%;"><a href="date.html">date</a></td>
@@ -148,18 +150,18 @@
 <td>Parse dates with *y*ear, *m*onth, and *d*ay components</td></tr>
 </table>
 
-<h2><a name="E">-- E --</a></h2>
+<h2><a id="E">-- E --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="week.html">epiweek</a></td>
 <td>Get/set weeks component of a date-time</td></tr>
 <tr><td style="width: 25%;"><a href="year.html">epiyear</a></td>
 <td>Get/set years component of a date-time</td></tr>
 </table>
 
-<h2><a name="F">-- F --</a></h2>
+<h2><a id="F">-- F --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="parse_date_time.html">fast_strptime</a></td>
 <td>User friendly date-time parsing functions</td></tr>
 <tr><td style="width: 25%;"><a href="fit_to_timeline.html">fit_to_timeline</a></td>
@@ -167,6 +169,8 @@
 <tr><td style="width: 25%;"><a href="round_date.html">floor_date</a></td>
 <td>Round, floor and ceiling methods for date-time objects</td></tr>
 <tr><td style="width: 25%;"><a href="force_tz.html">force_tz</a></td>
+<td>Replace time zone to create new date-time</td></tr>
+<tr><td style="width: 25%;"><a href="force_tz.html">force_tz.default</a></td>
 <td>Replace time zone to create new date-time</td></tr>
 <tr><td style="width: 25%;"><a href="force_tz.html">force_tzs</a></td>
 <td>Replace time zone to create new date-time</td></tr>
@@ -176,16 +180,16 @@
 <td>Format in ISO8601 character format</td></tr>
 </table>
 
-<h2><a name="G">-- G --</a></h2>
+<h2><a id="G">-- G --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="guess_formats.html">guess_formats</a></td>
 <td>Guess possible date-times formats from a character vector</td></tr>
 </table>
 
-<h2><a name="H">-- H --</a></h2>
+<h2><a id="H">-- H --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="hms.html">hm</a></td>
 <td>Parse periods with *h*our, *m*inute, and *s*econd components</td></tr>
 <tr><td style="width: 25%;"><a href="hms.html">hms</a></td>
@@ -198,9 +202,9 @@
 <td>Create or parse period objects</td></tr>
 </table>
 
-<h2><a name="I">-- I --</a></h2>
+<h2><a id="I">-- I --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="is.instant.html">instant</a></td>
 <td>Is x a date-time object?</td></tr>
 <tr><td style="width: 25%;"><a href="is.instant.html">instants</a></td>
@@ -261,9 +265,9 @@
 <td>Get/set years component of a date-time</td></tr>
 </table>
 
-<h2><a name="L">-- L --</a></h2>
+<h2><a id="L">-- L --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="lakers.html">lakers</a></td>
 <td>Lakers 2008-2009 basketball data set</td></tr>
 <tr><td style="width: 25%;"><a href="leap_year.html">leap_year</a></td>
@@ -272,9 +276,9 @@
 <td>Get local time from a date-time vector.</td></tr>
 </table>
 
-<h2><a name="M">-- M --</a></h2>
+<h2><a id="M">-- M --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="mplus.html">m+</a></td>
 <td>Add and subtract months to a date without exceeding the last day of the new month</td></tr>
 <tr><td style="width: 25%;"><a href="mplus.html">m-</a></td>
@@ -321,9 +325,9 @@
 <td>Parse dates with *y*ear, *m*onth, and *d*ay components</td></tr>
 </table>
 
-<h2><a name="N">-- N --</a></h2>
+<h2><a id="N">-- N --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="period.html">nanoseconds</a></td>
 <td>Create or parse period objects</td></tr>
 <tr><td style="width: 25%;"><a href="date_utils.html">NA_Date_</a></td>
@@ -334,16 +338,16 @@
 <td>The current day and time</td></tr>
 </table>
 
-<h2><a name="O">-- O --</a></h2>
+<h2><a id="O">-- O --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="origin.html">origin</a></td>
 <td>1970-01-01 UTC</td></tr>
 </table>
 
-<h2><a name="P">-- P --</a></h2>
+<h2><a id="P">-- P --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="parse_date_time.html">parse_date_time</a></td>
 <td>User friendly date-time parsing functions</td></tr>
 <tr><td style="width: 25%;"><a href="parse_date_time.html">parse_date_time2</a></td>
@@ -364,9 +368,9 @@
 <td>Computes attractive axis breaks for date-time data</td></tr>
 </table>
 
-<h2><a name="Q">-- Q --</a></h2>
+<h2><a id="Q">-- Q --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="day.html">qday</a></td>
 <td>Get/set days component of a date-time</td></tr>
 <tr><td style="width: 25%;"><a href="day.html">qday&lt;-</a></td>
@@ -375,9 +379,9 @@
 <td>Get the fiscal quarter and semester of a date-time</td></tr>
 </table>
 
-<h2><a name="R">-- R --</a></h2>
+<h2><a id="R">-- R --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="rollbackward.html">rollback</a></td>
 <td>Roll backward or forward a date the previous, current or next month</td></tr>
 <tr><td style="width: 25%;"><a href="rollbackward.html">rollbackward</a></td>
@@ -388,9 +392,9 @@
 <td>Round, floor and ceiling methods for date-time objects</td></tr>
 </table>
 
-<h2><a name="S">-- S --</a></h2>
+<h2><a id="S">-- S --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="second.html">second</a></td>
 <td>Get/set seconds component of a date-time</td></tr>
 <tr><td style="width: 25%;"><a href="second.html">second&lt;-</a></td>
@@ -409,9 +413,9 @@
 <td>Format dates and times based on human-friendly templates</td></tr>
 </table>
 
-<h2><a name="T">-- T --</a></h2>
+<h2><a id="T">-- T --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="timespan.html">timespan</a></td>
 <td>Description of time span classes in lubridate</td></tr>
 <tr><td style="width: 25%;"><a href="timespan.html">timespans</a></td>
@@ -428,16 +432,16 @@
 <td>Get/set time zone component of a date-time</td></tr>
 </table>
 
-<h2><a name="U">-- U --</a></h2>
+<h2><a id="U">-- U --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="DateTimeUpdate.html">update.POSIXt</a></td>
 <td>Changes the components of a date object</td></tr>
 </table>
 
-<h2><a name="W">-- W --</a></h2>
+<h2><a id="W">-- W --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="day.html">wday</a></td>
 <td>Get/set days component of a date-time</td></tr>
 <tr><td style="width: 25%;"><a href="day.html">wday&lt;-</a></td>
@@ -450,11 +454,13 @@
 <td>Create or parse period objects</td></tr>
 <tr><td style="width: 25%;"><a href="with_tz.html">with_tz</a></td>
 <td>Get date-time in a different time zone</td></tr>
+<tr><td style="width: 25%;"><a href="with_tz.html">with_tz.default</a></td>
+<td>Get date-time in a different time zone</td></tr>
 </table>
 
-<h2><a name="Y">-- Y --</a></h2>
+<h2><a id="Y">-- Y --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="day.html">yday</a></td>
 <td>Get/set days component of a date-time</td></tr>
 <tr><td style="width: 25%;"><a href="day.html">yday&lt;-</a></td>
@@ -487,9 +493,9 @@
 <td>Parse dates with *y*ear, *m*onth, and *d*ay components</td></tr>
 </table>
 
-<h2><a name="misc">-- misc --</a></h2>
+<h2><a id="misc">-- misc --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="interval.html">%--%</a></td>
 <td>Utilities for creation and manipulation of 'Interval' objects</td></tr>
 <tr><td style="width: 25%;"><a href="mplus.html">%m+%</a></td>
@@ -505,4 +511,4 @@
 <tr><td style="width: 25%;"><a href="within-interval.html">%within%-method</a></td>
 <td>Does a date (or interval) fall within an interval?</td></tr>
 </table>
-</body></html>
+</div></body></html>

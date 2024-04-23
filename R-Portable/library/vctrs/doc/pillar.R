@@ -1,11 +1,11 @@
-## ---- include = FALSE---------------------------------------------------------
-knitr::opts_chunk$set(collapse = TRUE, comment = pillar::style_subtle("#>"))
+## ----include = FALSE----------------------------------------------------------
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ----setup--------------------------------------------------------------------
 library(vctrs)
 library(pillar)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  usethis::use_package("vctrs")
 #  usethis::use_package("pillar")
 

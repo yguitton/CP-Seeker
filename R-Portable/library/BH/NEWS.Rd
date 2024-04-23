@@ -7,13 +7,38 @@
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/bh/issues/#1}{##1}}
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/bh/pull/#1}{##1}}
 
+\section{Changes in version 1.84.0-0 (2024-01-09)}{
+  \itemize{
+    \item Upgrade to \boost 1.81.0 (\ghpr{87})
+  }
+}
+
+\section{Changes in version 1.81.0-1 (2023-01-17)}{
+  \itemize{
+    \item Upgrade to \boost 1.81.0 (\ghpr{87})
+    \item Added \boostPkg{url} (new in 1.81.0)
+    \item Converted remaining \code{sprintf} to \code{snprintf}
+    (\ghpr{90} fixing \ghit{89})
+    \item Comment-out gcc warning messages in three files
+  }
+}
+    
+\section{Changes in version 1.78.0-0 (2021-12-14)}{
+  \itemize{
+    \item Incremental updates to README.md and CI setup
+    \item Upgraded to \boost 1.78.0 (\ghpr{82} closing \ghit{80})
+    \item Added \boostPkg{process} (closing \ghit{78})
+    \item Added \boostPkg{lambda2} (closing \ghit{81})
+  }
+}
+
 \section{Changes in version 1.75.0-0 (2020-12-12)}{
   \itemize{
-    \item Removed file \code{NAMESPACE} as the package neither R code,
+    \item Removed file \code{NAMESPACE} as the package has neither R code,
     nor a shared library to load
     \item The file LICENSE_1_0.txt is now included (as requested in \ghit{73})
+    \item Added new \boostPkg{beast} library (as requested in \ghit{74})
     \item Upgraded to \boost 1.75.0 (\ghpr{75})
-    \item Added new \boostPkg{beast} (as requested in \ghit{74})
   }
 }
 

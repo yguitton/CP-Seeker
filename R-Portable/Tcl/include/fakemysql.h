@@ -179,7 +179,7 @@ struct st_net {
 #endif
     unsigned char *query_cache_query;
     unsigned int last_errno;
-    unsigned char error; 
+    unsigned char error;
     my_bool unused2;
     my_bool return_errno;
     char last_error[MYSQL_ERRMSG_SIZE];
@@ -193,7 +193,7 @@ struct st_net {
 /*
  * st_mysql differs between 5.0 and 5.1, but the 5.0 version is a
  * strict subset, we don't use any of the 5.1 fields, and we don't
- * ever allocate the structure ourselves. 
+ * ever allocate the structure ourselves.
  */
 
 struct st_mysql {
@@ -205,7 +205,7 @@ struct st_mysql {
     char *unix_socket;
     char *server_version;
     char *host_info;
-    char *info; 
+    char *info;
     char *db;
     struct charset_info_st *charset;
     MYSQL_FIELD *fields;
@@ -240,7 +240,7 @@ struct st_mysql {
     char *info_buffer;
 };
 
-/* 
+/*
  * There are different version of the MYSQL_BIND structure before and after
  * MySQL 5.1. We go after the fields of the structure using accessor functions
  * so that the code in this file is compatible with both versions.
@@ -289,7 +289,7 @@ struct st_mysql_bind_50 {	/* Pre-5.1 */
     void (*skip_result)(MYSQL_BIND*, MYSQL_FIELD*, unsigned char**);
 };
 
-/* 
+/*
  * There are also different versions of the MYSQL_FIELD structure; fortunately,
  * the 5.1 version is a strict extension of the 5.0 version.
  */

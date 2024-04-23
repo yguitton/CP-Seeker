@@ -4,6 +4,7 @@ deferred_clear	defer
 deferred_run	defer
 defer_parent	defer
 devices	devices
+global_defer	global_defer
 local_	with_
 local_bmp	devices
 local_cairo_pdf	devices
@@ -16,6 +17,7 @@ local_environment	with_package
 local_envvar	with_envvar
 local_file	with_file
 local_jpeg	devices
+local_language	with_language
 local_libpaths	with_libpaths
 local_locale	with_locale
 local_makevars	with_makevars
@@ -57,6 +59,7 @@ with_envvar	with_envvar
 with_file	with_file
 with_gctorture2	with_gctorture2
 with_jpeg	devices
+with_language	with_language
 with_libpaths	with_libpaths
 with_locale	with_locale
 with_makevars	with_makevars

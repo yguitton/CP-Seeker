@@ -1,7 +1,7 @@
 Package: robustbase
-Version: 0.93-6
-VersionNote: Released 0.93-5 on 2019-05-09 on CRAN
-Date: 2020-03-21
+Version: 0.99-2
+VersionNote: Released 0.99-1 on 2023-11-28 to CRAN
+Date: 2024-01-27
 Title: Basic Robust Statistics
 Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@stat.math.ethz.ch", comment = c(ORCID = "0000-0002-8685-9910"))
          , person("Peter", "Rousseeuw", role="ctb", comment = "Qn and Sn")
@@ -20,23 +20,28 @@ Authors@R: c(person("Martin","Maechler", role=c("aut","cre"), email="maechler@st
                   comment = "MM-, tau-, CM-, and MTL- nlrob")
          , person("Maria", "Anna di Palma", role = "ctb", comment = "initial version of Comedian")
           )
-URL: http://robustbase.r-forge.r-project.org/
+URL: https://robustbase.R-forge.R-project.org/,
+        https://R-forge.R-project.org/R/?group_id=59,
+        https://R-forge.R-project.org/scm/viewvc.php/pkg/robustbase/?root=robustbase,
+        svn://svn.r-forge.r-project.org/svnroot/robustbase/pkg/robustbase
+BugReports: https://R-forge.R-project.org/tracker/?atid=302&group_id=59
 Description: "Essential" Robust Statistics.
  Tools allowing to analyze data with robust methods.  This includes
  regression methodology including model selections and multivariate
  statistics where we strive to cover the book "Robust Statistics,
  Theory and Methods" by 'Maronna, Martin and Yohai'; Wiley 2006.
-Depends: R (>= 3.1.0)
+Depends: R (>= 3.5.0)
 Imports: stats, graphics, utils, methods, DEoptimR
 Suggests: grid, MASS, lattice, boot, cluster, Matrix, robust,
         fit.models, MPV, xtable, ggplot2, GGally, RColorBrewer,
         reshape2, sfsmisc, catdata, doParallel, foreach, skewt
 SuggestsNote: mostly only because of vignette graphics and simulation
-ByteCompile: yes
+Enhances: robustX, rrcov, matrixStats, quantreg, Hmisc
+EnhancesNote: linked to in man/*.Rd
 LazyData: yes
 NeedsCompilation: yes
 License: GPL (>= 2)
-Packaged: 2020-03-21 12:57:15 UTC; maechler
+Packaged: 2024-01-27 14:39:19 UTC; maechler
 Author: Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>),
   Peter Rousseeuw [ctb] (Qn and Sn),
   Christophe Croux [ctb] (Qn and Sn),
@@ -49,6 +54,6 @@ Author: Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>),
   Maria Anna di Palma [ctb] (initial version of Comedian)
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Repository: CRAN
-Date/Publication: 2020-03-23 17:40:02 UTC
-Built: R 3.6.3; x86_64-w64-mingw32; 2021-01-02 12:16:21 UTC; windows
-Archs: i386, x64
+Date/Publication: 2024-01-27 16:30:02 UTC
+Built: R 4.3.3; x86_64-w64-mingw32; 2024-04-21 00:40:06 UTC; windows
+Archs: x64

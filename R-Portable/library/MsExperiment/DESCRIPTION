@@ -1,0 +1,54 @@
+Package: MsExperiment
+Title: Infrastructure for Mass Spectrometry Experiments
+Version: 1.4.0
+Description: Infrastructure to store and manage all aspects related to
+   a complete proteomics or metabolomics mass spectrometry (MS)
+   experiment. The MsExperiment package provides light-weight and
+   flexible containers for MS experiments building on the new MS
+   infrastructure provided by the Spectra, QFeatures and related
+   packages. Along with raw data representations, links to original
+   data files and sample annotations, additional metadata or
+   annotations can also be stored within the MsExperiment
+   container. To guarantee maximum flexibility only minimal
+   constraints are put on the type and content of the data within the
+   containers.
+Authors@R: c(person(given = "Laurent", family = "Gatto",
+                    comment = c(ORCID = "0000-0002-1520-2268"),
+                    email = "laurent.gatto@uclouvain.be",
+                    role = c("aut", "cre")),
+             person(given = "Johannes", family = "Rainer",
+                    comment = c(ORCID = "0000-0002-6977-7147"),
+                    email = "Johannes.Rainer@eurac.edu",
+                    role = "aut"),
+             person(given = "Sebastian", family = "Gibb",
+                    comment = c(ORCID = "0000-0001-7406-4443"),
+                    email = "mail@sebastiangibb.de",
+                    role = "aut"))
+Depends: R (>= 4.2), ProtGenerics (>= 1.9.1),
+Imports: methods, S4Vectors, IRanges, Spectra, SummarizedExperiment,
+        QFeatures
+Suggests: testthat, knitr (>= 1.1.0), roxygen2, BiocStyle (>= 2.5.19),
+        rmarkdown, rpx, mzR, msdata
+License: Artistic-2.0
+VignetteBuilder: knitr
+BugReports: https://github.com/RforMassSpectrometry/MsExperiment/issues
+URL: https://github.com/RforMassSpectrometry/MsExperiment
+biocViews: Infrastructure, Proteomics, MassSpectrometry, Metabolomics,
+        ExperimentalDesign, DataImport
+RoxygenNote: 7.2.3
+Roxygen: list(markdown=TRUE)
+Encoding: UTF-8
+Collate: 'MsExperiment-functions.R' 'MsExperimentFiles.R'
+        'MsExperiment.R' 'existMsExperimentFiles.R'
+git_url: https://git.bioconductor.org/packages/MsExperiment
+git_branch: RELEASE_3_18
+git_last_commit: e92dde5
+git_last_commit_date: 2023-10-24
+Date/Publication: 2023-10-24
+NeedsCompilation: no
+Packaged: 2023-10-25 01:33:12 UTC; biocbuild
+Author: Laurent Gatto [aut, cre] (<https://orcid.org/0000-0002-1520-2268>),
+  Johannes Rainer [aut] (<https://orcid.org/0000-0002-6977-7147>),
+  Sebastian Gibb [aut] (<https://orcid.org/0000-0001-7406-4443>)
+Maintainer: Laurent Gatto <laurent.gatto@uclouvain.be>
+Built: R 4.3.1; ; 2023-10-25 14:24:34 UTC; windows

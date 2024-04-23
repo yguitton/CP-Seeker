@@ -803,9 +803,9 @@ var shinyFiles = (function () {
       $('<div>').addClass('sF-modal modal-dialog modal-lg').append(
         $('<div>').addClass('modal-content').append(
           $('<div>').addClass('modal-header').append(
-            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
-          ).append(
             $('<h4>', { text: title }).addClass('sF-title modal-title')
+          ).append(
+            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
           )
         ).append(
           $('<div>').addClass('modal-body').append(
@@ -1362,9 +1362,9 @@ var shinyFiles = (function () {
       $('<div>').addClass('sF-modal modal-dialog modal-lg').append(
         $('<div>').addClass('modal-content').append(
           $('<div>').addClass('modal-header').append(
-            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
-          ).append(
             $('<h4>', { text: title }).addClass('sF-title modal-title')
+          ).append(
+            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
           )
         ).append(
           $('<div>').addClass('modal-body').append(
@@ -1817,7 +1817,8 @@ var shinyFiles = (function () {
     var file = getFilename(modal);
     $.extend(file, dir);
 
-    $(button).data('file', file);
+    $(button).data('file', file)
+      .trigger('save', file);
 
     removeFileChooser(button, modal, file);
   }
@@ -1836,9 +1837,9 @@ var shinyFiles = (function () {
       $('<div>').addClass('sF-modal modal-dialog modal-lg').append(
         $('<div>').addClass('modal-content').append(
           $('<div>').addClass('modal-header').append(
-            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
-          ).append(
             $('<h4>', { text: title }).addClass('sF-title modal-title')
+          ).append(
+            $('<button>', { html: '&times;', type: 'button' }).addClass('close')
           )
         ).append(
           $('<div>').addClass('modal-body').append(

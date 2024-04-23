@@ -1,5 +1,63 @@
 # pracma NEWS
 
+## pracma 2.4.4 (2023-11-08)
+
+* gcd(), Lcm() now require integers as input (G. Rücker reported).
+* Corrections (missing brackets) in several Rd files.
+
+## pracma 2.4.3 (2023-08-15)
+
+* Corrected a bug in the help file of nelder_mead().
+* Added stereographic projection and its inverse as functions
+  stereographic() and stereographic_inv().
+
+## pracma 2.4.2 (2022-09-21)
+
+* Corrected a bug in logit() - 'length_1 error' again.
+* Replaced 'class() =' with 'inherits(...)' in function ppval().
+
+## pracma 2.4.1 (2022-08-03)
+
+* Added an example of using inequality constraints with anms().
+* Added more vectorized 'distmat2' to the help page of 'distmat'.
+
+## pracma 2.4.0 (2022-04-01)
+
+* hessvec() approximates the multiplication of Hessian and vector
+  (thanks to Ravi Varadhan for pointing out Pearlmutter's method).
+* hessdiag() computes the diagonal of Hessian (finite differences).
+
+## pracma 2.3.9 (2022-03-22)
+
+* Spherical coordinates better explained in help files.
+* Deprecated option 'fast' was removed from circlefit().
+
+## pracma 2.3.8 (2022-02-19)
+
+* 'length_1 eror' for logical operators on integral() help page.
+* Bug in pinv() for complex input, reported by Stephane Laurent.
+
+## pracma 2.3.7 (2022-01-17)
+
+* Added lu_crout(), Crout's algorithm for LU matrix decomposition.
+* Corrected a small bug in randi(), thanks to Luke Cherveny.
+
+## pracma 2.3.6 (2021-12-03)
+
+* Corrected randortho() with return value 'q %*% diag(ph) # %*% q',
+  as researched and reported by Daniel Kessler; thanks a lot.
+* Function deeve() requires the x-coordinates to be sorted.
+* Removed the Nile data (without warning).
+
+## pracma 2.3.5 (2021-07-10)
+
+* Corrected a bug in subspace() - thanks to David Fleischer.
+* Corrected a small but annoying bug in steep_descent().
+* Allows for complex matrices in pinv() (and mldivide()).
+
+## pracma 2.3.4 (2021-03-18)
+
+* Small correction in 'movavg()': default type now is 's'.
 
 ## pracma 2.3.3 (2021-01-22)
 

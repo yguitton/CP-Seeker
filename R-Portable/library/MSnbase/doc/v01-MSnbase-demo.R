@@ -1,7 +1,7 @@
-## ----style, echo = FALSE, results = 'asis'---------------------------------
+## ----style, echo = FALSE, results = 'asis'------------------------------------
 BiocStyle::markdown()
 
-## ----environment, cache=FALSE, echo=FALSE----------------------------------
+## ----environment, cache=FALSE, echo=FALSE-------------------------------------
 suppressPackageStartupMessages(library("ggplot2"))
 suppressPackageStartupMessages(library("MSnbase"))
 suppressPackageStartupMessages(library("zoo"))
@@ -12,69 +12,69 @@ suppressPackageStartupMessages(require("msdata"))
 library("grid")
 suppressPackageStartupMessages(library("BiocParallel"))
 
-## ----include_forword, echo=FALSE, results="asis"---------------------------
+## ----include_forword, echo=FALSE, results="asis"------------------------------
 cat(readLines("./Foreword.md"), sep = "\n")
 
-## ----include_bugs, echo=FALSE, results="asis"------------------------------
+## ----include_bugs, echo=FALSE, results="asis"---------------------------------
 cat(readLines("./Bugs.md"), sep = "\n")
 
-## ---- eval=FALSE-----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library("doParallel")
 #  registerDoParallel(3) ## using 3 slave nodes
 #  register(DoparParam(), default = TRUE)
 #  
 #  ## rest of script comes below
 
-## ----readdata, echo=TRUE, cache=FALSE, tidy=FALSE--------------------------
+## ----readdata, echo=TRUE, cache=FALSE, tidy=FALSE-----------------------------
 file <- dir(system.file(package = "MSnbase", dir = "extdata"),
             full.names = TRUE, pattern = "mzXML$")
 rawdata <- readMSData(file, msLevel = 2, verbose = FALSE)
 
-## ----writeMSData, cache = FALSE--------------------------------------------
+## ----writeMSData, cache = FALSE-----------------------------------------------
 writeMSData(rawdata, file = paste0(tempfile(), ".mzML"), copy = TRUE)
 
-## ----MSnExp, cache=FALSE, echo=TRUE----------------------------------------
+## ----MSnExp, cache=FALSE, echo=TRUE-------------------------------------------
 library("MSnbase")
 itraqdata
 head(fData(itraqdata))
 
-## ----experimentsize, echo=FALSE, cache=FALSE-------------------------------
+## ----experimentsize, echo=FALSE, cache=FALSE----------------------------------
 sz <- sum(sapply(assayData(itraqdata), object.size)) +
   object.size(itraqdata)
 sz <- as.numeric(sz)
 sz <- round(sz/(1024^2), 2)
 
-## ----Spectrum, cache=FALSE, echo=TRUE--------------------------------------
+## ----Spectrum, cache=FALSE, echo=TRUE-----------------------------------------
 sp <- itraqdata[["X1"]]
 sp
 
-## ----accessors, cache=FALSE, echo=TRUE-------------------------------------
+## ----accessors, cache=FALSE, echo=TRUE----------------------------------------
 peaksCount(sp)
 head(peaksCount(itraqdata))
 rtime(sp)
 head(rtime(itraqdata))
 
-## ----ReporterIons----------------------------------------------------------
+## ----ReporterIons-------------------------------------------------------------
 iTRAQ4
-TMT10
+TMT16
 
-## ----Chromatogram----------------------------------------------------------
+## ----Chromatogram-------------------------------------------------------------
 f <- c(system.file("microtofq/MM14.mzML", package = "msdata"))
 mtof <- readMSData(f, mode = "onDisk")
 mtof_tic <- chromatogram(mtof)
 mtof_tic
 
-## ----Chromatogram-continue-------------------------------------------------
+## ----Chromatogram-continue----------------------------------------------------
 mtof_tic[1, 1]
 
 head(intensity(mtof_tic[1, 1]))
 head(rtime(mtof_tic[1, 1]))
 mz(mtof_tic[1, 1])
 
-## ----Chromatogram-bpc------------------------------------------------------
+## ----Chromatogram-bpc---------------------------------------------------------
 mtof_bpc <- chromatogram(mtof, aggregationFun = "max")
 
-## ----msmap, eval=FALSE-----------------------------------------------------
+## ----msmap, eval=FALSE--------------------------------------------------------
 #  ## downloads the data
 #  library("rpx")
 #  px1 <- PXDataset("PXD000001")
@@ -93,7 +93,7 @@ mtof_bpc <- chromatogram(mtof, aggregationFun = "max")
 #  ## the map
 #  M <- MSmap(ms, ms1[rtsel], 521, 523, .005, hd, zeroIsNA = TRUE)
 
-## ----msmaplaod, echo=FALSE-------------------------------------------------
+## ----msmaplaod, echo=FALSE----------------------------------------------------
 mrda <- dir(system.file(package = "MSnbase", dir = "extdata"),
             full.names = TRUE, pattern = "M.rda$")
 mrda2 <- dir(system.file(package = "MSnbase", dir = "extdata"),
@@ -101,21 +101,21 @@ mrda2 <- dir(system.file(package = "MSnbase", dir = "extdata"),
 load(mrda)
 load(mrda2)
 
-## ----msmaphow--------------------------------------------------------------
+## ----msmaphow-----------------------------------------------------------------
 M
 
-## ----mapheat, fig.cap = "Heat map of a chunk of the MS data."--------------
+## ----mapheat, fig.cap = "Heat map of a chunk of the MS data."-----------------
 plot(M, aspect = 1, allTicks = FALSE)
 
-## ----map3d, fig.cap = "3 dimensional represention of MS map data."---------
+## ----map3d, fig.cap = "3 dimensional represention of MS map data."------------
 plot3D(M)
 
-## ----msmap2, eval=FALSE----------------------------------------------------
+## ----msmap2, eval=FALSE-------------------------------------------------------
 #  i <- ms1[which(rtsel)][1]
 #  j <- ms1[which(rtsel)][2]
 #  M2 <- MSmap(ms, i:j, 100, 1000, 1, hd)
 
-## ----m2--------------------------------------------------------------------
+## ----m2-----------------------------------------------------------------------
 M2
 
 ## ----map3d2, fig.cap = "3 dimensional represention of MS map data. MS1 and MS2 spectra are coloured in blue and magenta respectively."----
@@ -124,11 +124,11 @@ plot3D(M2)
 ## ----spectrumPlot, fig.keep='high', fig.cap = "Raw MS2 spectrum with details about reporter ions."----
 plot(sp, reporters = iTRAQ4, full = TRUE)
 
-## ----bsaSelect, eval=TRUE, echo=FALSE--------------------------------------
+## ----bsaSelect, eval=TRUE, echo=FALSE-----------------------------------------
 ## bsasel <- fData(itraqdata)$ProteinAccession == "BSA"
 bsasel <- 1:3
 
-## ----subset, echo=TRUE-----------------------------------------------------
+## ----subset, echo=TRUE--------------------------------------------------------
 sel <- fData(itraqdata)$ProteinAccession == "BSA"
 bsa <- itraqdata[sel]
 bsa
@@ -137,49 +137,49 @@ as.character(fData(bsa)$ProteinAccession)
 ## ----msnexpPlot, fig.keep='last', fig.cap = "Experiment-wide raw MS2 spectra. The y-axes of the individual spectra are automatically rescaled to the same range. See section \\@ref(sec:norm) to rescale peaks identically."----
 plot(bsa, reporters = iTRAQ4, full = FALSE) + theme_gray(8)
 
-## ----chromPlot, fig.keep='high', fig.cap = "Base peak chromatogram."-------
+## ----chromPlot, fig.keep='high', fig.cap = "Base peak chromatogram."----------
 plot(mtof_bpc)
 
-## ----iddf0-----------------------------------------------------------------
+## ----iddf0--------------------------------------------------------------------
 library("msdata")
 f <- "TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01-20141210.mzid"
 idf <- msdata::ident(full.names = TRUE, pattern = f)
 iddf <- readMzIdData(idf)
 str(iddf)
 
-## ----dups1, echo=FALSE-----------------------------------------------------
+## ----dups1, echo=FALSE--------------------------------------------------------
 iddf[grep("scan=5291", iddf[, "spectrumID"]),
      c("spectrumID", "sequence", "DatabaseAccess")]
 
-## ----dups2, echo=FALSE-----------------------------------------------------
+## ----dups2, echo=FALSE--------------------------------------------------------
 iddf[grep("scan=4936", iddf[, "spectrumID"]),
      c("spectrumID", "sequence", "modName", "modLocation")]
 
-## ----ideda-----------------------------------------------------------------
+## ----ideda--------------------------------------------------------------------
 table(iddf$isDecoy)
 table(iddf$chargeState)
 
-## ----idvis-----------------------------------------------------------------
+## ----idvis--------------------------------------------------------------------
 library("ggplot2")
 ggplot(data = iddf, aes(x = MS.GF.RawScore, colour = isDecoy)) +
     geom_density() +
     facet_wrap(~chargeState)
 
-## --------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 iddf <- filterIdentificationDataFrame(iddf)
 
-## ----rediddf---------------------------------------------------------------
+## ----rediddf------------------------------------------------------------------
 iddf2 <- reduce(iddf, key = "spectrumID")
 
-## ----dups3, echo=FALSE-----------------------------------------------------
+## ----dups3, echo=FALSE--------------------------------------------------------
 iddf2[grep("scan=5291", iddf2[, "spectrumID"]),
       c("spectrumID", "sequence", "DatabaseAccess")]
 
-## ----dups4, echo=FALSE-----------------------------------------------------
+## ----dups4, echo=FALSE--------------------------------------------------------
 iddf2[grep("scan=4936", iddf2[, "spectrumID"]),
      c("spectrumID", "sequence", "modName", "modLocation")]
 
-## ----msnexpIdentification, echo=TRUE, cache=FALSE, tidy=FALSE--------------
+## ----msnexpIdentification, echo=TRUE, cache=FALSE, tidy=FALSE-----------------
 ## find path to a mzXML file
 quantFile <- dir(system.file(package = "MSnbase", dir = "extdata"),
                  full.name = TRUE, pattern = "mzXML$")
@@ -190,36 +190,36 @@ identFile <- dir(system.file(package = "MSnbase", dir = "extdata"),
 msexp <- readMSData(quantFile, verbose = FALSE)
 head(fData(msexp), n = 2)
 
-## ----msnexpIdentification2, echo=TRUE, cache=FALSE, tidy=FALSE-------------
+## ----msnexpIdentification2, echo=TRUE, cache=FALSE, tidy=FALSE----------------
 msexp <- addIdentificationData(msexp, id = identFile)
 head(fData(msexp), n = 2)
 
-## ----msnexpIdentification3, echo=TRUE, cache=FALSE, tidy=FALSE-------------
+## ----msnexpIdentification3, echo=TRUE, cache=FALSE, tidy=FALSE----------------
 idSummary(msexp)
 
-## ----fragplot0-------------------------------------------------------------
+## ----fragplot0----------------------------------------------------------------
 itraqdata2 <- pickPeaks(itraqdata, verbose=FALSE)
 i <- 14
 s <- as.character(fData(itraqdata2)[i, "PeptideSequence"])
 
-## ----fragplot, fig.cap = "Annotated MS2 spectrum."-------------------------
+## ----fragplot, fig.cap = "Annotated MS2 spectrum."----------------------------
 plot(itraqdata2[[i]], s, main = s)
 
-## ----msnexpIdentification4, echo=TRUE, cache=FALSE, tidy=FALSE-------------
+## ----msnexpIdentification4, echo=TRUE, cache=FALSE, tidy=FALSE----------------
 fData(msexp)$sequence
 msexp <- removeNoId(msexp)
 fData(msexp)$sequence
 idSummary(msexp)
 
-## ----calculateFragments, echo=TRUE, cache=FALSE, tidy=FALSE----------------
+## ----calculateFragments, echo=TRUE, cache=FALSE, tidy=FALSE-------------------
 calculateFragments("ACEK",
                    type = c("a", "b", "c", "x", "y", "z"))
 
-## ----msnexpcalculateFragments, echo=TRUE, cache=FALSE, tidy=FALSE----------
+## ----msnexpcalculateFragments, echo=TRUE, cache=FALSE, tidy=FALSE-------------
 pepseq <- fData(msexp)$sequence[1]
 calculateFragments(pepseq, msexp[[1]], type=c("b", "y"))
 
-## ----removePeaks, echo=TRUE, cache=FALSE-----------------------------------
+## ----removePeaks, echo=TRUE, cache=FALSE--------------------------------------
 experiment <- removePeaks(itraqdata, t = 400, verbose = FALSE)
 ionCount(itraqdata[["X55"]])
 ionCount(experiment[["X55"]])
@@ -234,13 +234,13 @@ vplayout <- function(x, y)
 print(p1,vp=vplayout(1,1))
 print(p2,vp=vplayout(1,2))
 
-## ----clean, echo=TRUE, cache=FALSE-----------------------------------------
+## ----clean, echo=TRUE, cache=FALSE--------------------------------------------
 peaksCount(itraqdata[["X55"]])
 peaksCount(experiment[["X55"]])
 experiment <- clean(experiment, verbose = FALSE)
 peaksCount(experiment[["X55"]])
 
-## ----preprosp, cache=FALSE, echo=FALSE-------------------------------------
+## ----preprosp, cache=FALSE, echo=FALSE----------------------------------------
 int <- c(0,1,1,3,1,1,0,0,0,1,3,7,3,1,0)
 mz <- c(113.9,114.0,114.05,114.1,114.15,114.2,114.25,
         114.3,114.35,114.4,114.42,114.48,114.5,114.55,114.6)
@@ -267,17 +267,17 @@ print(p1, vp=vplayout(1, 1))
 print(p2, vp=vplayout(2, 1))
 print(p3, vp=vplayout(3, 1))
 
-## ----trimMz, echo=TRUE, cache=FALSE----------------------------------------
+## ----trimMz, echo=TRUE, cache=FALSE-------------------------------------------
 range(mz(itraqdata[["X55"]]))
 experiment <- filterMz(experiment, mzlim = c(112,120))
 range(mz(experiment[["X55"]]))
 experiment
 
-## ----reporters, echo=TRUE, cache=FALSE-------------------------------------
+## ----reporters, echo=TRUE, cache=FALSE----------------------------------------
 mz(iTRAQ4)
 width(iTRAQ4)
 
-## ----simplesp, cache=FALSE, echo=FALSE, fig.keep='none'--------------------
+## ----simplesp, cache=FALSE, echo=FALSE, fig.keep='none'-----------------------
 int <- c(0, 1, 1, 3, 1, 1, 0)
 mz <- c(113.9, 114.0, 114.05, 114.1, 114.15, 114.2, 114.25)
 ssp <- new("Spectrum2", intensity = int, mz = mz, centroided = FALSE)
@@ -307,7 +307,7 @@ print(p +
                        y = c(NA, 0, 1, 3, 1, 0, NA)), fill = "red", alpha = I(1/5)),
       vp = vplayout(2,2))
 
-## ----quantify, echo=TRUE, cache=FALSE, tidy=FALSE--------------------------
+## ----quantify, echo=TRUE, cache=FALSE, tidy=FALSE-----------------------------
 qnt <- quantify(experiment,
                 method = "trap",
                 reporters = iTRAQ4,
@@ -316,27 +316,27 @@ qnt <- quantify(experiment,
 qnt
 head(exprs(qnt))
 
-## ----filterNA, echo=TRUE---------------------------------------------------
+## ----filterNA, echo=TRUE------------------------------------------------------
 table(is.na(qnt))
 qnt <- filterNA(qnt, pNA = 0)
 sum(is.na(qnt))
 
-## ----removeNa, echo=TRUE, eval=FALSE---------------------------------------
+## ----removeNa, echo=TRUE, eval=FALSE------------------------------------------
 #  whichRow <- which(is.na((qnt))) %% nrow(qnt)
 #  qnt <- qnt[-whichRow, ]
 
-## ----readSRMData, echo = TRUE, warning = FALSE-----------------------------
+## ----readSRMData, echo = TRUE, warning = FALSE--------------------------------
 fl <- proteomics(full.names = TRUE, pattern = "MRM")
 srm <- readSRMData(fl)
 
 srm
 
-## ----srm-precursorMz-------------------------------------------------------
+## ----srm-precursorMz----------------------------------------------------------
 head(precursorMz(srm))
 
 head(productMz(srm))
 
-## ----pheplus1, echo=TRUE, cache=FALSE--------------------------------------
+## ----pheplus1, echo=TRUE, cache=FALSE-----------------------------------------
 library(Rdisop)
 ## Phenylalanine immonium ion
 Fim <- getMolecule("C8H10N")
@@ -345,7 +345,7 @@ isotopes <- getIsotope(Fim)
 F1 <- isotopes[2, 2]
 F1
 
-## ----purityCorrect, echo=TRUE, cache=FALSE, tidy = FALSE-------------------
+## ----purityCorrect, echo=TRUE, cache=FALSE, tidy = FALSE----------------------
 impurities <- matrix(c(0.929, 0.059, 0.002, 0.000,
                        0.020, 0.923, 0.056, 0.001,
                        0.000, 0.030, 0.924, 0.045,
@@ -355,7 +355,7 @@ qnt.crct <- purityCorrect(qnt, impurities)
 head(exprs(qnt))
 head(exprs(qnt.crct))
 
-## ----impute----------------------------------------------------------------
+## ----impute-------------------------------------------------------------------
 ## an example MSnSet containing missing values
 data(naset)
 table(is.na(naset))
@@ -375,13 +375,13 @@ heatmap.2(exprs(x), col = c("lightgray", "black"),
           RowSideColors = ifelse(fData(x)$randna, "orange", "brown"),
           ColSideColors = rep(c("steelblue", "darkolivegreen"), each = 8))
 
-## ----miximp2---------------------------------------------------------------
+## ----miximp2------------------------------------------------------------------
 x <- impute(naset, method = "mixed",
             randna = fData(naset)$randna,
             mar = "knn", mnar = "min")
 x
 
-## ----normalise, echo=TRUE, cache=FALSE-------------------------------------
+## ----normalise, echo=TRUE, cache=FALSE----------------------------------------
 qnt.max <- normalise(qnt, "max")
 qnt.sum <- normalise(qnt, "sum")
 qnt.quant <- normalise(qnt, "quantiles")
@@ -407,7 +407,7 @@ par(mfrow=c(3,2),mar=c(2.9,2.9,2.9,1))
 .plot(qnt.qrob, ttl = "Robust quantile")
 .plot(qnt.vsn, ttl = "vsn")
 
-## ----cvdata, echo=FALSE, cache=FALSE---------------------------------------
+## ----cvdata, echo=FALSE, cache=FALSE------------------------------------------
 sd1 <- apply(log2(exprs(qnt))+10,1,sd)
 mn1 <- apply(log2(exprs(qnt))+10,1,mean)
 cv1 <- sd1/mn1
@@ -438,7 +438,7 @@ p <- qplot(rank,cv,data=dfr,col=norm) +
 ## ----cvPlot, echo=FALSE, fig.cap = "CV versus signal intensity comparison for log2 and vsn transformed data. Lines indicate running CV medians."----
 print(p)
 
-## ----prepareMsnsetNormPlot, cache=FALSE, echo=FALSE, keep.fig='none'-------
+## ----prepareMsnsetNormPlot, cache=FALSE, echo=FALSE, keep.fig='none'----------
 p <- plot(normalise(experiment[bsasel], "max"),
           reporters = iTRAQ4, full = FALSE, plot = FALSE)
 p <- p + theme_gray(7)
@@ -446,19 +446,19 @@ p <- p + theme_gray(7)
 ## ----msnexpNormPlot, echo=FALSE, fig.cap = "Experiment-wide normalised MS2 spectra. The y-axes of the individual spectra is now rescaled between 0 and 1 (highest peak), as opposed to figure \\@ref(fig:msnexpPlot)."----
 print(p)
 
-## ----makeGroups1,echo=FALSE,cache=FALSE------------------------------------
+## ----makeGroups1,echo=FALSE,cache=FALSE---------------------------------------
 gb <- fData(qnt)$ProteinAccession
 
-## ----makeGroups2,echo=TRUE,cache=FALSE-------------------------------------
+## ----makeGroups2,echo=TRUE,cache=FALSE----------------------------------------
 gb <- fData(qnt)$ProteinAccession
 table(gb)
 length(unique(gb))
 
-## ----combineFeatures, echo=TRUE, cache=FALSE-------------------------------
+## ----combineFeatures, echo=TRUE, cache=FALSE----------------------------------
 qnt2 <- combineFeatures(qnt, groupBy = gb, method = "median")
 qnt2
 
-## ----count-----------------------------------------------------------------
+## ----count--------------------------------------------------------------------
 sc <- quantify(msexp, method = "count")
 ## lets modify out data for demonstration purposes
 fData(sc)$DatabaseAccess[1] <- fData(sc)$DatabaseAccess[2]
@@ -467,15 +467,15 @@ sc <- combineFeatures(sc, groupBy = fData(sc)$DatabaseAccess,
                       method = "sum")
 exprs(sc)
 
-## ----labelfree-------------------------------------------------------------
+## ----labelfree----------------------------------------------------------------
 fData(msexp)[, c("DatabaseAccess", "nprot")]
 
-## ----SIn-------------------------------------------------------------------
+## ----SIn----------------------------------------------------------------------
 siquant <- quantify(msexp, method = "SIn")
 processingData(siquant)
 exprs(siquant)
 
-## ----compms2plot, fig.cap = "Comparing two MS2 spectra."-------------------
+## ----compms2plot, fig.cap = "Comparing two MS2 spectra."----------------------
 centroided <- pickPeaks(itraqdata, verbose = FALSE)
 (k <- which(fData(centroided)[, "PeptideSequence"] == "TAGIQIVADDLTVTNPK"))
 mzk <- precursorMz(centroided)[k]
@@ -483,7 +483,7 @@ zk <- precursorCharge(centroided)[k]
 mzk * zk
 plot(centroided[[k[1]]], centroided[[k[2]]])
 
-## ----compareSpectra, tidy=FALSE--------------------------------------------
+## ----compareSpectra, tidy=FALSE-----------------------------------------------
 compareSpectra(centroided[[2]], centroided[[3]],
                fun = "common")
 compareSpectra(centroided[[2]], centroided[[3]],
@@ -491,14 +491,14 @@ compareSpectra(centroided[[2]], centroided[[3]],
 compareSpectra(centroided[[2]], centroided[[3]],
                fun = "dotproduct")
 
-## ----msnexpcompareSpectra--------------------------------------------------
+## ----msnexpcompareSpectra-----------------------------------------------------
 compmat <- compareSpectra(centroided, fun="cor")
 compmat[1:10, 1:5]
 
-## ----dendo-----------------------------------------------------------------
+## ----dendo--------------------------------------------------------------------
 plot(hclust(as.dist(compmat)))
 
-## ----incompdiss, echo=TRUE, cache=FALSE, tidy=FALSE------------------------
+## ----incompdiss, echo=TRUE, cache=FALSE, tidy=FALSE---------------------------
 iTRAQ5
 incompdiss <- quantify(itraqdata,
                        method = "trap",
@@ -530,7 +530,7 @@ pushViewport(viewport(layout = grid.layout(1, 2)))
 print(p1, vp = vplayout(1, 1))
 print(p2, vp = vplayout(1, 2))
 
-## ----makeexp12, echo=TRUE, cache=FALSE, tidy = FALSE-----------------------
+## ----makeexp12, echo=TRUE, cache=FALSE, tidy = FALSE--------------------------
 exp1 <- quantify(itraqdata, reporters = iTRAQ4,
                  verbose = FALSE)
 sampleNames(exp1)
@@ -539,7 +539,7 @@ exp2 <- quantify(rawdata, reporters = iTRAQ4,
                  verbose = FALSE)
 sampleNames(exp2)
 
-## ----updateFnames, echo=TRUE, cache=FALSE----------------------------------
+## ----updateFnames, echo=TRUE, cache=FALSE-------------------------------------
 head(featureNames(exp1))
 exp1 <- updateFeatureNames(exp1)
 head(featureNames(exp1))
@@ -547,13 +547,13 @@ head(featureNames(exp2))
 exp2 <- updateFeatureNames(exp2)
 head(featureNames(exp2))
 
-## ----comb1, echo=TRUE, cache=FALSE-----------------------------------------
+## ----comb1, echo=TRUE, cache=FALSE--------------------------------------------
 exp12 <- combine(exp1, exp2)
 dim(exp1)
 dim(exp2)
 dim(exp12)
 
-## ----make2exps2, echo=TRUE, cache=FALSE, tidy=FALSE------------------------
+## ----make2exps2, echo=TRUE, cache=FALSE, tidy=FALSE---------------------------
 set.seed(1)
 i <- sample(length(itraqdata), 35)
 j <- sample(length(itraqdata), 35)
@@ -571,43 +571,43 @@ exp2 <- combineFeatures(exp2,
 head(featureNames(exp1))
 head(featureNames(exp2))
 
-## ----renameSamples, echo=TRUE, cache=FALSE---------------------------------
+## ----renameSamples, echo=TRUE, cache=FALSE------------------------------------
 sampleNames(exp1)
 exp1 <- updateSampleNames(exp1)
 sampleNames(exp1)
 sampleNames(exp1) <- c("Ctrl1", "Cond1", "Ctrl2", "Cond2")
 sampleNames(exp2) <- c("Ctrl3", "Cond3", "Ctrl4", "Cond4")
 
-## ----fdatanames, echo=TRUE, cache=FALSE------------------------------------
+## ----fdatanames, echo=TRUE, cache=FALSE---------------------------------------
 stopifnot(all(fvarLabels(exp1) == fvarLabels(exp2)))
 fData(exp1)["BSA", 1:4]
 fData(exp2)["BSA", 1:4]
 
-## ----renameFvars, echo=TRUE, cache=FALSE-----------------------------------
+## ----renameFvars, echo=TRUE, cache=FALSE--------------------------------------
 exp1 <- updateFvarLabels(exp1)
 exp2 <- updateFvarLabels(exp2)
 head(fvarLabels(exp1))
 head(fvarLabels(exp2))
 
-## ----combine, echo=TRUE, cache=FALSE---------------------------------------
+## ----combine, echo=TRUE, cache=FALSE------------------------------------------
 exp12 <- combine(exp1, exp2)
 dim(exp12)
 pData(exp12)
 exprs(exp12)[25:28, ]
 exp12
 
-## ----split-----------------------------------------------------------------
+## ----split--------------------------------------------------------------------
 data(dunkley2006)
 head(pData(dunkley2006))
 split(dunkley2006, dunkley2006$replicate)
 ## or, defining the appropriate annotation variable name
 dun <- split(dunkley2006, "replicate")
 
-## ----unsplit---------------------------------------------------------------
+## ----unsplit------------------------------------------------------------------
 dun2 <- unsplit(dun, pData(dunkley2006)$replicate)
 compareMSnSets(dunkley2006, dun2)
 
-## ----avg-------------------------------------------------------------------
+## ----avg----------------------------------------------------------------------
 library("pRolocdata")
 data(tan2009r1)
 data(tan2009r2)
@@ -625,6 +625,6 @@ range(disp)
 library("pRoloc")
 plot2D(avgtan, cex = 3 * disp)
 
-## ----sessioninfo, echo=FALSE-----------------------------------------------
+## ----sessioninfo, echo=FALSE--------------------------------------------------
 sessionInfo()
 

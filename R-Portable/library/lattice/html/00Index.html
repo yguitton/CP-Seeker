@@ -1,9 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head><title>R: Trellis Graphics for R</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <link rel="stylesheet" type="text/css" href="R.css" />
-</head><body>
+</head><body><div class="container">
 <h1> Trellis Graphics for R
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
@@ -11,9 +12,10 @@
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;lattice&rsquo; version 0.20-41</h2>
+</div><h2>Documentation for package &lsquo;lattice&rsquo; version 0.22-5</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
 <li><a href="../demo">Code demos</a>.  Use <a href="../../utils/help/demo">demo()</a> to run them.</li>
 <li><a href="../NEWS">Package NEWS</a>.</li>
 </ul>
@@ -45,14 +47,14 @@
 <a href="#misc">misc</a>
 </p>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="Lattice.html">lattice-package</a></td>
 <td>Lattice Graphics</td></tr>
 </table>
 
-<h2><a name="A">-- A --</a></h2>
+<h2><a id="A">-- A --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="shingles.html">as.character.shingleLevel</a></td>
 <td>shingles</td></tr>
 <tr><td style="width: 25%;"><a href="shingles.html">as.data.frame.shingle</a></td>
@@ -65,15 +67,17 @@
 <td>Default axis annotation utilities</td></tr>
 </table>
 
-<h2><a name="B">-- B --</a></h2>
+<h2><a id="B">-- B --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="banking.html">banking</a></td>
 <td>Banking</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">barchart</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="barchart.table.html">barchart.array</a></td>
 <td>table methods for barchart and dotplot</td></tr>
+<tr><td style="width: 25%;"><a href="xyplot.html">barchart.data.frame</a></td>
+<td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">barchart.default</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">barchart.formula</a></td>
@@ -88,18 +92,24 @@
 <td>Yield data from a Minnesota barley trial</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">bwplot</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
+<tr><td style="width: 25%;"><a href="xyplot.html">bwplot.data.frame</a></td>
+<td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">bwplot.formula</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">bwplot.numeric</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 </table>
 
-<h2><a name="C">-- C --</a></h2>
+<h2><a id="C">-- C --</a></h2>
 
-<table width="100%">
-<tr><td style="width: 25%;"><a href="trellis.device.html">canonical.theme</a></td>
-<td>Initializing Trellis Displays</td></tr>
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="standard.theme.html">canonical.theme</a></td>
+<td>Built-in Graphical Themes</td></tr>
+<tr><td style="width: 25%;"><a href="standard.theme.html">classic.theme</a></td>
+<td>Built-in Graphical Themes</td></tr>
 <tr><td style="width: 25%;"><a href="cloud.html">cloud</a></td>
+<td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
+<tr><td style="width: 25%;"><a href="cloud.html">cloud.data.frame</a></td>
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
 <tr><td style="width: 25%;"><a href="cloud.html">cloud.formula</a></td>
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
@@ -107,11 +117,13 @@
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
 <tr><td style="width: 25%;"><a href="cloud.html">cloud.table</a></td>
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
-<tr><td style="width: 25%;"><a href="trellis.device.html">col.whitebg</a></td>
-<td>Initializing Trellis Displays</td></tr>
+<tr><td style="width: 25%;"><a href="standard.theme.html">col.whitebg</a></td>
+<td>Built-in Graphical Themes</td></tr>
 <tr><td style="width: 25%;"><a href="levelplot.html">contourplot</a></td>
 <td>Level plots and contour plots</td></tr>
 <tr><td style="width: 25%;"><a href="levelplot.html">contourplot.array</a></td>
+<td>Level plots and contour plots</td></tr>
+<tr><td style="width: 25%;"><a href="levelplot.html">contourplot.data.frame</a></td>
 <td>Level plots and contour plots</td></tr>
 <tr><td style="width: 25%;"><a href="levelplot.html">contourplot.formula</a></td>
 <td>Level plots and contour plots</td></tr>
@@ -125,12 +137,16 @@
 <td>Panel Function for Drawing Axis Ticks and Labels</td></tr>
 <tr><td style="width: 25%;"><a href="panel.number.html">current.row</a></td>
 <td>Accessing Auxiliary Information During Plotting</td></tr>
+<tr><td style="width: 25%;"><a href="standard.theme.html">custom_theme</a></td>
+<td>Built-in Graphical Themes</td></tr>
 </table>
 
-<h2><a name="D">-- D --</a></h2>
+<h2><a id="D">-- D --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="histogram.html">densityplot</a></td>
+<td>Histograms and Kernel Density Plots</td></tr>
+<tr><td style="width: 25%;"><a href="histogram.html">densityplot.data.frame</a></td>
 <td>Histograms and Kernel Density Plots</td></tr>
 <tr><td style="width: 25%;"><a href="histogram.html">densityplot.formula</a></td>
 <td>Histograms and Kernel Density Plots</td></tr>
@@ -148,6 +164,8 @@
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="barchart.table.html">dotplot.array</a></td>
 <td>table methods for barchart and dotplot</td></tr>
+<tr><td style="width: 25%;"><a href="xyplot.html">dotplot.data.frame</a></td>
+<td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">dotplot.default</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">dotplot.formula</a></td>
@@ -164,9 +182,9 @@
 <td>Produce a Legend or Key</td></tr>
 </table>
 
-<h2><a name="E">-- E --</a></h2>
+<h2><a id="E">-- E --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="environmental.html">environmental</a></td>
 <td>Atmospheric environmental conditions in New York City</td></tr>
 <tr><td style="width: 25%;"><a href="shingles.html">equal.count</a></td>
@@ -175,10 +193,12 @@
 <td>Engine exhaust fumes from burning ethanol</td></tr>
 </table>
 
-<h2><a name="H">-- H --</a></h2>
+<h2><a id="H">-- H --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="histogram.html">histogram</a></td>
+<td>Histograms and Kernel Density Plots</td></tr>
+<tr><td style="width: 25%;"><a href="histogram.html">histogram.data.frame</a></td>
 <td>Histograms and Kernel Density Plots</td></tr>
 <tr><td style="width: 25%;"><a href="histogram.html">histogram.factor</a></td>
 <td>Histograms and Kernel Density Plots</td></tr>
@@ -188,17 +208,19 @@
 <td>Histograms and Kernel Density Plots</td></tr>
 </table>
 
-<h2><a name="I">-- I --</a></h2>
+<h2><a id="I">-- I --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="shingles.html">is.shingle</a></td>
 <td>shingles</td></tr>
 </table>
 
-<h2><a name="L">-- L --</a></h2>
+<h2><a id="L">-- L --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="llines.html">larrows</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">larrows.default</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="Lattice.html">Lattice</a></td>
 <td>Lattice Graphics</td></tr>
@@ -215,6 +237,8 @@
 <tr><td style="width: 25%;"><a href="levelplot.html">levelplot</a></td>
 <td>Level plots and contour plots</td></tr>
 <tr><td style="width: 25%;"><a href="levelplot.html">levelplot.array</a></td>
+<td>Level plots and contour plots</td></tr>
+<tr><td style="width: 25%;"><a href="levelplot.html">levelplot.data.frame</a></td>
 <td>Level plots and contour plots</td></tr>
 <tr><td style="width: 25%;"><a href="levelplot.html">levelplot.formula</a></td>
 <td>Level plots and contour plots</td></tr>
@@ -234,9 +258,19 @@
 <td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="llines.html">lpolygon</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">lpolygon.default</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">lpolypath</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">lpolypath.default</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="llines.html">lrect</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">lrect.default</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="llines.html">lsegments</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">lsegments.default</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="lset.html">lset</a></td>
 <td>Interface to modify Trellis Settings - Defunct</td></tr>
@@ -250,25 +284,27 @@
 <td>Utility functions for 3-D plots</td></tr>
 </table>
 
-<h2><a name="M">-- M --</a></h2>
+<h2><a id="M">-- M --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="make.groups.html">make.groups</a></td>
 <td>Grouped data from multiple vectors</td></tr>
+<tr><td style="width: 25%;"><a href="panel.cloud.html">makeShadePalette</a></td>
+<td>Default Panel Function for cloud</td></tr>
 <tr><td style="width: 25%;"><a href="melanoma.html">melanoma</a></td>
 <td>Melanoma skin cancer incidence</td></tr>
 </table>
 
-<h2><a name="O">-- O --</a></h2>
+<h2><a id="O">-- O --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="oneway.html">oneway</a></td>
 <td>Fit One-way Model</td></tr>
 </table>
 
-<h2><a name="P">-- P --</a></h2>
+<h2><a id="P">-- P --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="panel.number.html">packet.number</a></td>
 <td>Accessing Auxiliary Information During Plotting</td></tr>
 <tr><td style="width: 25%;"><a href="packet.panel.default.html">packet.panel.default</a></td>
@@ -344,6 +380,8 @@
 <tr><td style="width: 25%;"><a href="llines.html">panel.points</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="llines.html">panel.polygon</a></td>
+<td>Replacements of traditional graphics functions</td></tr>
+<tr><td style="width: 25%;"><a href="llines.html">panel.polypath</a></td>
 <td>Replacements of traditional graphics functions</td></tr>
 <tr><td style="width: 25%;"><a href="panel.xyplot.html">panel.qq</a></td>
 <td>Default Panel Function for xyplot</td></tr>
@@ -439,14 +477,18 @@
 <td>Plot and Summarize Trellis Objects</td></tr>
 </table>
 
-<h2><a name="Q">-- Q --</a></h2>
+<h2><a id="Q">-- Q --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="qq.html">qq</a></td>
+<td>Quantile-Quantile Plots of Two Samples</td></tr>
+<tr><td style="width: 25%;"><a href="qq.html">qq.data.frame</a></td>
 <td>Quantile-Quantile Plots of Two Samples</td></tr>
 <tr><td style="width: 25%;"><a href="qq.html">qq.formula</a></td>
 <td>Quantile-Quantile Plots of Two Samples</td></tr>
 <tr><td style="width: 25%;"><a href="qqmath.html">qqmath</a></td>
+<td>Q-Q Plot with Theoretical Distribution</td></tr>
+<tr><td style="width: 25%;"><a href="qqmath.html">qqmath.data.frame</a></td>
 <td>Q-Q Plot with Theoretical Distribution</td></tr>
 <tr><td style="width: 25%;"><a href="qqmath.html">qqmath.formula</a></td>
 <td>Q-Q Plot with Theoretical Distribution</td></tr>
@@ -454,18 +496,18 @@
 <td>Q-Q Plot with Theoretical Distribution</td></tr>
 </table>
 
-<h2><a name="R">-- R --</a></h2>
+<h2><a id="R">-- R --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="rfs.html">rfs</a></td>
 <td>Residual and Fit Spread Plots</td></tr>
 <tr><td style="width: 25%;"><a href="Rows.html">Rows</a></td>
 <td>Extract rows from a list</td></tr>
 </table>
 
-<h2><a name="S">-- S --</a></h2>
+<h2><a id="S">-- S --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="shingles.html">shingle</a></td>
 <td>shingles</td></tr>
 <tr><td style="width: 25%;"><a href="trellis.par.get.html">show.settings</a></td>
@@ -484,13 +526,15 @@
 <td>Scatter Plot Matrices</td></tr>
 <tr><td style="width: 25%;"><a href="splom.html">splom.matrix</a></td>
 <td>Scatter Plot Matrices</td></tr>
-<tr><td style="width: 25%;"><a href="trellis.device.html">standard.theme</a></td>
-<td>Initializing Trellis Displays</td></tr>
+<tr><td style="width: 25%;"><a href="standard.theme.html">standard.theme</a></td>
+<td>Built-in Graphical Themes</td></tr>
 <tr><td style="width: 25%;"><a href="strip.default.html">strip.custom</a></td>
 <td>Default Trellis Strip Function</td></tr>
 <tr><td style="width: 25%;"><a href="strip.default.html">strip.default</a></td>
 <td>Default Trellis Strip Function</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">stripplot</a></td>
+<td>Common Bivariate Trellis Plots</td></tr>
+<tr><td style="width: 25%;"><a href="xyplot.html">stripplot.data.frame</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">stripplot.formula</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
@@ -502,12 +546,14 @@
 <td>Plot and Summarize Trellis Objects</td></tr>
 </table>
 
-<h2><a name="T">-- T --</a></h2>
+<h2><a id="T">-- T --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="update.trellis.html">t.trellis</a></td>
 <td>Retrieve and Update Trellis Object</td></tr>
 <tr><td style="width: 25%;"><a href="tmd.html">tmd</a></td>
+<td>Tukey Mean-Difference Plot</td></tr>
+<tr><td style="width: 25%;"><a href="tmd.html">tmd.data.frame</a></td>
 <td>Tukey Mean-Difference Plot</td></tr>
 <tr><td style="width: 25%;"><a href="tmd.html">tmd.formula</a></td>
 <td>Tukey Mean-Difference Plot</td></tr>
@@ -539,9 +585,9 @@
 <td>Functions to Interact with Lattice Plots</td></tr>
 </table>
 
-<h2><a name="U">-- U --</a></h2>
+<h2><a id="U">-- U --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="update.trellis.html">update.trellis</a></td>
 <td>Retrieve and Update Trellis Object</td></tr>
 <tr><td style="width: 25%;"><a href="USMortality.html">USMortality</a></td>
@@ -552,12 +598,14 @@
 <td>Utility functions for 3-D plots</td></tr>
 </table>
 
-<h2><a name="W">-- W --</a></h2>
+<h2><a id="W">-- W --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="panel.number.html">which.packet</a></td>
 <td>Accessing Auxiliary Information During Plotting</td></tr>
 <tr><td style="width: 25%;"><a href="cloud.html">wireframe</a></td>
+<td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
+<tr><td style="width: 25%;"><a href="cloud.html">wireframe.data.frame</a></td>
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
 <tr><td style="width: 25%;"><a href="cloud.html">wireframe.formula</a></td>
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
@@ -565,12 +613,14 @@
 <td>3d Scatter Plot and Wireframe Surface Plot</td></tr>
 </table>
 
-<h2><a name="X">-- X --</a></h2>
+<h2><a id="X">-- X --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="axis.default.html">xscale.components.default</a></td>
 <td>Default axis annotation utilities</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">xyplot</a></td>
+<td>Common Bivariate Trellis Plots</td></tr>
+<tr><td style="width: 25%;"><a href="xyplot.html">xyplot.data.frame</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
 <tr><td style="width: 25%;"><a href="xyplot.html">xyplot.formula</a></td>
 <td>Common Bivariate Trellis Plots</td></tr>
@@ -578,19 +628,19 @@
 <td>Time series plotting methods</td></tr>
 </table>
 
-<h2><a name="Y">-- Y --</a></h2>
+<h2><a id="Y">-- Y --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="axis.default.html">yscale.components.default</a></td>
 <td>Default axis annotation utilities</td></tr>
 </table>
 
-<h2><a name="misc">-- misc --</a></h2>
+<h2><a id="misc">-- misc --</a></h2>
 
-<table width="100%">
+<table style="width: 100%;">
 <tr><td style="width: 25%;"><a href="shingles.html">[.shingle</a></td>
 <td>shingles</td></tr>
 <tr><td style="width: 25%;"><a href="update.trellis.html">[.trellis</a></td>
 <td>Retrieve and Update Trellis Object</td></tr>
 </table>
-</body></html>
+</div></body></html>

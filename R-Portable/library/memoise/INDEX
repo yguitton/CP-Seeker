@@ -7,7 +7,8 @@ cache_s3                Amazon Web Services S3 Cache Amazon Web
 drop_cache              Drops the cache of a memoised function for
                         particular arguments.
 forget                  Forget past results. Resets the cache of a
-                        memoised function.
+                        memoised function. Use 'drop_cache' to reset
+                        the cache only for particular arguments.
 has_cache               Test whether a memoised function has been
                         cached for particular arguments.
 is.memoised             Test whether a function is a memoised copy.

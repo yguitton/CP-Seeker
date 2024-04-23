@@ -1,18 +1,256 @@
+# shiny 1.8.1.1
 
-shiny 1.6.0
-================
+* In v1.8.1, shiny.js starting throwing an error when input/output bindings have duplicate IDs. This error is now only thrown when `shiny::devmode(TRUE)` is enabled, so the issue is still made discoverable through the JS error console, but avoids unnecessarily breaking apps that happen to work with duplicate IDs. (#4019)
+
+# shiny 1.8.1
+
+## New features and improvements
+
+* Added `ExtendedTask`, a new simple way to launch long-running asynchronous tasks that are truly non-blocking. That is, even _within_ a session, an `ExtendedTask` won't block the main thread from flushing the reactive graph (i.e., UI updates won't be blocked). `ExtendedTask` pairs nicely with new `bslib::input_task_button()` and `bslib::bind_task_button()` functions, which help give user feedback and prevent extra button clicks. (#3958)
+
+* Added a JavaScript error dialog, reporting errors that previously were only discoverable by opening the browser's devtools open. Since this dialog is mainly useful for debugging and development, it must be enabled with `shiny::devmode()`. (#3931)
+
+* `runExamples()` now uses the `{bslib}` package to generate a better looking result. It also gains a `package` argument so that other packages can leverage this same function to run Shiny app examples. For more, see `?runExamples`. (#3963, #4005)
+
+* Added `onUnhandledError()` to register a function that will be called when an unhandled error occurs in a Shiny app. Note that this handler doesn't stop the error or prevent the session from closing, but it can be used to log the error or to clean up session-specific resources. (thanks @JohnCoene, #3993)
+
+## Changes
+
+* `renderDataTable()`/`dataTableOutput()` are officially deprecated in favor of [their `{DT}` equivalents](https://rstudio.github.io/DT/shiny.html). Migrating to `{DT}`, in most cases, just requires changing `renderDataTable()` to `DT::renderDT()` and `dataTableOutput()` to `DT::DTOutput()`. Also, to promote migration, when a recent version of `{DT}` is available, `renderDataTable()`/`dataTableOutput()` now automatically use their `{DT}` equivalent (and provide a message that they are doing so). If this happens to degrade an existing app, set `options(shiny.legacy.datatable = TRUE)` to get the old (i.e., non-`{DT}`) implementation. (#3998)
+
+* Both `conditionalPanel()` and `uiOutput()` are now styled with `display: contents` by default in Shiny apps that use Bootstrap 5. This means that the elements they contain are positioned as if they were direct children of the parent container holding the `conditionalPanel()` or `uiOutput()`. This is probably what most users intend when they use these functions, but it may break apps that applied styles directly to the container elements created by these two functions. In that case, you may include CSS rules to set `display: block` for the `.shiny-panel-conditional` or `.shiny-html-output` classes. (#3957, #3960)
+
+## Bug fixes
+
+* Notifications are now constrained to the width of the viewport for window widths smaller the default notification panel size. (#3949)
+
+* Fixed #2392: `downloadButton()` now visibly returns its HTML tag so that it renders correctly in R Markdown and Quarto output. (Thanks to @fennovj, #2672)
+
+* Calling `updateSelectizeInput()` with `choices` and `selected` now clears the current selection before updating the choices and selected value. (#3967)
+
+* Loading a Shiny app in a package-like directory will no longer warn if autoloading is disabled by the presence of an `R/_disable_autoload.R` file. (Thanks to @krlmlr and @tanho63, #3513)
+
+# shiny 1.8.0
+
+## Breaking changes
+
+* Closed #3899: The JS function `Shiny.bindAll()` is now asynchronous. This change is driven by the recent push toward making dynamic UI rendering asynchronous, which is necessary for [shinylive](https://shinylive.io/r) (and should've happened when it was first introduced in Shiny v1.7.5). The vast majority of existing `Shiny.bindAll()` uses should continue to work as before, but some cases may break if downstream code relies on it being synchronous (i.e., blocking the main thread). In this case, consider placing any downstream code in a `.then()` callback (or `await` the result in a `async` function). (#3929)
+  * Since `renderContent()` calls `bindAll()` (after it inserts content), it now returns a `Promise<void>` instead of `void`, which can be useful if downstream code needs to wait for the binding to complete.
+
+## New features and improvements
+
+* Updated `selectizeInput()`'s selectize.js dependency from v0.12.4 to v0.15.2. In addition to many bug fixes and improvements, this update also adds several new [plugin options](https://selectize.dev/docs/demos/plugins). (#3875)
+
+* Shiny's CSS styling (for things like `showNotification()`, `withProgress()`, `inputPanel()`, etc.), has been updated with `{bslib}`'s upcoming CSS-only dark mode feature in mind. (#3882, #3914)
+
+* Default styles for `showNotification()` were tweaked slightly to improve accessibility, sizing, and padding. (#3913)
+
+* Shiny inputs and `{htmlwidgets}` are no longer treated as draggable inside of `absolutePanel()`/`fixedPanel()` with `draggable = TRUE`. As a result, interactions like zooming and panning now work as expected with widgets like `{plotly}` and `{leaflet}` when they appear in a draggable panel. (#3752, #3933)
+
+* For `InputBinding`s, the `.receiveMessage()` method can now be asynchronous or synchronous (previously it could only be synchronous). (#3930)
+
+## Bug fixes
+
+* `fileInput()` no longer has unwanted round corners applied to the `buttonLabel`. (#3879)
+
+* Fixed #3898: `wrapFunctionLabel()` no longer throws an error if the `name` is longer than 10000 bytes. (#3903)
+
+# shiny 1.7.5.1
+
+## Bug fixes
+
+* On r-devel (R > 4.3.1), `isTruthy(NULL)` now returns `FALSE` (as it does with older versions of R). (#3906)
+
+# shiny 1.7.5
+
+## Possibly breaking changes
+
+* For `reactiveValues()` objects, whenever the `$names()` or `$values()` methods are called, the keys are now returned in the order that they were inserted. (#3774)
+
+* The value provided to `options(shiny.json.digits)` is now interpreted as number of _digits after the decimal_ instead of _significant digits_. To treat the value as significant digits, wrap it in `I()` (e.g., `options(shiny.json.digits = I(4))`). This new default behavior not only helps with reducing digits in testing snapshots, but is also more consistent with `{jsonlite}`'s default behavior. (#3819)
+
+## New features and improvements
+
+* Closed #789: Dynamic UI is now rendered asynchronously, thanks in part to the newly exported `Shiny.renderDependenciesAsync()`, `Shiny.renderHtmlAsync()`, and `Shiny.renderContentAsync()`. Importantly, this means `<script>` tags are now loaded asynchronously (the old way used `XMLHttpRequest`, which is synchronous). In addition, `Shiny` now manages a queue of async tasks (exposed via `Shiny.shinyapp.taskQueue`) so that order of execution is preserved. (#3666)
+
+* Fixes #3840: `updateSliderInput()` now warns when attempting to set invalid `min`, `max`, or `value` values. Sending an invalid update message to an input no longer causes other update messages to fail. (#3843)
+
+* `sliderInput()` now has a larger target area for clicking or tapping on the slider handle or range. (#3859)
+
+* Closed #2956: Component authors can now prevent Shiny from creating an input binding on specific elements by adding the `data-shiny-no-bind-input` attribute to the element. The attribute may have any or no value; its presence will prevent binding. This feature is primarily useful for input component authors who want to use standard HTML input elements without causing Shiny to create an input binding for them. Additionally, Shiny now adds custom classes to its inputs. For example, `checkboxInput()` now has a `shiny-input-checkbox` class. These custom classes may be utilized in future updates to Shiny's input binding logic. (#3861)
+
+* `Map` objects are now initialized at load time instead of build time. This avoids potential problems that could arise from storing `fastmap` objects into the built Shiny package. (#3775)
+
+## Bug fixes
+
+* Fixed #3771: Sometimes the error `ion.rangeSlider.min.js: i.stopPropagation is not a function` would appear in the JavaScript console. (#3772)
+
+* Fixed #3833: When `width` is provided to `textAreaInput()`, we now correctly set the width of the `<textarea>` element. (#3838)
+
+
+# shiny 1.7.4.1
+
+## Full changelog
+
+* Closed #3849: In R-devel, a warning was raised when Shiny was loaded because `as.numeric_version()` was called with a number instead of a string. (#3850)
+
+
+# shiny 1.7.4
+
+## Full changelog
+
+### Breaking changes
+
+* Closed #3719: Output container sizes, which are available via [`session$clientData` and `getCurrentOutputInfo()`](https://shiny.rstudio.com/articles/client-data.html), no longer round to the nearest pixel (i.e., they are now more exact, possibly fractional values). (#3720)
+
+* Closed #3704, #3735, and #3740: `renderPlot()` no longer generates an error (or segfault) when it executes before the output is visible. Instead, it'll now use the graphics device's default size for it's initial size. Relatedly, `plotPNG()` now ignores `NULL` values for `width`/`height` (and uses the device's default `width`/`height` instead). (#3739)
+
+### New features and improvements
+
+* `plotOutput()`, `imageOutput()`, and `uiOutput()` gain a `fill` argument. If `TRUE` (the default for `plotOutput()`), the output container is allowed to grow/shrink to fit a fill container (created via `htmltools::bindFillRole()`) with an opinionated height. This means `plotOutput()` will grow/shrink by default [inside of `bslib::card_body_fill()`](https://rstudio.github.io/bslib/articles/cards.html#responsive-sizing), but `imageOutput()` and `uiOutput()` will have to opt-in to similar behavior with `fill = TRUE`. (#3715)
+
+* Closed #3687: Updated jQuery-UI to v1.13.2. (#3697)
+
+* Internal: Added clearer and strict TypeScript type definitions (#3644)
+
+
+# shiny 1.7.3
+
+### Bug fixes
+
+* Shiny 1.7.0 changed the `icon(lib="fontawesome")` implementation from a bundled copy of fontawesome, to the {fontawesome} package. This led to issue #3688, where icons that were previously working, were now breaking. That's because {fontawesome} 0.3.0 and earlier did not have support for icon names used in Font Awesome 5 and earlier, only the newest icon names used in Font Awesome 6. Now, {fontawesome} 0.4.0 has restored support for those older icon names, and Shiny 1.7.2.1 has updated its {fontawesome} requirement to >=0.4.0.
+
+
+# shiny 1.7.2
+
+## Full changelog
+
+### Breaking changes
+
+* Closed #3626: `renderPlot()` (and `plotPNG()`) now uses `ragg::agg_png()` by default when the [`{ragg}` package](https://github.com/r-lib/ragg) is installed. To restore the previous behavior, set `options(shiny.useragg = FALSE)`. (#3654)
+
+### New features and improvements
+
+* Closed #1545: `insertUI()` now executes `<script>` tags. (#3630)
+
+* `fileInput()` can set the `capture` attribute to facilitates user access to a device's media capture mechanism, such as a camera, or microphone, from within a file upload control ([W3C HTML Media Capture](https://www.w3.org/TR/html-media-capture/)). (Thanks to khaled-alshamaa, #3481)
+
+* Closed tidyverse/dplyr#5552: Compatibility of dplyr 1.0 (and rlang chained errors in general) with `req()`, `validate()`, and friends.
+
+* Closed tidyverse/dplyr#6154: Values from an `actionButton()` had S3 classes in the incorrect order.
+
+* Closed #3346: Default for `ref` input in `runGithub()` changed from `"master"` to `"HEAD"`. (#3564)
+
+* Closed #3619: In R 4.2, `splitLayout()` no longer raises warnings about incorrect length in an `if` statement. (Thanks to @dmenne, #3625)
+
+### Bug fixes
+
+* Closed #3250:`{rlang}`/`{tidyeval}` conditions (i.e., warnings and errors) are no longer filtered from stack traces. (#3602)
+
+* Closed #3581: Errors in throttled/debounced reactive expressions no longer cause the session to exit. (#3624)
+
+* Closed #3657: `throttle.ts` and the `Throttler` typescript objects it provides now function as intended. (Thanks gto @dvg-p4, #3659)
+
+* The auto-reload feature (`options(shiny.autoreload=TRUE)`) was not being activated by `devmode(TRUE)`, despite a console message asserting that it was. (#3620)
+
+* Closed #2297: If an error occurred in parsing a value in a bookmark query string, an error would be thrown and nothing would be restored. Now a message is displayed and that value is ignored. (Thanks to @daattali, #3385)
+
+* Restored the previous behavior of automatically guessing the `Content-Type` header for `downloadHandler` functions when no explicit `contentType` argument is supplied. (#3393)
+
+* Previously, updating an input value without a corresponding Input binding element did not trigger a JavaScript `shiny:inputchanged` event. Now, if no Input binding element is found, the `shiny:inputchanged` event is triggered on `window.document`. (#3584)
+
+* Closed #2955: Input and output bindings previously attempted to use `el['data-input-id']`, but that never worked. They now use `el.getAttribute('data-input-id')` instead. (#3538)
+
+### Minor improvements
+
+* When taking a test snapshot, the sort order of the json keys of the `input`, `output`, and `export` fields is currently sorted using the locale of the machine. This can lead to inconsistent test snapshot results. To opt-in to a consistent ordering of snapshot fields with `{shinytest}`, please set the global option `options(shiny.snapshotsortc = TRUE)`. `{shinytest2}` users do not need to set this value. (#3515)
+
+* Closed rstudio/shinytest2#222: When restoring a context (i.e., bookmarking) from a URL, Shiny now better handles a trailing `=` after `_inputs_` and `_values_`. (#3648)
+
+* Shiny's internal HTML dependencies are now mounted dynamically instead of statically. (#3537)
+
+* HTML dependencies that are sent to dynamic UI now have better type checking, and no longer require a `dep.src.href` field. (#3537)
+
+
+# shiny 1.7.1
+
+## Bug Fixes
+
+* Closed #3516: Fix regression in repeated calls to `appendTab()` when `navbarMenu()` is already present within a `tabsetPanel()`/`navbarPage()`. (#3518)
+
+* Re-arranged conditions for testthat 1.0.0 compatibility. (#3512)
+
+
+# shiny 1.7.0
+
+## Full changelog
+
+### Breaking changes
+
+* The `format` and `locale` arguments to `sliderInput()` have been removed. They have been deprecated since 0.10.2.2 (released on 2014-12-08).
+
+* Closed #3403: `insertTab()`'s `position` parameter now defaults to `"after"` instead of `"before"`. This has the benefit of allowing us to fix a bug in positioning when `target = NULL`, but has the drawback of changing the default behavior when `target` is not `NULL`. (#3404)
+
+### New features and improvements
+
+* Bootstrap 5 support. (#3410 and rstudio/bslib#304)
+  * As explained [here](https://rstudio.github.io/bslib/index.html#basic-usage), to opt-in to Bootstrap 5, provide `bslib::bs_theme(version = 5)` to a page layout function with a `theme` argument (e.g., `fluidPage()`, `navbarPage()`, etc).
+
+* Closed #3322, #3313, #1823, #3321, #3320, #1928, and #2310: Various improvements to `navbarPage()`, `tabsetPanel()`, `tabPanel()`, `navbarMenu()`, etc. Also, these functions are now powered by the `{bslib}` package's new `nav()` API (consider using `{bslib}`'s API to create better looking and more fully featured navs). (#3388)
+
+* All uses of `list(...)` have been replaced with `rlang::list2(...)`. This means that you can use trailing `,` without error and use rlang's `!!!` operator to "splice" a list of argument values into `...`. We think this'll be particularly useful for passing a list of `tabPanel()` to their consumers (i.e., `tabsetPanel()`, `navbarPage()`, etc). For example, `tabs <- list(tabPanel("A", "a"), tabPanel("B", "b")); navbarPage(!!!tabs)`. (#3315 and #3328)
+
+* `installExprFunction()` and `exprToFunction()` are now able to handle quosures when `quoted = TRUE`. So `render`-functions which call these functions (such as with `htmlwidgets`) can now understand quosures. Users can also use `rlang::inject()` to unquote a quosure for evaluation.  This also means that `render` function no longer need `env` and `quoted` parameters; that information can be embedded into a quosure which is then passed to the `render` function. Better documentation was added for how to create `render` functions. (#3472)
+
+* `icon(lib="fontawesome")` is now powered by the `{fontawesome}` package, which will make it easier to use the latest FA icons in the future (by updating the `{fontawesome}` package). (#3302)
+
+* Closed #3397: `renderPlot()` new uses `ggplot2::get_alt_text()` to inform an `alt` text default (for `{ggplot2}` plots). (#3398)
+
+* `modalDialog()` gains support for `size = "xl"`. (#3410)
+
+* Addressed #2521: Updated the list of TCP ports that will be rejected by default in runapp.R, adding 5060, 5061 and 6566. Added documentation describing the port range (3000:8000) and which ports are rejected. (#3456)
+
+### Other improvements
+
+* Shiny's core JavaScript code was converted to TypeScript. For the latest development information, please see the [README.md in `./srcts`](https://github.com/rstudio/shiny/tree/v1.7.0/srcts). (#3296)
+
+* Switched from `digest::digest()` to `rlang::hash()` for hashing. (#3264)
+
+* Switched from internal `Stack` class to `fastmap::faststack()`, and used `fastmap::fastqueue()`. (#3176)
+
+* Some long-deprecated functions and function parameters were removed. (#3137)
+
+### Bug fixes
+
+* Closed #3345: Shiny now correctly renders `htmltools::htmlDependency()`(s) with a `list()` of `script` attributes when used in a dynamic UI context. This fairly new `htmlDependency()` feature was added in `{htmltools}` v0.5.1. (#3395)
+
+* Fixed [#2666](https://github.com/rstudio/shiny/issues/2666) and [#2670](https://github.com/rstudio/shiny/issues/2670): `nearPoints()` and `brushedPoints()` weren't properly account for missing values (#2666 was introduced in v1.4.0). ([#2668](https://github.com/rstudio/shiny/pull/2668))
+
+* Closed #3374: `quoToFunction()` now works correctly with nested quosures; and as a result, quasi-quotation with rendering function (e.g., `renderPrint()`, `renderPlot()`, etc) now works as expected with nested quosures. (#3373)
+
+* Exported `register_devmode_option()`. This method was described in the documentation for `devmode()` but was never exported. See `?devmode()` for more details on how to register Shiny Developer options using `register_devmode_option()`. (#3364)
+
+* Closed #3484: In the RStudio IDE on Mac 11.5, selected checkboxes and radio buttons were not visible. (#3485)
+
+### Library updates
+
+* Closed #3286: Updated to Font-Awesome 5.15.2. (#3288)
+
+* Updated to jQuery 3.6.0. (#3311)
+
+# shiny 1.6.0
 
 This release focuses on improvements in three main areas:
 
 1. Better theming (and Bootstrap 4) support:
-  * The `theme` argument of `fluidPage()`, `navbarPage()`, and `bootstrapPage()` all now understand `bslib::bs_theme()` objects, which can be used to opt-into Bootstrap 4, use any Bootswatch theme, and/or implement custom themes without writing any CSS. 
-  * The `session` object now includes `$setCurrentTheme()` and `$getCurrentTheme()` methods to dynamically update (or obtain) the page's `theme` after initial load, which is useful for things such as [adding a dark mode switch to an app](https://rstudio.github.io/bslib/articles/theming.html#dynamic-shiny) or some other "real-time" theming tool like `bslib::bs_themer()`.
+  * The `theme` argument of `fluidPage()`, `navbarPage()`, and `bootstrapPage()` all now understand `bslib::bs_theme()` objects, which can be used to opt-into Bootstrap 4, use any Bootswatch theme, and/or implement custom themes without writing any CSS.
+  * The `session` object now includes `$setCurrentTheme()` and `$getCurrentTheme()` methods to dynamically update (or obtain) the page's `theme` after initial load, which is useful for things such as [adding a dark mode switch to an app](https://rstudio.github.io/bslib/articles/theming.html#dynamic) or some other "real-time" theming tool like `bslib::bs_themer()`.
   * For more details, see [`{bslib}`'s website](https://rstudio.github.io/bslib/)
 
 2. Caching of `reactive()` and `render*()` (e.g. `renderText()`, `renderTable()`, etc) expressions.
   * Such expressions automatically cache their _most recent value_, which helps to avoid redundant computation within a single "flush" of reactivity. The new `bindCache()` function can be used to cache _all previous values_ (as long as they fit in the cache). This cache may be optionally scoped within and/or across user sessions, possibly leading to huge performance gains, especially when deployed at scale across user sessions.
   * For more details, see `help(bindCache, package = "shiny")`
-  
+
 3. Various improvements to accessibility for screen-reader and keyboard users.
   * For more details, see the accessibility section below.
 
@@ -109,8 +347,7 @@ This release focuses on improvements in three main areas:
 * Removed es5-shim library, which was internally used within `selectInput()` for ECMAScript 5 compatibility. (#2993)
 
 
-shiny 1.5.0
-===========
+# shiny 1.5.0
 
 ## Full changelog
 
@@ -128,7 +365,7 @@ shiny 1.5.0
 
 * The new `moduleServer` function provides a simpler interface for creating and using modules. (#2773)
 
-* Resolved #2732: `markdown()` is a new function for writing Markdown with Github extensions directly in Shiny UIs. Markdown rendering is performed by the [commonmark](https://github.com/jeroen/commonmark) package. (#2737)
+* Resolved #2732: `markdown()` is a new function for writing Markdown with Github extensions directly in Shiny UIs. Markdown rendering is performed by the [commonmark](https://github.com/r-lib/commonmark) package. (#2737)
 
 * The `getCurrentOutputInfo()` function can now return the background color (`bg`), foreground color (`fg`), `accent` (i.e., hyperlink) color, and `font` information of the output's HTML container. This information is reported by `plotOutput()`, `imageOutput()`, and any other output bindings containing a class of `.shiny-report-theme`. This feature allows developers to style an output's contents based on the container's CSS styling.  (#2740)
 
@@ -163,20 +400,17 @@ shiny 1.5.0
 * Updated from Font-Awesome 5.3.1 to 5.13.0, which includes icons related to COVID-19. For upgrade notes, see https://github.com/FortAwesome/Font-Awesome/blob/master/UPGRADING.md. (#2891)
 
 
-shiny 1.4.0.2
-===========
+# shiny 1.4.0.2
 
 Minor patch release: fixed some timing-dependent tests failed intermittently on CRAN build machines.
 
 
-shiny 1.4.0.1
-===========
+# shiny 1.4.0.1
 
 Minor patch release to account for changes to the grid package that will be upcoming in the R 4.0 release (#2776).
 
 
-shiny 1.4.0
-===========
+# shiny 1.4.0
 
 ## Full changelog
 
@@ -239,8 +473,7 @@ shiny 1.4.0
 * Fixed #2329, #1817: These bugs were reported as fixed in Shiny 1.3.0 but were not actually fixed because some JavaScript changes were accidentally not included in the release. The fix resolves issues that occur when `withProgressBar()` or bookmarking are combined with the [networkD3](https://christophergandrud.github.io/networkD3/) package's Sankey plot.
 
 
-shiny 1.3.2
-===========
+# shiny 1.3.2
 
 ### Bug fixes
 
@@ -249,8 +482,7 @@ shiny 1.3.2
 * Fixed #2280: Shiny applications that used a www/index.html file did not serve up the index file. (#2382)
 
 
-shiny 1.3.1
-===========
+# shiny 1.3.1
 
 ## Full changelog
 
@@ -259,8 +491,7 @@ shiny 1.3.1
 * Fixed a performance issue introduced in v1.3.0 when using large nested lists within Shiny. (#2377)
 
 
-shiny 1.3.0
-===========
+# shiny 1.3.0
 
 ## Full changelog
 
@@ -291,8 +522,7 @@ shiny 1.3.0
 * Fixed #2247: `renderCachedPlot` now supports using promises for either `expr` or `cacheKeyExpr`. (Shiny v1.2.0 supported async `expr`, but only if `cacheKeyExpr` was async as well; now you can use any combination of sync/async for `expr` and `cacheKeyExpr`.) #2261
 
 
-shiny 1.2.0
-===========
+# shiny 1.2.0
 
 This release features plot caching, an important new tool for improving performance and scalability. Using `renderCachedPlot` in place of `renderPlot` can greatly improve responsiveness for apps that show the same plot many times (for example, a dashboard or report where all users view the same data). Shiny gives you a fair amount of control in where the cache is stored and how cached plots are invalidated, so be sure to read [this article](https://shiny.rstudio.com/articles/plot-caching.html) to get the most out of this feature.
 
@@ -357,8 +587,7 @@ This release features plot caching, an important new tool for improving performa
 * Addressed #1864 by changing `optgroup` documentation to use `list` instead of `c`. (#2084)
 
 
-shiny 1.1.0
-===========
+# shiny 1.1.0
 
 This is a significant release for Shiny, with a major new feature that was nearly a year in the making: support for asynchronous operations! Until now, R's single-threaded nature meant that performing long-running calculations or tasks from Shiny would bring your app to a halt for other users of that process. This release of Shiny deeply integrates the [promises](https://rstudio.github.io/promises/) package to allow you to execute some tasks asynchronously, including as part of reactive expressions and outputs. See the [promises](https://rstudio.github.io/promises/) documentation to learn more.
 
@@ -394,7 +623,7 @@ This is a significant release for Shiny, with a major new feature that was nearl
 
 * Removed the (ridiculously outdated) "experimental feature" tag from the reference documentation for `renderUI`. (#2036)
 
-* Addressed #1907: the `ignoreInit` argument was first added only to `observeEvent`. Later, we also added it to `eventReactive`, but forgot to update the documentation. Now done, thanks [@flo12392](https://github.com/flo12392)! (#2036)
+* Addressed #1907: the `ignoreInit` argument was first added only to `observeEvent`. Later, we also added it to `eventReactive`, but forgot to update the documentation. Now done, thanks @flo12392! (#2036)
 
 ### Bug fixes
 
@@ -408,7 +637,7 @@ This is a significant release for Shiny, with a major new feature that was nearl
 
 * Fixed #1600: URL-encoded bookmarking did not work with sliders that had dates or date-times. (#1961)
 
-* Fixed #1962: [File dragging and dropping](https://blog.rstudio.com/2017/08/15/shiny-1-0-4/) broke in the presence of jQuery version 3.0 as introduced by the [rhandsontable](https://jrowen.github.io/rhandsontable/) [htmlwidget](https://www.htmlwidgets.org/). (#2005)
+* Fixed #1962: [File dragging and dropping](https://posit.co/blog/shiny-1-0-4/) broke in the presence of jQuery version 3.0 as introduced by the [rhandsontable](https://jrowen.github.io/rhandsontable/) [htmlwidget](https://www.htmlwidgets.org/). (#2005)
 
 * Improved the error handling inside the `addResourcePath()` function, to give end users more informative error messages when the `directoryPath` argument cannot be normalized. This is especially useful for `runtime: shiny_prerendered` Rmd documents, like `learnr` tutorials. (#1968)
 
@@ -431,8 +660,7 @@ This is a significant release for Shiny, with a major new feature that was nearl
 In some rare cases, interrupting an application (by pressing Ctrl-C or Esc) may result in the message `Error in execCallbacks(timeoutSecs) : c++ exception (unknown reason)`. Although this message sounds alarming, it is harmless, and will go away in a future version of the later package (more information [here](https://github.com/r-lib/later/issues/55)).
 
 
-shiny 1.0.5
-===========
+# shiny 1.0.5
 
 ## Full changelog
 
@@ -445,8 +673,7 @@ shiny 1.0.5
 * Fixed #1824: HTTP HEAD requests on static files caused the application to stop. (#1825)
 
 
-shiny 1.0.4
-===========
+# shiny 1.0.4
 
 There are three headlining features in this release of Shiny. It is now possible to add and remove tabs from a `tabPanel`; there is a new function, `onStop()`, which registers callbacks that execute when an application exits; and `fileInput`s now can have files dragged and dropped on them. In addition to these features, this release has a number of minor features and bug fixes. See the full changelog below for more details.
 
@@ -507,8 +734,7 @@ There are three headlining features in this release of Shiny. It is now possible
 * Fixed #1474: A `browser()` call in an observer could cause an error in the RStudio IDE on Windows. (#1802)
 
 
-shiny 1.0.3
-================
+# shiny 1.0.3
 
 This is a hotfix release of Shiny. With previous versions of Shiny, when running an application on the newly-released version of R, 3.4.0, it would print a message: `Warning in body(fun) : argument is not a function`. This has no effect on the application, but because the message could be alarming to users, we are releasing a new version of Shiny that fixes this issue.
 
@@ -521,8 +747,7 @@ This is a hotfix release of Shiny. With previous versions of Shiny, when running
 * Fixed #1676: On R 3.4.0, running a Shiny application gave a warning: `Warning in body(fun) : argument is not a function`. (#1677)
 
 
-shiny 1.0.2
-================
+# shiny 1.0.2
 
 This is a hotfix release of Shiny. The primary reason for this release is because the web host for MathJax JavaScript library is scheduled to be shut down in the next few weeks. After it is shut down, Shiny applications that use MathJax will no longer be able to load the MathJax library if they are run with Shiny 1.0.1 and below. (If you don't know whether your application uses MathJax, it probably does not.) For more information about why the MathJax CDN is shutting down, see https://www.mathjax.org/cdn-shutting-down/.
 
@@ -541,8 +766,7 @@ This is a hotfix release of Shiny. The primary reason for this release is becaus
 * Fixed #1653: wrong code example in documentation. (#1658)
 
 
-shiny 1.0.1
-================
+# shiny 1.0.1
 
 This is a maintenance release of Shiny, mostly aimed at fixing bugs and introducing minor features. The most notable additions in this version of Shiny are the introduction of the `reactiveVal()` function (it's like `reactiveValues()`, but it only stores a single value), and that the choices of `radioButtons()` and `checkboxGroupInput()` can now contain HTML content instead of just plain text.
 
@@ -612,8 +836,7 @@ in shiny apps. For more info, see the documentation (`?updateQueryString` and `?
 * Closed #1500: Updated ion.rangeSlider to 2.1.6. (#1540)
 
 
-shiny 1.0.0
-===========
+# shiny 1.0.0
 
 Shiny has reached a milestone: version 1.0.0! In the last year, we've added two major features that we considered essential for a 1.0.0 release: bookmarking, and support for testing Shiny applications. As usual, this version of Shiny also includes many minor features and bug fixes.
 
@@ -678,8 +901,7 @@ Now there's an official way to slow down reactive values and expressions that in
 * Updated to Font Awesome 4.7.0.
 
 
-shiny 0.14.2
-============
+# shiny 0.14.2
 
 This is a maintenance release of Shiny, with some bug fixes and minor new features.
 
@@ -707,8 +929,7 @@ This is a maintenance release of Shiny, with some bug fixes and minor new featur
 
 * Fixed a bug where, in versions of R before 3.2, Shiny applications could crash due to a bug in R's implementation of `list2env()`. (#1446)
 
-shiny 0.14.1
-============
+# shiny 0.14.1
 
 This is a maintenance release of Shiny, with some bug fixes and minor new features.
 
@@ -738,8 +959,7 @@ This is a maintenance release of Shiny, with some bug fixes and minor new featur
 * Updated to jQuery UI 1.12.1. Previously, Shiny included a build of 1.11.4 which was missing the datepicker component due to a conflict with the bootstrap-datepicker used by Shiny's `dateInput()` and `dateRangeInput()`. (#1374)
 
 
-shiny 0.14
-==========
+# shiny 0.14
 
 A new Shiny release is upon us! There are many new exciting features, bug fixes, and library updates. We'll just highlight the most important changes here, but you can browse through the full changelog below for details. This will likely be the last release before shiny 1.0, so get out your party hats!
 
@@ -938,14 +1158,12 @@ There are many more minor features, small improvements, and bug fixes than we ca
 * Updated to jQuery 1.12.4.
 
 
-shiny 0.13.2
-============
+# shiny 0.13.2
 
 * Updated documentation for `htmlTemplate`.
 
 
-shiny 0.13.1
-============
+# shiny 0.13.1
 
 * `flexCol` did not work on RStudio for Windows or Linux.
 
@@ -954,8 +1172,7 @@ shiny 0.13.1
 * BREAKING CHANGE: The long-deprecated ability to pass functions (rather than expressions) to reactive() and observe() has finally been removed.
 
 
-shiny 0.13.0
-============
+# shiny 0.13.0
 
 * Fixed #962: plot interactions did not work with the development version of ggplot2 (after ggplot2 1.0.1).
 
@@ -1006,8 +1223,7 @@ shiny 0.13.0
 * Added support for the new htmltools 0.3 feature `htmlTemplate`. It's now possible to use regular HTML markup to design your UI, but still use R expressions to define inputs, outputs, and HTML widgets.
 
 
-shiny 0.12.2
-============
+# shiny 0.12.2
 
 * GitHub changed URLs for gists from .tar.gz to .zip, so `runGist` was updated to work with the new URLs.
 
@@ -1030,16 +1246,14 @@ shiny 0.12.2
 * Shiny now correctly handles HTTP HEAD requests. (#876)
 
 
-shiny 0.12.1
-============
+# shiny 0.12.1
 
 * Fixed an issue where unbindAll() causes subsequent bindAll() to be ignored for previously bound outputs. (#856)
 
 * Undeprecate `dataTableOutput` and `renderDataTable`, which had been deprecated in favor of the new DT package. The DT package is a bit too new and has a slightly different API, we were too hasty in deprecating the existing Shiny functions.
 
 
-shiny 0.12.0
-============
+# shiny 0.12.0
 
 In addition to the changes listed below (in the *Full Changelog* section), there is an infrastructure change that could affect existing Shiny apps.
 
@@ -1095,8 +1309,7 @@ Shiny 0.12.0 deprecated Shiny's dataTableOutput and renderDataTable functions an
 * renderDataTable() and dataTableOutput() have been deprecated in shiny and will be removed in future versions of shiny. Please use the DT package instead: http://rstudio.github.io/DT/ (#807)
 
 
-shiny 0.11.1
-============
+# shiny 0.11.1
 
 * Major client-side performance improvements for pages that have many conditionalPanels, tabPanels, and plotOutputs. (#693, #717, #723)
 
@@ -1123,8 +1336,7 @@ shiny 0.11.1
 * downloadHandler content callback functions are now invoked with a temp file name that has the same extension as the final filename that will be used by the download. This is to deal with the fact that some file writing functions in R will auto-append the extension for their file type (pdf, zip).
 
 
-shiny 0.11
-==========
+# shiny 0.11
 
 Shiny 0.11 switches away from the Bootstrap 2 web framework to the next version, Bootstrap 3. This is in part because Bootstrap 2 is no longer being developed, and in part because it allows us to tap into the ecosystem of Bootstrap 3 themes.
 
@@ -1202,20 +1414,17 @@ Along with the release of Shiny 0.11, we've packaged up some Bootstrap 3 themes 
 * Password input fields can now be used, with `passwordInput()`. (#672)
 
 
-shiny 0.10.2.2
-==============
+# shiny 0.10.2.2
 
 * Remove use of `rstudio::viewer` in a code example, for R CMD check.
 
 
-shiny 0.10.2.1
-==============
+# shiny 0.10.2.1
 
 * Changed some examples to use \donttest instead of \dontrun.
 
 
-shiny 0.10.2
-============
+# shiny 0.10.2
 
 * The minimal version of R required for the shiny package is 3.0.0 now.
 
@@ -1248,8 +1457,7 @@ shiny 0.10.2
 * Added `position` parameter to `navbarPage`.
 
 
-shiny 0.10.1
-============
+# shiny 0.10.1
 
 * Added Unicode support for Windows. Shiny apps running on Windows must use the UTF-8 encoding for ui.R and server.R (also the optional global.R) if they contain non-ASCII characters. See this article for details and examples: http://shiny.rstudio.com/gallery/unicode-characters.html (#516)
 
@@ -1262,8 +1470,7 @@ shiny 0.10.1
 * Added support for option groups in the select/selectize inputs. When the `choices` argument for `selectInput()`/`selectizeInput()` is a list of sub-lists and any sub-list is of length greater than 1, the HTML tag `<optgroup>` will be used. See an example at http://shiny.rstudio.com/gallery/option-groups-for-selectize-input.html (#542)
 
 
-shiny 0.10.0
-============
+# shiny 0.10.0
 
 * BREAKING CHANGE: By default, observers now terminate themselves if they were created during a session and that session ends. See ?domains for more details.
 
@@ -1300,14 +1507,12 @@ shiny 0.10.0
 * `runGitHub()` can also take a value of the form "username/repo" in its first argument, e.g. both runGitHub("shiny_example", "rstudio") and runGitHub("rstudio/shiny_example") are valid ways to run the GitHub repo.
 
 
-shiny 0.9.1
-===========
+# shiny 0.9.1
 
 * Fixed warning 'Error in Context$new : could not find function "loadMethod"' that was happening to dependent packages on "R CMD check".
 
 
-shiny 0.9.0
-===========
+# shiny 0.9.0
 
 * BREAKING CHANGE: Added a `host` parameter to runApp() and runExample(), which defaults to the shiny.host option if it is non-NULL, or "127.0.0.1" otherwise. This means that by default, Shiny applications can only be accessed on the same machine from which they are served. To allow other clients to connect, as in previous versions of Shiny, use "0.0.0.0" (or the IP address of one of your network interfaces, if you care to be explicit about it).
 
@@ -1380,8 +1585,7 @@ shiny 0.9.0
 * Dots are now legal characters for inputId/outputId. (Thanks, Kevin Lindquist. #358)
 
 
-shiny 0.8.0
-===========
+# shiny 0.8.0
 
 * Debug hooks are registered on all user-provided functions and (reactive) expressions (e.g., in renderPlot()), which makes it possible to set breakpoints in these functions using the latest version of the RStudio IDE, and the RStudio visual debugging tools can be used to debug Shiny apps. Internally, the registration is done via installExprFunction(), which is a new function introduced in this version to replace exprToFunction() so that the registration can be automatically done.
 
@@ -1400,8 +1604,7 @@ shiny 0.8.0
 * The minimal required version for the httpuv package was increased to 1.2 (on CRAN now).
 
 
-shiny 0.7.0
-===========
+# shiny 0.7.0
 
 * Stopped sending websocket subprotocol. This fixes a compatibility issue with Google Chrome 30.
 
@@ -1430,8 +1633,7 @@ shiny 0.7.0
 * Add shiny.sharedSecret option, to require the HTTP header Shiny-Shared-Secret to be set to the given value.
 
 
-shiny 0.6.0
-===========
+# shiny 0.6.0
 
 * `tabsetPanel()` can be directed to start with a specific tab selected.
 
@@ -1462,8 +1664,7 @@ shiny 0.6.0
 * Shiny apps can be run without a server.r and ui.r file.
 
 
-shiny 0.5.0
-===========
+# shiny 0.5.0
 
 * Switch from websockets package for handling websocket connections to httpuv.
 
@@ -1480,16 +1681,14 @@ shiny 0.5.0
 * Fix bug #55, where `renderTable()` would throw error with an empty data frame.
 
 
-shiny 0.4.1
-===========
+# shiny 0.4.1
 
 * Fix bug where width and height weren't passed along properly from `reactivePlot` to `renderPlot`.
 
 * Fix bug where infinite recursion would happen when `reactivePlot` was passed a function for width or height.
 
 
-shiny 0.4.0
-===========
+# shiny 0.4.0
 
 * Added suspend/resume capability to observers.
 
@@ -1504,8 +1703,7 @@ shiny 0.4.0
 * Fixed a bug where empty values in a numericInput were sent to the R process as 0. They are now sent as NA.
 
 
-shiny 0.3.1
-===========
+# shiny 0.3.1
 
 * Fix issue #91: bug where downloading files did not work.
 
@@ -1514,8 +1712,7 @@ shiny 0.3.1
 * Reactive functions now preserve the visible/invisible state of their returned values.
 
 
-shiny 0.3.0
-===========
+# shiny 0.3.0
 
 * Reactive functions are now evaluated lazily.
 
@@ -1540,52 +1737,44 @@ shiny 0.3.0
 * Fix issue #64, where pressing Enter in a textbox would cause a form to submit.
 
 
-shiny 0.2.4
-===========
+# shiny 0.2.4
 
 * `runGist` has been updated to use the new download URLs from https://gist.github.com.
 
 * Shiny now uses `CairoPNG()` for output, when the Cairo package is available. This provides better-looking output on Linux and Windows.
 
 
-shiny 0.2.3
-===========
+# shiny 0.2.3
 
 * Ignore request variables for routing purposes
 
 
-shiny 0.2.2
-===========
+# shiny 0.2.2
 
 * Fix CRAN warning (assigning to global environment)
 
 
-shiny 0.2.1
-===========
+# shiny 0.2.1
 
 * [BREAKING] Modify API of `downloadHandler`: The `content` function now takes a file path, not writable connection, as an argument. This makes it much easier to work with APIs that only write to file paths, not connections.
 
 
-shiny 0.2.0
-===========
+# shiny 0.2.0
 
 * Fix subtle name resolution bug--the usual symptom being S4 methods not being invoked correctly when called from inside of ui.R or server.R
 
 
-shiny 0.1.14
-===========
+# shiny 0.1.14
 
 * Fix slider animator, which broke in 0.1.10
 
 
-shiny 0.1.13
-===========
+# shiny 0.1.13
 
 * Fix temp file leak in reactivePlot
 
 
-shiny 0.1.12
-===========
+# shiny 0.1.12
 
 * Fix problems with runGist on Windows
 
@@ -1594,8 +1783,7 @@ shiny 0.1.12
 * Add CSS hooks for app-wide busy indicators
 
 
-shiny 0.1.11
-===========
+# shiny 0.1.11
 
 * Fix input binding with IE8 on Shiny Server
 
@@ -1604,8 +1792,7 @@ shiny 0.1.11
 * Allow dynamic sizing of reactivePlot (i.e. using a function instead of a fixed value)
 
 
-shiny 0.1.10
-===========
+# shiny 0.1.10
 
 * Support more MIME types when serving out of www
 
@@ -1618,8 +1805,7 @@ shiny 0.1.10
 * Fix plot rendering with IE8 on Shiny Server
 
 
-shiny 0.1.9
-===========
+# shiny 0.1.9
 
 * Much less flicker when updating plots
 
@@ -1628,8 +1814,7 @@ shiny 0.1.9
 * Add `includeText`, `includeHTML`, and `includeMarkdown` functions for putting text, HTML, and Markdown content from external files in the application's UI.
 
 
-shiny 0.1.8
-===========
+# shiny 0.1.8
 
 * Add `runGist` function for conveniently running a Shiny app that is published on gist.github.com.
 
@@ -1642,8 +1827,7 @@ shiny 0.1.8
 * Add `bootstrapPage` function for creating new Bootstrap based layouts from scratch.
 
 
-shiny 0.1.7
-===========
+# shiny 0.1.7
 
 * Fix issue #26: Shiny.OutputBindings not correctly exported.
 
@@ -1652,8 +1836,7 @@ shiny 0.1.7
 * Transcode JSON into UTF-8 (prevents non-ASCII reactivePrint values from causing errors on Windows).
 
 
-shiny 0.1.6
-===========
+# shiny 0.1.6
 
 * Import package dependencies, instead of attaching them (with the exception of websockets, which doesn't currently work unless attached).
 
@@ -1662,8 +1845,7 @@ shiny 0.1.6
 * bindAll was not correctly sending initial values to the server; fixed.
 
 
-shiny 0.1.5
-===========
+# shiny 0.1.5
 
 * BREAKING CHANGE: JS APIs Shiny.bindInput and Shiny.bindOutput removed and replaced with Shiny.bindAll; Shiny.unbindInput and Shiny.unbindOutput removed and replaced with Shiny.unbindAll.
 
@@ -1678,8 +1860,7 @@ shiny 0.1.5
 * htmlOutput (CSS class `shiny-html-output`) can contain inputs and outputs.
 
 
-shiny 0.1.4
-===========
+# shiny 0.1.4
 
 * Allow Bootstrap tabsets to act as reactive inputs; their value indicates which tab is active
 
@@ -1692,8 +1873,7 @@ shiny 0.1.4
 * Add Shiny.bindInputs(scope), .unbindInputs(scope), .bindOutputs(scope), and .unbindOutputs(scope) JS API calls to allow dynamic binding/unbinding of HTML elements
 
 
-shiny 0.1.3
-===========
+# shiny 0.1.3
 
 * Introduce Shiny.inputBindings.register JS API and InputBinding class, for creating custom input controls
 
@@ -1706,7 +1886,6 @@ shiny 0.1.3
 * Fix issue #10: Plots in tabsets not rendered
 
 
-shiny 0.1.2
-===========
+# shiny 0.1.2
 
 * Initial private beta release!

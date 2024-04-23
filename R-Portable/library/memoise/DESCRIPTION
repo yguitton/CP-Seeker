@@ -1,6 +1,6 @@
 Package: memoise
-Title: Memoisation of Functions
-Version: 2.0.0
+Title: 'Memoisation' of Functions
+Version: 2.0.1
 Authors@R: 
     c(person(given = "Hadley",
              family = "Wickham",
@@ -8,11 +8,10 @@ Authors@R:
              email = "hadley@rstudio.com"),
       person(given = "Jim",
              family = "Hester",
-             role = c("aut", "cre"),
-             email = "jim.hester@rstudio.com"),
+             role = "aut"),
       person(given = "Winston",
              family = "Chang",
-             role = "aut",
+             role = c("aut", "cre"),
              email = "winston@rstudio.com"),
       person(given = "Kirill",
              family = "Müller",
@@ -27,25 +26,25 @@ Authors@R:
              role = "ctb",
              email = "r@sunholo.com"))
 Description: Cache the results of a function so that when you
-    call it again with the same arguments it returns the pre-computed
+    call it again with the same arguments it returns the previously computed
     value.
 License: MIT + file LICENSE
-URL: https://github.com/r-lib/memoise
+URL: https://memoise.r-lib.org, https://github.com/r-lib/memoise
 BugReports: https://github.com/r-lib/memoise/issues
 Imports: rlang (>= 0.4.10), cachem
 Suggests: digest, aws.s3, covr, googleAuthR, googleCloudStorageR, httr,
         testthat
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 NeedsCompilation: no
-Packaged: 2021-01-26 16:15:31 UTC; winston
+Packaged: 2021-11-24 21:24:50 UTC; jhester
 Author: Hadley Wickham [aut],
-  Jim Hester [aut, cre],
-  Winston Chang [aut],
+  Jim Hester [aut],
+  Winston Chang [aut, cre],
   Kirill Müller [aut],
   Daniel Cook [aut],
   Mark Edmondson [ctb]
-Maintainer: Jim Hester <jim.hester@rstudio.com>
+Maintainer: Winston Chang <winston@rstudio.com>
 Repository: CRAN
-Date/Publication: 2021-01-26 17:20:02 UTC
-Built: R 3.6.3; ; 2021-03-29 19:46:55 UTC; windows
+Date/Publication: 2021-11-26 16:11:10 UTC
+Built: R 4.3.3; ; 2024-04-16 01:34:19 UTC; windows

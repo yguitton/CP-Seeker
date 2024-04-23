@@ -1,3 +1,6 @@
+zip-package	zip-package
+deflate	deflate
+inflate	inflate
 unzip	unzip
 unzip_process	unzip_process
 zip	zip

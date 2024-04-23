@@ -97,9 +97,12 @@ proc ScrollableFrame::create { path args } {
     # but now we need to add a <map> binding too
     bind $frame <Map> \
         [list ScrollableFrame::_frameConfigure $canvas]
-    bind $frame <Unmap> \
-        [list ScrollableFrame::_frameConfigure $canvas 1]
 
+    # Tk 8.7/TIP518 allows to get an event when the last child is removed.
+    # In this case, we should resize to 1x1 pixel.
+    bind $frame <<NoManagedChild>>\
+            [list ScrollableFrame::_frameNoManagedChild $frame]
+    
     bindtags $path [list $path BwScrollableFrame [winfo toplevel $path] all]
 
     return [Widget::create ScrollableFrame $path]
@@ -246,17 +249,24 @@ proc ScrollableFrame::_resize { path } {
 #  Command ScrollableFrame::_frameConfigure
 # ----------------------------------------------------------------------------
 proc ScrollableFrame::_max {a b} {return [expr {$a <= $b ? $b : $a}]}
-proc ScrollableFrame::_frameConfigure {canvas {unmap 0}} {
+proc ScrollableFrame::_frameConfigure {canvas} {
     # This ensures that we don't get funny scrollability in the frame
     # when it is smaller than the canvas space
     # use [winfo] to get height & width of frame
-
-    # [winfo] doesn't work for unmapped frame
-    set frameh [expr {$unmap ? 0 : [winfo height $canvas.frame]}]
-    set framew [expr {$unmap ? 0 : [winfo width  $canvas.frame]}]
-
-    set height [_max $frameh [winfo height $canvas]]
-    set width  [_max $framew [winfo width  $canvas]]
+    if {![winfo ismapped $canvas.frame]} { return }
+    set height [_max [winfo height $canvas.frame] [winfo height $canvas]]
+    set width  [_max [winfo width  $canvas.frame] [winfo width  $canvas]]
 
     $canvas:cmd configure -scrollregion [list 0 0 $width $height]
+}
+
+
+# ----------------------------------------------------------------------------
+#  Command ScrollableFrame::_frameNoManagedChild
+# ----------------------------------------------------------------------------
+proc ScrollableFrame::_frameNoManagedChild {frame} {
+    # There are no childs mapped any more, so resize frame to 1x1
+    $frame configure -width 1 -height 1
+    # Do not fix size, so set values to 0
+    $frame configure -width 0 -height 0
 }

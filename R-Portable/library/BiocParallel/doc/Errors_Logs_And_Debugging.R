@@ -9,6 +9,16 @@ BiocStyle::latex()
 ## ----load------------------------------------------------------------------
 library(BiocParallel)
 
+## ----messages, eval = FALSE------------------------------------------------
+#  res <- bplapply(1:2, function(i) { message(i); Sys.sleep(3) })
+
+## ----messages-immediate, eval = FALSE--------------------------------------
+#  res <- bplapply(1:2, function(i) {
+#      sink(NULL, type = "message")
+#      message(i)
+#      Sys.sleep(3)
+#  })
+
 ## ----errors_constructor----------------------------------------------------
 param <- SnowParam()
 param
@@ -23,20 +33,20 @@ X <- list(1, "2", 3, 4, 5, 6)
 param <- SnowParam(3, tasks = length(X), stop.on.error = TRUE)
 
 ## ----errors_6tasksA_stopOnError_output-------------------------------------
-res <- tryCatch({
+result <- tryCatch({
     bplapply(X, sqrt, BPPARAM = param)
 }, error=identity)
-res
-attr(res, "result")
+result
+bpresult(result)
 
 ## ----errors_6tasks_nonstopOnError------------------------------------------
 X <- list("1", 2, 3, 4, 5, 6)
 param <- SnowParam(3, tasks = length(X), stop.on.error = FALSE)
-res <- tryCatch({
+result <- tryCatch({
     bplapply(X, sqrt, BPPARAM = param)
 }, error=identity)
-res
-attr(res, "result")
+result
+bpresult(result)
 
 ## ----error_bptry-----------------------------------------------------------
 bptry({
@@ -58,7 +68,7 @@ result <- bptry(bplapply(list(1, "2", 3), sqrt, BPPARAM=param))
 bpok(result)
 
 ## ----errors_traceback------------------------------------------------------
-tail(attr(result[[which(!bpok(result))]], "traceback"))
+attr(result[[which(!bpok(result))]], "traceback")
 
 ## ----redo_error------------------------------------------------------------
 X <- list(1, "2", 3)

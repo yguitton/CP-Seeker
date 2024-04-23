@@ -69,7 +69,7 @@ typedef SQLSMALLINT SQLRETURN;
 /* TODO - Check how the SQLLEN and SQLULEN types are handled on
  *        64-bit Unix. */
 
-#if defined(__WIN64)
+#if defined(_WIN64)
 typedef Tcl_WideInt SQLLEN;
 typedef Tcl_WideUInt SQLULEN;
 #else
@@ -92,6 +92,7 @@ typedef HWND SQLHWND;
 
 #define SQL_NULL_HANDLE ((SQLHANDLE) 0)
 #define SQL_NULL_HENV ((SQLHENV) 0)
+#define SQL_NULL_HDBC ((SQLHDBC) 0)
 #define SQL_NULL_HSTMT ((SQLHSTMT) 0)
 
 /* SQL data types */
@@ -136,7 +137,7 @@ enum _SQL_DATATYPE {
 /* Parameter transmission diretions */
 
 #define SQL_PARAM_INPUT 1
-    
+
 /* Status returns */
 
 #define    SQL_ERROR (-1)
@@ -144,11 +145,13 @@ enum _SQL_DATATYPE {
 #define	   SQL_NO_TOTAL (-4)
 #define    SQL_SUCCESS 0
 #define    SQL_SUCCESS_WITH_INFO 1
+#define    SQL_SUCCEEDED(rc) (((rc)&(~1))==0)
 
 /* Diagnostic fields */
 
 enum _SQL_DIAG {
-    SQL_DIAG_SQLSTATE = 4,
+    SQL_DIAG_NUMBER = 2,
+    SQL_DIAG_SQLSTATE = 4
 };
 
 /* Transaction isolation levels */
@@ -175,6 +178,7 @@ enum _SQL_DIAG {
 #define SQL_ATTR_CONNECTION_TIMEOUT 113
 #define SQL_ATTR_ODBC_VERSION 200
 #define SQL_ATTR_TXN_ISOLATION SQL_TXN_ISOLATION
+#define SQL_ATTR_AUTOCOMMIT SQL_AUTOCOMMIT
 
 /* Nullable? */
 
@@ -187,6 +191,7 @@ enum _SQL_DIAG {
 /* ODBC versions */
 
 #define SQL_OV_ODBC3 3UL
+#define SQL_ODBC_VER 10
 
 /* SQLDriverConnect flags */
 
@@ -254,7 +259,7 @@ enum _SQL_DIAG {
 #endif
 
 #include "odbcStubs.h"
-MODULE_SCOPE odbcStubDefs* odbcStubs;
+MODULE_SCOPE const odbcStubDefs* odbcStubs;
 
 /*
  * Additional entry points in ODBCINST - all of these are optional

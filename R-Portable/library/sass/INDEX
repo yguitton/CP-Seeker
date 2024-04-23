@@ -1,8 +1,8 @@
-as_sass                 List to Sass converter
+as_sass                 Convert an R object into Sass code
+font_google             Helpers for importing web fonts
 output_template         An intelligent (temporary) output file
 sass                    Compile Sass to CSS
-sass_cache_get          Get default sass cache object for the current
-                        context
+sass_cache_get          Retrieve the default file cache
 sass_file_cache         Create a file cache object
 sass_import             Sass Import
 sass_layer              Bundling Sass layers

@@ -13,13 +13,28 @@ importFrom(survival, coxph.fit)
 importFrom(MASS, mvrnorm)
 importFrom(MASS, rlm)
 
+importFrom("grDevices", "dev.interactive", "xy.coords")
+  
+importFrom("graphics", "matplot", "mtext", "par", "points", "rect",
+             "segments", "strheight", "strwidth", "text", "title",
+             "xinch", "yinch")
+  
+importFrom("stats", "approxfun", "cor", "cov", "cov2cor","lm.fit",
+             "lm.wfit", "quantile", "rbinom", "rf", "rnorm", "rt",
+           "runif")
+
+  
+importFrom("utils", "combn")
+
 importMethodsFrom(stats4, plot, summary)
+
 #snow does not have a NAMESPACE
 #importFrom(snow, clusterApply)
 #importFrom(snow, LBclusterApply)
 #importFrom(snow, clusterEvalQ)
 #importFrom(snow, makeCluster)
 #importFrom(snow, stopCluster)
+
 
 exportClasses(MTP, EBMTP)
 
@@ -37,4 +52,3 @@ export(MTP, EBMTP, as.list, mt.maxT, mt.minP, mt.plot, mt.rawp2adjp,
   
 S3method(print, MTP)
 S3method(print, EBMTP)
-

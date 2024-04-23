@@ -19,7 +19,7 @@ The **[htmlwidgets](https://cran.r-project.org/package=htmlwidgets)** package pr
 
 * Used at the R console for data analysis just like conventional R plots.
 * Embedded within [R Markdown](https://rmarkdown.rstudio.com/) documents
-* Incorporated into [Shiny](https://shiny.rstudio.com/) web applications.
+* Incorporated into [Shiny](https://shiny.posit.co/) web applications.
 * Saved as standalone web pages for ad-hoc sharing via email, Dropbox, etc.
 
 By following a small set of easy-to-follow conventions, it is possible to create HTML widgets with very little code. All widgets include the following components:
@@ -34,7 +34,7 @@ HTML widgets are always hosted within an R package and should include all of the
 
 ## Example (sigma.js)
 
-To start with we'll walk through the creation of a simple widget that wraps the [sigma.js](http://sigmajs.org) graph visualization library. When we're done we'll be able to use it to display interactive visualizations of [GEXF](https://gephi.org/gexf/format/) (Graph Exchange XML Format) data files. For example:
+To start with we'll walk through the creation of a simple widget that wraps the [sigma.js](https://www.sigmajs.org/) graph visualization library. When we're done we'll be able to use it to display interactive visualizations of [GEXF](http://gexf.net/) (Graph Exchange XML Format) data files. For example:
 
 ```{r, eval=FALSE}
 library(sigma)

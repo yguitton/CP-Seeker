@@ -1,4 +1,228 @@
-<!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
+<!-- NEWS.md is maintained by https://fledge.cynkra.com, contributors should not edit this file -->
+
+# RSQLite 2.3.6 (2024-03-31)
+
+## Features
+
+- Upgrade bundled SQLite to 3.45.2 (#500).
+
+## Documentation
+
+- Use dbitemplate (@maelle, #496).
+
+
+# RSQLite 2.3.5 (2024-01-20)
+
+## Features
+
+- Upgrade bundled SQLite to 3.45.0 (#491).
+
+## Chore
+
+- Update to upcoming DBItest 1.8.1 (#488, #492).
+- Remove compiler warning about unused variable (#486).
+
+
+# RSQLite 2.3.4 (2023-12-07)
+
+## Bug fixes
+
+- Fix compiler warning regarding formatting specifier used in `Rf_warning()` (#482).
+
+- Upgrade bundled SQLite to 3.44.2 (#479).
+
+## Chore
+
+- Use `check_suggested()` standalone for hms package (#477).
+
+
+# RSQLite 2.3.3 (2023-11-04)
+
+## Features
+
+- Upgrade bundled SQLite to 3.43.2 (#473).
+- New `sqliteIsTransacting()` that returns if a transaction is active on the current connection (@bpvgoncalves, #462, #464).
+
+## Testing
+
+- Skip DBItest tests if not installed.
+
+
+# RSQLite 2.3.2 (2023-10-27)
+
+## Features
+
+- Upgrade bundled SQLite to 3.42.0 (#461).
+
+## Internal
+
+- Require cpp11 \>= 0.4.0 (#456).
+
+
+# RSQLite 2.3.1 (2023-04-03)
+
+## Features
+
+- Upgrade bundled SQLite to 3.41.2 (#455).
+
+## Chore
+
+- Require cpp11 \>= 0.4.0 in `DESCRIPTION` (#456).
+
+
+# RSQLite 2.3.0 (2023-02-13)
+
+## Features
+
+- Upgrade bundled SQLite to 3.40.1 (#448).
+
+## Chore
+
+- Upgrade boost to 1.81.0-1 (#450).
+
+- Clean up GitPod configuration.
+
+- Replace Rcpp by cpp11 (@Antonov548, #441).
+
+
+# RSQLite 2.2.20 (2022-12-21)
+
+## Features
+
+- Upgrade bundled SQLite to 3.40.0 (#446).
+
+## Tests
+
+- Fix test on non-UTF-8 locales.
+
+## Internal
+
+- GitPod and cmake integration.
+
+
+# RSQLite 2.2.19 (2022-11-22)
+
+## Bug fixes
+
+- Add missing boost headers for icpc compiler (@lolow, #442, #443).
+
+## Internal
+
+- Use testthat edition 3 (#438).
+
+
+# RSQLite 2.2.18 (2022-10-04)
+
+- Upgrade bundled SQLite to 3.39.4 (#435).
+
+
+# RSQLite 2.2.17 (2022-09-09)
+
+- Upgrade bundled SQLite to 3.39.3 (#433).
+
+
+# RSQLite 2.2.16 (2022-08-16)
+
+- Upgrade bundled SQLite to 3.39.2 (#431).
+
+
+# RSQLite 2.2.15 (2022-07-15)
+
+- Upgrade bundled SQLite to 3.39.1 (#429).
+
+
+# RSQLite 2.2.14 (2022-05-05)
+
+- Upgrade bundled SQLite to version 3.38.5 (#421, #423).
+
+
+# RSQLite 2.2.13 (2022-04-29)
+
+- Upgrade bundled SQLite to version 3.38.3 (#418).
+
+
+# RSQLite 2.2.12 (2022-04-02)
+
+## Features
+
+- Upgrade bundled SQLite to version 3.38.2 (#415).
+
+## Internal
+
+- Prefer `empty()` over `size() == 0` (#410, @MichaelChirico).
+- Refactor to improve code consistency (#411, @MichaelChirico).
+- Use more parsimonious header to avoid CRAN warnings.
+
+
+# RSQLite 2.2.11 (2022-03-07)
+
+## Features
+
+- `initExtension()` gains `extension` argument (#407, #408) with options
+  `"math"`, `"regexp"`, `"series"` and `"csv"` (#274, #389, @mgirlich).
+- Upgrade bundled SQLite to version 3.38.0 (#405).
+
+## Bug fixes
+
+- Skip failing test on CRAN.
+
+
+# RSQLite 2.2.10 (2022-02-16)
+
+## Features
+
+- Upgrade bundled SQLite to version 3.37.2 (#403).
+
+## Documentation
+
+- Explain reason for bundling SQLite sources.
+- Add known SQLite authors to `DESCRIPTION`.
+
+## Internal
+
+- Add test for interrupt behavior in `sqliteSetBusyHandler()` (#401).
+- Make method definition more similar to S3. All `setMethod()` calls refer to top-level functions (#396).
+
+
+# RSQLite 2.2.9 (2021-12-06)
+
+## Features
+
+- Upgrade bundled SQLite to version 3.37.0 (#392).
+- `dbConnect()` now supports URIs that start with `file://` for the `dbname` argument. The SQLite code is now built with the `SQLITE_USE_URI` (#390, @tschoonj).
+
+## Bug fixes
+
+- `dbBegin()`, `dbCommit()` and `dbRollback()` support keywords in savepoint names (#386).
+
+## Internal
+
+- Adapt to DBItest 1.7.2 (#385).
+- Enable all DBItest tests, passing now.
+
+
+# RSQLite 2.2.8 (2021-08-21)
+
+- Upgrade bundled SQLite to version 3.36.0 (#374).
+- Fix build on CentOS 7 (#367).
+- Busy callback emits message instead of warning (#355).
+- Avoid using memoise at build time (#371).
+
+
+# RSQLite 2.2.7 (2021-04-22)
+
+- Remove RStudio Connection pane support due to problems reported by users (#352).
+- Upgrade bundled SQLite to version 3.35.5 (#368).
+
+
+# RSQLite 2.2.6 (2021-04-11)
+
+- Upgrade bundled SQLite to 3.35.4 (#361).
+- Implement RStudio Connection Contract (#352, @edwindj).
+- `dbDataType()` supports extended types for connections created with `extended_types = TRUE` (#360, @ablack3).
+- `dbWriteTable()` creates tables with extended types for connections created with `extended_types = TRUE` (#360, @ablack3).
+- Remove BH dependency by inlining the header files (#362).
+
 
 # RSQLite 2.2.5 (2021-03-25)
 
@@ -49,12 +273,12 @@
 - Multipart queries now give a warning (#313).
 
 
-# RSQLite 2.2.0
+# RSQLite 2.2.0 (2020-01-07)
 
 - Avoid mangling column names (#259).
 
 
-# RSQLite 2.1.5
+# RSQLite 2.1.5 (2019-12-18)
 
 - Upgrade bundled sqlite version to 3.30.1.
 - Implement `dbGetInfo()` for driver and connection objects (#117).
@@ -63,17 +287,17 @@
 - Fulfill requirements for CII badge (#300, @TSchiefer).
 
 
-# RSQLite 2.1.4
+# RSQLite 2.1.4 (2019-12-04)
 
 - Replace `std::mem_fn()` by `boost::mem_fn()` which works for older compilers.
 
 
-# RSQLite 2.1.3
+# RSQLite 2.1.3 (2019-12-03)
 
 - Replace `std::mem_fun_ref()` by `std::mem_fn()`.
 
 
-# RSQLite 2.1.2
+# RSQLite 2.1.2 (2019-07-24)
 
 ## Bundled library
 
@@ -376,7 +600,7 @@ Internal
 - Added upgrade script for sqlite3 sources and creation script for the datasets database to the `data-raw` directory.
 
 
-# Version 1.0.0
+# RSQLite 1.0.0 (2014-10-25)
 
 ## New features
 

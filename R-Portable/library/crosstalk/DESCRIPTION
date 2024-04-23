@@ -1,12 +1,12 @@
 Package: crosstalk
 Type: Package
 Title: Inter-Widget Interactivity for HTML Widgets
-Version: 1.1.1
+Version: 1.2.1
 Authors@R: c(
-    person("Joe", "Cheng", role = "aut", email = "joe@rstudio.com"),
+    person("Joe", "Cheng", role = "aut", email = "joe@posit.co"),
     person("Carson", "Sievert", role = c("aut", "cre"),
-    email = "carson@rstudio.com", comment = c(ORCID = "0000-0002-4958-2844")),
-    person(family = "RStudio", role = "cph"),
+    email = "carson@posit.co", comment = c(ORCID = "0000-0002-4958-2844")),
+    person("Posit Software, PBC", role = c("cph", "fnd")),
     person(family = "jQuery Foundation", role = "cph",
     comment = "jQuery library and jQuery UI library"),
     person(family = "jQuery contributors", role = c("ctb", "cph"),
@@ -35,16 +35,17 @@ Description: Provides building blocks for allowing HTML widgets to communicate
     supports linked brushing and filtering.
 License: MIT + file LICENSE
 Imports: htmltools (>= 0.3.6), jsonlite, lazyeval, R6
-Suggests: shiny, ggplot2, testthat (>= 2.1.0)
-URL: https://rstudio.github.io/crosstalk/
+Suggests: shiny, ggplot2, testthat (>= 2.1.0), sass, bslib
+URL: https://rstudio.github.io/crosstalk/,
+        https://github.com/rstudio/crosstalk
 BugReports: https://github.com/rstudio/crosstalk/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2021-01-11 23:28:16 UTC; cpsievert
+Packaged: 2023-11-22 16:29:50 UTC; cpsievert
 Author: Joe Cheng [aut],
   Carson Sievert [aut, cre] (<https://orcid.org/0000-0002-4958-2844>),
-  RStudio [cph],
+  Posit Software, PBC [cph, fnd],
   jQuery Foundation [cph] (jQuery library and jQuery UI library),
   jQuery contributors [ctb, cph] (jQuery library; authors listed in
     inst/www/shared/jquery-AUTHORS.txt),
@@ -57,7 +58,7 @@ Author: Joe Cheng [aut],
   es5-shim contributors [ctb, cph] (es5-shim library),
   Denis Ineshin [ctb, cph] (ion.rangeSlider library),
   Sami Samhuri [ctb, cph] (Javascript strftime library)
-Maintainer: Carson Sievert <carson@rstudio.com>
+Maintainer: Carson Sievert <carson@posit.co>
 Repository: CRAN
-Date/Publication: 2021-01-12 10:00:02 UTC
-Built: R 3.6.3; ; 2021-03-29 19:46:50 UTC; windows
+Date/Publication: 2023-11-23 08:50:07 UTC
+Built: R 4.3.3; ; 2024-04-21 01:18:39 UTC; windows

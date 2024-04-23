@@ -7,6 +7,7 @@ listServers             List all running httpuv servers
 randomPort              Find an open TCP port
 rawToBase64             Convert raw vector to Base64-encoded string
 runServer               Run a server
+runStaticServer         Serve a directory
 service                 Process requests
 startDaemonizedServer   Create an HTTP/WebSocket daemonized server
                         (deprecated)
