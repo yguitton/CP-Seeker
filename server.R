@@ -56,6 +56,7 @@ shiny::observeEvent(c(input$user, input$project), {
 		con = config_file)
 })
 
+# Open the documentation file when the 'open_doc' input is triggered
 shiny::observeEvent(input$open_doc, {
 	system(sprintf("\"%s\" \"%s\"", chromium, documentation_file), wait = FALSE)
 })
