@@ -552,19 +552,19 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
     extend_range <- ceiling(scalerange[2] * 1.5)
     
     # Process cluster creation
-	detectCores <- detectCores()
+	detectCores <- parallel::detectCores()
 	if (!is.na(detectCores)) {
-	ncores <- round(detectCores() / 2L)
+		ncores <- round(detectCores / 2L)
 	} else {
-	ncores <- 2L
+		ncores <- 2L
 	}
-	cl <- makeCluster(ncores)
+	cl <- parallel::makeCluster(ncores)
 
 	time_begin <- Sys.time()
 	print(time_begin)
 
-    # Loop parallelization with parLapply
-    peaks <- parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
+	# Loop parallelization with parLapply
+    peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) return(NULL)
@@ -647,7 +647,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 	print("###########################################")
 
     # Cluster shutdown
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     
     # Combine results from different cores
     peaks <- do.call(rbind, peaks)
@@ -663,19 +663,19 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
     extend_range <- ceiling(scalerange[2] * 1.5)
     
     # Process cluster creation
-	detectCores <- detectCores()
+	detectCores <- parallel::detectCores()
 	if (!is.na(detectCores)) {
-	ncores <- round(detectCores() / 2L)
+	ncores <- round(detectCores / 2L)
 	} else {
 	ncores <- 2L
 	}
-	cl <- makeCluster(ncores)
+	cl <- parallel::makeCluster(ncores)
 
 	time_begin <- Sys.time()
 	print(time_begin)
 
     # Loop parallelization with parLapply
-    peaks <- parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
+    peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         roi <- get_rois(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) {
@@ -755,7 +755,6 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
                 weighted_deviations = sum(deviations*weight)/sum(weight)
             ))
         }
-		# shinyWidgets::updateProgressBar(session, id = pb, value = i * 100 / pb_max,  title = "")
     })
 
 	time_end <- Sys.time()
@@ -766,7 +765,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 	print("###############################################")
 
 	# Cluster shutdown
-    stopCluster(cl)
+    parallel::stopCluster(cl)
 
 	# Combine results from different cores
     peaks <- do.call(rbind, peaks) 

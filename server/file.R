@@ -432,7 +432,7 @@ shiny::observeEvent(input$file_import_valid2, {
 				tools::file_path_sans_ext(params$filenames)
 			), 30, ellipsis="")
 		success <- rep("Unknown error", length(params$filenames))
-		shinyWidgets::progressSweetAlert(session, 'pb', title = 'file import / convert',
+		shinyWidgets::progressSweetAlert(session, id = 'pb', title = 'file import / convert',
 			value = 0, display_pct = TRUE)
 		for(i in 1:length(params$filepaths)){
 			msg <- paste('Import of', params$filenames[i], 

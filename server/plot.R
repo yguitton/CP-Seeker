@@ -135,12 +135,12 @@ plot_TIC <- function(db, project = NULL, project_samples = NULL,
 	datas <- get_tics(db, project, project_samples)
 	p <- plot_empty_chromato(
 		title = if (length(unique(datas$sample_name)) > 1) "Total Ion Chromatograms"
-			 else "Total Ion Chromatogram")
+			else "Total Ion Chromatogram")
 	if (nrow(datas) == 0) return(p)
 	
 	plotly::toWebGL(plotly::add_trace(p, 
 		mode = "lines+markers", 
-		data = datas 	, 
+		data = datas, 
 		x = ~rt, 
 		y = ~int, 
 		name = ~sample_name, 

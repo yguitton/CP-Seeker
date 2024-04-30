@@ -138,7 +138,7 @@ sweet_alert_error <- function(title = "", msg = "") shinyWidgets::sendSweetAlert
 	text = shiny::tags$div(msg, shiny::tags$br(), 
 		shiny::tags$a(href = sprintf(
 			'mailto:sebastien.hutinet@oniris-nantes.fr?subject=Describe header of error&body=don\'t forget to attach error log (in "%s") and database if needed (in "%s")', 
-			normalizePath(error_log_path), normalizePath("")), 
+			normalizePath(reg_paths$error_log_path)), 
 			"Contact me"
 		)
 	), type='error')

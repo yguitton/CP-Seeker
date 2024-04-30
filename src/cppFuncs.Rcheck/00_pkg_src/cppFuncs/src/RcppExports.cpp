@@ -10,21 +10,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// ppm_to_da
-NumericVector ppm_to_da(NumericVector mass, double ppm);
-RcppExport SEXP _cppFuncs_ppm_to_da(SEXP massSEXP, SEXP ppmSEXP) {
+// ppm_to_da_vector
+NumericVector ppm_to_da_vector(NumericVector mass, double ppm);
+RcppExport SEXP _cppFuncs_ppm_to_da_vector(SEXP massSEXP, SEXP ppmSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type mass(massSEXP);
     Rcpp::traits::input_parameter< double >::type ppm(ppmSEXP);
-    rcpp_result_gen = Rcpp::wrap(ppm_to_da(mass, ppm));
+    rcpp_result_gen = Rcpp::wrap(ppm_to_da_vector(mass, ppm));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_cppFuncs_ppm_to_da", (DL_FUNC) &_cppFuncs_ppm_to_da, 2},
+    {"_cppFuncs_ppm_to_da_vector", (DL_FUNC) &_cppFuncs_ppm_to_da_vector, 2},
     {NULL, NULL, 0}
 };
 

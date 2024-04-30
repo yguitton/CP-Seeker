@@ -7,8 +7,7 @@
 #' @param ppm float ppm tolerance
 #'
 #' @return float, tolerance in Da
-ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
-# ppm_to_da <- .Call("_cppFuncs_ppm_to_da", mass, ppm) // Call Rcpp Function (Test)
+# ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
 
 #' @title Convert Da to ppm
 #'
@@ -20,7 +19,6 @@ ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
 #'
 #' @return float, tolerance in ppm
 da_to_ppm <- function(mass, da) da * 10**6 / mass
-# da_to_ppm <- .Call("_cppFuncs_da_to_ppm", mass, da) // Call Rcpp Function (Test)
 
 #' @title Get mass range
 #'
@@ -36,7 +34,7 @@ da_to_ppm <- function(mass, da) da * 10**6 / mass
 #' @example
 #' \dontrun{get_mass_range(c(641.64474, 605.668062258), ppm = 5, mda = 0)}
 get_mass_range <- function(mass, ppm = 0, mda = 0) {
-	tol_da <- ppm_to_da(mass, ppm) + mda * 10**-3
+	tol_da <- cppFuncs::ppm_to_da_vector(mass, ppm) + mda * 10**-3
 	matrix(c(mass - tol_da, mass + tol_da), ncol = 2, dimnames = list(
 		c(), c("mzmin", "mzmax")))
 }

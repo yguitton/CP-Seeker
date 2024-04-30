@@ -39,7 +39,6 @@ var sLogPath = oFSO.GetParentFolderName(oFSO.GetParentFolderName(oFSO.GetParentF
 if (!oFSO.FolderExists(sLogPath)) {
     try {
         oFSO.CreateFolder(sLogPath);
-        WScript.Echo("Directory created: " + sLogPath);
     } catch(e) {
         WScript.Echo("Error creating directory: " + sLogPath);
         WScript.Quit(1); // Quit the script if directory creation fails
@@ -94,7 +93,6 @@ var updatedRegPathsContent = JSON.stringify(regPathsObject, null, 2); // Convert
 var regPathsFile = oFSO.OpenTextFile('utils\\regpaths.json', 2); // 2 = for writing // Write the JSON string to the regpaths.json file
 regPathsFile.Write(updatedRegPathsContent);
 regPathsFile.Close();
-
 
 var strCommand     = ['"' + Rexe + '"', Ropts, '"' + RScriptFile + '"', "1>", '"' + Outfile + '"', "2>&1"].join(" ");
 // var strCommand     = ['"' + Rexe + '"', RScriptFile].join(" ");

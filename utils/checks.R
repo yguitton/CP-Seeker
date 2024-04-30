@@ -54,8 +54,6 @@ sqlite_lighted_path <- reg_paths$sqlite_lighted_path
 documentation_file <- reg_paths$documentation_file
 error_log_path <- reg_paths$error_log_path
 
-dll_file <- reg_paths$dll_file
-
 # Root PATH
 app_root <- normalizePath(".", mustWork = FALSE)
 
@@ -73,12 +71,3 @@ if (file.exists(config_file)) {
 	last_user <- NULL
 	last_project <- NULL
 }
-
-if (!file.exists(dll_file)) {
-  stop("DLL file not found: ", dll_file)
-} else {
-  message("DLL file found ", dll_file)
-}
-
-# Load the DLL file
-dyn.load(dll_file)

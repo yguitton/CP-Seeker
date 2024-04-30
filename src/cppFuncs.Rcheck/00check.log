@@ -19,7 +19,7 @@
 * checking for hidden files and directories ... OK
 * checking for portable file names ... OK
 * checking serialization versions ... OK
-* checking whether package 'cppFuncs' can be installed ... [11s] OK
+* checking whether package 'cppFuncs' can be installed ... [12s] OK
 * used C++ compiler: 'G__~1.EXE (GCC) 12.3.0'
 * checking installed package size ... OK
 * checking package directory ... OK
@@ -43,7 +43,7 @@
 * checking R code for possible problems ... OK
 * checking for missing documentation entries ... WARNING
 Objets code non documentés :
-  'ppm_to_da'
+  'ppm_to_da_vector'
 All user-level objects in a package should have documentation entries.
 See chapter 'Writing R documentation files' in the 'Writing R
 Extensions' manual.
