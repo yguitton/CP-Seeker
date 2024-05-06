@@ -10,6 +10,86 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// get_mzmat_eic_cpp
+List get_mzmat_eic_cpp(NumericVector intensity_values, NumericVector mz_values, NumericVector scanindex_values, NumericVector scantime_values, NumericVector mz_range);
+RcppExport SEXP _cppFuncs_get_mzmat_eic_cpp(SEXP intensity_valuesSEXP, SEXP mz_valuesSEXP, SEXP scanindex_valuesSEXP, SEXP scantime_valuesSEXP, SEXP mz_rangeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type intensity_values(intensity_valuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type mz_values(mz_valuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scanindex_values(scanindex_valuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type scantime_values(scantime_valuesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type mz_range(mz_rangeSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_mzmat_eic_cpp(intensity_values, mz_values, scanindex_values, scantime_values, mz_range));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_rois_cpp
+IntegerVector get_rois_cpp(NumericVector ints, int min_width, int missing_scans);
+RcppExport SEXP _cppFuncs_get_rois_cpp(SEXP intsSEXP, SEXP min_widthSEXP, SEXP missing_scansSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type ints(intsSEXP);
+    Rcpp::traits::input_parameter< int >::type min_width(min_widthSEXP);
+    Rcpp::traits::input_parameter< int >::type missing_scans(missing_scansSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_rois_cpp(ints, min_width, missing_scans));
+    return rcpp_result_gen;
+END_RCPP
+}
+// overlap_rois_cpp
+List overlap_rois_cpp(List rois);
+RcppExport SEXP _cppFuncs_overlap_rois_cpp(SEXP roisSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type rois(roisSEXP);
+    rcpp_result_gen = Rcpp::wrap(overlap_rois_cpp(rois));
+    return rcpp_result_gen;
+END_RCPP
+}
+// descend_min_cpp
+IntegerVector descend_min_cpp(NumericVector y, int center, int minPts);
+RcppExport SEXP _cppFuncs_descend_min_cpp(SEXP ySEXP, SEXP centerSEXP, SEXP minPtsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type center(centerSEXP);
+    Rcpp::traits::input_parameter< int >::type minPts(minPtsSEXP);
+    rcpp_result_gen = Rcpp::wrap(descend_min_cpp(y, center, minPts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// narrow_rt_boundaries_extend_cpp
+IntegerVector narrow_rt_boundaries_extend_cpp(IntegerVector xrange, int center, NumericVector y, int minPts);
+RcppExport SEXP _cppFuncs_narrow_rt_boundaries_extend_cpp(SEXP xrangeSEXP, SEXP centerSEXP, SEXP ySEXP, SEXP minPtsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type xrange(xrangeSEXP);
+    Rcpp::traits::input_parameter< int >::type center(centerSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type minPts(minPtsSEXP);
+    rcpp_result_gen = Rcpp::wrap(narrow_rt_boundaries_extend_cpp(xrange, center, y, minPts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// narrow_rt_boundaries_reduce_cpp
+IntegerVector narrow_rt_boundaries_reduce_cpp(IntegerVector xrange, int center, NumericVector y, int minPts);
+RcppExport SEXP _cppFuncs_narrow_rt_boundaries_reduce_cpp(SEXP xrangeSEXP, SEXP centerSEXP, SEXP ySEXP, SEXP minPtsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type xrange(xrangeSEXP);
+    Rcpp::traits::input_parameter< int >::type center(centerSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type minPts(minPtsSEXP);
+    rcpp_result_gen = Rcpp::wrap(narrow_rt_boundaries_reduce_cpp(xrange, center, y, minPts));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ppm_to_da_vector
 NumericVector ppm_to_da_vector(NumericVector mass, double ppm);
 RcppExport SEXP _cppFuncs_ppm_to_da_vector(SEXP massSEXP, SEXP ppmSEXP) {
@@ -24,6 +104,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_cppFuncs_get_mzmat_eic_cpp", (DL_FUNC) &_cppFuncs_get_mzmat_eic_cpp, 5},
+    {"_cppFuncs_get_rois_cpp", (DL_FUNC) &_cppFuncs_get_rois_cpp, 3},
+    {"_cppFuncs_overlap_rois_cpp", (DL_FUNC) &_cppFuncs_overlap_rois_cpp, 1},
+    {"_cppFuncs_descend_min_cpp", (DL_FUNC) &_cppFuncs_descend_min_cpp, 3},
+    {"_cppFuncs_narrow_rt_boundaries_extend_cpp", (DL_FUNC) &_cppFuncs_narrow_rt_boundaries_extend_cpp, 4},
+    {"_cppFuncs_narrow_rt_boundaries_reduce_cpp", (DL_FUNC) &_cppFuncs_narrow_rt_boundaries_reduce_cpp, 4},
     {"_cppFuncs_ppm_to_da_vector", (DL_FUNC) &_cppFuncs_ppm_to_da_vector, 2},
     {NULL, NULL, 0}
 };

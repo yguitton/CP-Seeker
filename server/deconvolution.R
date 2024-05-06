@@ -44,6 +44,25 @@ get_mzmat_eic <- function(xr, mz_range) {
 	)
 }
 
+# get_mzmat_eic_arg <- function(intensity_values, mz_values, scanindex_values, scantime_values, mz_range) {
+# 	ids <- which(mz_values >= mz_range[[1]] & 
+# 		mz_values <= mz_range[[2]])
+# 	scans <- sapply(ids, function(id) which.min(abs(scanindex_values - id)))
+# 	mzmat <- matrix(c(scans, mz_values[ids], intensity_values[ids]), 
+# 		ncol = 3, dimnames = list(c(), c("scan", "mz", "int")))
+# 	eic <- matrix(seq(scantime_values), ncol = 1, dimnames = list(c(), c("scan")))
+# 	eic <- cbind(eic, int = 0)
+# 	if (nrow(mzmat) > 0) {
+# 		eic <- rbind(eic, mzmat[, c("scan", "int")])
+# 		eic <- aggregate(int ~ scan, data = eic, FUN = sum)
+# 	}
+# 	eic <- cbind(eic, rt = scantime_values)
+# 	list(
+# 		mzmat = mzmat, 
+# 		eic = eic
+# 	)
+# }
+
 #' @title Detect ROIs
 #' 
 #' @description
@@ -56,6 +75,8 @@ get_mzmat_eic <- function(xr, mz_range) {
 #' @param missing_scans integer number of scan before consider it they are not consecutive
 #'
 #' @return vector with 2 integer: min & max born of ROI
+#' This function is R code that has been converted to C++ using the Rcpp library.
+#' The package name is cppFuncs and contains the corresponding C++ code.
 get_rois <- function(ints, min_width, missing_scans = 1) {
 	baseline <- suppressWarnings(runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach"))
 	rois <- which(ints - baseline > 0)
@@ -76,6 +97,8 @@ get_rois <- function(ints, min_width, missing_scans = 1) {
 #' @param rois list with 2 integer per item: min & max born of each ROI
 #'
 #' @return list with 2 integer per item: min & max born of each merged ROI
+#' This function is R code that has been converted to C++ using the Rcpp library.
+#' The package name is cppFuncs and contains the corresponding C++ code.
 overlap_rois <- function(rois) {
 	if (length(rois) < 2) return(rois)
 	rois_final <- rois[1]
@@ -104,6 +127,8 @@ overlap_rois <- function(rois) {
 #' @param minPts integer minimum of consecutive points to consider the curve to be at the minimum
 #'
 #' @return two floats: the borns left / right
+#' This function is R code that has been converted to C++ using the Rcpp library.
+#' The package name is cppFuncs and contains the corresponding C++ code.
 descend_min <- function(y, center, minPts = 1) {
 	left <- if (center != 1) {
 		lefts <- split((center - 1):1, 
@@ -112,12 +137,12 @@ descend_min <- function(y, center, minPts = 1) {
 		if (is.na(limit)) 1 else lefts[[limit]][1]
 	} else center
 	right <- if (center != length(y)) {
-		rights <- split((center + 1):length(y), 
+		rights <- split((center + 1):length(y),
 			cumsum(diff(y[center:length(y)]) < 0))
 		limit <- which(lengths(rights) > minPts + 1)[1]
 		if (is.na(limit)) 1 else rights[[limit]][1]
 	} else center
-	c(left, right)	
+	c(left, right)
 }
 
 #' @title Extend the x range
@@ -405,6 +430,7 @@ integrate <- function(eic, scalerange, baseline, noise, missing_scans, mzmat) {
 		# now try to find end of both side of the scale
 		lwpos <- max(1, best.scale.pos - best.scale)
 		rwpos <- min(nrow(eic), best.scale.pos + best.scale)
+		# lm <- cppFuncs::descend_min_cpp(wCoefs[, best.scale], best.scale.pos)
 		lm <- descend_min(wCoefs[, best.scale], best.scale.pos)
 		if (length(lm) < 2) return(NULL)
 		else if (lm[2] - lm[1] < scales[1]) return(NULL)
@@ -459,12 +485,16 @@ integrate <- function(eic, scalerange, baseline, noise, missing_scans, mzmat) {
 integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = NA) {
 	if (nrow(mzmat) == 0) return(NULL)
 	center <- ceiling(sum(lm) / 2)
-	lm <- narrow_rt_boundaries_extend(lm, center, 
+	# lm <- narrow_rt_boundaries_extend(lm, center, 
+	# 	eic[, "int"] - baseline, missing_scans)
+	lm <- cppFuncs::narrow_rt_boundaries_extend_cpp(lm, center, 
 		eic[, "int"] - baseline, missing_scans)
 	lm <- narrow_rt_boundaries_reduce(lm, center, 
 		eic[, "int"] - baseline, missing_scans)
+	# lm <- cppFuncs::narrow_rt_boundaries_reduce_cpp(lm, center, 
+	# 	eic[, "int"] - baseline, missing_scans)
+
 	if(diff(lm) <= 0) return(NULL)
-	
 	mz_vals <- mzmat[which(
 		mzmat[, "scan"] >= eic[lm[1], "scan"] & 
 		mzmat[, "scan"] <= eic[lm[2], "scan"] & 
@@ -546,7 +576,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item weighted_deviation float weighted deviation
 #' }
 deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
-                          missing_scans = 1, pb = NULL, reintegration = FALSE) {
+		missing_scans = 1, pb = NULL, reintegration = FALSE) {
     peaks <- NULL
     pb_max <- length(theoric_patterns)
     extend_range <- ceiling(scalerange[2] * 1.5)
@@ -565,8 +595,9 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 
 	# Loop parallelization with parLapply
     peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
+		# traces <- get_mzmat_eic(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-        roi <- get_rois(traces$eic[, "int"], scalerange[1])
+        roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) return(NULL)
         traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
             get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
@@ -657,7 +688,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 
 
 deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerange, scanrange = NULL, 
-                              missing_scans = 1, pb = NULL, reintegration = FALSE, session = NULL) {
+		missing_scans = 1, pb = NULL, reintegration = FALSE) {
     peaks <- NULL
     pb_max <- length(theoric_patterns)
     extend_range <- ceiling(scalerange[2] * 1.5)
@@ -677,7 +708,7 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
     # Loop parallelization with parLapply
     peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-        roi <- get_rois(traces$eic[, "int"], scalerange[1])
+        roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) {
             norois <- c(mz = NA, mzmin = NA, mzmax = NA, rt = NA, rtmin = NA, rtmax = NA, into = NA, intb = NA, maxo = NA, sn = NA, scale = NA,
                         scpos = NA, scmin = NA, scmax = NA, lmin = NA, lmax = NA, abundance = NA, iso = "no ROIs", score = NA, deviation = NA, chemical_ion = chemical_ids[i], 

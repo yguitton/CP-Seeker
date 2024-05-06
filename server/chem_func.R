@@ -7,6 +7,8 @@
 #' @param ppm float ppm tolerance
 #'
 #' @return float, tolerance in Da
+#' This function is R code that has been converted to C++ using the Rcpp library.
+#' The package name is cppFuncs and contains the corresponding C++ code.
 # ppm_to_da <- function(mass, ppm) mass * ppm * 10**-6
 
 #' @title Convert Da to ppm
@@ -18,7 +20,8 @@
 #' @param da float tolerance in da
 #'
 #' @return float, tolerance in ppm
-da_to_ppm <- function(mass, da) da * 10**6 / mass
+#' Unused function
+# da_to_ppm <- function(mass, da) da * 10**6 / mass
 
 #' @title Get mass range
 #'

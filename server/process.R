@@ -552,9 +552,31 @@ shiny::observeEvent(input$process_launch, {
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
+
   		ms_file <- load_ms_file(db, sampleID = params$samples[i])
 
-  		msg <- sprintf("Target on %s", params$sample_ids[i])
+		# Permet de récupérer le contenu présent dans le fichier MS
+		# str(ms_file)
+        # slot_names <- slotNames(ms_file)
+        # print(slot_names)
+
+		# Récupérer les valeurs utiles pour le calcul de déconvolution
+		# env <- slot(ms_file, "env")
+        # intensity_values <- get("intensity", envir = env)
+        # mz_values <- get("mz", envir = env)
+        # scanindex_values <- slot(ms_file, "scanindex")
+        # scantime_values <- slot(ms_file, "scantime")
+		
+		# print(class(intensity_values))
+		# print(class(mz_values))
+		# print(class(scanindex_values))
+		# print(class(scantime_values))
+		# print(class(theoric_patterns[[i]][1, c("mzmin", "mzmax")]))
+		# theoric_patterns_vector <- as.numeric(unlist(theoric_patterns[[i]][1, c("mzmin", "mzmax")]))
+		# print(class(theoric_patterns_vector))
+		# print(class(params$mz_range[i,]))
+
+		msg <- sprintf("Target on %s", params$sample_ids[i])
   		print(msg)
   		shinyWidgets::updateProgressBar(session, id = 'pb',
   			title = msg, value = (i - 1) * 100 / pb_max)
@@ -562,6 +584,7 @@ shiny::observeEvent(input$process_launch, {
   		status <- get_patterns_status(theoric_patterns, params$mz_range[i,])
   		deleted <- which(status$status == "outside")
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
+		# deconvolution(intensity_values, mz_values, scanindex_values, scantime_values, ...)
   		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, theoric_patterns[-deleted],
   			ion_forms[-deleted,]$chemical_ion, scalerange, params$retention_time,
   		  params$missing_scans, pb = "pb2")

@@ -3,8 +3,13 @@
 ** libs
 using C++ compiler: 'G__~1.EXE (GCC) 12.3.0'
 g++ -std=gnu++17  -I"C:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/include" -DNDEBUG  -I'C:/Users/DRA/AppData/Local/Programs/R/R-4.3.3/library/Rcpp/include'   -I"C:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/include"     -O2 -Wall  -mfpmath=sse -msse2 -mstackrealign  -c RcppExports.cpp -o RcppExports.o
-g++ -std=gnu++17  -I"C:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/include" -DNDEBUG  -I'C:/Users/DRA/AppData/Local/Programs/R/R-4.3.3/library/Rcpp/include'   -I"C:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/include"     -O2 -Wall  -mfpmath=sse -msse2 -mstackrealign  -c test.cpp -o test.o
-g++ -std=gnu++17 -shared -s -static-libgcc -o cppFuncs.dll tmp.def RcppExports.o test.o -LC:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/lib/x64 -LC:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/lib -LC:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/bin/x64 -lR
+g++ -std=gnu++17  -I"C:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/include" -DNDEBUG  -I'C:/Users/DRA/AppData/Local/Programs/R/R-4.3.3/library/Rcpp/include'   -I"C:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/include"     -O2 -Wall  -mfpmath=sse -msse2 -mstackrealign  -c deconvolution.cpp -o deconvolution.o
+deconvolution.cpp: In function 'Rcpp::IntegerVector get_rois_cpp(Rcpp::NumericVector, int, int)':
+deconvolution.cpp:120:26: warning: comparison of integer expressions of different signedness: 'std::vector<int>::size_type' {aka 'long long unsigned int'} and 'int' [-Wsign-compare]
+  120 |     if (roi_group.size() >= min_width) {
+      |         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+g++ -std=gnu++17  -I"C:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/include" -DNDEBUG  -I'C:/Users/DRA/AppData/Local/Programs/R/R-4.3.3/library/Rcpp/include'   -I"C:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/include"     -O2 -Wall  -mfpmath=sse -msse2 -mstackrealign  -c ppm_to_da_vector.cpp -o ppm_to_da_vector.o
+g++ -std=gnu++17 -shared -s -static-libgcc -o cppFuncs.dll tmp.def RcppExports.o deconvolution.o ppm_to_da_vector.o -LC:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/lib/x64 -LC:/RBuildTools/4.3/x86_64-w64-mingw32.static.posix/lib -LC:/Users/DRA/AppData/Local/Programs/R/R-43~1.3/bin/x64 -lR
 installing to C:/Users/DRA/Desktop/CP-Seeker/src/cppFuncs.Rcheck/00LOCK-cppFuncs/00new/cppFuncs/libs/x64
 ** R
 ** byte-compile and prepare package for lazy loading
