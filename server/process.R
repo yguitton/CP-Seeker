@@ -556,25 +556,57 @@ shiny::observeEvent(input$process_launch, {
   		ms_file <- load_ms_file(db, sampleID = params$samples[i])
 
 		# Permet de récupérer le contenu présent dans le fichier MS
-		# str(ms_file)
-        # slot_names <- slotNames(ms_file)
-        # print(slot_names)
+		str(ms_file)
+        slot_names <- slotNames(ms_file)
+        print(slot_names)
 
 		# Récupérer les valeurs utiles pour le calcul de déconvolution
-		# env <- slot(ms_file, "env")
-        # intensity_values <- get("intensity", envir = env)
-        # mz_values <- get("mz", envir = env)
-        # scanindex_values <- slot(ms_file, "scanindex")
-        # scantime_values <- slot(ms_file, "scantime")
-		
-		# print(class(intensity_values))
-		# print(class(mz_values))
-		# print(class(scanindex_values))
-		# print(class(scantime_values))
-		# print(class(theoric_patterns[[i]][1, c("mzmin", "mzmax")]))
-		# theoric_patterns_vector <- as.numeric(unlist(theoric_patterns[[i]][1, c("mzmin", "mzmax")]))
-		# print(class(theoric_patterns_vector))
-		# print(class(params$mz_range[i,]))
+		env <- slot(ms_file, "env")
+		intensity_values <- get("intensity", envir = env)
+		mz_values <- get("mz", envir = env)
+		scanindex_values <- slot(ms_file, "scanindex")
+		scantime_values <- slot(ms_file, "scantime")
+
+		# Imprimer les classes des vecteurs
+		print("Imprimer les classes des vecteurs")
+		print(class(intensity_values))
+		print(class(mz_values))
+		print(class(scanindex_values))
+		print(class(scantime_values))
+		print(class(theoric_patterns[[i]][1, c("mzmin", "mzmax")]))
+		print(class(params$mz_range[i,]))
+
+		# Imprimer les longueurs des vecteurs
+		print("Imprimer les longueurs des vecteurs")
+		print(length(intensity_values))
+		print(length(mz_values))
+		print(length(scanindex_values))
+		print(length(scantime_values))
+
+		# Imprimer les premières et dernières valeurs des vecteurs
+		print("Imprimer les premières et dernières valeurs des vecteurs")
+		print(head(intensity_values))
+		print(tail(intensity_values))
+		print(head(mz_values))
+		print(tail(mz_values))
+		print(head(scanindex_values))
+		print(tail(scanindex_values))
+		print(head(scantime_values))
+		print(tail(scantime_values))
+
+		# Imprimer la valeur de i
+		print("Imprimer la valeur de i")
+		print(i)
+
+		# Imprimer les bornes de la plage de masse théorique
+		print("Imprimer les bornes de la plage de masse théorique")
+		print(theoric_patterns[[i]][1, "mzmin"])
+		print(theoric_patterns[[i]][1, "mzmax"])
+
+		# Imprimer les bornes de la plage de masse expérimentale
+		print("Imprimer les bornes de la plage de masse expérimentale")
+		print(params$mz_range[i, "mz_min"])
+		print(params$mz_range[i, "mz_max"])
 
 		msg <- sprintf("Target on %s", params$sample_ids[i])
   		print(msg)
@@ -585,10 +617,10 @@ shiny::observeEvent(input$process_launch, {
   		deleted <- which(status$status == "outside")
   		scalerange <- round((params$peakwidth / mean(diff(ms_file@scantime))) /2)
 		# deconvolution(intensity_values, mz_values, scanindex_values, scantime_values, ...)
-  		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, theoric_patterns[-deleted],
+  		peaks2 <- if(length(deleted) != 0) deconvolution(ms_file, intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[-deleted],
   			ion_forms[-deleted,]$chemical_ion, scalerange, params$retention_time,
   		  params$missing_scans, pb = "pb2")
-  		  else deconvolution(ms_file, theoric_patterns,
+  		  else deconvolution(ms_file, intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns,
   		    ion_forms$chemical_ion, scalerange, params$retention_time,
   		    params$missing_scans, pb = "pb2")
   		if (length(peaks2) > 0) peaks <- rbind(peaks, cbind(
@@ -606,7 +638,7 @@ shiny::observeEvent(input$process_launch, {
 						intensities = NA, weighted_deviations = NA)
   		    	notheoric
   		    }else{
-  		    	deconvolution_std(ms_file, theoric_patterns_standard[[i]],
+  		    	deconvolution_std(ms_file, intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns_standard[[i]],
   		      	ion_forms_standard[[i]]$chemical_ion, scalerange, params_standard$retention_time[[i]],
   		      	params$missing_scans, pb = "pb2")
   		    }

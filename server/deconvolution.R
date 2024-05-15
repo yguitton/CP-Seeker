@@ -25,6 +25,8 @@
 #'
 #' @example
 #' \dontrun{get_eic(xr, c(640.636, 640.637))}
+
+# BASIC VERSION IN R
 get_mzmat_eic <- function(xr, mz_range) {
 	ids <- which(xr@env$mz >= mz_range[[1]] & 
 		xr@env$mz <= mz_range[[2]])
@@ -44,24 +46,37 @@ get_mzmat_eic <- function(xr, mz_range) {
 	)
 }
 
-# get_mzmat_eic_arg <- function(intensity_values, mz_values, scanindex_values, scantime_values, mz_range) {
-# 	ids <- which(mz_values >= mz_range[[1]] & 
-# 		mz_values <= mz_range[[2]])
-# 	scans <- sapply(ids, function(id) which.min(abs(scanindex_values - id)))
-# 	mzmat <- matrix(c(scans, mz_values[ids], intensity_values[ids]), 
-# 		ncol = 3, dimnames = list(c(), c("scan", "mz", "int")))
-# 	eic <- matrix(seq(scantime_values), ncol = 1, dimnames = list(c(), c("scan")))
-# 	eic <- cbind(eic, int = 0)
-# 	if (nrow(mzmat) > 0) {
-# 		eic <- rbind(eic, mzmat[, c("scan", "int")])
-# 		eic <- aggregate(int ~ scan, data = eic, FUN = sum)
-# 	}
-# 	eic <- cbind(eic, rt = scantime_values)
-# 	list(
-# 		mzmat = mzmat, 
-# 		eic = eic
-# 	)
-# }
+# BASIC VERSION IN R + FUNCTION INPUT ARGUMENTS
+# WILL BE USED TO CREATE THE EQUIVALENT C++ FUNCTION (VARIABLES KNOWN AND EASIER TO USE)
+get_mzmat_eic_arg <- function(intensity_values, mz_values, scanindex_values, scantime_values, mz_range) {
+    # Filter indices based on mz range
+    ids <- which(mz_values >= mz_range[[1]] & mz_values <= mz_range[[2]])
+    
+    # Determine scan indices corresponding to selected mz values
+    scans <- sapply(ids, function(id) which.min(abs(scanindex_values - id)))
+    
+    # Create a matrix containing scan, mz, and intensity values for selected mz range
+    mzmat <- matrix(c(scans, mz_values[ids], intensity_values[ids]), ncol = 3, dimnames = list(c(), c("scan", "mz", "int")))
+    
+    # Create an empty EIC matrix with a column for scan index and intensity
+    eic <- matrix(seq(scantime_values), ncol = 1, dimnames = list(c(), c("scan")))
+    eic <- cbind(eic, int = 0)
+    
+    # If mzmat is not empty, populate the EIC matrix with relevant scan and intensity values
+    if (nrow(mzmat) > 0) {
+        eic <- rbind(eic, mzmat[, c("scan", "int")])
+        eic <- aggregate(int ~ scan, data = eic, FUN = sum)
+    }
+    
+    # Add scan time (rt) information to the EIC matrix
+    eic <- cbind(eic, rt = scantime_values)
+    
+    # Return a list containing the mzmat (matrix of scan, mz, and intensity values) and the EIC (matrix of scan, index and intensity values)
+    list(
+        mzmat = mzmat,
+        eic = eic
+    )
+}
 
 #' @title Detect ROIs
 #' 
@@ -78,15 +93,30 @@ get_mzmat_eic <- function(xr, mz_range) {
 #' This function is R code that has been converted to C++ using the Rcpp library.
 #' The package name is cppFuncs and contains the corresponding C++ code.
 get_rois <- function(ints, min_width, missing_scans = 1) {
-	baseline <- suppressWarnings(runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach"))
-	rois <- which(ints - baseline > 0)
-	if (length(rois) == 0) return(NULL)
-	rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
-	rois <- rois[which(lengths(rois) >= min_width)]
-	if (length(rois) == 0) return(NULL)
-	roi <- rois[which(sapply(1:length(rois), function(x) which.max(ints) %in% rois[[x]]))]
-	if (length(roi) == 0) return(NULL)
-	else range(roi)
+    # Calculate baseline using a running median
+    baseline <- suppressWarnings(runmed(ints, length(ints) / 3, endrule = "constant", algorithm = "Turlach"))
+    
+    # Identify regions of interest where signal intensity exceeds the baseline
+    rois <- which(ints - baseline > 0)
+    
+    # If no regions of interest are found, return NULL
+    if (length(rois) == 0) return(NULL)
+    
+    # Split the indices of regions of interest into contiguous groups
+    rois <- split(rois, cumsum(c(TRUE, diff(rois) > missing_scans + 1)))
+    
+    # Filter regions by minimum width requirement
+    rois <- rois[which(lengths(rois) >= min_width)]
+    
+    # If no regions meet the minimum width requirement, return NULL
+    if (length(rois) == 0) return(NULL)
+    
+    # Determine the region containing the maximum intensity point
+    roi <- rois[which(sapply(1:length(rois), function(x) which.max(ints) %in% rois[[x]]))]
+    
+    # If no region contains the maximum intensity point, return NULL
+    if (length(roi) == 0) return(NULL)
+    else range(roi)
 }
 
 #' @title Overlap ROIs
@@ -100,19 +130,30 @@ get_rois <- function(ints, min_width, missing_scans = 1) {
 #' This function is R code that has been converted to C++ using the Rcpp library.
 #' The package name is cppFuncs and contains the corresponding C++ code.
 overlap_rois <- function(rois) {
-	if (length(rois) < 2) return(rois)
-	rois_final <- rois[1]
-	rois <- rois[-1]
-	for (roi in rois) {
-		id <- which(sapply(rois_final, function(x) 
-			x[1] <= roi[2] & x[2] >= roi[1]))
-		if (length(id) == 0) rois_final <- append(rois_final, list(roi))
-		else {
-			rois_final[[id]][1] <- min(rois_final[[id]][1], roi[1])
-			rois_final[[id]][2] <- max(rois_final[[id]][2], roi[2])
-		}
-	}
-	rois_final
+    # Check if there are fewer than 2 regions; if so, return the input as is
+    if (length(rois) < 2) return(rois)
+    
+    # Initialize the final list of regions with the first region
+    rois_final <- rois[1]
+    rois <- rois[-1]  # Remove the first region from the input list
+    
+    # Iterate over each region in the remaining list of regions
+    for (roi in rois) {
+        # Find the index of the overlapping region in rois_final
+        id <- which(sapply(rois_final, function(x) x[1] <= roi[2] & x[2] >= roi[1]))
+        
+        # If no overlapping region is found, add the current region to rois_final
+        if (length(id) == 0) {
+            rois_final <- append(rois_final, list(roi))
+        } else {
+            # If an overlapping region is found, update its boundaries in rois_final
+            rois_final[[id]][1] <- min(rois_final[[id]][1], roi[1])
+            rois_final[[id]][2] <- max(rois_final[[id]][2], roi[2])
+        }
+    }
+    
+    # Return the final list of merged overlapping regions
+    rois_final
 }
 
 #' @title Search the minimum of a curve
@@ -130,19 +171,28 @@ overlap_rois <- function(rois) {
 #' This function is R code that has been converted to C++ using the Rcpp library.
 #' The package name is cppFuncs and contains the corresponding C++ code.
 descend_min <- function(y, center, minPts = 1) {
-	left <- if (center != 1) {
-		lefts <- split((center - 1):1, 
-			cumsum(diff(y[center:1]) < 0))
-		limit <- which(lengths(lefts) > minPts + 1)[1]
-		if (is.na(limit)) 1 else lefts[[limit]][1]
-	} else center
-	right <- if (center != length(y)) {
-		rights <- split((center + 1):length(y),
-			cumsum(diff(y[center:length(y)]) < 0))
-		limit <- which(lengths(rights) > minPts + 1)[1]
-		if (is.na(limit)) 1 else rights[[limit]][1]
-	} else center
-	c(left, right)
+    # Determine the new left boundary based on descending values towards the left of the center
+    left <- if (center != 1) {  # Check if the center is not at the beginning of the vector
+        # Split the indices from (center - 1) to 1 based on where values are decreasing
+        lefts <- split((center - 1):1, cumsum(diff(y[center:1]) < 0))
+        # Find the first split segment with a length greater than minPts + 1
+        limit <- which(lengths(lefts) > minPts + 1)[1]
+        # Return the first element of the split segment as the new left boundary
+        if (is.na(limit)) 1 else lefts[[limit]][1]
+    } else center  # If the center is at the beginning, keep the center as the left boundary
+
+    # Determine the new right boundary based on descending values towards the right of the center
+    right <- if (center != length(y)) {  # Check if the center is not at the end of the vector
+        # Split the indices from (center + 1) to the end based on where values are decreasing
+        rights <- split((center + 1):length(y), cumsum(diff(y[center:length(y)]) < 0))
+        # Find the first split segment with a length greater than minPts + 1
+        limit <- which(lengths(rights) > minPts + 1)[1]
+        # Return the first element of the split segment as the new right boundary
+        if (is.na(limit)) length(y) else rights[[limit]][1]
+    } else center  # If the center is at the end, keep the center as the right boundary
+
+    # Return the adjusted new left and right boundaries
+    c(left, right)
 }
 
 #' @title Extend the x range
@@ -156,21 +206,33 @@ descend_min <- function(y, center, minPts = 1) {
 #' @param minPts integer minimum of consecutive points to consider reaching sufficient 0 values
 #' 
 #' @return two integer: the new borns min / max
-narrow_rt_boundaries_extend <- function(xrange, center, y, minPts = 1){
-	left <- if(xrange[1] != 1){
-		lefts <- (xrange[1]:1)[which(y[xrange[1]:1] <= 0)]
-		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > 1)))
-		limit <- which(lengths(limits) > minPts + 1)[1]
-		if(is.na(limit)) 1 else limits[[limit]][1]
-	} else xrange[1]
-	
-	right <- if(xrange[2] != length(y)){
-		rights <- (xrange[2]:length(y))[which(y[xrange[2]:length(y)] <= 0)]
-		limits <- split(rights, cumsum(c(TRUE, diff(rights) > 1)))
-		limit <- which(lengths(limits) > minPts + 1)[1]
-		if(is.na(limit)) length(y) else limits[[limit]][1]
-	} else xrange[2]
-	c(left, right)
+narrow_rt_boundaries_extend <- function(xrange, center, y, minPts = 1) {
+    # Find the new left boundary
+    left <- if (xrange[1] != 1) {  # Check if the start index of the interval is not 1
+        # Select indices where y is less than or equal to zero in the left part of the interval
+        lefts <- (xrange[1]:1)[which(y[xrange[1]:1] <= 0)]
+        # Split the indices into continuous ranges
+        limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > 1)))
+        # Find the first continuous range with a length greater than minPts + 1
+        limit <- which(lengths(limits) > minPts + 1)[1]
+        # Return the first element of the found continuous range as the new left boundary
+        if (is.na(limit)) 1 else limits[[limit]][1]
+    } else xrange[1]  # If the start index is 1, return the current start index
+
+    # Find the new right boundary
+    right <- if (xrange[2] != length(y)) {  # Check if the end index of the interval is not the end of vector y
+        # Select indices where y is less than or equal to zero in the right part of the interval
+        rights <- (xrange[2]:length(y))[which(y[xrange[2]:length(y)] <= 0)]
+        # Split the indices into continuous ranges
+        limits <- split(rights, cumsum(c(TRUE, diff(rights) > 1)))
+        # Find the first continuous range with a length greater than minPts + 1
+        limit <- which(lengths(limits) > minPts + 1)[1]
+        # Return the first element of the found continuous range as the new right boundary
+        if (is.na(limit)) length(y) else limits[[limit]][1]
+    } else xrange[2]  # If the end index is the end of y, return the current end index
+    
+    # Return the adjusted new boundaries
+    c(left, right)
 }
 
 #' @title Decrease the x range
@@ -184,24 +246,36 @@ narrow_rt_boundaries_extend <- function(xrange, center, y, minPts = 1){
 #' @param minPts integer minimum of consecutive points to consider reaching sufficient positive values
 #' 
 #' @return two integer: the new borns min / max
-narrow_rt_boundaries_reduce <- function(xrange, center, y, minPts = 1){
-	left <- if(xrange[1] != center){
-		lefts <- (xrange[1]:center)[which(y[xrange[1]:center] > 0)]
-		limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts + 1)))
-		limit <- which(lengths(limits) > minPts + 1)[1]
-		if(is.na(limit)) xrange[1] else limits[[limit]][1] - 1
-	} else xrange[1]
-	
-	right <- if(xrange[2] != center){
-		rights <- (xrange[2]:center)[which(y[xrange[2]:center] > 0)]
-		limits <- split(rights, cumsum(c(TRUE, diff(rights) > minPts + 1)))
-		limit <- which(lengths(limits) > minPts + 1)[1]
-		if(is.na(limit)) xrange[2] else limits[[limit]][1] + 1
-	} else xrange[2]
-	c(
-		ifelse (left < 1, 1 , left), 
-		ifelse (right > length(y), length(y), right)
-	)
+narrow_rt_boundaries_reduce <- function(xrange, center, y, minPts = 1) {
+	# Find the new left boundary
+    left <- if (xrange[1] != center) {  # Check if the start index of the interval is not equal to the center
+        # Select indices where y is greater than zero in the left part of the interval
+        lefts <- (xrange[1]:center)[which(y[xrange[1]:center] > 0)]
+        # Split the indices into continuous ranges
+        limits <- split(lefts, cumsum(c(TRUE, diff(lefts) > minPts + 1)))
+        # Find the first continuous range with a length greater than minPts + 1
+        limit <- which(lengths(limits) > minPts + 1)[1]
+        # Return the first element of the found continuous range as the new left boundary
+        if (is.na(limit)) xrange[1] else limits[[limit]][1] - 1
+    } else xrange[1]  # If the start index is equal to the center, return the current start index
+    
+    # Find the new right boundary
+    right <- if (xrange[2] != center) {  # Check if the end index of the interval is not equal to the center
+        # Select indices where y is greater than zero in the right part of the interval
+        rights <- (xrange[2]:center)[which(y[xrange[2]:center] > 0)]
+        # Split the indices into continuous ranges
+        limits <- split(rights, cumsum(c(TRUE, diff(rights) > minPts + 1)))
+        # Find the first continuous range with a length greater than minPts + 1
+        limit <- which(lengths(limits) > minPts + 1)[1]
+        # Return the first element of the found continuous range as the new right boundary
+        if (is.na(limit)) xrange[2] else limits[[limit]][1] + 1
+    } else xrange[2]  # If the end index is equal to the center, return the current end index
+    
+    # Return the adjusted new boundaries
+    c(
+        ifelse(left < 1, 1, left),  # Limit the new left boundary to 1 if it is less than 1
+        ifelse(right > length(y), length(y), right)  # Limit the new right boundary to the length of y if it exceeds this length
+    )
 }
 
 #' @title Search overlaping peaks
@@ -430,8 +504,8 @@ integrate <- function(eic, scalerange, baseline, noise, missing_scans, mzmat) {
 		# now try to find end of both side of the scale
 		lwpos <- max(1, best.scale.pos - best.scale)
 		rwpos <- min(nrow(eic), best.scale.pos + best.scale)
-		# lm <- cppFuncs::descend_min_cpp(wCoefs[, best.scale], best.scale.pos)
-		lm <- descend_min(wCoefs[, best.scale], best.scale.pos)
+		lm <- cppFuncs::descend_min_cpp(wCoefs[, best.scale], best.scale.pos)
+		# lm <- descend_min(wCoefs[, best.scale], best.scale.pos)
 		if (length(lm) < 2) return(NULL)
 		else if (lm[2] - lm[1] < scales[1]) return(NULL)
 		integrate2(eic, lm, baseline, noise, missing_scans, mzmat, 
@@ -489,10 +563,10 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 	# 	eic[, "int"] - baseline, missing_scans)
 	lm <- cppFuncs::narrow_rt_boundaries_extend_cpp(lm, center, 
 		eic[, "int"] - baseline, missing_scans)
-	lm <- narrow_rt_boundaries_reduce(lm, center, 
-		eic[, "int"] - baseline, missing_scans)
-	# lm <- cppFuncs::narrow_rt_boundaries_reduce_cpp(lm, center, 
+	# lm <- narrow_rt_boundaries_reduce(lm, center, 
 	# 	eic[, "int"] - baseline, missing_scans)
+	lm <- cppFuncs::narrow_rt_boundaries_reduce_cpp(lm, center, 
+		eic[, "int"] - baseline, missing_scans)
 
 	if(diff(lm) <= 0) return(NULL)
 	mz_vals <- mzmat[which(
@@ -575,7 +649,7 @@ integrate2 <- function(eic, lm, baseline, noise, missing_scans, mzmat, scale = N
 #' 		\item intensities float standardized intensities
 #' 		\item weighted_deviation float weighted deviation
 #' }
-deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
+deconvolution <- function(xr, intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns, chemical_ids, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL, reintegration = FALSE) {
     peaks <- NULL
     pb_max <- length(theoric_patterns)
@@ -593,14 +667,25 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 	time_begin <- Sys.time()
 	print(time_begin)
 
+	# traces <- get_mzmat_eic(xr, theoric_patterns[[1]][1, c("mzmin", "mzmax")])
+	# print("TRACES")
+	# print(traces)
+	# roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
+	# print("ROI")
+	# print(roi)
+
 	# Loop parallelization with parLapply
     peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
-		# traces <- get_mzmat_eic(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-        roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
+		# traces <- get_mzmat_eic_arg(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")]) # Version de base avec les variables en argument
+		# traces <- cppFuncs::get_mzmat_eic_cpp(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")]) # Adaptation en Rcpp (non fonctionnelle)
+        # roi <- get_rois(traces$eic[, "int"], scalerange[1])
+		roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) return(NULL)
-        traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
+        traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j)
             get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
+			# get_mzmat_eic_arg(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])))
+			# cppFuncs::get_mzmat_eic_cpp(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])))
         baselines <- lapply(traces, function(x) 
             suppressWarnings(runmed(x$eic[, "int"], nrow(x$eic) / 3, endrule = "constant", algorithm = "Turlach")))
         noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))
@@ -687,7 +772,7 @@ deconvolution <- function(xr, theoric_patterns, chemical_ids, scalerange, scanra
 }
 
 
-deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerange, scanrange = NULL, 
+deconvolution_std <- function(xr, intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns, chemical_ids = NA, scalerange, scanrange = NULL, 
 		missing_scans = 1, pb = NULL, reintegration = FALSE) {
     peaks <- NULL
     pb_max <- length(theoric_patterns)
@@ -705,10 +790,20 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
 	time_begin <- Sys.time()
 	print(time_begin)
 
+	# traces <- get_mzmat_eic(xr, theoric_patterns[[1]][1, c("mzmin", "mzmax")])
+	# print("TRACES")
+	# print(traces)
+	# roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
+	# print("ROI")
+	# print(roi)
+	
     # Loop parallelization with parLapply
     peaks <- parallel::parLapplyLB(cl, seq_along(theoric_patterns), function(i) {
         traces <- get_mzmat_eic(xr, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
-        roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
+		# traces <- get_mzmat_eic_arg(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
+		# traces <- cppFuncs::get_mzmat_eic_cpp(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])
+        # roi <- get_rois(traces$eic[, "int"], scalerange[1])
+		roi <- cppFuncs::get_rois_cpp(traces$eic[, "int"], scalerange[1])
         if (length(roi) == 0) {
             norois <- c(mz = NA, mzmin = NA, mzmax = NA, rt = NA, rtmin = NA, rtmax = NA, into = NA, intb = NA, maxo = NA, sn = NA, scale = NA,
                         scpos = NA, scmin = NA, scmax = NA, lmin = NA, lmax = NA, abundance = NA, iso = "no ROIs", score = NA, deviation = NA, chemical_ion = chemical_ids[i], 
@@ -717,6 +812,8 @@ deconvolution_std <- function(xr, theoric_patterns, chemical_ids = NA, scalerang
         }
         traces <- append(list(traces), lapply(2:nrow(theoric_patterns[[i]]), function(j) 
             get_mzmat_eic(xr, theoric_patterns[[i]][j, c("mzmin", "mzmax")])))
+			# get_mzmat_eic_arg(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])))
+			# cppFuncs::get_mzmat_eic_cpp(intensity_values, mz_values, scanindex_values, scantime_values, theoric_patterns[[i]][1, c("mzmin", "mzmax")])))
         baselines <- lapply(traces, function(x) 
             suppressWarnings(runmed(x$eic[, "int"], nrow(x$eic) / 3, endrule = "constant", algorithm = "Turlach")))
         noises <- sapply(traces, function(x) sd(x$eic[-c(roi[1]:roi[2]), "int"]))

@@ -304,58 +304,46 @@ IntegerVector narrow_rt_boundaries_reduce_cpp(IntegerVector xrange, int center, 
   if (xrange[0] != center) {
     IntegerVector lefts;
     for (int i = xrange[0]; i <= center; ++i) {
-      if (y[i] > 0) {
+      if (y[i] <= 0) {
         lefts.push_back(i);
       }
     }
 
     // Calculer les limites des plages continues d'indices
-    NumericVector cumsum = cumulative_sum(y[xrange[0] <= center]);
-    IntegerVector limits;
-    for (int j = xrange[0]; j <= center; ++j) {
-      if (y[j] > 0 && (j == xrange[0] || y[j - 1] <= 0)) {
-        limits.push_back(j);
+    int limit_left = 0;
+    for (int j = 1; j < lefts.size(); ++j) {
+      if (lefts[j - 1] != lefts[j] - 1) {
+        if (j - limit_left > minPts + 1) {
+          left = lefts[limit_left];
+          break;
+        }
+        limit_left = j;
       }
     }
-
-    int limit = 0;
-    for (int j = 0; j < limits.size(); ++j) {
-      if (limits[j] - xrange[0] > minPts + 1) {
-        limit = limits[j];
-        break;
-      }
-    }
-    left = limit == 0 ? xrange[0] : limits[limit] - 1;
   }
 
   // Trouver le nouveau bornage max à droite
   if (xrange[1] != center) {
     IntegerVector rights;
     for (int i = xrange[1]; i >= center; --i) {
-      if (y[i] > 0) {
+      if (y[i] <= 0) {
         rights.push_back(i);
       }
     }
 
     // Calculer les limites des plages continues d'indices
-    NumericVector cumsum = cumulative_sum(y[center <= xrange[1]]);
-    IntegerVector limits;
-    for (int j = center; j <= xrange[1]; ++j) {
-      if (y[j] > 0 && (j == center || y[j + 1] <= 0)) {
-        limits.push_back(j);
+    int limit_right = 0;
+    for (int j = 1; j < rights.size(); ++j) {
+      if (rights[j - 1] != rights[j] + 1) {
+        if (j - limit_right > minPts + 1) {
+          right = rights[limit_right];
+          break;
+        }
+        limit_right = j;
       }
     }
-
-    int limit = 0;
-    for (int j = 0; j < limits.size(); ++j) {
-      if (xrange[1] - limits[j] > minPts + 1) {
-        limit = limits[j];
-        break;
-      }
-    }
-    right = limit == 0 ? xrange[1] : limits[limit] + 1;
   }
 
   // Retourner les nouveaux bornages min et max
-  return IntegerVector::create(std::max(1, left), std::min(n, right)); // Limiter les bornages dans les limites valides
+  return IntegerVector::create(left + 1, right + 1); // Ajouter 1 pour convertir de 0-indexed à 1-indexed
 }
