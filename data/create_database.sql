@@ -20,7 +20,11 @@ CREATE TABLE `sample` (
 	`number_of_scan_range` TEXT, 
 	`scan_range` TEXT,
 	`mz_min` REAL,
-	`mz_max` REAL
+	`mz_max` REAL,
+	`sample_type` TEXT,
+	`subclass_name` TEXT,
+	`chlorination_degree` INTEGER,
+	`concentration` INTEGER
 );
 CREATE TABLE `project_sample` ( 
 	`project_sample` INTEGER PRIMARY KEY AUTOINCREMENT, 
