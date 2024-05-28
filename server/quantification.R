@@ -1,11 +1,24 @@
 ################################################
 #' Ce qu'il reste à faire :
-#' 1 -  Plusieurs sous-classes possibles par échantillon.
-#' 2 - Ajouter du javascript dans le tableau pour ne laisser la sélection possible uniquement pour "sample type"
+#' 1 - Plusieurs sous-classes possibles par échantillon. Possibilité d'en ajouter d'autres que seulement SCCP, MCCP et LCCP.
+#' 2 - Ajouter du javascript dans le tableau pour ne laisser la sélection possible uniquement pour "sample type" (dynamique)
 #' 3 - Ajouter un système de dropdown dans le tableau (sélection simple pour sample_type et multiple pour subclass_name)
 #' 4 - Ajouter les vérifiactions nécessaire pour empécher les erreurs d'input.
-#' 5 - 
+#' 5 - Système d'étapes. D'abord l'intégration avant la quanti, une fois dans la quanti : Sample List > Homologue Domain > Internal Standard > Filters
+#' 6 - Récupérer les matrices des aires pour chaque échantillon associés
+#' 7 - Afficher les valeurs de la matrice avec les aires maximales pour chaque sous classe dans la partie Homologue Domain pour faciliter la sélection des régions.
 
+#########################################
+################## SQL ##################
+#########################################
+
+#' Ces requêtes vont devoir être transférés dans les fichiers db_get etc...
+
+# Variable réactive pour stocker les noms de sous-classes
+subclass_names_reactive <- reactive({
+  invalidateLater(1000, session)  # Vérifier les modifications toutes les 1 secondes
+  db_get_query(db, "SELECT DISTINCT subclass_name FROM sample WHERE subclass_name IS NOT NULL AND subclass_name != ''")$subclass_name
+})
 
 #####################################
 ############ Sample List ############
@@ -67,6 +80,8 @@ observeEvent(input$quanti_table_cell_edit, {
 
     # Exécution de la requête
     dbExecute(db, update_query, params = list(value, sample_id))
+
+    subclass_names_list <- subclass_names_reactive()
   }
 })
 
@@ -74,41 +89,50 @@ observeEvent(input$quanti_table_cell_edit, {
 ############ Homologue Domain ############
 ##########################################
 
-#' Le but est de retourner 3 matrices vides
+#' Le but est de retourner des matrices vides pour chaque sous classe
 #' L'utilisateur va selectionner les groupes d'homologue dans chaque matrice
 #' Les matrices vont avoir C6-C36 première colonne et Cl3-Cl30 en première ligne
+#' Les groupes d'homologues selectionnés vont être stockés par matrice
 
-# Les groupes d'homologues selectionnés vont être stockés par matrice (SCCP, MCCP, LCCP)
+output$quanti_subclass_dropdown <- shiny::renderUI({
+  subclass_names_list <- subclass_names_reactive()
+  
+  bsplus::shinyInput_label_embed(
+    shiny::selectInput("quanti_subclass_dropdown", "Subclass Name", choices = subclass_names_list, multiple = FALSE),
+    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Select Subclass')
+  )
+})
 
-# Créer une matrice vide avec les dimensions et paramètres désirées
-sccp_matrix_initial <- matrix(ncol = 28, nrow = 31)
-colnames(sccp_matrix_initial) <- paste0("Cl", 3:30)
-rownames(sccp_matrix_initial) <- paste0("C", 6:36)
+# Stocker les matrices et les sélections de cellules pour chaque sous-classe
+matrix_list <- reactiveVal(list())
+selected_cells_list <- reactiveVal(list())
 
-mccp_matrix_initial <- matrix(ncol = 28, nrow = 31)
-colnames(mccp_matrix_initial) <- paste0("Cl", 3:30)
-rownames(mccp_matrix_initial) <- paste0("C", 6:36)
+observe({
+  subclass_names_list <- subclass_names_reactive()
+  
+  matrices <- lapply(subclass_names_list, function(subclass) {
+    matrix <- matrix(ncol = 28, nrow = 31)
+    colnames(matrix) <- paste0("Cl", 3:30)
+    rownames(matrix) <- paste0("C", 6:36)
+    as.data.frame(matrix)
+  })
+  
+  names(matrices) <- subclass_names_list
+  matrix_list(matrices)
+  
+  # Initialiser les sélections de cellules pour chaque sous-classe
+  selected_cells <- lapply(subclass_names_list, function(subclass) {
+    data.frame(row = integer(0), col = integer(0))
+  })
+  names(selected_cells) <- subclass_names_list
+  selected_cells_list(selected_cells)
+})
 
-lccp_matrix_initial <- matrix(ncol = 28, nrow = 31)
-colnames(lccp_matrix_initial) <- paste0("Cl", 3:30)
-rownames(lccp_matrix_initial) <- paste0("C", 6:36)
 
-# Réactifs pour stocker les matrices vides pour chaque type
-sccp_matrix <- reactiveVal(as.data.frame(sccp_matrix_initial))
-mccp_matrix <- reactiveVal(as.data.frame(mccp_matrix_initial))
-lccp_matrix <- reactiveVal(as.data.frame(lccp_matrix_initial))
-
-# Réactifs pour stocker les sélections pour chaque type
-selected_cells_sccp <- reactiveVal(data.frame(row = integer(0), col = integer(0)))
-selected_cells_mccp <- reactiveVal(data.frame(row = integer(0), col = integer(0)))
-selected_cells_lccp <- reactiveVal(data.frame(row = integer(0), col = integer(0)))
-
-# Render DataTable en fonction du type sélectionné
 output$quanti_matrix_homologue <- DT::renderDataTable({
-  matrix_to_display <- switch(input$quanti_subclass_dropdown,
-                              "SCCP" = sccp_matrix(),
-                              "MCCP" = mccp_matrix(),
-                              "LCCP" = lccp_matrix())
+  req(input$quanti_subclass_dropdown)
+  matrices <- matrix_list()
+  matrix_to_display <- matrices[[input$quanti_subclass_dropdown]]
   
   datatable(matrix_to_display, 
             selection = list(mode = 'multiple', target = 'cell'),
@@ -121,26 +145,19 @@ output$quanti_matrix_homologue <- DT::renderDataTable({
   )
 })
 
-# Observer pour stocker les sélections en fonction du type
 observeEvent(input$quanti_matrix_homologue_cells_selected, {
   cells <- input$quanti_matrix_homologue_cells_selected
   if (!is.null(cells)) {
-    if (input$quanti_subclass_dropdown == "SCCP") {
-      selected_cells_sccp(cells)
-    } else if (input$quanti_subclass_dropdown == "MCCP") {
-      selected_cells_mccp(cells)
-    } else if (input$quanti_subclass_dropdown == "LCCP") {
-      selected_cells_lccp(cells)
-    }
+    selected_cells <- selected_cells_list()
+    selected_cells[[input$quanti_subclass_dropdown]] <- cells
+    selected_cells_list(selected_cells)
   }
 })
 
-# Observer pour réappliquer les sélections lors du changement de sous-classe
 observe({
-  cells <- switch(input$quanti_subclass_dropdown,
-                  "SCCP" = selected_cells_sccp(),
-                  "MCCP" = selected_cells_mccp(),
-                  "LCCP" = selected_cells_lccp())
+  req(input$quanti_subclass_dropdown)
+  selected_cells <- selected_cells_list()
+  cells <- selected_cells[[input$quanti_subclass_dropdown]]
   
   if (!is.null(cells)) {
     proxy <- dataTableProxy('quanti_matrix_homologue')
@@ -153,148 +170,68 @@ observe({
 ############ Internal Standard ############
 ###########################################
 
-#' Permet de choisir un étalon interne.
-#' Choisir 1 ou plusieurs ?
-#' Sur une famille d'homologue ?
-#' Sur un type de chaine (SCCP, MCCP, LCCP) ?
-#' En fonction des adduits ?
+#' Permet de choisir un étalon interne (dynamiquement)
+#' Permet de choisir les adduits associés (dynamiquement)
 
-# Adduct choices for chemical type from DB
-output$quanti_IS_chemical_adduct_SCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT adduct, chemical_ion_family FROM chemical_ion"))
-  splitTable <- split(table$adduct, table$chemical_ion_family)
-  for (x in names(splitTable)) {
-    if (length(splitTable[[x]]) < 2) {
-      names(splitTable[[x]]) <- splitTable[[x]]
-    }
-  }
-  bsplus::shinyInput_label_embed(
-    shiny::selectInput("quanti_IS_chemical_adduct_SCCP", "Adduct(s) for SCCP", choices = splitTable, multiple = TRUE),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Adduct(s) to use for SCCP')
-  )
-})
-
-output$quanti_IS_standard_formula_SCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT chemical_type, chemical_familly FROM chemical"))
-  table <- table[which(table$chemical_familly == "Standard"), ]
-  std_list <- table$chemical_type
-  bsplus::shinyInput_label_embed(
-    shinyWidgets::pickerInput("quanti_IS_standard_formula_SCCP", "Standard formula for SCCP", choices = std_list),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = "Formula of the standard for SCCP")
-  )
-})
-
-output$quanti_IS_chemical_adduct_MCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT adduct, chemical_ion_family FROM chemical_ion"))
-  splitTable <- split(table$adduct, table$chemical_ion_family)
-  for (x in names(splitTable)) {
-    if (length(splitTable[[x]]) < 2) {
-      names(splitTable[[x]]) <- splitTable[[x]]
-    }
-  }
-  bsplus::shinyInput_label_embed(
-    shiny::selectInput("quanti_IS_chemical_adduct_MCCP", "Adduct(s) for MCCP", choices = splitTable, multiple = TRUE),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Adduct(s) to use for MCCP')
-  )
-})
-
-output$quanti_IS_standard_formula_MCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT chemical_type, chemical_familly FROM chemical"))
-  table <- table[which(table$chemical_familly == "Standard"), ]
-  std_list <- table$chemical_type
-  bsplus::shinyInput_label_embed(
-    shinyWidgets::pickerInput("quanti_IS_standard_formula_MCCP", "Standard formula for MCCP", choices = std_list),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = "Formula of the standard for MCCP")
-  )
-})
-
-output$quanti_IS_chemical_adduct_LCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT adduct, chemical_ion_family FROM chemical_ion"))
-  splitTable <- split(table$adduct, table$chemical_ion_family)
-  for (x in names(splitTable)) {
-    if (length(splitTable[[x]]) < 2) {
-      names(splitTable[[x]]) <- splitTable[[x]]
-    }
-  }
-  bsplus::shinyInput_label_embed(
-    shiny::selectInput("quanti_IS_chemical_adduct_LCCP", "Adduct(s) for LCCP", choices = splitTable, multiple = TRUE),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Adduct(s) to use for LCCP')
-  )
-})
-
-output$quanti_IS_standard_formula_LCCP <- shiny::renderUI({
-  table <- unique(db_get_query(db, "SELECT chemical_type, chemical_familly FROM chemical"))
-  table <- table[which(table$chemical_familly == "Standard"), ]
-  std_list <- table$chemical_type
-  bsplus::shinyInput_label_embed(
-    shinyWidgets::pickerInput("quanti_IS_standard_formula_LCCP", "Standard formula for LCCP", choices = std_list),
-    bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = "Formula of the standard for LCCP")
-  )
-})
-
-
-# Stockage des sélections dans des variables réactives
-selected_adducts <- reactiveValues(SCCP = NULL, MCCP = NULL, LCCP = NULL)
-selected_standards <- reactiveValues(SCCP = NULL, MCCP = NULL, LCCP = NULL)
-
-observeEvent(input$quanti_IS_chemical_adduct_SCCP, {
-  selected_adducts$SCCP <- input$quanti_IS_chemical_adduct_SCCP
-  print(selected_adducts$SCCP)
-})
-
-observeEvent(input$quanti_IS_standard_formula_SCCP, {
-  selected_standards$SCCP <- input$quanti_IS_standard_formula_SCCP
-  print(selected_standards$SCCP)
-})
-
-observeEvent(input$quanti_IS_chemical_adduct_MCCP, {
-  selected_adducts$MCCP <- input$quanti_IS_chemical_adduct_MCCP
-  print(selected_adducts$MCCP)
-})
-
-observeEvent(input$quanti_IS_standard_formula_MCCP, {
-  selected_standards$MCCP <- input$quanti_IS_standard_formula_MCCP
-  print(selected_standards$MCCP)
-})
-
-observeEvent(input$quanti_IS_chemical_adduct_LCCP, {
-  selected_adducts$LCCP <- input$quanti_IS_chemical_adduct_LCCP
-  print(selected_adducts$LCCP)
-})
-
-observeEvent(input$quanti_IS_standard_formula_LCCP, {
-  selected_standards$LCCP <- input$quanti_IS_standard_formula_LCCP
-  print(selected_standards$LCCP)
-})
-
-# Utiliser les sélections pour des calculs ou autres actions
-# observeEvent(input$run_calculation, {
-#   # Par exemple, exécuter un calcul basé sur les sélections
-#   adducts_SCCP <- selected_adducts$SCCP
-#   standard_SCCP <- selected_standards$SCCP
-#   # Faites des calculs avec adducts_SCCP et standard_SCCP
-#   print("SCCP Adducts:")
-#   print(adducts_SCCP)
-#   print("SCCP Standard:")
-#   print(standard_SCCP)
+output$quanti_dynamic_IS <- shiny::renderUI({
+  # Récupérer les sous-classes depuis la base de données
+  subclass_names_list <- subclass_names_reactive()
   
-#   adducts_MCCP <- selected_adducts$MCCP
-#   standard_MCCP <- selected_standards$MCCP
-#   # Faites des calculs avec adducts_MCCP et standard_MCCP
-#   print("MCCP Adducts:")
-#   print(adducts_MCCP)
-#   print("MCCP Standard:")
-#   print(standard_MCCP)
-  
-#   adducts_LCCP <- selected_adducts$LCCP
-#   standard_LCCP <- selected_standards$LCCP
-#   # Faites des calculs avec adducts_LCCP et standard_LCCP
-#   print("LCCP Adducts:")
-#   print(adducts_LCCP)
-#   print("LCCP Standard:")
-#   print(standard_LCCP)
-# })
+  # Générer les div pour chaque sous-classe
+  lapply(subclass_names_list, function(subclass) {
+    shiny::fluidRow(
+      shiny::column(width = 12,
+        div(
+          shiny::column(width = 2, subclass),
+          shiny::column(width = 5, shiny::uiOutput(paste0("quanti_IS_chemical_adduct_", subclass))),
+          shiny::column(width = 5, shiny::uiOutput(paste0("quanti_IS_standard_formula_", subclass)))
+        )
+      )
+    )
+  })
+})
 
+# Générer dynamiquement les `uiOutput` pour chaque sous-classe
+observe({
+  # Récupérer les sous-classes depuis la base de données en filtrant les valeurs vides ou NA
+  project_id <- input$project
+  subclass_names_list <- subclass_names_reactive()
+  
+  # Générer dynamiquement les `uiOutput` pour chaque sous-classe
+  lapply(subclass_names_list, function(subclass) {
+    local({
+      subclass_local <- subclass
+
+      output[[paste0("quanti_IS_chemical_adduct_", subclass_local)]] <- shiny::renderUI({
+        table <- unique(db_get_query(db, sprintf("SELECT adduct FROM deconvolution_param WHERE project = %s", project_id)))
+        adduct_list <- table$adduct
+        
+        bsplus::shinyInput_label_embed(
+          shiny::selectInput(paste0("process_adduct_", subclass_local), "Adduct(s)", choices = adduct_list, multiple = TRUE),
+          bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Adduct(s) to use')
+        )
+      })
+      
+      output[[paste0("quanti_IS_standard_formula_", subclass_local)]] <- shiny::renderUI({
+        query <- sprintf("SELECT chemical_type 
+                          FROM chemical 
+                          WHERE chemical_familly = 'Standard' 
+                          AND chemical_type IN (
+                              SELECT chemical_type 
+                              FROM deconvolution_param 
+                              WHERE project = %s
+                          )", project_id)
+        table <- unique(db_get_query(db, query))
+        std_list <- table$chemical_type
+        
+        bsplus::shinyInput_label_embed(
+          shinyWidgets::pickerInput(paste0("process_standard_type_", subclass_local), "Standard formula", choices = std_list),
+          bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = "Formula of the standard")
+        )
+      })
+    })
+  })
+})
 
 
 #######################################

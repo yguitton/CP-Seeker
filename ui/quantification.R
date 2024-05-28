@@ -31,8 +31,7 @@ shinydashboard::tabItem(
       shiny::column(width = 12,
         div(
           shiny::column(width = 3, 
-            shiny::selectInput('quanti_subclass_dropdown', 'Subclass',
-              choices = c("SCCP", "MCCP", "LCCP")
+            shiny::uiOutput("quanti_subclass_dropdown")
             )
           ),
           shiny::column(width = 9,
@@ -40,40 +39,13 @@ shinydashboard::tabItem(
           )
         )
       )
-    )
   ),
   shiny::conditionalPanel(
     condition = "input.quantification_choice == 'Internal Standard'",
     shinydashboard::box(
       width = 12,
       title = "For each homologue family selected, choose an internal standard.",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          div(
-            shiny::column(width = 2, "SCCP"),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_SCCP")),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_SCCP"))
-          )
-        )
-      ),
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          div(
-            shiny::column(width = 2, "MCCP"),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_MCCP")),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_MCCP"))
-          )
-        )
-      ),
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          div(
-            shiny::column(width = 2, "LCCP"),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_LCCP")),
-            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_LCCP"))
-          )
-        )
-      )
+      shiny::uiOutput("quanti_dynamic_IS")
     )
   ),
   shiny::conditionalPanel(
