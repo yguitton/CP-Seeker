@@ -14,11 +14,16 @@
 
 #' Ces requêtes vont devoir être transférés dans les fichiers db_get etc...
 
-# Variable réactive pour stocker les noms de sous-classes
-subclass_names_reactive <- reactive({
-  invalidateLater(1000, session)  # Vérifier les modifications toutes les 1 secondes
-  db_get_query(db, "SELECT DISTINCT subclass_name FROM sample WHERE subclass_name IS NOT NULL AND subclass_name != ''")$subclass_name
-})
+get_subclass_names <- function(db_connection, project_id) {
+  subclass_names_query <- "SELECT DISTINCT s.subclass_name
+                           FROM sample s
+                           INNER JOIN project_sample ps ON s.sample = ps.sample
+                           INNER JOIN deconvolution_param dp ON ps.project = dp.project
+                           WHERE dp.project = ?"
+  
+  subclass_names <- dbGetQuery(db_connection, subclass_names_query, params = list(project_id))
+  return(subclass_names)
+}
 
 #####################################
 ############ Sample List ############
@@ -54,36 +59,52 @@ output$quanti_table <- DT::renderDataTable({
   DT::datatable(sample_list_data(), editable = list(target = "cell", disable = list(columns = c(0, 1))))  # Rendre certaines colonnes éditables
 })
 
-observeEvent(input$quanti_table_cell_edit, {
+subclass_names <- reactiveVal(NULL)
+
+observeEvent(c(input$quanti_table_cell_edit, input$project), {
+  req(input$project)  # S'assurer que input$project n'est pas NULL
+
+  project_id <- input$project
+  print(project_id)
+
   info <- input$quanti_table_cell_edit
   str(info)  # Afficher les informations de l'édition pour le débeugage
 
   # Récupérer les données actuelles
   data_df <- isolate(sample_list_data())
 
-  # Mettre à jour la valeur dans le data.frame
-  row <- info$row
-  col <- info$col
-  value <- info$value
+  # Vérifier si info est NULL
+  if (!is.null(info)) {
+    # Mettre à jour la valeur dans le data.frame
+    row <- info$row
+    col <- info$col
+    value <- info$value
 
-  # Vérifiez que les colonnes éditées sont parmi celles qu'on veut éditer
-  editable_columns <- c("sample_type", "subclass_name", "chlorination_degree", "concentration")
-  if (colnames(data_df)[col] %in% editable_columns) {
-    data_df[row, col] <- DT::coerceValue(value, data_df[row, col])
+    # Vérifiez que les colonnes éditées sont parmi celles qu'on veut éditer
+    editable_columns <- c("sample_type", "subclass_name", "chlorination_degree", "concentration")
+    if (colnames(data_df)[col] %in% editable_columns) {
+      data_df[row, col] <- DT::coerceValue(value, data_df[row, col])
 
-    # Requête pour UPDATE la bdd avec les modifications
-    sample_id <- data_df[row, "sample"]
-    column_name <- colnames(data_df)[col]
-    update_query <- sprintf(
-      "UPDATE sample SET %s = ? WHERE sample = ?", column_name
-    )
+      # Requête pour UPDATE la bdd avec les modifications
+      sample_id <- data_df[row, "sample"]
+      column_name <- colnames(data_df)[col]
+      update_query <- sprintf(
+        "UPDATE sample SET %s = ? WHERE sample = ?", column_name
+      )
 
-    # Exécution de la requête
-    dbExecute(db, update_query, params = list(value, sample_id))
+      # Exécution de la requête
+      dbExecute(db, update_query, params = list(value, sample_id))
+    }
+  }
 
-    subclass_names_list <- subclass_names_reactive()
+  # Si project_id n'est pas NULL, exécuter la nouvelle requête pour mettre à jour subclass_names
+  if (!is.null(project_id)) {
+    subclass_names <- get_subclass_names(db, project_id)
+    subclass_names <- subclass_names$subclass_name
+    subclass_names(subclass_names)
   }
 })
+
 
 ##########################################
 ############ Homologue Domain ############
@@ -94,11 +115,9 @@ observeEvent(input$quanti_table_cell_edit, {
 #' Les matrices vont avoir C6-C36 première colonne et Cl3-Cl30 en première ligne
 #' Les groupes d'homologues selectionnés vont être stockés par matrice
 
-output$quanti_subclass_dropdown <- shiny::renderUI({
-  subclass_names_list <- subclass_names_reactive()
-  
+output$quanti_subclass_dropdown <- shiny::renderUI({  
   bsplus::shinyInput_label_embed(
-    shiny::selectInput("quanti_subclass_dropdown", "Subclass Name", choices = subclass_names_list, multiple = FALSE),
+    shiny::selectInput("quanti_subclass_dropdown", "Subclass Name", choices = subclass_names(), multiple = FALSE),
     bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Select Subclass')
   )
 })
@@ -107,24 +126,22 @@ output$quanti_subclass_dropdown <- shiny::renderUI({
 matrix_list <- reactiveVal(list())
 selected_cells_list <- reactiveVal(list())
 
-observe({
-  subclass_names_list <- subclass_names_reactive()
-  
-  matrices <- lapply(subclass_names_list, function(subclass) {
+observe({ 
+  matrices <- lapply(subclass_names(), function(subclass) {
     matrix <- matrix(ncol = 28, nrow = 31)
     colnames(matrix) <- paste0("Cl", 3:30)
     rownames(matrix) <- paste0("C", 6:36)
     as.data.frame(matrix)
   })
   
-  names(matrices) <- subclass_names_list
+  names(matrices) <- subclass_names()
   matrix_list(matrices)
   
   # Initialiser les sélections de cellules pour chaque sous-classe
-  selected_cells <- lapply(subclass_names_list, function(subclass) {
+  selected_cells <- lapply(subclass_names(), function(subclass) {
     data.frame(row = integer(0), col = integer(0))
   })
-  names(selected_cells) <- subclass_names_list
+  names(selected_cells) <- subclass_names()
   selected_cells_list(selected_cells)
 })
 
@@ -173,12 +190,9 @@ observe({
 #' Permet de choisir un étalon interne (dynamiquement)
 #' Permet de choisir les adduits associés (dynamiquement)
 
-output$quanti_dynamic_IS <- shiny::renderUI({
-  # Récupérer les sous-classes depuis la base de données
-  subclass_names_list <- subclass_names_reactive()
-  
+output$quanti_dynamic_IS <- shiny::renderUI({ 
   # Générer les div pour chaque sous-classe
-  lapply(subclass_names_list, function(subclass) {
+  lapply(subclass_names(), function(subclass) {
     shiny::fluidRow(
       shiny::column(width = 12,
         div(
@@ -195,15 +209,14 @@ output$quanti_dynamic_IS <- shiny::renderUI({
 observe({
   # Récupérer les sous-classes depuis la base de données en filtrant les valeurs vides ou NA
   project_id <- input$project
-  subclass_names_list <- subclass_names_reactive()
   
   # Générer dynamiquement les `uiOutput` pour chaque sous-classe
-  lapply(subclass_names_list, function(subclass) {
+  lapply(subclass_names(), function(subclass) {
     local({
       subclass_local <- subclass
 
       output[[paste0("quanti_IS_chemical_adduct_", subclass_local)]] <- shiny::renderUI({
-        table <- unique(db_get_query(db, sprintf("SELECT adduct FROM deconvolution_param WHERE project = %s", project_id)))
+        table <- db_get_query(db, sprintf("SELECT DISTINCT adduct FROM deconvolution_param WHERE project = %s", project_id))
         adduct_list <- table$adduct
         
         bsplus::shinyInput_label_embed(
