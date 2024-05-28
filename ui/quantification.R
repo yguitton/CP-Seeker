@@ -17,8 +17,8 @@ shinydashboard::tabItem(
     condition = "input.quantification_choice == 'Sample List'",
     shinydashboard::box(
       width = 12,
+      title = "Double-click on the table to edit the database. In the sample_type column, enter : BLANK, CAL or SAMPLE.",
       div(
-        h3("Sample List"),
         DT::dataTableOutput('quanti_table')
       )
     )
@@ -27,9 +27,9 @@ shinydashboard::tabItem(
     condition = "input.quantification_choice == 'Homologue Domain'",
     shinydashboard::box(
       width = 12,
+      title = "Click on the matrix to select homologues domains according to carbon chain length type.",
       shiny::column(width = 12,
         div(
-          h3("Homologue Domain"),
           shiny::column(width = 3, 
             shiny::selectInput('quanti_subclass_dropdown', 'Subclass',
               choices = c("SCCP", "MCCP", "LCCP")
@@ -46,37 +46,65 @@ shinydashboard::tabItem(
     condition = "input.quantification_choice == 'Internal Standard'",
     shinydashboard::box(
       width = 12,
-      div(
-        h3("Internal Standard"),
-        DT::dataTableOutput('quanti_matrix_IS')
+      title = "For each homologue family selected, choose an internal standard.",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          div(
+            shiny::column(width = 2, "SCCP"),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_SCCP")),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_SCCP"))
+          )
+        )
+      ),
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          div(
+            shiny::column(width = 2, "MCCP"),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_MCCP")),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_MCCP"))
+          )
+        )
+      ),
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          div(
+            shiny::column(width = 2, "LCCP"),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_chemical_adduct_LCCP")),
+            shiny::column(width = 5, shiny::uiOutput("quanti_IS_standard_formula_LCCP"))
+          )
+        )
       )
     )
   ),
   shiny::conditionalPanel(
     condition = "input.quantification_choice == 'Filters'",
     shinydashboard::box(
-      width = 12,
-      div(
-        h3("Filters Form")
-      ),
+      width = 6,
+      title = "Form to start quantification calculation.",
       shiny::fluidRow(
-        shiny::column(width = 6, 
+        shiny::column(width = 12, 
           shiny::numericInput('filter_intensity', 'Minimum Normalized Intensity (xE6)', value = 0, min = 0, max = 100, step = 1)
         )
       ),
       shiny::fluidRow(
-        shiny::column(width = 6, 
+        shiny::column(width = 12, 
           shiny::numericInput('filter_score', 'Minimum Pattern Score (%)', value = 0, min = 0, max = 100, step = 1)
         )
       ),
       shiny::fluidRow(
-        shiny::column(width = 6, 
+        shiny::column(width = 12, 
           shiny::numericInput('filter_deviation', 'Minimum Deviation (mDa)', value = 0, step = 0.01)
         )
-      ),
+      )
+    ),
+    shinydashboard::box(
+      width = 6,
       shiny::fluidRow(
-        shiny::column(width = 6,
-          shiny::actionButton("apply_filter", "Apply Filter")
+        shiny::column(
+          width = 12, 
+          style = "margin-bottom: 20px; text-align: center;",
+          shinyWidgets::actionBttn('quanti_launch', 'Launch Quantification process',
+            style = 'minimal', color = 'primary')
         )
       )
     )
