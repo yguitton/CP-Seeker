@@ -56,6 +56,17 @@ final_mat <- reactive({
     if("Error" %in% colnames(table)){
       data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
     }else{
+      print("##########################################")
+      print("########### REDUCE_MATRIX DATA ###########")
+      print("##########################################")
+      print(file)
+      print("##########################################")
+      print(input$process_results_study)
+      print("##########################################")
+      print(input$process_results_chemical_adduct)
+      print("##########################################")
+      print(select_choice)
+      print("##########################################")
       table
     }
   }else{

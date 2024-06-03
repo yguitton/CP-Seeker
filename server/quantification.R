@@ -25,6 +25,28 @@ get_subclass_names <- function(db_connection, project_id) {
   return(subclass_names)
 }
 
+get_samples_quanti <- function(db, project = NULL) {
+  if (is.null(project)) {
+    return(data.frame())
+  }
+
+  # Requête pour obtenir les samples associés au projet donné
+  project_query <- "SELECT sample, sample_id FROM project_sample WHERE project = ?"
+  project_samples <- dbGetPreparedQuery(db, project_query, bind.data = data.frame(project = project))
+
+  if (nrow(project_samples) == 0) {
+    return(data.frame())
+  }
+
+  samples <- project_samples$sample
+  samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
+  
+  # Requête pour obtenir les détails des samples
+  query <- sprintf("SELECT sample, sample_type, subclass_name, chlorination_degree, concentration FROM sample WHERE sample IN (%s)", samples_str)
+  
+  db_get_query(db, query)
+}
+
 #####################################
 ############ Sample List ############
 #####################################
@@ -50,7 +72,7 @@ sample_list_data <- reactive({
           print("Aucune donnée trouvée pour ce projet.")
           return(data.frame())  # Retourner un data frame vide si aucune donnée n'est trouvée
         }
-        print(data)  # Debugging: Imprimer les données récupérées
+        # print(data)  # Debugging: Imprimer les données récupérées
         return(data)  # Retourner les données
   }})
 })
@@ -62,7 +84,6 @@ output$quanti_table <- DT::renderDataTable({
 subclass_names <- reactiveVal(NULL)
 
 observeEvent(c(input$quanti_table_cell_edit, input$project), {
-  req(input$project)  # S'assurer que input$project n'est pas NULL
 
   project_id <- input$project
   print(project_id)
@@ -251,6 +272,115 @@ observe({
 ############ Apply Filters ############
 #######################################
 
-#' Ce script va appliquer des filtres sur les matrices avant de lancer le script de quantification.
+#' Ce script va appliquer des filtres sur les matrices avant de lancer le Launch Quanti.
 #' Pour l'instant ne sait pas trop comment faire car il faut connaitre les arguments nécessaires pour 
 #' le calcul de quanti pour éxécuter la fonction et renvoyer les bonnes data.
+
+
+#######################################
+############ Launch Quanti ############
+#######################################
+
+#' Ici le code va servir pour récupérer toutes les matrices pour faire la somme
+#' Fonction reduce_matrix arguments : 
+#' files = samples$sample_id
+#' input$process_results_study = "PCAs"
+#' input$process_results_chemical_adduct = "M+Cl"
+#' select_choice = 1 (matrice de score "area")
+#' 
+#' Donc une fois que pour 1 sample on a la bonne matrice faire une boucle pour en avoir plusieurs et faire la somme
+
+observeEvent(input$quanti_launch, {
+  output$quanti_results_profile <- DT::renderDataTable({
+    samples <- get_samples(db, input$project)
+    files <- samples$sample_id
+    print(files) # [1] "20220611_072" "20220611_073" "20220611_081"
+    for (file in files) { print(file) }
+
+    # Initialiser une matrice pour la somme
+    summed_matrix <- NULL
+    # Initialiser une matrice pour les indicateurs de position
+    position_matrix <- NULL
+
+    # Boucle pour récupérer et sommer les matrices de chaque échantillon
+    for (file in files) {
+      # Récupérer la matrice pour l'échantillon courant
+      # Réduire la matrice pour obtenir la matrice de scores (val = 2)
+      matrix <- reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], 2, greycells = TRUE)
+      
+      # Inspecter les valeurs avant sum
+      print("Values before sum:")
+      print(matrix) # Voir une partie de la matrice (Cl3 to Cl30).
+
+      # Séparer les valeurs numériques et les indicateurs de position
+      numeric_matrix <- apply(matrix, 2, function(x) {
+        sapply(strsplit(x, "/"), function(y) {
+          value <- suppressWarnings(as.numeric(y[1]))
+          if (is.na(value)) 0 else value
+        })
+      })
+
+      position_matrix <- apply(matrix, 2, function(x) {
+        sapply(strsplit(x, "/"), function(y) {
+          if (length(y) > 1) y[2] else "NA"
+        })
+      })
+      
+      # Vérifier la matrice convertie
+      print("Numeric matrix:")
+      print(numeric_matrix)
+
+      # Ajouter la matrice réduite à la matrice sommée
+      if (is.null(summed_matrix)) {
+        summed_matrix <- numeric_matrix
+      } else {
+        # Additionner les matrices
+        summed_matrix <- summed_matrix + numeric_matrix
+      }
+    }
+
+    # Créer une matrice combinée pour l'affichage avec indicateurs de position
+    combined_matrix <- mapply(function(num, pos) {
+      paste0(num, "/", pos)
+    }, summed_matrix, position_matrix)
+
+    # Convertir en matrice
+    combined_matrix <- matrix(combined_matrix, nrow = nrow(summed_matrix), ncol = ncol(summed_matrix),
+                              dimnames = list(rownames(summed_matrix), colnames(summed_matrix)))
+
+    # Afficher la matrice résultante
+    DT::datatable(combined_matrix, selection = "none", extensions = 'Scroller', 
+                  class = 'display cell-border compact nowrap', 
+                  options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
+                                scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
+                                columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
+                                initComplete = htmlwidgets::JS("
+    function (settings, json) {
+      var table = settings.oInstance.api();
+      table.cells().every(function() {
+        if(this.index().column == 0) {
+          this.data(this.data());
+        }else if (this.data() == null){
+          $(this.node()).addClass('outside');
+        }else if (this.data() != null){
+          var splitted_cell = this.data().split('/');
+          if(splitted_cell[0] == 'NA'){
+            this.data('')
+          }else{
+            this.data(splitted_cell[0]);
+          }
+          if(splitted_cell[1] == 'outside'){
+            $(this.node()).addClass('outside');
+          }else if(splitted_cell[1] == 'half'){
+            $(this.node()).addClass('half');
+          }else if(splitted_cell[1] == 'inside'){
+            $(this.node()).removeClass('outside');
+            $(this.node()).removeClass('half');
+          }
+        }
+      });
+      table.columns.adjust()
+    }
+  ")))
+  })
+})

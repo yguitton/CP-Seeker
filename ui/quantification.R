@@ -79,6 +79,15 @@ shinydashboard::tabItem(
             style = 'minimal', color = 'primary')
         )
       )
+    ),
+    shinydashboard::box(
+      width = 12, 
+      shiny::fluidRow(
+        shiny::column(
+          width = 12,
+          shinycssloaders::withSpinner(DT::dataTableOutput('quanti_results_profile'))
+        )
+      )
     )
   )
 )

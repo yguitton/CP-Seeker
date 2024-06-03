@@ -617,26 +617,3 @@ get_infos <- function(db, project = NULL){
   }
   db_get_query(db, query)
 }
-
-
-get_samples_quanti <- function(db, project = NULL) {
-  if (is.null(project)) {
-    return(data.frame())
-  }
-
-  # Requête pour obtenir les samples associés au projet donné
-  project_query <- "SELECT sample, sample_id FROM project_sample WHERE project = ?"
-  project_samples <- dbGetPreparedQuery(db, project_query, bind.data = data.frame(project = project))
-
-  if (nrow(project_samples) == 0) {
-    return(data.frame())
-  }
-
-  samples <- project_samples$sample
-  samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
-  
-  # Requête pour obtenir les détails des samples
-  query <- sprintf("SELECT sample, sample_type, subclass_name, chlorination_degree, concentration FROM sample WHERE sample IN (%s)", samples_str)
-  
-  db_get_query(db, query)
-}
