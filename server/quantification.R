@@ -8,30 +8,51 @@
 #' 6 - Récupérer les matrices des aires pour chaque échantillon associés
 #' 7 - Afficher les valeurs de la matrice avec les aires maximales pour chaque sous classe dans la partie Homologue Domain pour faciliter la sélection des régions.
 
+#####################################
+############ reactiveVal ############
+#####################################
+
+# Créer un objet réactif pour stocker les données
+subclass_names <- reactiveVal()
+
 #########################################
 ################## SQL ##################
 #########################################
 
+# CREATE TABLE "cal_data" (
+# 	"id"	INTEGER,
+# 	"project"	TEXT NOT NULL,
+# 	"sample"	TEXT NOT NULL,
+# 	"subclass"	TEXT NOT NULL,
+# 	"concentration"	REAL NOT NULL,
+# 	"chlorination"	REAL NOT NULL,
+# 	PRIMARY KEY("id" AUTOINCREMENT),
+# 	FOREIGN KEY("subclass") REFERENCES "subclass"("subclass_name"),
+# 	FOREIGN KEY("sample") REFERENCES "sample"("sample"),
+# 	FOREIGN KEY("project") REFERENCES "project"("project")
+# );
+
+# CREATE TABLE "subclass" (
+# 	"project"	INTEGER,
+# 	"subclass_name"	TEXT,
+# 	FOREIGN KEY("project") REFERENCES "project"("project")
+# )
+
 #' Ces requêtes vont devoir être transférés dans les fichiers db_get etc...
 
-get_subclass_names <- function(db_connection, project_id) {
-  subclass_names_query <- "SELECT DISTINCT s.subclass_name
-                           FROM sample s
-                           INNER JOIN project_sample ps ON s.sample = ps.sample
-                           INNER JOIN deconvolution_param dp ON ps.project = dp.project
-                           WHERE dp.project = ?"
-  
-  subclass_names <- dbGetQuery(db_connection, subclass_names_query, params = list(project_id))
-  return(subclass_names)
+get_subclass_names <- function(db, project) {
+  query <- sprintf("SELECT subclass_name FROM subclass WHERE project = '%s'", project)
+  cat("Executing query:", query, "\n")  # Debugging
+  dbGetQuery(db, query)$subclass_name
 }
 
-get_samples_quanti <- function(db, project = NULL) {
+get_samples_type_quanti <- function(db, project = NULL) {
   if (is.null(project)) {
     return(data.frame())
   }
 
   # Requête pour obtenir les samples associés au projet donné
-  project_query <- "SELECT sample, sample_id FROM project_sample WHERE project = ?"
+  project_query <- "SELECT sample FROM project_sample WHERE project = ?"
   project_samples <- dbGetPreparedQuery(db, project_query, bind.data = data.frame(project = project))
 
   if (nrow(project_samples) == 0) {
@@ -42,13 +63,59 @@ get_samples_quanti <- function(db, project = NULL) {
   samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
   
   # Requête pour obtenir les détails des samples
-  query <- sprintf("SELECT sample, sample_type, subclass_name, chlorination_degree, concentration FROM sample WHERE sample IN (%s)", samples_str)
+  query <- sprintf("SELECT sample, sample_type FROM sample WHERE sample IN (%s)", samples_str)
+  cat("Executing query:", query, "\n")  # Debugging
   
-  db_get_query(db, query)
+  dbGetQuery(db, query)
+}
+
+record_subclass_quanti <- function(db, project, subclass_name) {
+  query <- sprintf("INSERT INTO subclass (project, subclass_name) VALUES ('%s', '%s')", project, subclass_name)
+  cat("Executing query:", query, "\n")  # Debugging
+  dbExecute(db, query)
+}
+
+delete_subclass_quanti <- function(db, project, subclass_name) {
+  query <- sprintf("DELETE FROM subclass WHERE project = '%s' AND subclass_name = '%s'", project, subclass_name)
+  cat("Executing query:", query, "\n")  # Debugging
+  dbExecute(db, query)
+}
+
+get_cal_samples <- function(db, project) {
+  project_samples <- dbGetQuery(db, sprintf("SELECT sample FROM project_sample WHERE project = '%s'", project))
+
+  if (nrow(project_samples) == 0) {
+    return(data.frame(sample = character(0)))
+  }
+
+  samples_str <- paste(sprintf("'%s'", project_samples$sample), collapse = ", ")
+  query <- sprintf("SELECT sample FROM sample WHERE sample IN (%s) AND sample_type = 'CAL'", samples_str)
+  cat("Executing query:", query, "\n")  # Debugging
+  dbGetQuery(db, query)
+}
+
+record_cal_data <- function(db, project, cal_data) {
+  for (i in 1:nrow(cal_data)) {
+    sample_name <- cal_data[i, "sample"]
+    
+    for (j in 2:ncol(cal_data)) {
+      col_name <- colnames(cal_data)[j]
+      if (grepl("concentration", col_name)) {
+        subclass <- sub("_concentration", "", col_name)
+        concentration <- cal_data[i, j]
+        chlorination <- cal_data[i, paste(subclass, "chlorination", sep = "_")]
+        
+        query <- sprintf("INSERT INTO cal_data (project, sample, subclass, concentration, chlorination) VALUES ('%s', '%s', '%s', %f, %f)",
+                         project, sample_name, subclass, concentration, chlorination)
+        cat("Executing query:", query, "\n")  # Debugging
+        dbExecute(db, query)
+      }
+    }
+  }
 }
 
 #####################################
-############ Sample List ############
+############ Sample Type ############
 #####################################
 
 #' Le but ici est de laisser l'utilisateur rentrer les samples types
@@ -60,14 +127,14 @@ get_samples_quanti <- function(db, project = NULL) {
 #' Par la suite ajouter des restrictions.
 
 # Créer un objet réactif pour stocker les données
-sample_list_data <- reactive({
+sample_type_data <- reactive({
   params <- list(
     table_selected = input$quantification_choice
   )
   tryCatch({  
-    if(params$table_selected == "Sample List"){  # Utiliser '==' pour la comparaison
+    if(params$table_selected == "Sample Type"){  # Utiliser '==' pour la comparaison
         # Obtenir les données des samples du projet
-        data <- get_samples_quanti(db, input$project)
+        data <- get_samples_type_quanti(db, input$project)
         if (nrow(data) == 0) {
           print("Aucune donnée trouvée pour ce projet.")
           return(data.frame())  # Retourner un data frame vide si aucune donnée n'est trouvée
@@ -77,22 +144,20 @@ sample_list_data <- reactive({
   }})
 })
 
-output$quanti_table <- DT::renderDataTable({
-  DT::datatable(sample_list_data(), editable = list(target = "cell", disable = list(columns = c(0, 1))))  # Rendre certaines colonnes éditables
+output$quanti_table_type <- DT::renderDataTable({
+  DT::datatable(sample_type_data(), editable = list(target = "cell", disable = list(columns = c(0, 1))))  # Rendre certaines colonnes éditables
 })
 
-subclass_names <- reactiveVal(NULL)
-
-observeEvent(c(input$quanti_table_cell_edit, input$project), {
+observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
 
   project_id <- input$project
   print(project_id)
 
-  info <- input$quanti_table_cell_edit
+  info <- input$quanti_table_type_cell_edit
   str(info)  # Afficher les informations de l'édition pour le débeugage
 
   # Récupérer les données actuelles
-  data_df <- isolate(sample_list_data())
+  data_df <- isolate(sample_type_data())
 
   # Vérifier si info est NULL
   if (!is.null(info)) {
@@ -102,7 +167,7 @@ observeEvent(c(input$quanti_table_cell_edit, input$project), {
     value <- info$value
 
     # Vérifiez que les colonnes éditées sont parmi celles qu'on veut éditer
-    editable_columns <- c("sample_type", "subclass_name", "chlorination_degree", "concentration")
+    editable_columns <- c("sample_type")
     if (colnames(data_df)[col] %in% editable_columns) {
       data_df[row, col] <- DT::coerceValue(value, data_df[row, col])
 
@@ -117,12 +182,93 @@ observeEvent(c(input$quanti_table_cell_edit, input$project), {
       dbExecute(db, update_query, params = list(value, sample_id))
     }
   }
+})
 
-  # Si project_id n'est pas NULL, exécuter la nouvelle requête pour mettre à jour subclass_names
-  if (!is.null(project_id)) {
-    subclass_names <- get_subclass_names(db, project_id)
-    subclass_names <- subclass_names$subclass_name
-    subclass_names(subclass_names)
+#########################################
+############ Sample Subclass ############
+#########################################
+
+# Observer le changement de projet et mettre à jour les sous-classes
+observeEvent(input$project, {
+  subclasses <- get_subclass_names(db, input$project)
+  subclass_names(subclasses)
+  updateSelectInput(session, "delete_subclass", choices = subclasses)
+})
+
+output$quanti_table_subclass <- renderDT({
+  datatable(data.frame(subclass_name = subclass_names()))  # Afficher les données dans un tableau
+})
+
+observeEvent(input$add_subclass, {
+  req(input$new_subclass)  # S'assurer qu'une nouvelle sous-classe est entrée
+  record_subclass_quanti(db, input$project, input$new_subclass)
+  updateTextInput(session, "new_subclass", value = "")  # Réinitialiser le champ de texte
+  
+  # Mettre à jour les sous-classes
+  subclasses <- get_subclass_names(db, input$project)
+  subclass_names(subclasses)
+  updateSelectInput(session, "delete_subclass", choices = subclasses)
+})
+
+observeEvent(input$remove_subclass, {
+  req(input$delete_subclass)  # S'assurer qu'une sous-classe à supprimer est sélectionnée
+  delete_subclass_quanti(db, input$project, input$delete_subclass)
+  
+  # Mettre à jour les sous-classes
+  subclasses <- get_subclass_names(db, input$project)
+  subclass_names(subclasses)
+  updateSelectInput(session, "delete_subclass", choices = subclasses)
+})
+
+#########################################
+############ Sample Subclass ############
+#########################################
+
+#' Permet d'associer les sous classes que l'utilisateur avait  
+#' sélectionné dans la partie "Sample Subclass" aux échantillons de type "CAL".
+
+
+#####################################
+############ Calibration ############
+#####################################
+
+# Réactifs pour stocker les données des échantillons et des sous-classes
+cal_samples_data <- reactiveVal()
+
+# Observer le changement de projet
+observeEvent(input$project, {
+  cal_samples <- get_cal_samples(db, input$project)
+  subclasses <- get_subclass_names(db, input$project)
+  
+  cal_samples_data(cal_samples)
+  subclass_names(subclasses)
+})
+
+# Rendre la table des échantillons de calibration
+output$cal_samples_table <- renderDT({
+  samples <- cal_samples_data()
+  subclasses <- subclass_names()
+  
+  if (nrow(samples) == 0 || length(subclasses) == 0) {
+    return(NULL)
+  }
+  
+  df <- data.frame(sample_name = samples$sample)
+  
+  for (subclass in subclasses) {
+    df[paste(subclass, "concentration", sep = "_")] <- NA
+    df[paste(subclass, "chlorination", sep = "_")] <- NA
+  }
+  
+  datatable(df, editable = TRUE)
+})
+
+# Observer l'événement de sauvegarde des données
+observeEvent(input$save_cal_data, {
+  cal_data <- input$cal_samples_table_rows_all
+  
+  if (!is.null(cal_data)) {
+    record_cal_data(db, input$project, cal_data)
   }
 })
 
@@ -136,7 +282,7 @@ observeEvent(c(input$quanti_table_cell_edit, input$project), {
 #' Les matrices vont avoir C6-C36 première colonne et Cl3-Cl30 en première ligne
 #' Les groupes d'homologues selectionnés vont être stockés par matrice
 
-output$quanti_subclass_dropdown <- shiny::renderUI({  
+output$quanti_subclass_dropdown <- shiny::renderUI({
   bsplus::shinyInput_label_embed(
     shiny::selectInput("quanti_subclass_dropdown", "Subclass Name", choices = subclass_names(), multiple = FALSE),
     bsplus::bs_embed_tooltip(bsplus::shiny_iconlink(), placement = 'top', title = 'Select Subclass')
@@ -147,38 +293,39 @@ output$quanti_subclass_dropdown <- shiny::renderUI({
 matrix_list <- reactiveVal(list())
 selected_cells_list <- reactiveVal(list())
 
-observe({ 
-  matrices <- lapply(subclass_names(), function(subclass) {
+observe({
+  subclasses <- subclass_names()
+  
+  matrices <- lapply(subclasses, function(subclass) {
     matrix <- matrix(ncol = 28, nrow = 31)
     colnames(matrix) <- paste0("Cl", 3:30)
     rownames(matrix) <- paste0("C", 6:36)
     as.data.frame(matrix)
   })
   
-  names(matrices) <- subclass_names()
+  names(matrices) <- subclasses
   matrix_list(matrices)
   
   # Initialiser les sélections de cellules pour chaque sous-classe
-  selected_cells <- lapply(subclass_names(), function(subclass) {
+  selected_cells <- lapply(subclasses, function(subclass) {
     data.frame(row = integer(0), col = integer(0))
   })
-  names(selected_cells) <- subclass_names()
+  names(selected_cells) <- subclasses
   selected_cells_list(selected_cells)
 })
-
 
 output$quanti_matrix_homologue <- DT::renderDataTable({
   req(input$quanti_subclass_dropdown)
   matrices <- matrix_list()
   matrix_to_display <- matrices[[input$quanti_subclass_dropdown]]
   
-  datatable(matrix_to_display, 
+  datatable(matrix_to_display,
             selection = list(mode = 'multiple', target = 'cell'),
             class = 'display cell-border compact nowrap',
-            options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', 
-                           scrollX = TRUE, scroller = TRUE, bFilter = FALSE, 
-                           ordering = FALSE, 
-                           columnDefs = list(list(className = 'dt-body-justify', 
+            options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip',
+                           scrollX = TRUE, scroller = TRUE, bFilter = FALSE,
+                           ordering = FALSE,
+                           columnDefs = list(list(className = 'dt-body-justify',
                                                   targets = "_all")))
   )
 })
@@ -211,7 +358,7 @@ observe({
 #' Permet de choisir un étalon interne (dynamiquement)
 #' Permet de choisir les adduits associés (dynamiquement)
 
-output$quanti_dynamic_IS <- shiny::renderUI({ 
+output$quanti_dynamic_IS <- shiny::renderUI({
   # Générer les div pour chaque sous-classe
   lapply(subclass_names(), function(subclass) {
     shiny::fluidRow(
