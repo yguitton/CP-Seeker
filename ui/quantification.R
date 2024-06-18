@@ -5,7 +5,7 @@ shinydashboard::tabItem(
     shinyWidgets::radioGroupButtons(
       inputId = 'quantification_choice',
       label = '',
-      choices = c('Sample Type', 'Subclass List', 'Sample Subclass', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Filters'),
+      choices = c('Sample Type', 'Subclass List', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Filters'),
       justified = TRUE,
       checkIcon = list(
         yes = shiny::tags$i(class = "fa fa-circle", style = "color: steelblue"),
@@ -41,22 +41,13 @@ shinydashboard::tabItem(
     )
   ),
   shiny::conditionalPanel(
-    condition = "input.quantification_choice == 'Sample Subclass'",
-    shinydashboard::box(
-      width = 12,
-      title = "Associate your CAL samples with your subclass"
-    )
-  ),
-  shiny::conditionalPanel(
     condition = "input.quantification_choice == 'Calibration'",
     shinydashboard::box(
       width = 12,
       title = "For each CAL enter concentration and chlorination degree",
       div(
         DT::dataTableOutput('cal_samples_table')
-      ),
-      br(),
-      shiny::actionButton("save_cal_data", "Save Data")
+      )
     )
   ),
   shiny::conditionalPanel(

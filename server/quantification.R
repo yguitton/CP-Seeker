@@ -15,6 +15,12 @@
 # Créer un objet réactif pour stocker les données
 subclass_names <- reactiveVal()
 
+# Réactifs pour stocker les données des échantillons et des sous-classes
+cal_samples <- reactiveVal()
+
+# Variable réactive pour stocker les données de calibration
+cal_data <- reactiveVal()
+
 #########################################
 ################## SQL ##################
 #########################################
@@ -174,12 +180,15 @@ observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
       # Requête pour UPDATE la bdd avec les modifications
       sample_id <- data_df[row, "sample"]
       column_name <- colnames(data_df)[col]
-      update_query <- sprintf(
-        "UPDATE sample SET %s = ? WHERE sample = ?", column_name
-      )
+      update_query <- sprintf("UPDATE sample SET %s = ? WHERE sample = ?", column_name)
 
       # Exécution de la requête
       dbExecute(db, update_query, params = list(value, sample_id))
+
+      # Mettre à jour les échantillons de calibration après la modification
+      cal_samples_data <- get_cal_samples(db, input$project)
+      cal_samples(cal_samples_data)
+      print(cal_samples())
     }
   }
 })
@@ -208,6 +217,8 @@ observeEvent(input$add_subclass, {
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
   updateSelectInput(session, "delete_subclass", choices = subclasses)
+
+  print(subclass_names())
 })
 
 observeEvent(input$remove_subclass, {
@@ -218,58 +229,124 @@ observeEvent(input$remove_subclass, {
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
   updateSelectInput(session, "delete_subclass", choices = subclasses)
+
+  print(subclass_names())
 })
-
-#########################################
-############ Sample Subclass ############
-#########################################
-
-#' Permet d'associer les sous classes que l'utilisateur avait  
-#' sélectionné dans la partie "Sample Subclass" aux échantillons de type "CAL".
 
 
 #####################################
 ############ Calibration ############
 #####################################
 
-# Réactifs pour stocker les données des échantillons et des sous-classes
-cal_samples_data <- reactiveVal()
-
-# Observer le changement de projet
+# Observer le changement de projet et mettre à jour les données
 observeEvent(input$project, {
-  cal_samples <- get_cal_samples(db, input$project)
   subclasses <- get_subclass_names(db, input$project)
-  
-  cal_samples_data(cal_samples)
   subclass_names(subclasses)
+  print(subclass_names(subclasses))  # Debugging
+  
+  cal_samples <- get_cal_samples(db, input$project)
+  cal_samples(cal_samples)
+  print(cal_samples())  # Debugging
+  
+  # Initialiser la variable réactive avec les données de calibration
+  cal_list <- list(sample_name = cal_samples$sample)
+  for (subclass in subclass_names()) {
+    cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(cal_samples))
+    cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(cal_samples))
+  }
+  cal_data(as.data.frame(cal_list))
+})
+
+# Ajouter des observateurs réactifs pour cal_samples() et subclass_names()
+observe({
+  samples <- cal_samples()
+  subclasses <- subclass_names()
+  
+  if (!is.null(samples) && !is.null(subclasses)) {
+    cal_list <- list(sample_name = samples$sample)
+    for (subclass in subclasses) {
+      cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(samples))
+      cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(samples))
+    }
+    cal_data(as.data.frame(cal_list))
+  }
 })
 
 # Rendre la table des échantillons de calibration
 output$cal_samples_table <- renderDT({
-  samples <- cal_samples_data()
-  subclasses <- subclass_names()
+  df <- cal_data()
   
-  if (nrow(samples) == 0 || length(subclasses) == 0) {
+  if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
   
-  df <- data.frame(sample_name = samples$sample)
-  
-  for (subclass in subclasses) {
-    df[paste(subclass, "concentration", sep = "_")] <- NA
-    df[paste(subclass, "chlorination", sep = "_")] <- NA
-  }
-  
-  datatable(df, editable = TRUE)
+  datatable(df, 
+            editable = TRUE,
+            options = list(
+              scrollX = TRUE,  # Activer le scroll horizontal
+              scroller = TRUE,  # Activer le scroller pour améliorer les performances avec de grandes tables
+              paging = TRUE  # Activer la pagination
+            )
+  )
 })
 
-# Observer l'événement de sauvegarde des données
-observeEvent(input$save_cal_data, {
-  cal_data <- input$cal_samples_table_rows_all
-  
-  if (!is.null(cal_data)) {
-    record_cal_data(db, input$project, cal_data)
+# Fonction pour vérifier si une table existe
+table_exists <- function(db, table_name) {
+  query <- paste("SELECT name FROM sqlite_master WHERE type='table' AND name='", table_name, "';", sep = "")
+  cat("Executing query:", query, "\n")  # Debugging
+  result <- dbGetQuery(db, query)
+  return(nrow(result) > 0)
+}
+
+# Fonction pour supprimer une table si elle existe
+drop_table_if_exists <- function(db, table_name) {
+  if (table_exists(db, table_name)) {
+    query <- paste("DROP TABLE ", table_name, ";", sep = "")
+    cat("Executing query:", query, "\n")  # Debugging
+    dbExecute(db, query)
   }
+}
+
+# Fonction pour générer dynamiquement la requête CREATE TABLE
+generate_create_table_query <- function(data_list, table_name) {
+  columns <- names(data_list)
+  col_types <- sapply(data_list, function(col) {
+    if (is.numeric(col)) {
+      "REAL"
+    } else {
+      "TEXT"
+    }
+  })
+  col_definitions <- paste(columns, col_types, collapse = ", ")
+  query <- sprintf("CREATE TABLE %s (%s)", table_name, col_definitions)
+  cat("Executing query:", query, "\n")  # Debugging
+  return(query)
+}
+
+# Fonction pour créer une nouvelle table avec les données
+create_cal_samples_table <- function(db, data_list, table_name = "cal_samples") {
+  # Générer la requête CREATE TABLE
+  create_table_query <- generate_create_table_query(data_list, table_name)
+  # Exécuter la requête pour créer la table
+  dbExecute(db, create_table_query)
+  # Insérer les données dans la table
+  df <- as.data.frame(data_list)
+  dbWriteTable(db, table_name, df, append = TRUE, row.names = FALSE)
+}
+
+# Observer les modifications des cellules de la table de calibration
+observeEvent(input$cal_samples_table_cell_edit, {
+  info <- input$cal_samples_table_cell_edit
+  str(info)  # Debugging
+  
+  df <- cal_data()
+  df[info$row, info$col] <- info$value
+  cal_data(df)  # Mettre à jour la variable réactive avec les nouvelles données
+  print(df)  # Print the updated data frame
+  
+  # Optionally save the updated data frame to the database
+  drop_table_if_exists(db, "cal_samples")
+  create_cal_samples_table(db, as.list(df))
 })
 
 
