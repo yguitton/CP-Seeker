@@ -21,6 +21,10 @@ cal_samples <- reactiveVal()
 # Variable réactive pour stocker les données de calibration
 cal_data <- reactiveVal()
 
+# Stocker les matrices et les sélections de cellules pour chaque sous-classe
+matrix_list <- reactiveVal(list())
+selected_cells_list <- reactiveVal(list())
+
 #########################################
 ################## SQL ##################
 #########################################
@@ -119,6 +123,124 @@ record_cal_data <- function(db, project, cal_data) {
     }
   }
 }
+
+get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standard_formulas = NULL, cal_samples = NULL){
+  # Récupérer tous les échantillons du projet
+  sample <- get_samples(db, project)
+  
+  # Garder uniquement les échantillons qui sont de type "CAL"
+  sample <- sample[sample$sample %in% cal_samples$sample, ]
+  
+  table <- NULL
+  
+  for (adduct in adducts) {
+    for (standard_formula in standard_formulas) {
+      for (i in 1:length(sample$project_sample)) {
+        # query of normal standard with iso = A
+        query <- sprintf(
+          'SELECT intensities, intensities_b, score, weighted_deviation 
+          FROM feature 
+          WHERE iso == "A"
+          AND project_sample IN (
+            SELECT project_sample 
+            FROM project_sample 
+            WHERE project == %s 
+            AND sample_id == "%s"
+          ) 
+          AND chemical_ion IN (
+            SELECT chemical_ion 
+            FROM chemical_ion 
+            WHERE adduct == "%s" 
+            AND chemical == (
+              SELECT chemical 
+              FROM chemical 
+              WHERE chemical_type == "%s"
+            )
+          );',
+          project, sample$sample_id[i], adduct, standard_formula
+        )
+        
+        data <- db_get_query(db, query)
+        if (nrow(data) > 0) {
+          data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, data)
+        }
+        
+        # Second try: the standard had no results but has a theoretical pattern (iso = "no ROIs" or something like that)
+        if (nrow(data) == 0) {
+          query <- sprintf(
+            'SELECT intensities, intensities_b, score, weighted_deviation 
+            FROM feature 
+            WHERE iso == "no ROIs" 
+            AND project_sample IN (
+              SELECT project_sample 
+              FROM project_sample 
+              WHERE project == %s 
+              AND sample_id == "%s"
+            ) 
+            AND chemical_ion IN (
+              SELECT chemical_ion 
+              FROM chemical_ion 
+              WHERE adduct == "%s" 
+              AND chemical == (
+                SELECT chemical 
+                FROM chemical 
+                WHERE chemical_type == "%s"
+              )
+            );',
+            project, sample$sample_id[i], adduct, standard_formula
+          )
+          
+          dataOut <- db_get_query(db, query)
+          if (nrow(dataOut) > 0) {
+            data <- cbind(sample_id = sample$sample_id[i], formula = standard_formula, adduct = adduct, dataOut)
+          }
+        }
+        
+        # Last try: the standard has been asked but the adduct is not possible with it
+        if (nrow(data) == 0) {
+          data <- cbind(
+            sample_id = sample$sample_id[i], 
+            formula = standard_formula, 
+            adduct = adduct, 
+            intensities = "not possible", 
+            intensities_b = "not possible", 
+            score = "not possible", 
+            weighted_deviation = "not possible"
+          )
+        }
+        
+        table <- as.data.frame(rbind(table, data))
+      }
+    }
+  }
+  
+  if (class(table$intensities) != "character") {
+    table$intensities[which(!is.na(table$intensities))] <- formatC(
+      as.numeric(table$intensities[which(!is.na(table$intensities))]), format = 'f', big.mark = " ", digits = 0
+    )
+  }
+  
+  if (class(table$intensities_b) != "character") {
+    table$intensities_b[which(!is.na(table$intensities_b))] <- formatC(
+      as.numeric(table$intensities_b[which(!is.na(table$intensities_b))]), format = 'f', big.mark = " ", digits = 0
+    )
+  }
+  
+  if (class(table$score) != "character") {
+    table$score[which(!is.na(table$score))] <- round(table$score[which(!is.na(table$score))], digits = 0)
+  }
+  
+  if (class(table$weighted_deviation) != "character") {
+    table$weighted_deviation[which(!is.na(table$weighted_deviation))] <- round(
+      table$weighted_deviation[which(!is.na(table$weighted_deviation))] * 10^3, digits = 2
+    )
+  }
+  
+  data.table::setnames(table, c("intensities", "intensities_b", "weighted_deviation"), c("total area", "area above baseline", "deviation(mDa)"))
+  
+  return(table)
+}
+
 
 #####################################
 ############ Sample Type ############
@@ -273,7 +395,7 @@ observe({
 })
 
 # Rendre la table des échantillons de calibration
-output$cal_samples_table <- renderDT({
+output$cal_samples_table_df <- renderDT({
   df <- cal_data()
   
   if (is.null(df) || nrow(df) == 0) {
@@ -324,7 +446,7 @@ generate_create_table_query <- function(data_list, table_name) {
 }
 
 # Fonction pour créer une nouvelle table avec les données
-create_cal_samples_table <- function(db, data_list, table_name = "cal_samples") {
+create_cal_samples_table_df <- function(db, data_list, table_name = "cal_samples") {
   # Générer la requête CREATE TABLE
   create_table_query <- generate_create_table_query(data_list, table_name)
   # Exécuter la requête pour créer la table
@@ -335,8 +457,8 @@ create_cal_samples_table <- function(db, data_list, table_name = "cal_samples") 
 }
 
 # Observer les modifications des cellules de la table de calibration
-observeEvent(input$cal_samples_table_cell_edit, {
-  info <- input$cal_samples_table_cell_edit
+observeEvent(input$cal_samples_table_df_cell_edit, {
+  info <- input$cal_samples_table_df_cell_edit
   str(info)  # Debugging
   
   df <- cal_data()
@@ -346,9 +468,35 @@ observeEvent(input$cal_samples_table_cell_edit, {
   
   # Optionally save the updated data frame to the database
   drop_table_if_exists(db, "cal_samples")
-  create_cal_samples_table(db, as.list(df))
+  create_cal_samples_table_df(db, as.list(df))
 })
 
+
+###### NOUVELLE VERSION AVEC LA TABLE CAL_DATA
+
+#' Ce qu'il faut faire : 
+#' Jouer avec une nouvelle table cal_data
+#' Ajouter ou supprimer les échantillons CAL lorsqu'ils sont édités dans les cellules
+#' Ajouter ou supprimer les sousclasses pour chaque échantillon CAL dans cal_data
+#' Présenter les colonnes du tableau avec un split_str SOUSCLASSE_CONCENTRATION & SOUSCLASSE_CHLORATION
+
+# Rendre la table des échantillons de calibration
+output$cal_samples_table <- renderDT({
+  df <- cal_data() # Même chose que cal_samples pour l'instant
+  
+  if (is.null(df) || nrow(df) == 0) {
+    return(NULL)
+  }
+  
+  datatable(df, 
+            editable = TRUE,
+            options = list(
+              scrollX = TRUE,  # Activer le scroll horizontal
+              scroller = TRUE,  # Activer le scroller pour améliorer les performances avec de grandes tables
+              paging = TRUE  # Activer la pagination
+            )
+  )
+})
 
 ##########################################
 ############ Homologue Domain ############
@@ -366,13 +514,11 @@ output$quanti_subclass_dropdown <- shiny::renderUI({
   )
 })
 
-# Stocker les matrices et les sélections de cellules pour chaque sous-classe
-matrix_list <- reactiveVal(list())
-selected_cells_list <- reactiveVal(list())
-
+# Observateur pour initialiser les matrices et les cellules sélectionnées
 observe({
   subclasses <- subclass_names()
   
+  # Initialiser les matrices pour chaque sous-classe
   matrices <- lapply(subclasses, function(subclass) {
     matrix <- matrix(ncol = 28, nrow = 31)
     colnames(matrix) <- paste0("Cl", 3:30)
@@ -391,6 +537,7 @@ observe({
   selected_cells_list(selected_cells)
 })
 
+# Rendu de la datatable pour afficher la matrice de la sous-classe sélectionnée
 output$quanti_matrix_homologue <- DT::renderDataTable({
   req(input$quanti_subclass_dropdown)
   matrices <- matrix_list()
@@ -407,6 +554,7 @@ output$quanti_matrix_homologue <- DT::renderDataTable({
   )
 })
 
+# Observer pour mettre à jour les cellules sélectionnées
 observeEvent(input$quanti_matrix_homologue_cells_selected, {
   cells <- input$quanti_matrix_homologue_cells_selected
   if (!is.null(cells)) {
@@ -427,6 +575,314 @@ observe({
   }
 })
 
+# Rendu dynamique des verbatimTextOutput pour chaque sous-classe
+output$selected_matrices <- renderUI({
+  subclasses <- subclass_names()
+  output_list <- lapply(subclasses, function(subclass) {
+    verbatimTextOutput(paste0("selected_matrices_", subclass))
+  })
+  do.call(tagList, output_list)
+})
+
+# Rendu des valeurs des cellules sélectionnées pour chaque sous-classe
+observe({
+  subclasses <- subclass_names()
+  lapply(subclasses, function(subclass) {
+    output[[paste0("selected_matrices_", subclass)]] <- renderPrint({
+      selected_cells <- selected_cells_list()
+      
+      # Vérifier la sous-classe sélectionnée et les cellules sélectionnées
+      if (!is.null(selected_cells[[subclass]])) {
+        cat("========================\n")
+        cat("Matrice selectionnee :", subclass, "\n")
+        cat("Positions des cellules selectionnees :\n")
+        print(selected_cells[[subclass]])
+        cat("========================\n")
+      }
+    })
+  })
+})
+
+output$quanti_profile <- renderUI({
+  quanti_final_list <- quanti_final_mat()
+  
+  # Créer des sorties pour chaque table avec informations associées
+  output_list <- lapply(names(quanti_final_list), function(name) {
+    list(
+      verbatimTextOutput(paste0("matrix_info_", name)),
+      DT::dataTableOutput(name)
+    )
+  })
+  
+  # Afficher les tables et les informations dans une balise div avec style
+  tagList(div(style = "overflow-x: scroll;", output_list))
+})
+
+quanti_final_mat <- reactive({
+  # Récupérer tous les échantillons du projet
+  samples <- get_samples(db, input$project)
+  print("samples")
+  print(samples)
+  
+  # Vérifier si samples est non vide
+  if (nrow(samples) == 0) {
+    return(list())
+  }
+
+  # Filtrer les échantillons de calibration
+  cal_samples <- get_cal_samples(db, input$project)
+  print("cal_samples")
+  print(cal_samples)
+  
+  # Garder uniquement les échantillons de calibration
+  cal_sample_ids <- cal_samples$sample
+  print("cal_sample_ids")
+  print(cal_sample_ids)
+  
+  # Filtrer les samples pour ne garder que les échantillons de calibration
+  cal_samples_filtered <- samples[samples$sample %in% cal_sample_ids, ]
+  print("cal_samples_filtered")
+  print(cal_samples_filtered)
+  
+  # Vérifier si cal_samples_filtered est non vide
+  if (nrow(cal_samples_filtered) == 0) {
+    return(list())
+  }
+
+  # Récupérer tous les adducts disponibles
+  adduct_table <- db_get_query(db, sprintf("SELECT DISTINCT adduct FROM deconvolution_param WHERE project = '%s'", input$project))
+  adduct_list <- adduct_table$adduct
+  print("adducts")
+  print(adduct_list)
+  
+  # Vérifier si adduct_list est non vide
+  if (length(adduct_list) == 0) {
+    return(list())
+  }
+  
+  # Récupérer tous les types chimiques disponibles, sans les standards
+  query <- sprintf("SELECT chemical_type 
+                    FROM chemical 
+                    WHERE chemical_familly != 'Standard' 
+                    AND chemical_type IN (
+                        SELECT chemical_type 
+                        FROM deconvolution_param 
+                        WHERE project = '%s'
+                    )", input$project)
+  chemical_table <- unique(db_get_query(db, query))
+  chemical_types <- chemical_table$chemical_type
+  print("chemical_types")
+  print(chemical_types)
+  
+  # Vérifier si chemical_types est non vide
+  if (length(chemical_types) == 0) {
+    return(list())
+  }
+  
+  # Utiliser toujours l'option "Normalized intensity (xE6)"
+  select_choice <- 2
+  
+  result_tables <- list()
+  
+  for (file in cal_samples_filtered$sample_id) {
+    for (study in chemical_types) {
+      for (adduct in adduct_list) {
+        # Vérifier si l'adduct existe pour l'étude actuelle
+        if (adduct %in% names(mat()[[file]][[study]])) {
+          # Réduire la matrice en fonction des choix de l'utilisateur
+          table <- reduce_matrix(mat()[[file]][[study]][[adduct]], select_choice, greycells = TRUE)
+          print(table)
+          if (!("Error" %in% colnames(table))) {
+            result_tables[[paste(file, study, adduct, sep = "_")]] <- list(
+              table = table,
+              sample_id = file,
+              chemical_type = study,
+              adduct = adduct
+            )
+          } else {
+            result_tables[[paste(file, study, adduct, sep = "_")]] <- list(
+              table = data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !", 3, sep = "/")),
+              sample_id = file,
+              chemical_type = study,
+              adduct = adduct
+            )
+          }
+        } else {
+          result_tables[[paste(file, study, adduct, sep = "_")]] <- list(
+            table = data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !", 3, sep = "/")),
+            sample_id = file,
+            chemical_type = study,
+            adduct = adduct          
+          )
+        }
+      }
+    }
+  }
+
+  print("##########################################")
+  print("########### REDUCE_MATRIX DATA ###########")
+  print("##########################################")
+  print(cal_samples_filtered$sample_id)
+  print("##########################################")
+  print(chemical_types)
+  print("##########################################")
+  print(adduct_list)
+  print("##########################################")
+  print(select_choice)
+  print("##########################################")
+  
+  return(result_tables)
+})
+
+# Rendu des valeurs récupérées pour chaque sous-classe
+observe({
+  quanti_matrices <- quanti_final_mat()
+  
+  lapply(names(quanti_matrices), function(name) {
+    result <- quanti_matrices[[name]]
+    
+    output[[paste0("matrix_info_", name)]] <- renderPrint({
+      cat("Sample ID:", result$sample_id, "\n")
+      cat("Chemical Type:", result$chemical_type, "\n")
+      cat("Adduct:", result$adduct, "\n")
+    })
+    
+    output[[name]] <- DT::renderDataTable({
+      DT::datatable(result$table, selection = "none", extensions = 'Scroller', 
+                    class = 'display cell-border compact nowrap', 
+                    options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
+                                  scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
+                                  columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
+                                  initComplete = htmlwidgets::JS("
+          function (settings, json) {
+            var table = settings.oInstance.api();
+            table.cells().every(function() {
+              if (this.index().column == 0) {
+                this.data(this.data());
+              } else if (this.data() == null){
+                $(this.node()).addClass('outside');
+              } else if (this.data() != null){
+                var splitted_cell = this.data().split('/');
+                if (splitted_cell[0] == 'NA'){
+                  this.data('')
+                } else {
+                  this.data(splitted_cell[0]);
+                }
+                if (splitted_cell[1] == 'outside'){
+                  $(this.node()).addClass('outside');
+                } else if (splitted_cell[1] == 'half'){
+                  $(this.node()).addClass('half');
+                } else if (splitted_cell[1] == 'inside'){
+                  $(this.node()).removeClass('outside');
+                  $(this.node()).removeClass('half');
+                }
+              }
+            });
+            table.columns.adjust()
+          }
+        ")))
+    })
+  })
+})
+
+# Fonction pour récupérer les valeurs des matrices de données basées sur les positions sélectionnées
+get_selected_values <- function(positions, matrix) {
+  values <- apply(positions, 1, function(pos) {
+    row <- pos[1]
+    col <- pos[2]
+    return(matrix[row, col])
+  })
+  return(values)
+}
+
+# Fonction pour calculer la somme des valeurs numériques
+calculate_numeric_sum <- function(subclass, quanti_matrices, selected_cells) {
+  sums <- sapply(names(quanti_matrices), function(name) {
+    matrix <- quanti_matrices[[name]]$table
+    positions <- selected_cells[[subclass]]
+    selected_values <- get_selected_values(positions, matrix)
+    
+    # Filtrer et convertir les valeurs numériques
+    numeric_values <- as.numeric(gsub("[^0-9.]", "", selected_values, perl = TRUE))
+    numeric_values <- numeric_values[!is.na(numeric_values)]
+    
+    sum(numeric_values, na.rm = TRUE)
+  })
+  
+  return(sums)
+}
+
+# Observer pour calculer la somme des valeurs numériques
+observe({
+  subclasses <- subclass_names()
+  quanti_matrices <- quanti_final_mat()
+  selected_cells <- selected_cells_list()
+  print("selected_cells")
+  print(selected_cells)
+
+  lapply(subclasses, function(subclass) {
+    output[[paste0("selected_values_", subclass)]] <- renderPrint({
+      if (!is.null(selected_cells[[subclass]])) {
+        cat("========================\n")
+        cat("Sous-classe :", subclass, "\n")
+        cat("Valeurs des cellules selectionnees :\n")
+        
+        values <- sapply(names(quanti_matrices), function(name) {
+          matrix <- quanti_matrices[[name]]$table
+          positions <- selected_cells[[subclass]]
+          get_selected_values(positions, matrix)
+        })
+        
+        print(values)
+        cat("========================\n")
+      }
+    })
+    
+    output[[paste0("sum_values_", subclass, "_ui")]] <- renderPrint({
+      if (!is.null(selected_cells[[subclass]])) {
+        cat("========================\n")
+        cat("Sous-classe :", subclass, "\n")
+        cat("Somme des valeurs numeriques selectionnees :\n")
+        
+        sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
+        for (i in seq_along(sums)) {
+          cat(names(quanti_matrices)[i], ": ", sums[i], "\n")
+        }
+        
+        cat("========================\n")
+      }
+    })
+  })
+})
+
+output$selected_values_ui <- renderUI({
+  subclasses <- subclass_names()
+  
+  # Créer des sorties pour les valeurs sélectionnées pour chaque sous-classe
+  output_list <- lapply(subclasses, function(subclass) {
+    list(
+      verbatimTextOutput(paste0("selected_values_", subclass))
+    )
+  })
+  
+  # Afficher les informations dans une balise div avec style
+  tagList(div(style = "overflow-x: scroll;", output_list))
+})
+
+# UI pour afficher les résultats de la somme
+output$sum_values_ui <- renderUI({
+  subclasses <- subclass_names()
+  
+  # Créer des sorties pour les sommes des valeurs numériques pour chaque sous-classe
+  output_list <- lapply(subclasses, function(subclass) {
+    list(
+      verbatimTextOutput(paste0("sum_values_", subclass, "_ui"))
+    )
+  })
+  
+  # Afficher les informations dans une balise div avec style
+  tagList(div(style = "overflow-x: scroll;", output_list))
+})
 
 ###########################################
 ############ Internal Standard ############
@@ -514,97 +970,50 @@ observe({
 #' 
 #' Donc une fois que pour 1 sample on a la bonne matrice faire une boucle pour en avoir plusieurs et faire la somme
 
+# 1-	On fait la somme des aires pour les groupes d’homologues.
+# 2-	On divise par l’air de l’étalon interne.
+# 3-	Pour chaque échantillon avec les concentrations spécifiés de la même sous classe on place le point sur le graphique.
+
+# Test some values to find area under the curve data for all the CAL sample + all adduct + all standard 
+output$standard_table <- DT::renderDataTable({
+  params <- list(
+    project = input$project
+  )
+  
+  cal_samples <- cal_samples()
+  print(cal_samples)  # Debugging
+  
+  query <- sprintf(
+    'SELECT chemical_type, adduct 
+    FROM deconvolution_param 
+    WHERE project == %s 
+    AND chemical_type IN (
+      SELECT chemical_type 
+      FROM chemical 
+      WHERE chemical_familly == "Standard"
+    );',
+    params$project
+  )
+  
+  standard <- db_get_query(db, query)
+  print(standard)
+  
+  if (nrow(standard) > 0) {
+    table_params <- list(
+      standard = unique(standard$chemical_type),
+      adduct = unique(standard$adduct)
+    )
+    
+    table <- get_standard_table_quanti(db, params$project, table_params$adduct, table_params$standard, cal_samples)
+    session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
+    as.matrix(table)
+  } else {
+    table <- as.data.frame("No results")
+    as.data.frame(table)
+  }
+})
+
+
 observeEvent(input$quanti_launch, {
-  output$quanti_results_profile <- DT::renderDataTable({
-    samples <- get_samples(db, input$project)
-    files <- samples$sample_id
-    print(files) # [1] "20220611_072" "20220611_073" "20220611_081"
-    for (file in files) { print(file) }
-
-    # Initialiser une matrice pour la somme
-    summed_matrix <- NULL
-    # Initialiser une matrice pour les indicateurs de position
-    position_matrix <- NULL
-
-    # Boucle pour récupérer et sommer les matrices de chaque échantillon
-    for (file in files) {
-      # Récupérer la matrice pour l'échantillon courant
-      # Réduire la matrice pour obtenir la matrice de scores (val = 2)
-      matrix <- reduce_matrix(mat()[[file]][[input$process_results_study]][[input$process_results_chemical_adduct]], 2, greycells = TRUE)
-      
-      # Inspecter les valeurs avant sum
-      print("Values before sum:")
-      print(matrix) # Voir une partie de la matrice (Cl3 to Cl30).
-
-      # Séparer les valeurs numériques et les indicateurs de position
-      numeric_matrix <- apply(matrix, 2, function(x) {
-        sapply(strsplit(x, "/"), function(y) {
-          value <- suppressWarnings(as.numeric(y[1]))
-          if (is.na(value)) 0 else value
-        })
-      })
-
-      position_matrix <- apply(matrix, 2, function(x) {
-        sapply(strsplit(x, "/"), function(y) {
-          if (length(y) > 1) y[2] else "NA"
-        })
-      })
-      
-      # Vérifier la matrice convertie
-      print("Numeric matrix:")
-      print(numeric_matrix)
-
-      # Ajouter la matrice réduite à la matrice sommée
-      if (is.null(summed_matrix)) {
-        summed_matrix <- numeric_matrix
-      } else {
-        # Additionner les matrices
-        summed_matrix <- summed_matrix + numeric_matrix
-      }
-    }
-
-    # Créer une matrice combinée pour l'affichage avec indicateurs de position
-    combined_matrix <- mapply(function(num, pos) {
-      paste0(num, "/", pos)
-    }, summed_matrix, position_matrix)
-
-    # Convertir en matrice
-    combined_matrix <- matrix(combined_matrix, nrow = nrow(summed_matrix), ncol = ncol(summed_matrix),
-                              dimnames = list(rownames(summed_matrix), colnames(summed_matrix)))
-
-    # Afficher la matrice résultante
-    DT::datatable(combined_matrix, selection = "none", extensions = 'Scroller', 
-                  class = 'display cell-border compact nowrap', 
-                  options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
-                                scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
-                                columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
-                                initComplete = htmlwidgets::JS("
-    function (settings, json) {
-      var table = settings.oInstance.api();
-      table.cells().every(function() {
-        if(this.index().column == 0) {
-          this.data(this.data());
-        }else if (this.data() == null){
-          $(this.node()).addClass('outside');
-        }else if (this.data() != null){
-          var splitted_cell = this.data().split('/');
-          if(splitted_cell[0] == 'NA'){
-            this.data('')
-          }else{
-            this.data(splitted_cell[0]);
-          }
-          if(splitted_cell[1] == 'outside'){
-            $(this.node()).addClass('outside');
-          }else if(splitted_cell[1] == 'half'){
-            $(this.node()).addClass('half');
-          }else if(splitted_cell[1] == 'inside'){
-            $(this.node()).removeClass('outside');
-            $(this.node()).removeClass('half');
-          }
-        }
-      });
-      table.columns.adjust()
-    }
-  ")))
-  })
+ print("Launch quanti graph")
 })

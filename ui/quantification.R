@@ -5,7 +5,7 @@ shinydashboard::tabItem(
     shinyWidgets::radioGroupButtons(
       inputId = 'quantification_choice',
       label = '',
-      choices = c('Sample Type', 'Subclass List', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Filters'),
+      choices = c('Sample Type', 'Subclass List', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Filters', 'Results'),
       justified = TRUE,
       checkIcon = list(
         yes = shiny::tags$i(class = "fa fa-circle", style = "color: steelblue"),
@@ -46,7 +46,7 @@ shinydashboard::tabItem(
       width = 12,
       title = "For each CAL enter concentration and chlorination degree",
       div(
-        DT::dataTableOutput('cal_samples_table')
+        DT::dataTableOutput('cal_samples_table_df')
       )
     )
   ),
@@ -59,11 +59,11 @@ shinydashboard::tabItem(
         div(
           shiny::column(width = 3, 
             shiny::uiOutput("quanti_subclass_dropdown")
-            )
           ),
           shiny::column(width = 9,
             DT::dataTableOutput('quanti_matrix_homologue')
           )
+        )
       )
     )
   ),
@@ -112,7 +112,55 @@ shinydashboard::tabItem(
       shiny::fluidRow(
         shiny::column(
           width = 12,
-          shinycssloaders::withSpinner(DT::dataTableOutput('quanti_results_profile'))
+          shiny::uiOutput("quanti_launch")
+        )
+      )
+    )
+  ),
+  shiny::conditionalPanel(
+    condition = "input.quantification_choice == 'Results'",
+    shinydashboard::box(
+      width = 12, 
+      title = "Matrices des echantillons de calibration pour chaque type et chaque adduit selectionne",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("quanti_profile")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Valeurs des positions des groupes d'homologues selectionnes par sousclasse",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("selected_matrices")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Recherche de toutes les valeurs dans les matrices correspondantes aux groupes d'homologue choisi par sous classe",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("selected_values_ui")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Somme des valeurs d'homologues",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("sum_values_ui")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12, 
+      title = "Tableau des standards",
+      shiny::fluidRow(
+        shiny::column(width = 12, 
+          DT::dataTableOutput('standard_table')
         )
       )
     )
