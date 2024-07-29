@@ -1,13 +1,3 @@
-################################################
-#' Ce qu'il reste à faire :
-#' 1 - Plusieurs sous-classes possibles par échantillon. Possibilité d'en ajouter d'autres que seulement SCCP, MCCP et LCCP.
-#' 2 - Ajouter du javascript dans le tableau pour ne laisser la sélection possible uniquement pour "sample type" (dynamique)
-#' 3 - Ajouter un système de dropdown dans le tableau (sélection simple pour sample_type et multiple pour subclass_name)
-#' 4 - Ajouter les vérifiactions nécessaire pour empécher les erreurs d'input.
-#' 5 - Système d'étapes. D'abord l'intégration avant la quanti, une fois dans la quanti : Sample List > Homologue Domain > Internal Standard > Filters
-#' 6 - Récupérer les matrices des aires pour chaque échantillon associés
-#' 7 - Afficher les valeurs de la matrice avec les aires maximales pour chaque sous classe dans la partie Homologue Domain pour faciliter la sélection des régions.
-
 #####################################
 ############ reactiveVal ############
 #####################################
@@ -24,6 +14,12 @@ cal_data <- reactiveVal()
 # Stocker les matrices et les sélections de cellules pour chaque sous-classe
 matrix_list <- reactiveVal(list())
 selected_cells_list <- reactiveVal(list())
+
+# Définir total_area_table comme une variable réactive globale
+total_area_table <- reactiveVal()
+sums_values <- reactiveValues()
+adducts_values <- reactiveValues()
+standards_values <- reactiveValues()
 
 #########################################
 ################## SQL ##################
@@ -213,7 +209,10 @@ get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standa
       }
     }
   }
-  
+
+  # Eliminer les doublons
+  table <- unique(table)
+
   if (class(table$intensities) != "character") {
     table$intensities[which(!is.na(table$intensities))] <- formatC(
       as.numeric(table$intensities[which(!is.na(table$intensities))]), format = 'f', big.mark = " ", digits = 0
@@ -323,7 +322,20 @@ observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
 observeEvent(input$project, {
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
+  print(subclass_names(subclasses))  # Debugging
   updateSelectInput(session, "delete_subclass", choices = subclasses)
+  
+  cal_samples <- get_cal_samples(db, input$project)
+  cal_samples(cal_samples)
+  print(cal_samples())  # Debugging
+  
+  # Initialiser la variable réactive avec les données de calibration
+  cal_list <- list(sample_name = cal_samples$sample)
+  for (subclass in subclass_names()) {
+    cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(cal_samples))
+    cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(cal_samples))
+  }
+  cal_data(as.data.frame(cal_list))
 })
 
 output$quanti_table_subclass <- renderDT({
@@ -359,25 +371,6 @@ observeEvent(input$remove_subclass, {
 #####################################
 ############ Calibration ############
 #####################################
-
-# Observer le changement de projet et mettre à jour les données
-observeEvent(input$project, {
-  subclasses <- get_subclass_names(db, input$project)
-  subclass_names(subclasses)
-  print(subclass_names(subclasses))  # Debugging
-  
-  cal_samples <- get_cal_samples(db, input$project)
-  cal_samples(cal_samples)
-  print(cal_samples())  # Debugging
-  
-  # Initialiser la variable réactive avec les données de calibration
-  cal_list <- list(sample_name = cal_samples$sample)
-  for (subclass in subclass_names()) {
-    cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(cal_samples))
-    cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(cal_samples))
-  }
-  cal_data(as.data.frame(cal_list))
-})
 
 # Ajouter des observateurs réactifs pour cal_samples() et subclass_names()
 observe({
@@ -575,15 +568,6 @@ observe({
   }
 })
 
-# Rendu dynamique des verbatimTextOutput pour chaque sous-classe
-output$selected_matrices <- renderUI({
-  subclasses <- subclass_names()
-  output_list <- lapply(subclasses, function(subclass) {
-    verbatimTextOutput(paste0("selected_matrices_", subclass))
-  })
-  do.call(tagList, output_list)
-})
-
 # Rendu des valeurs des cellules sélectionnées pour chaque sous-classe
 observe({
   subclasses <- subclass_names()
@@ -603,24 +587,11 @@ observe({
   })
 })
 
-output$quanti_profile <- renderUI({
-  quanti_final_list <- quanti_final_mat()
-  
-  # Créer des sorties pour chaque table avec informations associées
-  output_list <- lapply(names(quanti_final_list), function(name) {
-    list(
-      verbatimTextOutput(paste0("matrix_info_", name)),
-      DT::dataTableOutput(name)
-    )
-  })
-  
-  # Afficher les tables et les informations dans une balise div avec style
-  tagList(div(style = "overflow-x: scroll;", output_list))
-})
-
-quanti_final_mat <- reactive({
+# Changer cette fonction reactive en fonction avec arguments
+# Mettre mat() avec export = TRUE pour avoir le plus de digits
+quanti_final_mat_func <- function(db, project, select_choice = 2) {
   # Récupérer tous les échantillons du projet
-  samples <- get_samples(db, input$project)
+  samples <- get_samples(db, project)
   print("samples")
   print(samples)
   
@@ -630,7 +601,7 @@ quanti_final_mat <- reactive({
   }
 
   # Filtrer les échantillons de calibration
-  cal_samples <- get_cal_samples(db, input$project)
+  cal_samples <- get_cal_samples(db, project)
   print("cal_samples")
   print(cal_samples)
   
@@ -650,7 +621,7 @@ quanti_final_mat <- reactive({
   }
 
   # Récupérer tous les adducts disponibles
-  adduct_table <- db_get_query(db, sprintf("SELECT DISTINCT adduct FROM deconvolution_param WHERE project = '%s'", input$project))
+  adduct_table <- db_get_query(db, sprintf("SELECT DISTINCT adduct FROM deconvolution_param WHERE project = '%s'", project))
   adduct_list <- adduct_table$adduct
   print("adducts")
   print(adduct_list)
@@ -668,7 +639,7 @@ quanti_final_mat <- reactive({
                         SELECT chemical_type 
                         FROM deconvolution_param 
                         WHERE project = '%s'
-                    )", input$project)
+                    )", project)
   chemical_table <- unique(db_get_query(db, query))
   chemical_types <- chemical_table$chemical_type
   print("chemical_types")
@@ -679,11 +650,9 @@ quanti_final_mat <- reactive({
     return(list())
   }
   
-  # Utiliser toujours l'option "Normalized intensity (xE6)"
-  select_choice <- 2
-  
   result_tables <- list()
   
+  values$export <- TRUE
   for (file in cal_samples_filtered$sample_id) {
     for (study in chemical_types) {
       for (adduct in adduct_list) {
@@ -718,6 +687,7 @@ quanti_final_mat <- reactive({
       }
     }
   }
+  values$export <- FALSE
 
   print("##########################################")
   print("########### REDUCE_MATRIX DATA ###########")
@@ -732,58 +702,8 @@ quanti_final_mat <- reactive({
   print("##########################################")
   
   return(result_tables)
-})
+}
 
-# Rendu des valeurs récupérées pour chaque sous-classe
-observe({
-  quanti_matrices <- quanti_final_mat()
-  
-  lapply(names(quanti_matrices), function(name) {
-    result <- quanti_matrices[[name]]
-    
-    output[[paste0("matrix_info_", name)]] <- renderPrint({
-      cat("Sample ID:", result$sample_id, "\n")
-      cat("Chemical Type:", result$chemical_type, "\n")
-      cat("Adduct:", result$adduct, "\n")
-    })
-    
-    output[[name]] <- DT::renderDataTable({
-      DT::datatable(result$table, selection = "none", extensions = 'Scroller', 
-                    class = 'display cell-border compact nowrap', 
-                    options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
-                                  scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
-                                  columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
-                                  initComplete = htmlwidgets::JS("
-          function (settings, json) {
-            var table = settings.oInstance.api();
-            table.cells().every(function() {
-              if (this.index().column == 0) {
-                this.data(this.data());
-              } else if (this.data() == null){
-                $(this.node()).addClass('outside');
-              } else if (this.data() != null){
-                var splitted_cell = this.data().split('/');
-                if (splitted_cell[0] == 'NA'){
-                  this.data('')
-                } else {
-                  this.data(splitted_cell[0]);
-                }
-                if (splitted_cell[1] == 'outside'){
-                  $(this.node()).addClass('outside');
-                } else if (splitted_cell[1] == 'half'){
-                  $(this.node()).addClass('half');
-                } else if (splitted_cell[1] == 'inside'){
-                  $(this.node()).removeClass('outside');
-                  $(this.node()).removeClass('half');
-                }
-              }
-            });
-            table.columns.adjust()
-          }
-        ")))
-    })
-  })
-})
 
 # Fonction pour récupérer les valeurs des matrices de données basées sur les positions sélectionnées
 get_selected_values <- function(positions, matrix) {
@@ -811,78 +731,6 @@ calculate_numeric_sum <- function(subclass, quanti_matrices, selected_cells) {
   
   return(sums)
 }
-
-# Observer pour calculer la somme des valeurs numériques
-observe({
-  subclasses <- subclass_names()
-  quanti_matrices <- quanti_final_mat()
-  selected_cells <- selected_cells_list()
-  print("selected_cells")
-  print(selected_cells)
-
-  lapply(subclasses, function(subclass) {
-    output[[paste0("selected_values_", subclass)]] <- renderPrint({
-      if (!is.null(selected_cells[[subclass]])) {
-        cat("========================\n")
-        cat("Sous-classe :", subclass, "\n")
-        cat("Valeurs des cellules selectionnees :\n")
-        
-        values <- sapply(names(quanti_matrices), function(name) {
-          matrix <- quanti_matrices[[name]]$table
-          positions <- selected_cells[[subclass]]
-          get_selected_values(positions, matrix)
-        })
-        
-        print(values)
-        cat("========================\n")
-      }
-    })
-    
-    output[[paste0("sum_values_", subclass, "_ui")]] <- renderPrint({
-      if (!is.null(selected_cells[[subclass]])) {
-        cat("========================\n")
-        cat("Sous-classe :", subclass, "\n")
-        cat("Somme des valeurs numeriques selectionnees :\n")
-        
-        sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
-        for (i in seq_along(sums)) {
-          cat(names(quanti_matrices)[i], ": ", sums[i], "\n")
-        }
-        
-        cat("========================\n")
-      }
-    })
-  })
-})
-
-output$selected_values_ui <- renderUI({
-  subclasses <- subclass_names()
-  
-  # Créer des sorties pour les valeurs sélectionnées pour chaque sous-classe
-  output_list <- lapply(subclasses, function(subclass) {
-    list(
-      verbatimTextOutput(paste0("selected_values_", subclass))
-    )
-  })
-  
-  # Afficher les informations dans une balise div avec style
-  tagList(div(style = "overflow-x: scroll;", output_list))
-})
-
-# UI pour afficher les résultats de la somme
-output$sum_values_ui <- renderUI({
-  subclasses <- subclass_names()
-  
-  # Créer des sorties pour les sommes des valeurs numériques pour chaque sous-classe
-  output_list <- lapply(subclasses, function(subclass) {
-    list(
-      verbatimTextOutput(paste0("sum_values_", subclass, "_ui"))
-    )
-  })
-  
-  # Afficher les informations dans une balise div avec style
-  tagList(div(style = "overflow-x: scroll;", output_list))
-})
 
 ###########################################
 ############ Internal Standard ############
@@ -947,6 +795,76 @@ observe({
   })
 })
 
+observe({
+  lapply(subclass_names(), function(subclass) {
+    local({
+      subclass_local <- subclass
+
+      output[[paste0("selected_adducts_and_standards_", subclass_local)]] <- renderPrint({
+        adduct_input <- input[[paste0("process_adduct_", subclass_local)]]
+        standard_input <- input[[paste0("process_standard_type_", subclass_local)]]
+        
+        # Stocker les valeurs dans les variables réactives
+        adducts_values[[subclass_local]] <- adduct_input
+        standards_values[[subclass_local]] <- standard_input
+
+        cat("========================\n")
+        cat("Selected Adducts for", subclass_local, ":\n")
+        print(adduct_input)
+        cat("Selected Standard Formula for", subclass_local, ":\n")
+        print(standard_input)
+        cat("========================\n")
+      })
+    })
+  })
+})
+
+# Déclarer les variables réactives globalement
+adduct_inputs <- reactiveValues()
+standard_inputs <- reactiveValues()
+
+# Observer pour récupérer les valeurs d'adducts et de standards
+observe({
+  lapply(subclass_names(), function(subclass) {
+    local({
+      subclass_local <- subclass
+
+      observe({
+        adduct_input <- input[[paste0("process_adduct_", subclass_local)]]
+        standard_input <- input[[paste0("process_standard_type_", subclass_local)]]
+        
+        adduct_inputs[[subclass_local]] <- adduct_input
+        standard_inputs[[subclass_local]] <- standard_input
+
+        # Pour le débogage
+        print(paste("Adduct Input for", subclass_local, ":"))
+        print(adduct_input)
+        print(paste("Standard Input for", subclass_local, ":"))
+        print(standard_input)
+      })
+    })
+  })
+})
+
+# Function to calculate normalized areas
+calculate_normalized_areas <- function(sums, total_area_table, subclass_adduct, subclass_standard) {
+  normalized_areas <- numeric(length(sums))
+  for (i in seq_along(sums)) {
+    sample_id <- names(sums)[i]
+    
+    # Extract the standard area for the corresponding subclass and adduct
+    total_area <- total_area_table$total_area[total_area_table$sample_id == sample_id & 
+                                              total_area_table$adduct == subclass_adduct & 
+                                              total_area_table$formula == subclass_standard]
+    
+    if (length(total_area) == 1) {
+      normalized_areas[i] <- sums[i] / total_area
+    } else {
+      normalized_areas[i] <- NA  # Handle case where no matching total area is found
+    }
+  }
+  return(normalized_areas)
+}
 
 #######################################
 ############ Apply Filters ############
@@ -961,59 +879,376 @@ observe({
 ############ Launch Quanti ############
 #######################################
 
-#' Ici le code va servir pour récupérer toutes les matrices pour faire la somme
-#' Fonction reduce_matrix arguments : 
-#' files = samples$sample_id
-#' input$process_results_study = "PCAs"
-#' input$process_results_chemical_adduct = "M+Cl"
-#' select_choice = 1 (matrice de score "area")
-#' 
-#' Donc une fois que pour 1 sample on a la bonne matrice faire une boucle pour en avoir plusieurs et faire la somme
+#' On va exécuter lorsque l'on va cliquer sur le bouton launch quanti la fonction principale quanti_final_mat()
+#' Cette fonction va récupérer les matrices qui ont été calculés lors de la déconvolution.
+#' C'est ici que nous devons calculer les aires normalisés par les étalons internes.
+#' Une seule exécution de cette fonction est suffisante en théorie pour éxécuter tout le reste.
 
-# 1-	On fait la somme des aires pour les groupes d’homologues.
-# 2-	On divise par l’air de l’étalon interne.
-# 3-	Pour chaque échantillon avec les concentrations spécifiés de la même sous classe on place le point sur le graphique.
 
-# Test some values to find area under the curve data for all the CAL sample + all adduct + all standard 
-output$standard_table <- DT::renderDataTable({
-  params <- list(
-    project = input$project
-  )
+#' browser() R pour stopper la console et voir le contenu des variables (C pour continuer les calculs après)
+
+library(dplyr)
+observeEvent(input$quanti_launch, {
+
+  subclasses <- subclass_names()
+  selected_cells <- selected_cells_list()
+  print("selected_cells")
+  print(selected_cells)
+
+  quanti_matrices <- quanti_final_mat_func(db, input$project, 2)
+
+  output$quanti_profile <- renderUI({
+  # Créer des sorties pour chaque table avec informations associées
+  output_list <- lapply(names(quanti_matrices), function(name) {
+    list(
+      verbatimTextOutput(paste0("matrix_info_", name)),
+      DT::dataTableOutput(name)
+    )
+  })
   
-  cal_samples <- cal_samples()
-  print(cal_samples)  # Debugging
+  # Afficher les tables et les informations dans une balise div avec style
+  tagList(div(style = "overflow-x: scroll;", output_list))
+  })
+
+  lapply(names(quanti_matrices), function(name) {
+    result <- quanti_matrices[[name]]
+    
+    output[[paste0("matrix_info_", name)]] <- renderPrint({
+      cat("Sample ID:", result$sample_id, "\n")
+      cat("Chemical Type:", result$chemical_type, "\n")
+      cat("Adduct:", result$adduct, "\n")
+    })
+    
+    output[[name]] <- DT::renderDataTable({
+      DT::datatable(result$table, selection = "none", extensions = 'Scroller', 
+                    class = 'display cell-border compact nowrap', 
+                    options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
+                                  scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
+                                  columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
+                                  initComplete = htmlwidgets::JS("
+          function (settings, json) {
+            var table = settings.oInstance.api();
+            table.cells().every(function() {
+              if (this.index().column == 0) {
+                this.data(this.data());
+              } else if (this.data() == null){
+                $(this.node()).addClass('outside');
+              } else if (this.data() != null){
+                var splitted_cell = this.data().split('/');
+                if (splitted_cell[0] == 'NA'){
+                  this.data('')
+                } else {
+                  this.data(splitted_cell[0]);
+                }
+                if (splitted_cell[1] == 'outside'){
+                  $(this.node()).addClass('outside');
+                } else if (splitted_cell[1] == 'half'){
+                  $(this.node()).addClass('half');
+                } else if (splitted_cell[1] == 'inside'){
+                  $(this.node()).removeClass('outside');
+                  $(this.node()).removeClass('half');
+                }
+              }
+            });
+            table.columns.adjust()
+          }
+        ")))
+    })
+  })
+
+  # Rendu dynamique des verbatimTextOutput pour chaque sous-classe
+  output$selected_matrices <- renderUI({
+    output_list <- lapply(subclasses, function(subclass) {
+      verbatimTextOutput(paste0("selected_matrices_", subclass))
+    })
+    do.call(tagList, output_list)
+  })
+
+  lapply(subclasses, function(subclass) {
+    output[[paste0("selected_values_", subclass)]] <- renderPrint({
+      if (!is.null(selected_cells[[subclass]])) {
+        cat("========================\n")
+        cat("Sous-classe :", subclass, "\n")
+        cat("Valeurs des cellules selectionnees :\n")
+        
+        values <- sapply(names(quanti_matrices), function(name) {
+          matrix <- quanti_matrices[[name]]$table
+          positions <- selected_cells[[subclass]]
+          get_selected_values(positions, matrix)
+        })
+        
+        print(values)
+        cat("========================\n")
+      }
+    })
+  })
+
+  lapply(subclasses, function(subclass) {
+    output[[paste0("sum_values_", subclass, "_ui")]] <- renderPrint({
+      if (!is.null(selected_cells[[subclass]])) {
+        cat("========================\n")
+        cat("Sous-classe :", subclass, "\n")
+        cat("Somme des valeurs numeriques selectionnees :\n")
+        
+        sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
+        sums_values[[subclass]] <- sums
+        
+        for (i in seq_along(sums)) {
+          cat(names(quanti_matrices)[i], ": ", sums[i], "\n")
+        }
+
+        cat("========================\n")
+      }
+    })
+  })
   
-  query <- sprintf(
-    'SELECT chemical_type, adduct 
-    FROM deconvolution_param 
-    WHERE project == %s 
-    AND chemical_type IN (
-      SELECT chemical_type 
-      FROM chemical 
-      WHERE chemical_familly == "Standard"
-    );',
-    params$project
-  )
-  
-  standard <- db_get_query(db, query)
-  print(standard)
-  
-  if (nrow(standard) > 0) {
-    table_params <- list(
-      standard = unique(standard$chemical_type),
-      adduct = unique(standard$adduct)
+  lapply(subclasses, function(subclass) {
+    output[[paste0("sum_values_", subclass, "_plot")]] <- renderPlot({      
+      if (!is.null(selected_cells[[subclass]])) {
+        # sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
+
+        data <- data.frame(
+          Names = names(quanti_matrices),
+          Sums = sums_values[[subclass]]
+        )
+        
+        ggplot(data, aes(x = Names, y = Sums)) +
+          geom_point() +
+          geom_smooth(method = "lm", se = FALSE, color = "red") +
+          theme_minimal() +
+          labs(title = paste("Sous-classe:", subclass), x = "Combinaison echantillon, type, adduit", y = "Sommes des aires") +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      }
+    })
+  })
+
+  output$selected_values_ui <- renderUI({
+    # Créer des sorties pour les valeurs sélectionnées pour chaque sous-classe
+    output_list <- lapply(subclasses, function(subclass) {
+      list(
+        verbatimTextOutput(paste0("selected_values_", subclass))
+      )
+    })
+    
+    # Afficher les informations dans une balise div avec style
+    tagList(div(style = "overflow-x: scroll;", output_list))
+  })
+
+  # UI pour afficher les résultats de la somme
+  output$sum_values_ui <- renderUI({   
+    # Créer des sorties pour les sommes des valeurs numériques pour chaque sous-classe
+    output_list <- lapply(subclasses, function(subclass) {
+      list(
+        verbatimTextOutput(paste0("sum_values_", subclass, "_ui"))
+      )
+    })
+    
+    # Afficher les informations dans une balise div avec style
+    tagList(div(style = "overflow-x: scroll;", output_list))
+  })
+
+  # UI pour afficher les graphiques des résultats de la somme
+  output$sum_values_graph_ui <- renderUI({
+    # Créer des sorties de graphiques pour chaque sous-classe
+    plot_output_list <- lapply(subclasses, function(subclass) {
+      plotOutput(outputId = paste0("sum_values_", subclass, "_plot"))
+    })
+    
+    # Afficher les graphiques dans une balise div
+    tagList(div(style = "overflow-x: scroll;", plot_output_list))
+  })
+
+  output$input_IS <- shiny::renderUI({
+    tagList(
+      lapply(subclass_names(), function(subclass) {
+        div(
+          verbatimTextOutput(paste0("selected_adducts_and_standards_", subclass))
+        )
+      })
+    )
+  })
+
+  output$standard_table <- DT::renderDataTable({
+    params <- list(
+      project = input$project
     )
     
-    table <- get_standard_table_quanti(db, params$project, table_params$adduct, table_params$standard, cal_samples)
-    session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
-    as.matrix(table)
-  } else {
-    table <- as.data.frame("No results")
-    as.data.frame(table)
-  }
-})
+    cal_samples <- cal_samples()
+    
+    # Récupérer toutes les combinaisons d'adducts et de standards sélectionnés
+    all_adducts <- unlist(reactiveValuesToList(adduct_inputs))
+    all_standards <- unlist(reactiveValuesToList(standard_inputs))
+    
+    # Debugging: Print the reactive values
+    print("Adduct Inputs:")
+    print(all_adducts)
+    print("Standard Inputs:")
+    print(all_standards)
 
+    if (length(all_adducts) > 0 && length(all_standards) > 0) {
+      table <- get_standard_table_quanti(db, params$project, all_adducts, all_standards, cal_samples)
+      session$sendCustomMessage("Standard", jsonlite::toJSON(as.matrix(table)))
+      DT::datatable(as.matrix(table))
+      print(table)
+    } else {
+      table <- as.data.frame("No results")
+      DT::datatable(table)
+    }
+  })
 
-observeEvent(input$quanti_launch, {
- print("Launch quanti graph")
+  # Nouveau output pour afficher les valeurs de "total area"
+  output$total_area_values <- renderPrint({
+    params <- list(
+      project = input$project
+    )
+    
+    cal_samples <- cal_samples()
+    
+    # Récupérer toutes les combinaisons d'adducts et de standards sélectionnés
+    all_adducts <- unlist(reactiveValuesToList(adduct_inputs))
+    all_standards <- unlist(reactiveValuesToList(standard_inputs))
+
+    if (length(all_adducts) > 0 && length(all_standards) > 0) {
+      table <- get_standard_table_quanti(db, params$project, all_adducts, all_standards, cal_samples)
+      
+      # Éliminer les doublons après la récupération des données
+      table <- unique(table)
+
+      # Extraire et formater les valeurs de total area
+      formatted_table <- table %>%
+        select(sample_id, formula, adduct, `total area`) %>%
+        distinct()
+      
+      formatted_table$`total area` <- as.numeric(gsub(" ", "", formatted_table$`total area`)) / 10^6
+      
+      # Mettre à jour la variable réactive
+      total_area_table(formatted_table)
+
+      # Afficher les résultats formatés
+      cat("Total Area Values (in 10^6 units):\n")
+      print(formatted_table)
+      cat("samples")
+      print(formatted_table$sample_id)
+      cat("formula")
+      print(formatted_table$formula)
+      cat("adducts")
+      print(formatted_table$adduct)
+      cat("total area")
+      print(formatted_table$`total area`)
+    } else {
+      cat("No results")
+    }
+  })
+
+  output$normalisation_area <- renderPrint({
+    if (!is.null(sums_values) && !is.null(total_area_table()) && nrow(total_area_table()) > 0) {
+      for (subclass in names(sums_values)) {
+        if (!is.null(sums_values[[subclass]])) {
+          cat("========================\n")
+          cat("Sous-classe :", subclass, "\n")
+
+          cat("Adducts selectionnes pour", subclass, ":\n")
+          print(adducts_values[[subclass]])
+          
+          cat("Formule standard selectionnee pour", subclass, ":\n")
+          print(standards_values[[subclass]])
+
+          filtered_table <- total_area_table() %>%
+            filter(adduct %in% adducts_values[[subclass]], formula == standards_values[[subclass]])
+          
+          cat("Valeur d'aires STANDARDS", subclass, ":\n")
+          print(filtered_table$sample_id)
+          print(filtered_table$`total area`)
+
+          summed_areas <- filtered_table %>%
+            mutate(`total area` = ifelse(is.na(`total area`), 0, `total area`)) %>%
+            group_by(sample_id) %>%
+            summarize(total_area_sum = sum(`total area`), .groups = 'drop')
+          
+          cat("Sommes des aires STANDARDS : \n")
+          print(as.data.frame(summed_areas))
+
+          sums_df <- data.frame(
+            sample_id = names(sums_values[[subclass]]),
+            sum_value = unlist(sums_values[[subclass]])
+          )
+          sums_df <- sums_df %>%
+            mutate(sample_name = sub("_M\\+Cl|_M-Cl", "", sample_id)) %>%
+            mutate(sample_name = sub("_PCAs", "", sample_name)) %>%
+            group_by(sample_name) %>%
+            summarize(total_sum = sum(sum_value), .groups = 'drop')
+          
+          cat("Sommes des aires ECHANTILLONS : \n")
+          print(as.data.frame(sums_df))
+
+          summed_areas <- summed_areas %>%
+            mutate(sample_name = sample_id)
+          merged_df <- left_join(sums_df, summed_areas, by = "sample_name")
+          
+          cat("Association des deux DataFrame ECHANTILLONS + STANDARDS :\n")
+          print(as.data.frame(merged_df))
+          
+          if (nrow(merged_df) > 0) {
+            merged_df <- merged_df %>%
+              mutate(normalized_value = total_sum / total_area_sum,
+                     normalized_value = normalized_value * 1e6)  # Multiplier par 10^6
+
+            cat("Valeurs normalisees ECHANTILLONS / STANDARDS (x 10^6) : \n")
+            print(as.data.frame(merged_df %>% select(sample_name, normalized_value)))
+            
+            # Stocker le merged_df pour le graphique
+            assign(paste0("merged_df_", subclass), merged_df, envir = .GlobalEnv)
+          } else {
+            cat("No matching sample names between sums_df and summed_areas.\n")
+          }
+
+          cat("========================\n")
+        }
+      }
+    } else {
+      cat("No total area values available for normalization.\n")
+    }
+  })
+
+  output$graph_normalisation <- renderPlotly({
+    # Créer et combiner les graphiques pour chaque sous-classe
+    plots <- lapply(names(sums_values), function(subclass) {
+      merged_df <- get(paste0("merged_df_", subclass), envir = .GlobalEnv)
+      if (!is.null(merged_df)) {
+        plot_ly(merged_df, x = ~reorder(sample_name, normalized_value), y = ~normalized_value, type = 'bar', name = subclass) %>%
+          layout(
+            title = paste("Aires cumulees normalisees des echantillons de calibration par les standards"),
+            xaxis = list(title = "Nom de l'echantillon"),
+            yaxis = list(title = "Valeur normalisée (x 10^6)")
+          )
+      }
+    })
+    
+    # Combiner tous les graphiques
+    subplot(plots, nrows = length(plots), shareX = TRUE, titleX = TRUE)
+  })
+
+  output$graph_exponential <- renderPlotly({
+    # Créer et combiner les graphiques pour chaque sous-classe
+    plots <- lapply(names(sums_values), function(subclass) {
+      merged_df <- get(paste0("merged_df_", subclass), envir = .GlobalEnv)
+      if (!is.null(merged_df)) {
+        # Définir une séquence de valeurs pour l'axe des x
+        x <- seq(0, 10, by = 0.1)
+        # Définir la fonction exponentielle
+        y <- exp(x)
+        
+        # Créer un graphique interactif avec plot_ly
+        plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', name = subclass) %>%
+          layout(
+            title = paste("Courbe Exponentielle pour", subclass),
+            xaxis = list(title = "X"),
+            yaxis = list(title = "exp(X)")
+          )
+      }
+    })
+    
+    # Combiner tous les graphiques
+    subplot(plots, nrows = length(plots), shareX = TRUE, titleX = TRUE)
+  })
 })

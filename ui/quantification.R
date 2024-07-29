@@ -106,15 +106,6 @@ shinydashboard::tabItem(
             style = 'minimal', color = 'primary')
         )
       )
-    ),
-    shinydashboard::box(
-      width = 12, 
-      shiny::fluidRow(
-        shiny::column(
-          width = 12,
-          shiny::uiOutput("quanti_launch")
-        )
-      )
     )
   ),
   shiny::conditionalPanel(
@@ -156,11 +147,65 @@ shinydashboard::tabItem(
       )
     ),
     shinydashboard::box(
-      width = 12, 
-      title = "Tableau des standards",
+      width = 12,
+      title = "Somme des valeurs d'homologues",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("sum_values_graph_ui")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Valeur input de l'adduit et du standard en fonction de la sous classe ",
+      shiny::fluidRow(
+        shiny::column(width = 12,
+          shiny::uiOutput("input_IS")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Tableau des valeurs d'aires, scores, deviations pour les standards",
       shiny::fluidRow(
         shiny::column(width = 12, 
           DT::dataTableOutput('standard_table')
+        )
+      )
+    ), 
+    shinydashboard::box(
+      width = 12,
+      title = "Recuperation des aires totales (E10^6) pour le calcul",
+      shiny::fluidRow(
+        shiny::column(width = 12, 
+          verbatimTextOutput("total_area_values")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Normalisation des aires de calibration par celles des standard",
+      shiny::fluidRow(
+        shiny::column(width = 12, 
+          verbatimTextOutput("normalisation_area")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Representation graphique des aires normalisees",
+      shiny::fluidRow(
+        shiny::column(width = 12, 
+          plotlyOutput("graph_normalisation")
+        )
+      )
+    ),
+    shinydashboard::box(
+      width = 12,
+      title = "Representation graphique des aires normalisees exponentiel",
+      shiny::fluidRow(
+        shiny::column(width = 12, 
+          plotlyOutput("graph_exponential")
         )
       )
     )
