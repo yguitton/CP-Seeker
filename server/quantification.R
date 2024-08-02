@@ -26,20 +26,16 @@ standards_values <- reactiveValues()
 #########################################
 
 # CREATE TABLE "cal_data" (
-# 	"id"	INTEGER,
-# 	"project"	TEXT NOT NULL,
-# 	"sample"	TEXT NOT NULL,
-# 	"subclass"	TEXT NOT NULL,
-# 	"concentration"	REAL NOT NULL,
-# 	"chlorination"	REAL NOT NULL,
-# 	PRIMARY KEY("id" AUTOINCREMENT),
-# 	FOREIGN KEY("subclass") REFERENCES "subclass"("subclass_name"),
-# 	FOREIGN KEY("sample") REFERENCES "sample"("sample"),
-# 	FOREIGN KEY("project") REFERENCES "project"("project")
-# );
+#  	"id" INTEGER PRIMARY KEY AUTOINCREMENT,
+#  	"sample" TEXT, -- Ajout de la colonne sample
+#  	"subclass" INTEGER, -- Ajout de la colonne subclass
+#  	"concentration" REAL,
+#  	"chlorination" REAL
+# )
 
 # CREATE TABLE "subclass" (
-# 	"project"	INTEGER,
+# 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+# 	"project" INTEGER, -- Ajout de la colonne project
 # 	"subclass_name"	TEXT,
 # 	FOREIGN KEY("project") REFERENCES "project"("project")
 # )
@@ -52,29 +48,6 @@ get_subclass_names <- function(db, project) {
   dbGetQuery(db, query)$subclass_name
 }
 
-get_samples_type_quanti <- function(db, project = NULL) {
-  if (is.null(project)) {
-    return(data.frame())
-  }
-
-  # Requête pour obtenir les samples associés au projet donné
-  project_query <- "SELECT sample FROM project_sample WHERE project = ?"
-  project_samples <- dbGetPreparedQuery(db, project_query, bind.data = data.frame(project = project))
-
-  if (nrow(project_samples) == 0) {
-    return(data.frame())
-  }
-
-  samples <- project_samples$sample
-  samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
-  
-  # Requête pour obtenir les détails des samples
-  query <- sprintf("SELECT sample, sample_type FROM sample WHERE sample IN (%s)", samples_str)
-  cat("Executing query:", query, "\n")  # Debugging
-  
-  dbGetQuery(db, query)
-}
-
 record_subclass_quanti <- function(db, project, subclass_name) {
   query <- sprintf("INSERT INTO subclass (project, subclass_name) VALUES ('%s', '%s')", project, subclass_name)
   cat("Executing query:", query, "\n")  # Debugging
@@ -85,6 +58,20 @@ delete_subclass_quanti <- function(db, project, subclass_name) {
   query <- sprintf("DELETE FROM subclass WHERE project = '%s' AND subclass_name = '%s'", project, subclass_name)
   cat("Executing query:", query, "\n")  # Debugging
   dbExecute(db, query)
+}
+
+get_samples_project_quanti <- function(db, project = NULL) {
+  if (is.null(project)) {
+    return(data.frame())
+  }
+
+  query <- sprintf(
+    "SELECT sample, sample_type FROM sample WHERE sample IN (
+      SELECT sample FROM project_sample WHERE project = '%s'
+    )", project
+  )
+  cat("Executing query:", query, "\n")  # Debugging
+  dbGetQuery(db, query)
 }
 
 get_cal_samples <- function(db, project) {
@@ -100,25 +87,90 @@ get_cal_samples <- function(db, project) {
   dbGetQuery(db, query)
 }
 
-record_cal_data <- function(db, project, cal_data) {
-  for (i in 1:nrow(cal_data)) {
-    sample_name <- cal_data[i, "sample"]
-    
-    for (j in 2:ncol(cal_data)) {
-      col_name <- colnames(cal_data)[j]
-      if (grepl("concentration", col_name)) {
-        subclass <- sub("_concentration", "", col_name)
-        concentration <- cal_data[i, j]
-        chlorination <- cal_data[i, paste(subclass, "chlorination", sep = "_")]
-        
-        query <- sprintf("INSERT INTO cal_data (project, sample, subclass, concentration, chlorination) VALUES ('%s', '%s', '%s', %f, %f)",
-                         project, sample_name, subclass, concentration, chlorination)
-        cat("Executing query:", query, "\n")  # Debugging
-        dbExecute(db, query)
+record_cal_data <- function(db, samples, subclasses) {
+  if (length(subclasses) == 0) {
+    cat("No subclasses provided\n")
+    return()
+  } else {
+    cat("Subclasses:", paste(subclasses, collapse=", "), "\n")
+  }
+
+  if (length(samples) == 0) {
+    cat("No samples provided\n")
+    return()
+  } else {
+    cat("Samples:", paste(samples, collapse=", "), "\n")
+  }
+
+  # Fonction pour échapper les caractères spéciaux dans les chaînes
+  escape_sql <- function(x) {
+    gsub("'", "''", x)
+  }
+
+  # Échapper les caractères spéciaux
+  samples <- sapply(samples, escape_sql)
+  subclasses <- sapply(subclasses, escape_sql)
+
+  # Insérer les échantillons pour chaque sous-classe dans la table cal_data
+  for (sample in samples) {
+    for (subclass in subclasses) {
+      # Vérifier si l'échantillon existe déjà pour cette sous-classe
+      check_query <- sprintf(
+        "SELECT COUNT(*) FROM cal_data WHERE sample = '%s' AND subclass = '%s';",
+        sample, subclass
+      )
+      
+      existing_count <- dbGetQuery(db, check_query)$`COUNT(*)`
+      
+      if (existing_count == 0) {
+        # Insérer l'échantillon s'il n'existe pas
+        insert_query <- sprintf(
+          "INSERT INTO cal_data (sample, subclass, concentration, chlorination) VALUES ('%s', '%s', NULL, NULL);",
+          sample, subclass
+        )
+
+        cat("Executing query for sample:", insert_query, "\n")  # Debugging
+        dbExecute(db, insert_query)
+      } else {
+        cat("Sample already exists for subclass:", sample, subclass, "\n")  # Debugging
       }
     }
   }
 }
+
+get_cal_data <- function(db, samples, subclasses) {
+  # Vérifier si les listes de samples et subclasses ne sont pas vides
+  if (length(samples) == 0 || length(subclasses) == 0) {
+    cat("No samples or subclasses provided\n")
+    return(data.frame())
+  }
+
+  # Fonction pour échapper les caractères spéciaux dans les chaînes
+  escape_sql <- function(x) {
+    gsub("'", "''", x)
+  }
+
+  # Convertir les listes en chaînes de caractères séparées par des virgules
+  samples <- sapply(samples, escape_sql)  # Échapper les caractères spéciaux
+  subclasses <- sapply(subclasses, escape_sql)  # Échapper les caractères spéciaux
+  samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
+  subclasses_str <- paste(sprintf("'%s'", subclasses), collapse = ", ")
+
+  # Construire la requête SQL
+  query <- sprintf(
+    "SELECT * FROM cal_data WHERE sample IN (%s) AND subclass IN (%s);",
+    samples_str, subclasses_str
+  )
+
+  cat("Executing query:", query, "\n")  # Debugging
+  df <- dbGetQuery(db, query)
+  if (nrow(df) == 0) {
+    cat("No calibration data found for the given samples and subclasses\n")
+  }
+
+  return(df)
+}
+
 
 get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standard_formulas = NULL, cal_samples = NULL){
   # Récupérer tous les échantillons du projet
@@ -251,7 +303,7 @@ get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standa
 #' Les infos : subclassname SCCP, MCCP, LCCP || chlorination_degree || concentration
 #' 
 #' Pour l'instant l'utilisateur peut remplir ce qu'il veut dans les colonnes qu'il veut.
-#' Par la suite ajouter des restrictions.
+#' Par la suite ajouter des restrictions. (DROPDOWN MENU ...)
 
 # Créer un objet réactif pour stocker les données
 sample_type_data <- reactive({
@@ -261,7 +313,7 @@ sample_type_data <- reactive({
   tryCatch({  
     if(params$table_selected == "Sample Type"){  # Utiliser '==' pour la comparaison
         # Obtenir les données des samples du projet
-        data <- get_samples_type_quanti(db, input$project)
+        data <- get_samples_project_quanti(db, input$project)
         if (nrow(data) == 0) {
           print("Aucune donnée trouvée pour ce projet.")
           return(data.frame())  # Retourner un data frame vide si aucune donnée n'est trouvée
@@ -328,14 +380,6 @@ observeEvent(input$project, {
   cal_samples <- get_cal_samples(db, input$project)
   cal_samples(cal_samples)
   print(cal_samples())  # Debugging
-  
-  # Initialiser la variable réactive avec les données de calibration
-  cal_list <- list(sample_name = cal_samples$sample)
-  for (subclass in subclass_names()) {
-    cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(cal_samples))
-    cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(cal_samples))
-  }
-  cal_data(as.data.frame(cal_list))
 })
 
 output$quanti_table_subclass <- renderDT({
@@ -372,123 +416,58 @@ observeEvent(input$remove_subclass, {
 ############ Calibration ############
 #####################################
 
-# Ajouter des observateurs réactifs pour cal_samples() et subclass_names()
-observe({
-  samples <- cal_samples()
-  subclasses <- subclass_names()
-  
-  if (!is.null(samples) && !is.null(subclasses)) {
-    cal_list <- list(sample_name = samples$sample)
-    for (subclass in subclasses) {
-      cal_list[[paste(subclass, "concentration", sep = "_")]] <- rep(NA, nrow(samples))
-      cal_list[[paste(subclass, "chlorination", sep = "_")]] <- rep(NA, nrow(samples))
-    }
-    cal_data(as.data.frame(cal_list))
+# Observer la sélection de quantification_choice et mettre à jour les données
+observeEvent(input$quantification_choice, {
+  if (input$quantification_choice == "Calibration") {
+    samples <- cal_samples()
+    subclasses <- subclass_names()
+    
+    # Enregistrer les données de calibration
+    record_cal_data(db, samples, subclasses)
+    
+    # Mettre à jour la variable réactive avec les nouvelles données
+    df <- get_cal_data(db, samples, subclasses)
+    cal_data(df)
   }
 })
 
-# Rendre la table des échantillons de calibration
-output$cal_samples_table_df <- renderDT({
+# Afficher les données de la table de manière réactive
+output$cal_samples_table <- renderDT({
   df <- cal_data()
   
   if (is.null(df) || nrow(df) == 0) {
     return(NULL)
   }
   
-  datatable(df, 
-            editable = TRUE,
+  datatable(df[,-1], 
+            editable = list(target = "cell", disable = list(columns = c(0, 1, 2))),
             options = list(
               scrollX = TRUE,  # Activer le scroll horizontal
               scroller = TRUE,  # Activer le scroller pour améliorer les performances avec de grandes tables
-              paging = TRUE  # Activer la pagination
+              paging = FALSE  # Activer la pagination
             )
   )
 })
-
-# Fonction pour vérifier si une table existe
-table_exists <- function(db, table_name) {
-  query <- paste("SELECT name FROM sqlite_master WHERE type='table' AND name='", table_name, "';", sep = "")
-  cat("Executing query:", query, "\n")  # Debugging
-  result <- dbGetQuery(db, query)
-  return(nrow(result) > 0)
-}
-
-# Fonction pour supprimer une table si elle existe
-drop_table_if_exists <- function(db, table_name) {
-  if (table_exists(db, table_name)) {
-    query <- paste("DROP TABLE ", table_name, ";", sep = "")
-    cat("Executing query:", query, "\n")  # Debugging
-    dbExecute(db, query)
-  }
-}
-
-# Fonction pour générer dynamiquement la requête CREATE TABLE
-generate_create_table_query <- function(data_list, table_name) {
-  columns <- names(data_list)
-  col_types <- sapply(data_list, function(col) {
-    if (is.numeric(col)) {
-      "REAL"
-    } else {
-      "TEXT"
-    }
-  })
-  col_definitions <- paste(columns, col_types, collapse = ", ")
-  query <- sprintf("CREATE TABLE %s (%s)", table_name, col_definitions)
-  cat("Executing query:", query, "\n")  # Debugging
-  return(query)
-}
-
-# Fonction pour créer une nouvelle table avec les données
-create_cal_samples_table_df <- function(db, data_list, table_name = "cal_samples") {
-  # Générer la requête CREATE TABLE
-  create_table_query <- generate_create_table_query(data_list, table_name)
-  # Exécuter la requête pour créer la table
-  dbExecute(db, create_table_query)
-  # Insérer les données dans la table
-  df <- as.data.frame(data_list)
-  dbWriteTable(db, table_name, df, append = TRUE, row.names = FALSE)
-}
 
 # Observer les modifications des cellules de la table de calibration
-observeEvent(input$cal_samples_table_df_cell_edit, {
-  info <- input$cal_samples_table_df_cell_edit
+observeEvent(input$cal_samples_table_cell_edit, {
+  info <- input$cal_samples_table_cell_edit
   str(info)  # Debugging
   
-  df <- cal_data()
-  df[info$row, info$col] <- info$value
-  cal_data(df)  # Mettre à jour la variable réactive avec les nouvelles données
-  print(df)  # Print the updated data frame
-  
-  # Optionally save the updated data frame to the database
-  drop_table_if_exists(db, "cal_samples")
-  create_cal_samples_table_df(db, as.list(df))
-})
+  # Reconvertir l'index de la colonne en nom de colonne
+  col_name <- colnames(cal_data()[,-1])[info$col]
 
+  # Récupérer la ligne correspondant à l'info$row
+  row_data <- cal_data()[info$row, ]
 
-###### NOUVELLE VERSION AVEC LA TABLE CAL_DATA
-
-#' Ce qu'il faut faire : 
-#' Jouer avec une nouvelle table cal_data
-#' Ajouter ou supprimer les échantillons CAL lorsqu'ils sont édités dans les cellules
-#' Ajouter ou supprimer les sousclasses pour chaque échantillon CAL dans cal_data
-#' Présenter les colonnes du tableau avec un split_str SOUSCLASSE_CONCENTRATION & SOUSCLASSE_CHLORATION
-
-# Rendre la table des échantillons de calibration
-output$cal_samples_table <- renderDT({
-  df <- cal_data() # Même chose que cal_samples pour l'instant
-  
-  if (is.null(df) || nrow(df) == 0) {
-    return(NULL)
-  }
-  
-  datatable(df, 
-            editable = TRUE,
-            options = list(
-              scrollX = TRUE,  # Activer le scroll horizontal
-              scroller = TRUE,  # Activer le scroller pour améliorer les performances avec de grandes tables
-              paging = TRUE  # Activer la pagination
-            )
+  # Construire et exécuter la requête UPDATE
+  query <- sprintf(
+    "UPDATE cal_data SET %s = '%s' WHERE sample = '%s' AND subclass = '%s';",
+    col_name, info$value, row_data$sample, row_data$subclass
   )
+
+  cat("Executing query:", query, "\n")  # Debugging
+  dbExecute(db, query)
 })
 
 ##########################################
@@ -566,10 +545,6 @@ observe({
     proxy <- dataTableProxy('quanti_matrix_homologue')
     selectCells(proxy, cells)
   }
-})
-
-# Rendu des valeurs des cellules sélectionnées pour chaque sous-classe
-observe({
   subclasses <- subclass_names()
   lapply(subclasses, function(subclass) {
     output[[paste0("selected_matrices_", subclass)]] <- renderPrint({
@@ -620,14 +595,12 @@ quanti_final_mat_func <- function(db, project, select_choice = 2) {
     return(list())
   }
 
-  # Récupérer tous les adducts disponibles
-  adduct_table <- db_get_query(db, sprintf("SELECT DISTINCT adduct FROM deconvolution_param WHERE project = '%s'", project))
-  adduct_list <- adduct_table$adduct
-  print("adducts")
-  print(adduct_list)
-  
-  # Vérifier si adduct_list est non vide
-  if (length(adduct_list) == 0) {
+  all_adducts <- unique(unlist(reactiveValuesToList(adduct_inputs)))
+  print("all_adducts")
+  print(all_adducts)
+
+  # Vérifier si all_adducts est non vide
+  if (length(all_adducts) == 0) {
     return(list())
   }
   
@@ -655,7 +628,7 @@ quanti_final_mat_func <- function(db, project, select_choice = 2) {
   values$export <- TRUE
   for (file in cal_samples_filtered$sample_id) {
     for (study in chemical_types) {
-      for (adduct in adduct_list) {
+      for (adduct in all_adducts) {
         # Vérifier si l'adduct existe pour l'étude actuelle
         if (adduct %in% names(mat()[[file]][[study]])) {
           # Réduire la matrice en fonction des choix de l'utilisateur
@@ -696,7 +669,7 @@ quanti_final_mat_func <- function(db, project, select_choice = 2) {
   print("##########################################")
   print(chemical_types)
   print("##########################################")
-  print(adduct_list)
+  print(all_adducts)
   print("##########################################")
   print(select_choice)
   print("##########################################")
@@ -887,7 +860,8 @@ calculate_normalized_areas <- function(sums, total_area_table, subclass_adduct, 
 
 #' browser() R pour stopper la console et voir le contenu des variables (C pour continuer les calculs après)
 
-library(dplyr)
+# library(dplyr)
+
 observeEvent(input$quanti_launch, {
 
   subclasses <- subclass_names()
@@ -918,42 +892,41 @@ observeEvent(input$quanti_launch, {
       cat("Chemical Type:", result$chemical_type, "\n")
       cat("Adduct:", result$adduct, "\n")
     })
-    
-    output[[name]] <- DT::renderDataTable({
-      DT::datatable(result$table, selection = "none", extensions = 'Scroller', 
-                    class = 'display cell-border compact nowrap', 
-                    options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
-                                  scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
-                                  columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
-                                  initComplete = htmlwidgets::JS("
-          function (settings, json) {
-            var table = settings.oInstance.api();
-            table.cells().every(function() {
-              if (this.index().column == 0) {
-                this.data(this.data());
-              } else if (this.data() == null){
-                $(this.node()).addClass('outside');
-              } else if (this.data() != null){
-                var splitted_cell = this.data().split('/');
-                if (splitted_cell[0] == 'NA'){
-                  this.data('')
-                } else {
-                  this.data(splitted_cell[0]);
-                }
-                if (splitted_cell[1] == 'outside'){
-                  $(this.node()).addClass('outside');
-                } else if (splitted_cell[1] == 'half'){
-                  $(this.node()).addClass('half');
-                } else if (splitted_cell[1] == 'inside'){
-                  $(this.node()).removeClass('outside');
-                  $(this.node()).removeClass('half');
-                }
-              }
-            });
-            table.columns.adjust()
-          }
-        ")))
-    })
+    # output[[name]] <- DT::renderDataTable({
+    #   DT::datatable(result$table, selection = "none", extensions = 'Scroller', 
+    #                 class = 'display cell-border compact nowrap', 
+    #                 options = list(info = FALSE, paging = FALSE, dom = 'Bfrtip', scroller = TRUE, 
+    #                               scrollX = TRUE, bFilter = FALSE, ordering = FALSE, 
+    #                               columnDefs = list(list(className = 'dt-body-center', targets = "_all")),
+    #                               initComplete = htmlwidgets::JS("
+    #       function (settings, json) {
+    #         var table = settings.oInstance.api();
+    #         table.cells().every(function() {
+    #           if (this.index().column == 0) {
+    #             this.data(this.data());
+    #           } else if (this.data() == null){
+    #             $(this.node()).addClass('outside');
+    #           } else if (this.data() != null){
+    #             var splitted_cell = this.data().split('/');
+    #             if (splitted_cell[0] == 'NA'){
+    #               this.data('')
+    #             } else {
+    #               this.data(splitted_cell[0]);
+    #             }
+    #             if (splitted_cell[1] == 'outside'){
+    #               $(this.node()).addClass('outside');
+    #             } else if (splitted_cell[1] == 'half'){
+    #               $(this.node()).addClass('half');
+    #             } else if (splitted_cell[1] == 'inside'){
+    #               $(this.node()).removeClass('outside');
+    #               $(this.node()).removeClass('half');
+    #             }
+    #           }
+    #         });
+    #         table.columns.adjust()
+    #       }
+    #     ")))
+    # })
   })
 
   # Rendu dynamique des verbatimTextOutput pour chaque sous-classe
@@ -1127,14 +1100,6 @@ observeEvent(input$quanti_launch, {
       # Afficher les résultats formatés
       cat("Total Area Values (in 10^6 units):\n")
       print(formatted_table)
-      cat("samples")
-      print(formatted_table$sample_id)
-      cat("formula")
-      print(formatted_table$formula)
-      cat("adducts")
-      print(formatted_table$adduct)
-      cat("total area")
-      print(formatted_table$`total area`)
     } else {
       cat("No results")
     }

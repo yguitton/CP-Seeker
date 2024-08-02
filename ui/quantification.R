@@ -46,7 +46,7 @@ shinydashboard::tabItem(
       width = 12,
       title = "For each CAL enter concentration and chlorination degree",
       div(
-        DT::dataTableOutput('cal_samples_table_df')
+        DT::dataTableOutput('cal_samples_table')
       )
     )
   ),

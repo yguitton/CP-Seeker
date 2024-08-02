@@ -99,3 +99,16 @@ CREATE TABLE `deconvolution_infos` (
 	FOREIGN KEY(`project`) REFERENCES `project`(`project`),
 	PRIMARY KEY(`project`)
 );
+CREATE TABLE `cal_data` (
+ 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+ 	`sample` TEXT,
+ 	`subclass` INTEGER,
+ 	`concentration` REAL,
+ 	`chlorination` REAL
+);
+CREATE TABLE `subclass` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`project` INTEGER,
+	`subclass_name`	TEXT,
+	FOREIGN KEY(`project`) REFERENCES `project`(`project`)
+);
