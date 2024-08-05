@@ -8,9 +8,10 @@ if (is.null(reg_paths$thermo)) stop('Missing thermo in file reg_paths.json')
 if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
 if (is.null(reg_paths$chemical)) stop('Missing chemical in file reg_paths.json')
 if (is.null(reg_paths$chemical_ion)) stop('Missing chemical_ion in file reg_paths.json')
-if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
 if (is.null(reg_paths$sqlite_path)) stop('Missing sqlitePath in file reg_paths.json')
 if (is.null(reg_paths$sqlite_lighted_path)) stop('Missing sqlite lighted path in file reg_paths.json')
+if (is.null(reg_paths$documentation_file)) stop('Missing documentation file in file reg_paths.json')
+if (is.null(reg_paths$error_log_path)) stop('Missing error.log in file reg_paths.json')
 
 for (i in 1:length(reg_paths)){
 	name <- names(reg_paths[i])
@@ -50,9 +51,18 @@ converter <- reg_paths$converter
 thermo <- reg_paths$thermo
 sqlite_path <- reg_paths$sqlite_path
 sqlite_lighted_path <- reg_paths$sqlite_lighted_path
+documentation_file <- reg_paths$documentation_file
+error_log_path <- reg_paths$error_log_path
+
+dll_file <- reg_paths$dll_file
+
+# Root PATH
+app_root <- normalizePath(".", mustWork = FALSE)
 
 # create a config file if not exists already
-config_dir <- paste0("~/.", appname)
+config_dir <- file.path(app_root, "export")
+
+# Create the "export" directory if it doesn't exist
 config_file <- file.path(config_dir, "user.cfg")
 if (!dir.exists(config_dir)) dir.create(config_dir)
 if (file.exists(config_file)) {
@@ -63,3 +73,12 @@ if (file.exists(config_file)) {
 	last_user <- NULL
 	last_project <- NULL
 }
+
+if (!file.exists(dll_file)) {
+  stop("DLL file not found: ", dll_file)
+} else {
+  message("DLL file found ", dll_file)
+}
+
+# Load the DLL file
+dyn.load(dll_file)

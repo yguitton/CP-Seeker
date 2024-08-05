@@ -18,6 +18,13 @@ header <- shiny::tags$header(
 			shiny::tags$div(class = "form-group", style = "float:left", 
 				shiny::tags$span(id = "titleApp", class = "logo", appname)
 			), 
+			shiny::tags$div(class = "form-group", style = "float:right;",
+				shiny::tags$a(`data-toggle` = "tooltip", 
+					`data-placement` = "left", 
+					title = 'CP-Seeker Documentation', 
+					shiny::actionButton('open_doc', '', icon = icon('file-pdf'))
+				)
+			), 
 			shiny::tags$div(class = "form-group", 
 				style = "float: right; padding-top: 0.55%; padding-right: 10px",
 				shiny::tags$table(
@@ -69,7 +76,7 @@ sidebar <- shinydashboard::dashboardSidebar(collapsed = TRUE, disable = TRUE,
         	radioButtons("export_format", "Document format", c("Excel", "CSV"),inline = FALSE, selected = 1),
         	shiny::actionButton("export_button", "Launch Report", class = "butt"),
         	tags$head(tags$style(".butt{color: blue !important;}"))
-      )	
+      )
 	)
 )
 

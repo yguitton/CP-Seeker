@@ -230,7 +230,7 @@ shiny::observeEvent(input$file_associate_valid2, {
 shinyFiles::shinyFileChoose(input, 'file_import', roots = volumes, 
 	filetypes = c('mzML', 'mzXML', 'CDF', 'RAW', 'd', 'YEP', 'BAF', 'FID', 'WIFF', 'MGF'))
 
-#' @title File importation event
+#' @title File import event
 #'
 #' @description 
 #' open a modal for user to give sample ids for each file imported in a datatable

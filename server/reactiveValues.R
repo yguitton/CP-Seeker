@@ -34,7 +34,7 @@ actualize <- shiny::reactiveValues(
 #' update when user changes the actual project
 #'
 #' @return list of matrix
-mat <- reactive({
+mat <- function(export = FALSE) {
   actualize$deconvolution_params
   query <- sprintf('select chemical_type, adduct from deconvolution_param where project == %s and
     chemical_type in (select chemical_type from chemical where chemical_familly != "Standard");',
@@ -47,14 +47,14 @@ mat <- reactive({
     mat2 <- sapply(samples$sample_id[i], function(project){
       sapply(unique(chemicals$chemical_type), function(chemical){
         sapply(unique(chemicals$adduct[which(chemicals$chemical_type == chemical)]), function(adduct){
-          get_profile_matrix(db, samples$project_sample[i], adduct, chemical)
+          get_profile_matrix(db, samples$project_sample[i], adduct, chemical, export = export)
         }, simplify = FALSE, USE.NAMES = TRUE)
       }, simplify = FALSE, USE.NAMES = TRUE)
     }, simplify = FALSE, USE.NAMES = TRUE)
     mat <- append(mat, mat2)
   }
   return(mat)
-})
+}
 
 #' @title Matrix with filters reactive value
 #'

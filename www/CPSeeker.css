@@ -12,6 +12,13 @@
 .selectize-dropdown-content {
 	max-height: 200px; 
 }
+#open_doc{
+	border: none;
+	background: none;
+	color: white;
+	font-size: 20px;
+	margin: 4px;
+}
 .lds-dual-ring {
   display: inline-block;
   width: 200px;
