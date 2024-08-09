@@ -5,7 +5,7 @@ shinydashboard::tabItem(
     shinyWidgets::radioGroupButtons(
       inputId = 'quantification_choice',
       label = '',
-      choices = c('Sample Type', 'Subclass List', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Filters', 'Results'),
+      choices = c('Sample Type', 'Subclass List', 'Calibration', 'Homologue Domain', 'Internal Standard', 'Launch'),
       justified = TRUE,
       checkIcon = list(
         yes = shiny::tags$i(class = "fa fa-circle", style = "color: steelblue"),
@@ -76,7 +76,7 @@ shinydashboard::tabItem(
     )
   ),
   shiny::conditionalPanel(
-    condition = "input.quantification_choice == 'Filters'",
+    condition = "input.quantification_choice == 'Launch'",
     shinydashboard::box(
       width = 12,
       title = "Form to start quantification calculation.",
@@ -106,106 +106,23 @@ shinydashboard::tabItem(
             style = 'minimal', color = 'primary')
         )
       )
-    )
-  ),
-  shiny::conditionalPanel(
-    condition = "input.quantification_choice == 'Results'",
-    shinydashboard::box(
-      width = 12, 
-      title = "Matrices des echantillons de calibration pour chaque type et chaque adduit selectionne",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("quanti_profile")
-        )
-      )
     ),
     shinydashboard::box(
       width = 12,
-      title = "Valeurs des positions des groupes d'homologues selectionnes par sousclasse",
       shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("selected_matrices")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Recherche de toutes les valeurs dans les matrices correspondantes aux groupes d'homologue choisi par sous classe",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("selected_values_ui")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Somme des valeurs d'homologues",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("sum_values_ui")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Somme des valeurs d'homologues",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("sum_values_graph_ui")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Valeur input de l'adduit et du standard en fonction de la sous classe ",
-      shiny::fluidRow(
-        shiny::column(width = 12,
-          shiny::uiOutput("input_IS")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Tableau des valeurs d'aires, scores, deviations pour les standards",
-      shiny::fluidRow(
-        shiny::column(width = 12, 
-          DT::dataTableOutput('standard_table')
-        )
-      )
-    ), 
-    shinydashboard::box(
-      width = 12,
-      title = "Recuperation des aires totales (E10^6) pour le calcul",
-      shiny::fluidRow(
-        shiny::column(width = 12, 
-          verbatimTextOutput("total_area_values")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Normalisation des aires de calibration par celles des standard",
-      shiny::fluidRow(
-        shiny::column(width = 12, 
-          verbatimTextOutput("normalisation_area")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Representation graphique des aires normalisees",
-      shiny::fluidRow(
-        shiny::column(width = 12, 
-          plotlyOutput("graph_normalisation")
-        )
-      )
-    ),
-    shinydashboard::box(
-      width = 12,
-      title = "Representation graphique des aires normalisees exponentiel",
-      shiny::fluidRow(
-        shiny::column(width = 12, 
-          plotlyOutput("graph_exponential")
+        column(width = 10, offset = 1,
+          shinyWidgets::radioGroupButtons(
+            inputId = 'graph_selector',
+            choices = c('Pre-Normalization', 'Standard Boxplot', 'Concentration Boxplot', 'Post-Normalization'),
+            justified = TRUE,
+            checkIcon = list(
+              yes = shiny::tags$i(class = "fa fa-circle", style = "color: steelblue"),
+              no = shiny::tags$i(class = "fa fa-circle-o", style = "color: steelblue")
+            )
+          ),
+          shinycssloaders::withSpinner(
+            plotlyOutput("plot_output", height = "600px")
+          )
         )
       )
     )
