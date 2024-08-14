@@ -1018,12 +1018,92 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           theme_minimal() +
                           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
                             scale_color_manual(values = c("Standard Normalized" = "blue", "Concentration Normalized" = "red"))
+                      },
+                      'Exponential regression' = {
+                        # Calcul de la pente et de la moyenne par groupe
+                        exponential_data <- cal_data_df %>%
+                          group_by(subclass, chlorination) %>%
+                          do({
+                            standard_lm <- lm(normalized_per_std ~ concentration, data = .)
+                            data.frame(
+                              standard_slope = coef(standard_lm)[["concentration"]],
+                              average_concentration_normalized = mean(.$normalized_per_concentration, na.rm = TRUE)
+                            )
+                          }) %>%
+                          ungroup()
+
+                        # Fonction pour ajuster un modèle exponentiel avec valeurs initiales ajustées
+                        exponential_model <- function(data, response_var) {
+                          tryCatch({
+                            model <- nls(as.formula(paste(response_var, "~ a * exp(b * chlorination)")), data = data,
+                                        start = list(a = max(data[[response_var]], na.rm = TRUE), b = 0.01))
+                            return(model)
+                          }, error = function(e) {
+                            message("Erreur lors de l'ajustement du modèle exponentiel pour ", response_var, ": ", e$message)
+                            return(NULL)
+                          })
+                        }
+
+                        # Calculer les courbes exponentielles
+                        exponential_curves <- exponential_data %>%
+                          group_by(subclass) %>%
+                          do({
+                            data_subset <- .
+
+                            # Ajuster les modèles exponentiels
+                            exp_model_standard <- exponential_model(data_subset, "standard_slope")
+                            exp_model_avg <- exponential_model(data_subset, "average_concentration_normalized")
+
+                            # Générer les prédictions
+                            chlorination_seq <- seq(min(data_subset$chlorination), max(data_subset$chlorination), length.out = 100)
+
+                            exp_predictions_standard <- if (!is.null(exp_model_standard)) {
+                              predict(exp_model_standard, newdata = data.frame(chlorination = chlorination_seq))
+                            } else {
+                              rep(NA, length(chlorination_seq))
+                            }
+
+                            exp_predictions_avg <- if (!is.null(exp_model_avg)) {
+                              predict(exp_model_avg, newdata = data.frame(chlorination = chlorination_seq))
+                            } else {
+                              rep(NA, length(chlorination_seq))
+                            }
+
+                            data.frame(
+                              chlorination = chlorination_seq,
+                              exp_predictions_standard = exp_predictions_standard,
+                              exp_predictions_avg = exp_predictions_avg,
+                              subclass = unique(data_subset$subclass)
+                            )
+                          }) %>%
+                          ungroup()
+
+                        # Utiliser une jointure externe pour inclure toutes les valeurs de chlorination
+                        exponential_df <- full_join(
+                          exponential_curves,
+                          exponential_data %>% select(subclass, chlorination, standard_slope, average_concentration_normalized),
+                          by = c("subclass", "chlorination")
+                        )
+
+                        # Créer le graphique avec ggplot2
+                        plot <- ggplot(exponential_df, aes(x = chlorination)) +
+                          geom_line(aes(y = exp_predictions_standard, color = "Exp Predictions Standard")) +
+                          geom_line(aes(y = exp_predictions_avg, color = "Exp Predictions Avg")) +
+                          geom_point(aes(y = standard_slope, color = "Exp Predictions Standard"), shape = 16) +
+                          geom_point(aes(y = average_concentration_normalized, color = "Exp Predictions Avg"), shape = 17) +
+                          facet_grid(. ~ subclass) +
+                          labs(title = "Exponential Regression by Chlorination Level",
+                              x = "Chlorination Level",
+                              y = "Value",
+                              color = "Metric") +
+                          theme_minimal() +
+                          theme(axis.text.x = element_text(angle = 45, hjust = 1))
                       })
         
-        # Convertir le graphique ggplot en graphique interactif plotly
-        output$plot_output <- renderPlotly({
-          ggplotly(plot)
-      })
+    # Convertir le graphique ggplot en graphique interactif plotly
+    output$plot_output <- renderPlotly({
+      ggplotly(plot)
+    })
   }
 })
 
