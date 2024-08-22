@@ -402,114 +402,107 @@ get_profile_matrix <- function(db, project_sample = NULL, adduct = NULL,
     profile_mat[cbind(row_indices, col_indices)] <- values
     return(profile_mat)
   } else {
-    # Handle different chemical types with progress
-    withProgress(message = 'get_profile_matrix() - Processing profile matrix...', value = 0, {
-      # Set up progress bar
+    query <- switch(chemical_type,
+      "PXAs" = sprintf("SELECT chemical_ion, Br, Cl FROM chemical
+                        LEFT JOIN chemical_ion ON
+                        chemical.chemical = chemical_ion.chemical
+                        WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type),
+      "PBAs" = sprintf("SELECT chemical_ion, C, Br FROM chemical
+                        LEFT JOIN chemical_ion ON
+                        chemical.chemical = chemical_ion.chemical
+                        WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type),
+      {
+        sprintf("SELECT chemical_ion, C, Cl FROM chemical
+                  LEFT JOIN chemical_ion ON
+                  chemical.chemical = chemical_ion.chemical
+                  WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type)
+      }
+    )
+    chemicals <- db_get_query(db, query)
+    if (nrow(chemicals) == 0) {
       query <- switch(chemical_type,
         "PXAs" = sprintf("SELECT chemical_ion, Br, Cl FROM chemical
                           LEFT JOIN chemical_ion ON
                           chemical.chemical = chemical_ion.chemical
-                          WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type),
+                          WHERE chemical.chemical_type = \"%s\";", chemical_type),
         "PBAs" = sprintf("SELECT chemical_ion, C, Br FROM chemical
                           LEFT JOIN chemical_ion ON
                           chemical.chemical = chemical_ion.chemical
-                          WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type),
+                          WHERE chemical.chemical_type = \"%s\";", chemical_type),
         {
           sprintf("SELECT chemical_ion, C, Cl FROM chemical
-                   LEFT JOIN chemical_ion ON
-                   chemical.chemical = chemical_ion.chemical
-                   WHERE adduct = \"%s\" AND chemical.chemical_type = \"%s\";", adduct, chemical_type)
+                    LEFT JOIN chemical_ion ON
+                    chemical.chemical = chemical_ion.chemical
+                    WHERE chemical.chemical_type = \"%s\";", chemical_type)
         }
       )
       chemicals <- db_get_query(db, query)
-      if (nrow(chemicals) == 0) {
-        query <- switch(chemical_type,
-          "PXAs" = sprintf("SELECT chemical_ion, Br, Cl FROM chemical
-                            LEFT JOIN chemical_ion ON
-                            chemical.chemical = chemical_ion.chemical
-                            WHERE chemical.chemical_type = \"%s\";", chemical_type),
-          "PBAs" = sprintf("SELECT chemical_ion, C, Br FROM chemical
-                            LEFT JOIN chemical_ion ON
-                            chemical.chemical = chemical_ion.chemical
-                            WHERE chemical.chemical_type = \"%s\";", chemical_type),
-          {
-            sprintf("SELECT chemical_ion, C, Cl FROM chemical
-                     LEFT JOIN chemical_ion ON
-                     chemical.chemical = chemical_ion.chemical
-                     WHERE chemical.chemical_type = \"%s\";", chemical_type)
-          }
+      noChem <- TRUE
+    }
+    colY <- range(chemicals[,2])
+    colX <- range(chemicals[,3])
+    
+    # Setup the profile matrix
+    profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
+      dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
+    
+    if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
+    
+    query <- sprintf("SELECT chemical_ion,
+      ROUND(score, %s) AS score, intensities, weighted_deviation FROM feature WHERE
+      abundance = 100 AND project_sample = %s AND chemical_ion IN (
+        SELECT chemical_ion FROM chemical_ion
+        WHERE adduct = \"%s\" AND chemical_type = \"%s\");",
+      digits_score, project_sample, adduct, chemical_type)
+    data <- db_get_query(db, query)
+    
+    if (nrow(data) > 0) {
+      if (table) return(merge(chemicals, data, by = "chemical_ion", all.x = TRUE))
+      ion_forms <- get_chemical_ions(db, adduct, chemical_type)
+      theoric_patterns <- get_theoric(ion_forms$ion_formula, ion_forms$charge[1])
+      mz_range <- get_project_mz_range(db, project_sample)
+      status <- get_patterns_status(theoric_patterns, mz_range)
+      status <- merge(ion_forms, status, by = "ion_formula", all.x = TRUE)
+      data <- merge(chemicals, data, by = "chemical_ion", all.x = TRUE)
+      data <- merge(status[,c("chemical_ion","status")], data, by = "chemical_ion", all.x = TRUE)
+      row_indices <- data[, colnames(chemicals)[2]] - colY[1] + 1
+      col_indices <- data[, colnames(chemicals)[3]] - colX[1] + 1
+      
+      if (simplify) {
+        values <- paste(
+          data[,"score"],
+          round(data[,"intensities"] / 10**6, digits = digits_int),
+          round(data[,"weighted_deviation"] * 10**3, digits = digits_dev),
+          data[,"status"],
+          sep = "/"
         )
-        chemicals <- db_get_query(db, query)
-        noChem <- TRUE
+      } else {
+        values <- paste(
+          data[,"score"],
+          data[,"intensities"],
+          data[,"weighted_deviation"],
+          data[,"status"],
+          sep = "/"
+        )
       }
-      colY <- range(chemicals[,2])
-      colX <- range(chemicals[,3])
-      
-      # Setup the profile matrix
-      profile_mat <- matrix(NA, nrow = colY[2] - colY[1] + 1, ncol = colX[2] - colX[1] + 1,
-        dimnames = list(paste0(colnames(chemicals)[2], colY[1]:colY[2]), paste0(colnames(chemicals)[3], colX[1]:colX[2])))
-      
-      if (is.null(project_sample) | is.null(adduct)) return(profile_mat)
-      
-      query <- sprintf("SELECT chemical_ion,
-        ROUND(score, %s) AS score, intensities, weighted_deviation FROM feature WHERE
-        abundance = 100 AND project_sample = %s AND chemical_ion IN (
-          SELECT chemical_ion FROM chemical_ion
-          WHERE adduct = \"%s\" AND chemical_type = \"%s\");",
-        digits_score, project_sample, adduct, chemical_type)
-      data <- db_get_query(db, query)
-      
-      if (nrow(data) > 0) {
-        if (table) return(merge(chemicals, data, by = "chemical_ion", all.x = TRUE))
-        ion_forms <- get_chemical_ions(db, adduct, chemical_type)
-        theoric_patterns <- get_theoric(ion_forms$ion_formula, ion_forms$charge[1])
-        mz_range <- get_project_mz_range(db, project_sample)
-        status <- get_patterns_status(theoric_patterns, mz_range)
-        status <- merge(ion_forms, status, by = "ion_formula", all.x = TRUE)
-        data <- merge(chemicals, data, by = "chemical_ion", all.x = TRUE)
-        data <- merge(status[,c("chemical_ion","status")], data, by = "chemical_ion", all.x = TRUE)
-        row_indices <- data[, colnames(chemicals)[2]] - colY[1] + 1
-        col_indices <- data[, colnames(chemicals)[3]] - colX[1] + 1
-        
-        if (simplify) {
-          values <- paste(
-            data[,"score"],
-            round(data[,"intensities"] / 10**6, digits = digits_int),
-            round(data[,"weighted_deviation"] * 10**3, digits = digits_dev),
-            data[,"status"],
-            sep = "/"
-          )
-        } else {
-          values <- paste(
-            data[,"score"],
-            data[,"intensities"],
-            data[,"weighted_deviation"],
-            data[,"status"],
-            sep = "/"
-          )
-        }
-        profile_mat[cbind(row_indices, col_indices)] <- values
-      } 
-      # Fill NA cells
-      profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/inside"
-      
-      # Adjust for adduct-specific conditions
-      frag <- strsplit(adduct, "")[[1]]
-      sign <- frag[2]
-      compound <- paste(frag[3:length(frag)], collapse = "")
-      if (sign == "-") {
-        print("Chemical needs this compound in formula")
-        if (length(grep(paste(compound,"0",sep=""), colnames(profile_mat))) > 0) {
-          profile_mat[,1] <- "NA/NA/NA/outside"
-        } else if (length(grep(paste(compound,"0",sep=""), rownames(profile_mat))) > 0) {
-          profile_mat[1,] <- "NA/NA/NA/outside"
-        }
+      profile_mat[cbind(row_indices, col_indices)] <- values
+    } 
+    # Fill NA cells
+    profile_mat[which(is.na(profile_mat))] <- "NA/NA/NA/inside"
+    
+    # Adjust for adduct-specific conditions
+    frag <- strsplit(adduct, "")[[1]]
+    sign <- frag[2]
+    compound <- paste(frag[3:length(frag)], collapse = "")
+    if (sign == "-") {
+      print("Chemical needs this compound in formula")
+      if (length(grep(paste(compound,"0",sep=""), colnames(profile_mat))) > 0) {
+        profile_mat[,1] <- "NA/NA/NA/outside"
+      } else if (length(grep(paste(compound,"0",sep=""), rownames(profile_mat))) > 0) {
+        profile_mat[1,] <- "NA/NA/NA/outside"
       }
-      profile_mat <- get_type_pattern(colX, colY, chemical_type, chemicals, profile_mat)
-      
-      # Update progress bar
-      incProgress(1, detail = "Processing complete")
-    })
+    }
+    profile_mat <- get_type_pattern(colX, colY, chemical_type, chemicals, profile_mat)
   }
   return(profile_mat)
 }

@@ -2,20 +2,20 @@
 ############ reactiveVal ############
 #####################################
 
-# Créer un objet réactif pour stocker les données
+# Create a reactive object to store data
 subclass_names <- reactiveVal()
 
-# Réactifs pour stocker les données des échantillons et des sous-classes
+# ReactiveVal to store sample and subclass data
 cal_samples <- reactiveVal()
 
-# Variable réactive pour stocker les données de calibration
+# ReactiveVal to store calibration data
 cal_data <- reactiveVal()
 
-# Stocker les matrices et les sélections de cellules pour chaque sous-classe
+# Store matrices and cell selections for each subclass
 matrix_list <- reactiveVal(list())
 selected_cells_list <- reactiveVal(list())
 
-# Définir total_area_table comme une variable réactive globale
+# Define total_area_table as a global reactive variable
 total_area_table <- reactiveVal()
 sums_values <- reactiveValues()
 
@@ -25,7 +25,7 @@ cal_data_df_rv <- reactiveVal(data.frame())
 ################## SQL ##################
 #########################################
 
-#' Ces requêtes vont devoir être transférés dans les fichiers db_get etc...
+#' These queries will need to be transferred to db_get files ...
 
 get_subclass_names <- function(db, project) {
   query <- sprintf("SELECT subclass_name FROM subclass WHERE project = '%s'", project)
@@ -87,19 +87,19 @@ record_cal_data <- function(db, samples, subclasses) {
     cat("Samples:", paste(samples, collapse=", "), "\n")
   }
 
-  # Fonction pour échapper les caractères spéciaux dans les chaînes
+  # Function to escape special characters in strings
   escape_sql <- function(x) {
     gsub("'", "''", x)
   }
 
-  # Échapper les caractères spéciaux
+  # Escape special characters
   samples <- sapply(samples, escape_sql)
   subclasses <- sapply(subclasses, escape_sql)
 
-  # Insérer les échantillons pour chaque sous-classe dans la table cal_data
+  # Insert samples for each subclass in cal_data table
   for (sample in samples) {
     for (subclass in subclasses) {
-      # Vérifier si l'échantillon existe déjà pour cette sous-classe
+      # Check if sample already exists for this subclass
       check_query <- sprintf(
         "SELECT COUNT(*) FROM cal_data WHERE sample = '%s' AND subclass = '%s';",
         sample, subclass
@@ -108,7 +108,7 @@ record_cal_data <- function(db, samples, subclasses) {
       existing_count <- dbGetQuery(db, check_query)$`COUNT(*)`
       
       if (existing_count == 0) {
-        # Insérer l'échantillon s'il n'existe pas
+        # Insert sample if it doesn't exist
         insert_query <- sprintf(
           "INSERT INTO cal_data (sample, subclass, concentration, chlorination) VALUES ('%s', '%s', NULL, NULL);",
           sample, subclass
@@ -124,24 +124,24 @@ record_cal_data <- function(db, samples, subclasses) {
 }
 
 get_cal_data <- function(db, samples, subclasses) {
-  # Vérifier si les listes de samples et subclasses ne sont pas vides
+  # Check if the lists of samples and subclasses are not empty
   if (length(samples) == 0 || length(subclasses) == 0) {
     cat("No samples or subclasses provided\n")
     return(data.frame())
   }
 
-  # Fonction pour échapper les caractères spéciaux dans les chaînes
+  # Function to escape special characters in strings
   escape_sql <- function(x) {
     gsub("'", "''", x)
   }
 
-  # Convertir les listes en chaînes de caractères séparées par des virgules
-  samples <- sapply(samples, escape_sql)  # Échapper les caractères spéciaux
-  subclasses <- sapply(subclasses, escape_sql)  # Échapper les caractères spéciaux
+  # Convert lists to comma-separated strings
+  samples <- sapply(samples, escape_sql)
+  subclasses <- sapply(subclasses, escape_sql)
   samples_str <- paste(sprintf("'%s'", samples), collapse = ", ")
   subclasses_str <- paste(sprintf("'%s'", subclasses), collapse = ", ")
 
-  # Construire la requête SQL
+  # Build the SQL query
   query <- sprintf(
     "SELECT * FROM cal_data WHERE sample IN (%s) AND subclass IN (%s);",
     samples_str, subclasses_str
@@ -163,7 +163,7 @@ get_concentration_data <- function(db, samples) {
     return(data.frame())
   }
 
-  # Construire la requête SQL pour obtenir les concentrations uniques
+  # No calibration data found for the given samples and subclasses
   query <- sprintf(
     "SELECT DISTINCT sample, concentration FROM cal_data WHERE sample IN (%s);",
     paste(sprintf("'%s'", samples), collapse = ", ")
@@ -176,10 +176,10 @@ get_concentration_data <- function(db, samples) {
 }
 
 get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standard_formulas = NULL, cal_samples = NULL){
-  # Récupérer tous les échantillons du projet
+  # Retrieve all samples from the project
   sample <- get_samples(db, project)
   
-  # Garder uniquement les échantillons qui sont de type "CAL"
+  # Keep only samples that are of type "CAL"
   sample <- sample[sample$sample %in% cal_samples$sample, ]
   
   table <- NULL
@@ -187,7 +187,7 @@ get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standa
   for (adduct in adducts) {
     for (standard_formula in standard_formulas) {
       for (i in 1:length(sample$project_sample)) {
-        # query of normal standard with iso = A
+        # Query of normal standard with iso = A
         query <- sprintf(
           'SELECT intensities, intensities_b, score, weighted_deviation 
           FROM feature 
@@ -265,7 +265,7 @@ get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standa
     }
   }
 
-  # Eliminer les doublons
+  # Eliminate duplicates
   table <- unique(table)
 
   if (class(table$intensities) != "character") {
@@ -299,37 +299,37 @@ get_standard_table_quanti <- function(db, project = NULL, adducts = NULL, standa
 ############### Functions ################
 ##########################################
 
-# Changer cette fonction reactive en fonction avec arguments
-# Mettre mat() avec export = TRUE pour avoir le plus de digits
+# Change this reactive function to a function with arguments
+# Set mat() with export = TRUE to have the most digits
 quanti_final_mat_func <- function(db, project, select_choice = 2, adducts) {
-  # Initialisation de la barre de progression
+  # Initialize the progress bar
   withProgress(message = 'Matrix recovery...', value = 0, {
-    # Récupérer tous les échantillons du projet
+    # Retrieve all samples from the project
     samples <- get_samples(db, project)
     print("samples")
     print(samples)
     
-    # Vérifier si samples est non vide
+    # Check if samples is not empty
     if (nrow(samples) == 0) {
       return(list())
     }
 
-    # Filtrer les échantillons de calibration
+    # Filter calibration samples
     cal_samples <- get_cal_samples(db, project)
     print("cal_samples")
     print(cal_samples)
     
-    # Garder uniquement les échantillons de calibration
+    # Keep only calibration samples
     cal_sample_ids <- cal_samples$sample
     print("cal_sample_ids")
     print(cal_sample_ids)
     
-    # Filtrer les samples pour ne garder que les échantillons de calibration
+    # Filter samples to keep only calibration samples
     cal_samples_filtered <- samples[samples$sample %in% cal_sample_ids, ]
     print("cal_samples_filtered")
     print(cal_samples_filtered)
     
-    # Vérifier si cal_samples_filtered est non vide
+    # Check if cal_samples_filtered is not empty
     if (nrow(cal_samples_filtered) == 0) {
       return(list())
     }
@@ -337,12 +337,12 @@ quanti_final_mat_func <- function(db, project, select_choice = 2, adducts) {
     print("adducts")
     print(adducts)
 
-    # Vérifier si all_adducts est non vide
+    # Check if all_adducts is not empty
     if (length(adducts) == 0) {
       return(list())
     }
     
-    # Récupérer tous les types chimiques disponibles, sans les standards
+    # Retrieve all available chemical types, excluding standards
     query <- sprintf("SELECT chemical_type 
                       FROM chemical 
                       WHERE chemical_familly != 'Standard' 
@@ -356,14 +356,14 @@ quanti_final_mat_func <- function(db, project, select_choice = 2, adducts) {
     print("chemical_types")
     print(chemical_types)
     
-    # Vérifier si chemical_types est non vide
+    # Check if chemical_types is not empty
     if (length(chemical_types) == 0) {
       return(list())
     }
     
     result_tables <- list()
 
-    # Calculer le nombre total d'itérations pour la barre de progression
+    # Calculate the total number of iterations for the progress bar
     total_iterations <- nrow(cal_samples_filtered) * length(chemical_types) * length(adducts)
     iteration <- 0
     
@@ -371,13 +371,13 @@ quanti_final_mat_func <- function(db, project, select_choice = 2, adducts) {
     for (file in cal_samples_filtered$sample_id) {
       for (study in chemical_types) {
         for (adduct in adducts) {
-          # Mise à jour de la barre de progression
+          # Update the progress bar
           iteration <- iteration + 1
           incProgress(1 / total_iterations, detail = sprintf("Processing %s - %s - %s (%d/%d)", file, study, adduct, iteration, total_iterations))
           
-          # Vérifier si l'adduct existe pour l'étude actuelle
+          # Check if the adduct exists for the current study
           if (adduct %in% names(mat()[[file]][[study]])) {
-            # Réduire la matrice en fonction des choix de l'utilisateur
+            # Reduce the matrix based on user choices
             table <- reduce_matrix(mat()[[file]][[study]][[adduct]], select_choice, greycells = TRUE)
             if (!("Error" %in% colnames(table))) {
               result_tables[[paste(file, study, adduct, sep = "_")]] <- list(
@@ -424,7 +424,7 @@ quanti_final_mat_func <- function(db, project, select_choice = 2, adducts) {
 }
 
 
-# Fonction pour récupérer les valeurs des matrices de données basées sur les positions sélectionnées
+# Function to retrieve values from data matrices based on selected positions
 get_selected_values <- function(positions, matrix) {
   values <- apply(positions, 1, function(pos) {
     row <- pos[1]
@@ -434,32 +434,32 @@ get_selected_values <- function(positions, matrix) {
   return(values)
 }
 
-# Fonction pour calculer la somme des valeurs numériques
+# Function to calculate the sum of numeric values
 calculate_numeric_sum <- function(subclass, quanti_matrices, selected_cells) {
-  # Obtenir les sommes initiales pour chaque nom de fichier
+  # Get initial sums for each file name
   initial_sums <- sapply(names(quanti_matrices), function(name) {
     matrix <- quanti_matrices[[name]]$table
     positions <- selected_cells[[subclass]]
     selected_values <- get_selected_values(positions, matrix)
     
-    # Filtrer et convertir les valeurs numériques
+    # Filter and convert numeric values
     numeric_values <- as.numeric(gsub("[^0-9.]", "", selected_values, perl = TRUE))
     numeric_values <- numeric_values[!is.na(numeric_values)]
     
     sum(numeric_values, na.rm = TRUE)
   })
   
-  # Extraire la base commune du nom du fichier en supprimant le suffixe après le dernier underscore
+  # Extract the common base of the file name by removing the suffix after the last underscore
   base_names <- sub("_M.*", "", names(quanti_matrices))
   
-  # Créer un DataFrame pour grouper et sommer
+  # Create a DataFrame to group and sum
   sums_df <- data.frame(
     file_name = base_names,
     sum_value = initial_sums,
     stringsAsFactors = FALSE
   )
   
-  # Regrouper par base de nom de fichier et sommer les valeurs
+    # Group by file name base and sum the values
   grouped_sums <- sums_df %>%
     group_by(file_name) %>%
     summarize(total_sum = sum(sum_value), .groups = 'drop')
@@ -467,7 +467,7 @@ calculate_numeric_sum <- function(subclass, quanti_matrices, selected_cells) {
   grouped_sums <- grouped_sums %>%
     mutate(file_name = sub("_PCAs.*", "", file_name))
 
-  # Convertir en vecteur nommé pour retour
+  # Convert to named vector for return
   named_sums <- setNames(grouped_sums$total_sum, grouped_sums$file_name)
 
   return(named_sums)
@@ -478,34 +478,40 @@ calculate_numeric_sum <- function(subclass, quanti_matrices, selected_cells) {
 ############ Sample Type ############
 #####################################
 
-#' Le but ici est de laisser l'utilisateur rentrer les samples types
-#' 3 types de sample type : CAL, BLANK, SAMPLE
-#' Si le Type est égal à CAL alors faire rentrer les informations.
-#' Les infos : subclassname SCCP, MCCP, LCCP || chlorination_degree || concentration
+#' The goal here is to allow the user to enter sample types
+#' 3 types of samples: CAL, BLANK, SAMPLE
+#' If the type is equal to CAL then enter the information.
+#' The info: subclassname SCCP, MCCP, LCCP || chlorination_degree || concentration
 #' 
-#' Pour l'instant l'utilisateur peut remplir ce qu'il veut dans les colonnes qu'il veut.
-#' Par la suite ajouter des restrictions. (DROPDOWN MENU ...)
+#' For now, the user can fill in whatever they want in whichever columns they want.
+#' Later, add restrictions. (DROPDOWN MENU ...)
 
-# Créer un objet réactif pour stocker les données
+# Create a reactive object to store data
 sample_type_data <- reactive({
   params <- list(
     table_selected = input$quantification_choice
   )
   tryCatch({  
-    if(input$quantification_choice == "Sample Type"){  # Utiliser '==' pour la comparaison
-        # Obtenir les données des samples du projet
+    if(input$quantification_choice == "Sample Type"){  # Use '==' for comparison
+        # Get data from project samples
         data <- get_samples_project_quanti(db, input$project)
         if (nrow(data) == 0) {
           print("Aucune donnée trouvée pour ce projet.")
-          return(data.frame())  # Retourner un data frame vide si aucune donnée n'est trouvée
+          return(data.frame())  # Return an empty data frame if no data is found
         }
-        # print(data)  # Debugging: Imprimer les données récupérées
-        return(data)  # Retourner les données
+        # print(data)  # Debugging
+        return(data)
   }})
 })
 
-output$quanti_table_type <- DT::renderDataTable({
-  DT::datatable(sample_type_data(), editable = list(target = "cell", disable = list(columns = c(0, 1))))  # Rendre certaines colonnes éditables
+output$quanti_table_type <- renderDT({
+  DT::datatable(sample_type_data(), editable = list(target = "cell", disable = list(columns = c(0, 1))),
+            options = list(
+              scrollX = TRUE,  # Enable horizontal scroller
+              scroller = TRUE,  # Enable scroller to improve performance with large tables
+              paging = FALSE  # Enable pagination
+            )
+  )
 })
 
 observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
@@ -514,32 +520,31 @@ observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
   print(project_id)
 
   info <- input$quanti_table_type_cell_edit
-  str(info)  # Afficher les informations de l'édition pour le débeugage
 
-  # Récupérer les données actuelles
+  # Get the current data
   data_df <- isolate(sample_type_data())
 
-  # Vérifier si info est NULL
+  # Check if info is NULL
   if (!is.null(info)) {
-    # Mettre à jour la valeur dans le data.frame
+    # Update the value of the data.frame
     row <- info$row
     col <- info$col
     value <- info$value
 
-    # Vérifiez que les colonnes éditées sont parmi celles qu'on veut éditer
+    # Check edited columns
     editable_columns <- c("sample_type")
     if (colnames(data_df)[col] %in% editable_columns) {
       data_df[row, col] <- DT::coerceValue(value, data_df[row, col])
 
-      # Requête pour UPDATE la bdd avec les modifications
+      # Query to update the database with the modifications
       sample_id <- data_df[row, "sample"]
       column_name <- colnames(data_df)[col]
       update_query <- sprintf("UPDATE sample SET %s = ? WHERE sample = ?", column_name)
 
-      # Exécution de la requête
+      # Execute the query
       dbExecute(db, update_query, params = list(value, sample_id))
 
-      # Mettre à jour les échantillons de calibration après la modification
+      # Update calibration samples after the modification
       cal_samples_data <- get_cal_samples(db, input$project)
       cal_samples(cal_samples_data)
       print(cal_samples())
@@ -551,7 +556,7 @@ observeEvent(c(input$quanti_table_type_cell_edit, input$project), {
 ############ Sample Subclass ############
 #########################################
 
-# Observer le changement de projet et mettre à jour les sous-classes
+# Observe changes in project and update subclasses
 observeEvent(input$project, {
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
@@ -564,15 +569,15 @@ observeEvent(input$project, {
 })
 
 output$quanti_table_subclass <- renderDT({
-  datatable(data.frame(subclass_name = subclass_names()))  # Afficher les données dans un tableau
+  datatable(data.frame(subclass_name = subclass_names()))  # Display the subclass names in the table
 })
 
 observeEvent(input$add_subclass, {
-  req(input$new_subclass)  # S'assurer qu'une nouvelle sous-classe est entrée
+  req(input$new_subclass)  # Make sure a new subclass is entered
   record_subclass_quanti(db, input$project, input$new_subclass)
-  updateTextInput(session, "new_subclass", value = "")  # Réinitialiser le champ de texte
+  updateTextInput(session, "new_subclass", value = "")  # Clear the input field
   
-  # Mettre à jour les sous-classes
+  # Update the subclasses
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
   updateSelectInput(session, "delete_subclass", choices = subclasses)
@@ -581,10 +586,10 @@ observeEvent(input$add_subclass, {
 })
 
 observeEvent(input$remove_subclass, {
-  req(input$delete_subclass)  # S'assurer qu'une sous-classe à supprimer est sélectionnée
+  req(input$delete_subclass)  # Make sure a subclass is selected
   delete_subclass_quanti(db, input$project, input$delete_subclass)
   
-  # Mettre à jour les sous-classes
+  # Update the subclasses
   subclasses <- get_subclass_names(db, input$project)
   subclass_names(subclasses)
   updateSelectInput(session, "delete_subclass", choices = subclasses)
@@ -597,22 +602,18 @@ observeEvent(input$remove_subclass, {
 ############ Calibration ############
 #####################################
 
-# Observer la sélection de quantification_choice et mettre à jour les données
+# Observe changes in quantification choice and update the calibrations accordingly
 observeEvent(input$quantification_choice, {
   if (input$quantification_choice == "Calibration") {
     samples <- cal_samples()
     subclasses <- subclass_names()
-    
-    # Enregistrer les données de calibration
     record_cal_data(db, samples, subclasses)
-    
-    # Mettre à jour la variable réactive avec les nouvelles données
     df <- get_cal_data(db, samples, subclasses)
     cal_data(df)
   }
 })
 
-# Afficher les données de la table de manière réactive
+# Render the calibration table with editable cells
 output$cal_samples_table <- renderDT({
   df <- cal_data()
   
@@ -623,25 +624,23 @@ output$cal_samples_table <- renderDT({
   datatable(df[,-1], 
             editable = list(target = "cell", disable = list(columns = c(0, 1, 2))),
             options = list(
-              scrollX = TRUE,  # Activer le scroll horizontal
-              scroller = TRUE,  # Activer le scroller pour améliorer les performances avec de grandes tables
-              paging = FALSE  # Activer la pagination
+              paging = FALSE  # Enable pagination
             )
   )
 })
 
-# Observer les modifications des cellules de la table de calibration
+# Observer to update the database when a cell is edited
 observeEvent(input$cal_samples_table_cell_edit, {
   info <- input$cal_samples_table_cell_edit
   str(info)  # Debugging
   
-  # Reconvertir l'index de la colonne en nom de colonne
+  # Convert the column index to the column name
   col_name <- colnames(cal_data()[,-1])[info$col]
 
-  # Récupérer la ligne correspondant à l'info$row
+  # Retrive the row data corresponding to info$row
   row_data <- cal_data()[info$row, ]
 
-  # Construire et exécuter la requête UPDATE
+  # Construct and execute the UPDATE query
   query <- sprintf(
     "UPDATE cal_data SET %s = '%s' WHERE sample = '%s' AND subclass = '%s';",
     col_name, info$value, row_data$sample, row_data$subclass
@@ -655,10 +654,10 @@ observeEvent(input$cal_samples_table_cell_edit, {
 ############ Homologue Domain ############
 ##########################################
 
-#' Le but est de retourner des matrices vides pour chaque sous classe
-#' L'utilisateur va selectionner les groupes d'homologue dans chaque matrice
-#' Les matrices vont avoir C6-C36 première colonne et Cl3-Cl30 en première ligne
-#' Les groupes d'homologues selectionnés vont être stockés par matrice
+#' The goal is to return empty matrices for each subclass
+#' The user will select homolog groups in each matrix by clicking
+#' The matrices will have C6-C36 as the first column and Cl3-Cl30 as the first row
+#' The selected homolog groups will be stored by matrix
 
 output$quanti_subclass_dropdown <- shiny::renderUI({
   bsplus::shinyInput_label_embed(
@@ -667,11 +666,11 @@ output$quanti_subclass_dropdown <- shiny::renderUI({
   )
 })
 
-# Observateur pour initialiser les matrices et les cellules sélectionnées
+# Obeserver to initialize matrices and selected cells
 observe({
   subclasses <- subclass_names()
   
-  # Initialiser les matrices pour chaque sous-classe
+  # initialize matrices for each subclass
   matrices <- lapply(subclasses, function(subclass) {
     matrix <- matrix(ncol = 28, nrow = 31)
     colnames(matrix) <- paste0("Cl", 3:30)
@@ -682,7 +681,7 @@ observe({
   names(matrices) <- subclasses
   matrix_list(matrices)
   
-  # Initialiser les sélections de cellules pour chaque sous-classe
+  # Initialize the selection of cells for each subclass
   selected_cells <- lapply(subclasses, function(subclass) {
     data.frame(row = integer(0), col = integer(0))
   })
@@ -690,7 +689,7 @@ observe({
   selected_cells_list(selected_cells)
 })
 
-# Rendu de la datatable pour afficher la matrice de la sous-classe sélectionnée
+# Display the datatable to show the matrix of the selected subclass
 output$quanti_matrix_homologue <- DT::renderDataTable({
   req(input$quanti_subclass_dropdown)
   matrices <- matrix_list()
@@ -707,15 +706,15 @@ output$quanti_matrix_homologue <- DT::renderDataTable({
   )
 })
 
-# Observer pour mettre à jour les cellules sélectionnées
+# Observer to update the selected cells
 observeEvent(input$quanti_matrix_homologue_cells_selected, {
   cells <- input$quanti_matrix_homologue_cells_selected
   if (!is.null(cells)) {
     selected_cells <- selected_cells_list()
     selected_cells[[input$quanti_subclass_dropdown]] <- cells
     selected_cells_list(selected_cells)
-    print("selected_cells")
-    print(selected_cells)
+    # print("selected_cells")
+    # print(selected_cells)
   }
 })
 
@@ -723,11 +722,11 @@ observeEvent(input$quanti_matrix_homologue_cells_selected, {
 ############ Internal Standard ############
 ###########################################
 
-# Permet de choisir un étalon interne - standard par sous-classe (dynamiquement)
-# Permet de choisir un ou plusieurs adduits par sous-classe (dynamiquement)
+# Allows choosing an internal standard by subclass (dynamically)
+# Allows choosing one or more adducts by subclass (dynamically)
 
 output$quanti_dynamic_IS <- shiny::renderUI({
-  # Générer les div pour chaque sous-classe
+  # Generate the div for each subclass
   lapply(subclass_names(), function(subclass) {
     shiny::fluidRow(
       shiny::column(width = 12,
@@ -741,11 +740,10 @@ output$quanti_dynamic_IS <- shiny::renderUI({
   })
 })
 
-# Générer dynamiquement les `uiOutput` pour chaque sous-classe
+# Generate dynamically the `uiOutput` for each subclass
 observe({
   project_id <- input$project
-  
-  # Générer dynamiquement les `uiOutput` pour chaque sous-classe
+
   lapply(subclass_names(), function(subclass) {
     local({
       subclass_local <- subclass
@@ -785,29 +783,29 @@ adducts_values <- reactiveValues()
 standards_values <- reactiveValues()
 
 observe({
-  # Pour chaque sous-classe
+  # For each subclass, create a local environment to store the subclass name
   lapply(subclass_names(), function(subclass) {
     local({
       subclass_local <- subclass
 
-      # Observer pour les changements dans les adducts
+      # Observer for changes in adducts
       observeEvent(input[[paste0("process_adduct_", subclass_local)]], {
         adduct_input <- input[[paste0("process_adduct_", subclass_local)]]
         adducts_values[[subclass_local]] <- adduct_input
 
-        # Pour le débogage
-        shiny::req(adduct_input)  # Assurez-vous que l'entrée est disponible
+        # Debugging
+        shiny::req(adduct_input)  # Make sure the input is available
         print(paste("Adduct Input for", subclass_local, ":"))
         print(adduct_input)
       }, priority = 10)
 
-      # Observer pour les changements dans les standards
+      # Observer for changes in standards
       observeEvent(input[[paste0("process_standard_type_", subclass_local)]], {
         standard_input <- input[[paste0("process_standard_type_", subclass_local)]]
         standards_values[[subclass_local]] <- standard_input
 
-        # Pour le débogage
-        shiny::req(standard_input)  # Assurez-vous que l'entrée est disponible
+        # Debugging
+        shiny::req(standard_input)  # Make sure the input is available
         print(paste("Standard Input for", subclass_local, ":"))
         print(standard_input)
       }, priority = 10)
@@ -820,167 +818,188 @@ observe({
 ############ Launch Quanti ############
 #######################################
 
-#' On va exécuter lorsque l'on va cliquer sur le bouton launch quanti la fonction principale quanti_final_mat()
-#' Cette fonction va récupérer les matrices qui ont été calculés lors de la déconvolution.
-#' C'est ici que nous devons calculer les aires normalisés par les étalons internes.
-#' Une seule exécution de cette fonction est suffisante en théorie pour éxécuter tout le reste.
-
-
-#' browser() R pour stopper la console et voir le contenu des variables (C pour continuer les calculs après)
-
-# library(dplyr)
-
 observeEvent(input$quanti_launch, {
-
-  # Initialisation de la barre de progression
+  
+  # Initialize the progress bar
   withProgress(message = 'Quantification in progress...', value = 0, {
-
+    
     subclasses <- subclass_names()
     selected_cells <- selected_cells_list()
+    print(selected_cells) # Debugging
     cal_samples <- cal_samples()
-
-    # Récupérez toutes les combinaisons d'adducts et de standards sélectionnés
-    all_adducts <- unlist(lapply(subclasses, function(subclass) {
-      adducts_values[[subclass]]
-    }))
     
-    all_standards <- unlist(lapply(subclasses, function(subclass) {
-      standards_values[[subclass]]
-    }))
+    # Retrieve all unique adducts and standards
+    adducts <- unique(unlist(lapply(subclasses, function(subclass) adducts_values[[subclass]])))
+    standards <- unique(unlist(lapply(subclasses, function(subclass) standards_values[[subclass]])))
     
-    # Filtrer les valeurs uniques
-    adducts <- unique(all_adducts)
-    standards <- unique(all_standards)
+    if (length(adducts) == 0 || length(standards) == 0) {
+      showNotification("No adducts or standards selected in Internal Standard section. Please select them to proceed.", type = "error")
+      return()
+    }
 
-    incProgress(0.1, detail = sprintf("Matrix recovery"))
+    # Verify that there are selected cells
+    if (all(sapply(selected_cells, function(mat) nrow(mat) == 0))) {
+      showNotification("No cells selected in Homologue Domain section. Please select cells to proceed.", type = "error")
+      return()
+    }
+
+    # Updating progress
+    incProgress(0.1, detail = "Matrix recovery")
+    
     quanti_matrices <- quanti_final_mat_func(db, input$project, 2, adducts)
-    incProgress(0.1, detail = sprintf("Calculating numerical sums"))
-
-    lapply(subclasses, function(subclass) {
-      if (!is.null(selected_cells[[subclass]])) {       
-        sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
-        sums_values[[subclass]] <- sums
+    if (is.null(quanti_matrices)) {
+      showNotification("Failed to retrieve quantification matrices.", type = "error")
+      return()
+    }
+    
+    # Calculating numeric sums
+    incProgress(0.1, detail = "Calculating numerical sums")
+    
+    sums_values <- lapply(subclasses, function(subclass) {
+      print("Selected cells")
+      print(selected_cells[[subclass]])
+      if (!is.null(selected_cells[[subclass]])) {
+        return(calculate_numeric_sum(subclass, quanti_matrices, selected_cells))
       }
     })
-
+    
+    # Retrieve calibration data
     samples <- unique(unlist(cal_samples))
     cal_data_df <- get_cal_data(db, samples, subclasses)
+    if (nrow(cal_data_df) == 0) {
+      showNotification("Failed to retrieve calibration data.", type = "error")
+      return()
+    }
 
-    # Convertir sums_values en DataFrame
+    # Convert sums_values to DataFrame
     create_sums_df <- function(sums_values) {
       sums_list <- lapply(names(sums_values), function(subclass) {
-        sums <- sums_values[[subclass]]
-        data.frame(
-          file_name = names(sums),
-          subclass = subclass,
-          sum_value = as.numeric(sums),
-          stringsAsFactors = FALSE
-        )
+        if (!is.null(sums_values[[subclass]])) {
+          data.frame(
+            file_name = names(sums_values[[subclass]]),
+            subclass = subclass,
+            sum_value = as.numeric(sums_values[[subclass]]),
+            stringsAsFactors = FALSE
+          )
+        }
       })
       do.call(rbind, sums_list)
     }
 
     sums_df <- create_sums_df(sums_values)
+    
+    if (nrow(sums_df) == 0) {
+      showNotification("No sums calculated for the selected subclasses.", type = "error")
+      return()
+    }
+
+    # Join calibration data with sums data with dplyr
     cal_data_df$sample_id <- sub("^(neg|pos) ", "", cal_data_df$sample)
     cal_data_df <- cal_data_df %>%
       left_join(sums_df %>% select(file_name, subclass, sum_value), 
-                by = c("sample_id" = "file_name", "subclass" = "subclass"))
-
-    # Mettre à jour la barre de progression
-    incProgress(0.4, detail = sprintf("Calibration data update"))
-
-    if (length(adducts) > 0 && length(all_standards) > 0) {
-      standard_table <- get_standard_table_quanti(db, input$project, adducts, all_standards, cal_samples)
-      DT::datatable(as.matrix(standard_table))
-      standard_table <- standard_table %>% distinct()
-      standard_table$`total area` <- as.numeric(gsub(" ", "", standard_table$`total area`)) / 10^6
-      total_area_table(standard_table)
-    } else {
-      table <- as.data.frame("No results")
-      print("No results for standard table.")
-      DT::datatable(table)
+                by = c("sample_id" = "file_name", "subclass"))
+    
+    # Updating progress
+    incProgress(0.4, detail = "Calibration data update")
+    
+    if (nrow(cal_data_df) == 0) {
+      showNotification("Calibration data merge failed.", type = "error")
+      return()
     }
-
+    
+    # Retrieve standard table and process subclasses
+    if (length(adducts) > 0 && length(standards) > 0) {
+      standard_table <- get_standard_table_quanti(db, input$project, adducts, standards, cal_samples)
+      if (nrow(standard_table) == 0) {
+        showNotification("No results for the standard table.", type = "warning")
+      } else {
+        standard_table <- standard_table %>% distinct()
+        standard_table$`total area` <- as.numeric(gsub(" ", "", standard_table$`total area`)) / 10^6
+        total_area_table(standard_table)
+      }
+    }
+    
     if (!is.null(sums_values) && !is.null(total_area_table()) && nrow(total_area_table()) > 0) {
-      subclasses <- names(sums_values)
-
-      print("Subclasses for processing:")
-      print(subclasses)
-
-      # Créez une fonction pour traiter chaque sous-classe
+      print("Processing subclasses:")
+      
       process_subclass <- function(subclass) {
-        if (is.null(sums_values[[subclass]])) return(NULL)
-
+        if (is.null(sums_values[[subclass]])) {
+          showNotification(paste("No sums values available for subclass", subclass), type = "warning")
+          return(NULL)
+        }
+        
         standard_formula <- standards_values[[subclass]]
         if (is.null(standard_formula)) {
-          cat("No standard formula available for subclass", subclass, "\n")
+          showNotification(paste("No standard formula available for subclass", subclass), type = "warning")
           return(NULL)
         }
 
-        print(paste("Standard Formula for subclass", subclass, ":"))
-        print(standard_formula)
-
+        # Uilisation of dplyr to filter the dataframe filtered_table
         filtered_table <- total_area_table() %>%
-          filter(adduct %in% adducts_values[[subclass]], formula == standards_values[[subclass]])
-
+          filter(adduct %in% adducts_values[[subclass]], formula == standard_formula)
+        
         if (nrow(filtered_table) == 0) {
-          cat("No data available after filtering for subclass", subclass, "\n")
+          showNotification(paste("No data available after filtering for subclass", subclass), type = "warning")
           return(NULL)
         }
 
+        # Uilisation of dplyr to create a new dataframe areas_std
         areas_std <- filtered_table %>%
           mutate(`total area` = ifelse(is.na(`total area`), 0, `total area`)) %>%
           group_by(sample_id) %>%
           summarize(total_area_sum = sum(`total area`), .groups = 'drop')
-
+        
         cal_data_df <- left_join(cal_data_df, areas_std, by = "sample_id")
-
+        
+        if (nrow(cal_data_df) == 0) {
+          showNotification(paste("No matching data for subclass", subclass), type = "error")
+          return(NULL)
+        }
+        
+        # Uilisation of dplyr change the dataframe cal_data_df
         cal_data_df <- cal_data_df %>%
           mutate(normalized_per_std = sum_value / total_area_sum * 1e6) %>%
           mutate(normalized_per_concentration = normalized_per_std / concentration)
         
-        write.csv(cal_data_df, "export/Quanti_data_full.csv")
-
-        # Filtrer les lignes qui contiennent des valeurs NA, NaN, ou Inf
+        write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_full.csv"))
+        
+        # Remove rows with NA, NaN, or Inf values
         cal_data_df <- cal_data_df %>%
-          filter(
-            !if_any(everything(), ~ is.na(.) | is.nan(.) | is.infinite(.))
-          )
+          filter(!if_any(everything(), ~ is.na(.) | is.nan(.) | is.infinite(.)))
         
         cal_data_df_rv(cal_data_df)
-        write.csv(cal_data_df, "export/Quanti_data_clean.csv")
-
+        write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_clean.csv"))
+        
         assign(paste0("cal_data_df_", subclass), cal_data_df, envir = .GlobalEnv)
-
         cat("========================\n")
       }
-
-      # Mettre à jour la barre de progression avant de commencer le traitement
-      incProgress(0.4, detail = sprintf("Subclass processing"))
-
+      
+      # Update progress before subclass processing
+      incProgress(0.4, detail = "Subclass processing")
+      
       lapply(subclasses, process_subclass)
-
-      # Finaliser la barre de progression
-      incProgress(0.1, detail = sprintf("Quantification complete"))
+      
+      # Finalize progress
+      incProgress(0.1, detail = "Quantification complete")
     } else {
-      cat("No total area values available for normalization.\n")
+      showNotification("No total area values available for normalization.", type = "error")
     }
   })
 })
 
-# Observer les changements du sélecteur de graphique
+# Obsserve change in selection of graph
 observeEvent(c(input$graph_selector, cal_data_df_rv()), {
   cal_data_df <- cal_data_df_rv()
 
   if (nrow(cal_data_df) == 0) {
-    # Convertir le graphique ggplot en graphique interactif plotly
+    # Transformation of graph ggplot into interactive plotly graph
     output$plot_output <- renderPlotly({
       plotly_empty()
     })
   } else {
     req(input$graph_selector)
 
-        # Déterminer le type de graphique à afficher
+        # Determine the type of graph to display
         plot <- switch(input$graph_selector,
                       'Standard Boxplot' = {
                         ggplot(cal_data_df, aes(x = subclass, y = normalized_per_std, fill = subclass)) +
@@ -1020,7 +1039,7 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                             scale_color_manual(values = c("Standard Normalized" = "blue", "Concentration Normalized" = "red"))
                       },
                       'Exponential regression' = {
-                        # Calcul de la pente et de la moyenne par groupe
+                        # Calculation of the slope and average by group (dplyr)
                         exponential_data <- cal_data_df %>%
                           group_by(subclass, chlorination) %>%
                           do({
@@ -1032,7 +1051,7 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           }) %>%
                           ungroup()
 
-                        # Fonction pour ajuster un modèle exponentiel avec valeurs initiales ajustées
+                        # Fonction to ajust a exponential model with adjusted initial values
                         exponential_model <- function(data, response_var) {
                           tryCatch({
                             model <- nls(as.formula(paste(response_var, "~ a * exp(b * chlorination)")), data = data,
@@ -1044,17 +1063,17 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           })
                         }
 
-                        # Calculer les courbes exponentielles
+                        # Calculation of the exponential curves (dplyr)
                         exponential_curves <- exponential_data %>%
                           group_by(subclass) %>%
                           do({
                             data_subset <- .
 
-                            # Ajuster les modèles exponentiels
+                            # Adjust the exponential models
                             exp_model_standard <- exponential_model(data_subset, "standard_slope")
                             exp_model_avg <- exponential_model(data_subset, "average_concentration_normalized")
 
-                            # Générer les prédictions
+                            # Generate the predictions
                             chlorination_seq <- seq(min(data_subset$chlorination), max(data_subset$chlorination), length.out = 100)
 
                             exp_predictions_standard <- if (!is.null(exp_model_standard)) {
@@ -1078,14 +1097,13 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           }) %>%
                           ungroup()
 
-                        # Utiliser une jointure externe pour inclure toutes les valeurs de chlorination
+                        # Utilisation of joining to include all chlorination values (dplyr)
                         exponential_df <- full_join(
                           exponential_curves,
                           exponential_data %>% select(subclass, chlorination, standard_slope, average_concentration_normalized),
                           by = c("subclass", "chlorination")
                         )
 
-                        # Créer le graphique avec ggplot2
                         plot <- ggplot(exponential_df, aes(x = chlorination)) +
                           geom_line(aes(y = exp_predictions_standard, color = "Exp Predictions Standard")) +
                           geom_line(aes(y = exp_predictions_avg, color = "Exp Predictions Avg")) +
@@ -1099,14 +1117,15 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           theme_minimal() +
                           theme(axis.text.x = element_text(angle = 45, hjust = 1))
                       })
-        
-    # Convertir le graphique ggplot en graphique interactif plotly
+
+    # Convertion of graph ggplot into interactive plotly graph
     output$plot_output <- renderPlotly({
       ggplotly(plot)
     })
   }
 })
 
+# Observe change in input$project to reset the cal_data_df reactive value to an empty data frame
 observeEvent(input$project, {
   cal_data_df_rv(data.frame())
 })
