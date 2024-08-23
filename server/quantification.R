@@ -819,6 +819,7 @@ observe({
 #######################################
 
 observeEvent(input$quanti_launch, {
+  shinyjs::disable("quanti_launch")  # Disable the launch button
   
   # Initialize the progress bar
   withProgress(message = 'Quantification in progress...', value = 0, {
@@ -827,6 +828,15 @@ observeEvent(input$quanti_launch, {
     selected_cells <- selected_cells_list()
     print(selected_cells) # Debugging
     cal_samples <- cal_samples()
+
+    # Retrieve calibration data
+    samples <- unique(unlist(cal_samples))
+    cal_data_df <- get_cal_data(db, samples, subclasses)
+    if (nrow(cal_data_df) == 0) {
+      showNotification("Failed to retrieve calibration data.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
+      return()
+    }
     
     # Retrieve all unique adducts and standards
     adducts <- unique(unlist(lapply(subclasses, function(subclass) adducts_values[[subclass]])))
@@ -834,12 +844,14 @@ observeEvent(input$quanti_launch, {
     
     if (length(adducts) == 0 || length(standards) == 0) {
       showNotification("No adducts or standards selected in Internal Standard section. Please select them to proceed.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
       return()
     }
 
     # Verify that there are selected cells
     if (all(sapply(selected_cells, function(mat) nrow(mat) == 0))) {
       showNotification("No cells selected in Homologue Domain section. Please select cells to proceed.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
       return()
     }
 
@@ -849,39 +861,30 @@ observeEvent(input$quanti_launch, {
     quanti_matrices <- quanti_final_mat_func(db, input$project, 2, adducts)
     if (is.null(quanti_matrices)) {
       showNotification("Failed to retrieve quantification matrices.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
       return()
     }
-    
+
     # Calculating numeric sums
     incProgress(0.1, detail = "Calculating numerical sums")
     
-    sums_values <- lapply(subclasses, function(subclass) {
-      print("Selected cells")
-      print(selected_cells[[subclass]])
-      if (!is.null(selected_cells[[subclass]])) {
-        return(calculate_numeric_sum(subclass, quanti_matrices, selected_cells))
+    lapply(subclasses, function(subclass) {
+      if (!is.null(selected_cells[[subclass]])) {       
+        sums <- calculate_numeric_sum(subclass, quanti_matrices, selected_cells)
+        sums_values[[subclass]] <- sums
       }
     })
-    
-    # Retrieve calibration data
-    samples <- unique(unlist(cal_samples))
-    cal_data_df <- get_cal_data(db, samples, subclasses)
-    if (nrow(cal_data_df) == 0) {
-      showNotification("Failed to retrieve calibration data.", type = "error")
-      return()
-    }
 
     # Convert sums_values to DataFrame
     create_sums_df <- function(sums_values) {
       sums_list <- lapply(names(sums_values), function(subclass) {
-        if (!is.null(sums_values[[subclass]])) {
-          data.frame(
-            file_name = names(sums_values[[subclass]]),
-            subclass = subclass,
-            sum_value = as.numeric(sums_values[[subclass]]),
-            stringsAsFactors = FALSE
-          )
-        }
+        sums <- sums_values[[subclass]]
+        data.frame(
+          file_name = names(sums),
+          subclass = subclass,
+          sum_value = as.numeric(sums),
+          stringsAsFactors = FALSE
+        )
       })
       do.call(rbind, sums_list)
     }
@@ -890,6 +893,7 @@ observeEvent(input$quanti_launch, {
     
     if (nrow(sums_df) == 0) {
       showNotification("No sums calculated for the selected subclasses.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
       return()
     }
 
@@ -904,6 +908,7 @@ observeEvent(input$quanti_launch, {
     
     if (nrow(cal_data_df) == 0) {
       showNotification("Calibration data merge failed.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
       return()
     }
     
@@ -922,26 +927,12 @@ observeEvent(input$quanti_launch, {
     if (!is.null(sums_values) && !is.null(total_area_table()) && nrow(total_area_table()) > 0) {
       print("Processing subclasses:")
       
-      process_subclass <- function(subclass) {
-        if (is.null(sums_values[[subclass]])) {
-          showNotification(paste("No sums values available for subclass", subclass), type = "warning")
-          return(NULL)
-        }
-        
+      process_subclass <- function(subclass) {       
         standard_formula <- standards_values[[subclass]]
-        if (is.null(standard_formula)) {
-          showNotification(paste("No standard formula available for subclass", subclass), type = "warning")
-          return(NULL)
-        }
 
         # Uilisation of dplyr to filter the dataframe filtered_table
         filtered_table <- total_area_table() %>%
           filter(adduct %in% adducts_values[[subclass]], formula == standard_formula)
-        
-        if (nrow(filtered_table) == 0) {
-          showNotification(paste("No data available after filtering for subclass", subclass), type = "warning")
-          return(NULL)
-        }
 
         # Uilisation of dplyr to create a new dataframe areas_std
         areas_std <- filtered_table %>%
@@ -951,17 +942,13 @@ observeEvent(input$quanti_launch, {
         
         cal_data_df <- left_join(cal_data_df, areas_std, by = "sample_id")
         
-        if (nrow(cal_data_df) == 0) {
-          showNotification(paste("No matching data for subclass", subclass), type = "error")
-          return(NULL)
-        }
-        
         # Uilisation of dplyr change the dataframe cal_data_df
         cal_data_df <- cal_data_df %>%
           mutate(normalized_per_std = sum_value / total_area_sum * 1e6) %>%
           mutate(normalized_per_concentration = normalized_per_std / concentration)
         
-        write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_full.csv"))
+        # csv before elimiation of NA, NaN, Inf
+        # write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_full.csv"))
         
         # Remove rows with NA, NaN, or Inf values
         cal_data_df <- cal_data_df %>%
@@ -981,8 +968,11 @@ observeEvent(input$quanti_launch, {
       
       # Finalize progress
       incProgress(0.1, detail = "Quantification complete")
+
+      shinyjs::enable("quanti_launch") # Enable the launch button
     } else {
-      showNotification("No total area values available for normalization.", type = "error")
+      showNotification("No standard values available for normalization.", type = "error")
+      shinyjs::enable("quanti_launch") # Enable the launch button
     }
   })
 })
@@ -1029,9 +1019,9 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           geom_point(aes(color = 'Standard Normalized'), size = 3) +
                           geom_point(aes(y = normalized_per_concentration, color = 'Concentration Normalized'), size = 3, shape = 17) +
                           facet_grid(subclass ~ chlorination) +
-                          labs(title = "Comparison of Normalized Values by Concentration",
+                          labs(title = "Comparison of Individual Response Factor by Concentration",
                               x = "Concentration",
-                              y = "Normalized Value",
+                              y = "Individual Response Factor",
                               color = "Metric",
                               shape = "Metric") +
                           theme_minimal() +
@@ -1112,7 +1102,7 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
                           facet_grid(. ~ subclass) +
                           labs(title = "Exponential Regression by Chlorination Level",
                               x = "Chlorination Level",
-                              y = "Value",
+                              y = "Response Factor",
                               color = "Metric") +
                           theme_minimal() +
                           theme(axis.text.x = element_text(angle = 45, hjust = 1))
