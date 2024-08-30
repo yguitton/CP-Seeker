@@ -8,6 +8,7 @@ if (is.null(reg_paths$thermo)) stop('Missing thermo in file reg_paths.json')
 if (is.null(reg_paths$create_database)) stop('Missing create_database in file reg_paths.json')
 if (is.null(reg_paths$chemical)) stop('Missing chemical in file reg_paths.json')
 if (is.null(reg_paths$chemical_ion)) stop('Missing chemical_ion in file reg_paths.json')
+if (is.null(reg_paths$chloration_apparent_matrix)) stop('Missing chloration_apparent_matrix in file reg_paths.json')
 if (is.null(reg_paths$sqlite_path)) stop('Missing sqlitePath in file reg_paths.json')
 if (is.null(reg_paths$sqlite_lighted_path)) stop('Missing sqlite lighted path in file reg_paths.json')
 if (is.null(reg_paths$documentation_file)) stop('Missing documentation file in file reg_paths.json')
@@ -25,6 +26,9 @@ for (i in 1:length(reg_paths)){
     } else if (!test & (name == "chemical_ion")) {
         utils::setWinProgressBar(pb, 0, label = "Generate chloroparaffin ions...")
         source("data/generate_chloroparaffin_ions.R")
+    } else if (!test & (name == "chloration_apparent_matrix")) {
+        utils::setWinProgressBar(pb, 0, label = "Generate matrice chlore carbone ions...")
+        source("data/generate_chloration_apparent_matrix.R")
     } else if(!test & (name == "sqlite_path")) {
 		utils::setWinProgressBar(pb, 0, label = "Creating database file...")  
         db <- RSQLite::dbConnect(RSQLite::SQLite(), path)
