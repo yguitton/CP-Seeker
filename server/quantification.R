@@ -19,7 +19,7 @@ selected_cells_list <- reactiveVal(list())
 total_area_table <- reactiveVal()
 sums_values <- reactiveValues()
 
-cal_data_df_rv <- reactiveVal(data.frame())
+graph_data <- reactiveVal(data.frame())
 
 #########################################
 ################## SQL ##################
@@ -954,11 +954,28 @@ observeEvent(input$quanti_launch, {
         cal_data_df <- cal_data_df %>%
           filter(!if_any(everything(), ~ is.na(.) | is.nan(.) | is.infinite(.)))
         
-        cal_data_df_rv(cal_data_df)
-        write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_clean.csv"))
+        # cal_data_df_rv(cal_data_df)
+        # write.csv(cal_data_df, paste0("export/Quanti_data_", subclass, "_clean.csv"))
         
         assign(paste0("cal_data_df_", subclass), cal_data_df, envir = .GlobalEnv)
-        cat("========================\n")
+
+        # Calculation of the slope and average by group (dplyr)
+        exponential_data <- cal_data_df %>%
+          group_by(subclass, chlorination) %>%
+          do({
+            standard_lm <- lm(log(normalized_per_std) ~ concentration, data = .)
+            data.frame(
+              standard_slope = coef(standard_lm)[["concentration"]],
+              response_factor = mean(.$normalized_per_concentration, na.rm = TRUE)
+            )
+          }) %>%
+          ungroup()
+
+        final_data <- cal_data_df %>%
+        left_join(exponential_data, by = c("subclass", "chlorination"))
+
+        graph_data(final_data)
+        write.csv(final_data, paste0("export/graph_data.csv"))
       }
       
       # Update progress before subclass processing
@@ -977,11 +994,11 @@ observeEvent(input$quanti_launch, {
   })
 })
 
-# Obsserve change in selection of graph
-observeEvent(c(input$graph_selector, cal_data_df_rv()), {
-  cal_data_df <- cal_data_df_rv()
-
-  if (nrow(cal_data_df) == 0) {
+observeEvent(c(input$graph_selector, graph_data()), {
+  final_data <- graph_data()
+  # If you have already your data saved and dont want to wait for the graphs to test the program
+  # final_data <- read.csv("export/graph_data.csv") 
+  if (nrow(final_data) == 0) {
     # Transformation of graph ggplot into interactive plotly graph
     output$plot_output <- renderPlotly({
       plotly_empty()
@@ -989,133 +1006,68 @@ observeEvent(c(input$graph_selector, cal_data_df_rv()), {
   } else {
     req(input$graph_selector)
 
-        # Determine the type of graph to display
-        plot <- switch(input$graph_selector,
-                      'Standard Boxplot' = {
-                        ggplot(cal_data_df, aes(x = subclass, y = normalized_per_std, fill = subclass)) +
-                          geom_boxplot() +
-                          labs(title = "Boxplot of Normalized Values (Standard) by Subclass", x = "Subclass", y = "Normalized Value") +
-                          theme_minimal()
-                      },
-                      'Concentration Boxplot' = {
-                        ggplot(cal_data_df, aes(x = subclass, y = normalized_per_concentration, fill = subclass)) +
-                          geom_boxplot() +
-                          labs(title = "Boxplot of Normalized Values (Standard + Concentration) by Subclass", x = "Subclass", y = "Normalized Value") +
-                          theme_minimal()
-                      },
-                      'Pre-Normalization' = {
-                        ggplot(cal_data_df, aes(x = sample_id, y = sum_value, color = subclass)) +
-                          geom_point(size = 3) +
-                          labs(title = "Values Before Normalization",
-                                x = "Sample",
-                                y = "Sum of Areas",
-                                color = "Subclass") +
-                          theme_minimal() +
-                          theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                          scale_color_viridis_d()
-                      },
-                      'Post-Normalization' = {
-                        ggplot(cal_data_df, aes(x = concentration, y = normalized_per_std)) +
-                          geom_point(aes(color = 'Standard Normalized'), size = 3) +
-                          geom_point(aes(y = normalized_per_concentration, color = 'Concentration Normalized'), size = 3, shape = 17) +
+    # Determine the type of graph to display
+    plot <- switch(input$graph_selector,
+                   'Pre-Normalization' = {
+                     ggplot(final_data, aes(x = sample_id, y = sum_value, color = subclass)) +
+                       geom_point(size = 3) +
+                       labs(title = "Values Before Normalization",
+                            x = "Sample",
+                            y = "Sum of Areas"
+                            ) +
+                       theme_minimal() +
+                       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                       scale_color_viridis_d()
+                   },
+                   'Post-Normalization' = {
+                    ggplot(final_data, aes(x = concentration, y = normalized_per_concentration)) +
+                          geom_point() +
                           facet_grid(subclass ~ chlorination) +
                           labs(title = "Comparison of Individual Response Factor by Concentration",
                               x = "Concentration",
-                              y = "Individual Response Factor",
-                              color = "Metric",
-                              shape = "Metric") +
+                              y = "Individual Response Factor"
+                          ) +
                           theme_minimal() +
                           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-                            scale_color_manual(values = c("Standard Normalized" = "blue", "Concentration Normalized" = "red"))
-                      },
-                      'Exponential regression' = {
-                        # Calculation of the slope and average by group (dplyr)
-                        exponential_data <- cal_data_df %>%
-                          group_by(subclass, chlorination) %>%
-                          do({
-                            standard_lm <- lm(normalized_per_std ~ concentration, data = .)
-                            data.frame(
-                              standard_slope = coef(standard_lm)[["concentration"]],
-                              average_concentration_normalized = mean(.$normalized_per_concentration, na.rm = TRUE)
-                            )
-                          }) %>%
-                          ungroup()
-
-                        # Fonction to ajust a exponential model with adjusted initial values
-                        exponential_model <- function(data, response_var) {
-                          tryCatch({
-                            model <- nls(as.formula(paste(response_var, "~ a * exp(b * chlorination)")), data = data,
-                                        start = list(a = max(data[[response_var]], na.rm = TRUE), b = 0.01))
-                            return(model)
-                          }, error = function(e) {
-                            message("Erreur lors de l'ajustement du modèle exponentiel pour ", response_var, ": ", e$message)
-                            return(NULL)
-                          })
-                        }
-
-                        # Calculation of the exponential curves (dplyr)
-                        exponential_curves <- exponential_data %>%
-                          group_by(subclass) %>%
-                          do({
-                            data_subset <- .
-
-                            # Adjust the exponential models
-                            exp_model_standard <- exponential_model(data_subset, "standard_slope")
-                            exp_model_avg <- exponential_model(data_subset, "average_concentration_normalized")
-
-                            # Generate the predictions
-                            chlorination_seq <- seq(min(data_subset$chlorination), max(data_subset$chlorination), length.out = 100)
-
-                            exp_predictions_standard <- if (!is.null(exp_model_standard)) {
-                              predict(exp_model_standard, newdata = data.frame(chlorination = chlorination_seq))
-                            } else {
-                              rep(NA, length(chlorination_seq))
-                            }
-
-                            exp_predictions_avg <- if (!is.null(exp_model_avg)) {
-                              predict(exp_model_avg, newdata = data.frame(chlorination = chlorination_seq))
-                            } else {
-                              rep(NA, length(chlorination_seq))
-                            }
-
-                            data.frame(
-                              chlorination = chlorination_seq,
-                              exp_predictions_standard = exp_predictions_standard,
-                              exp_predictions_avg = exp_predictions_avg,
-                              subclass = unique(data_subset$subclass)
-                            )
-                          }) %>%
-                          ungroup()
-
-                        # Utilisation of joining to include all chlorination values (dplyr)
-                        exponential_df <- full_join(
-                          exponential_curves,
-                          exponential_data %>% select(subclass, chlorination, standard_slope, average_concentration_normalized),
-                          by = c("subclass", "chlorination")
-                        )
-
-                        plot <- ggplot(exponential_df, aes(x = chlorination)) +
-                          geom_line(aes(y = exp_predictions_standard, color = "Exp Predictions Standard")) +
-                          geom_line(aes(y = exp_predictions_avg, color = "Exp Predictions Avg")) +
-                          geom_point(aes(y = standard_slope, color = "Exp Predictions Standard"), shape = 16) +
-                          geom_point(aes(y = average_concentration_normalized, color = "Exp Predictions Avg"), shape = 17) +
-                          facet_grid(. ~ subclass) +
-                          labs(title = "Exponential Regression by Chlorination Level",
-                              x = "Chlorination Level",
-                              y = "Response Factor",
-                              color = "Metric") +
-                          theme_minimal() +
-                          theme(axis.text.x = element_text(angle = 45, hjust = 1))
-                      })
+                          scale_color_viridis_d() +
+                          geom_hline(aes(yintercept = response_factor))           
+                   },
+                   'Regression on %Cl' = {
+                     ggplot(final_data, aes(x = chlorination, y = response_factor)) +
+                       facet_grid(. ~ subclass) +
+                       geom_point() +
+                       geom_smooth(
+                         method = "glm",
+                         formula = y ~ x,
+                         se = FALSE,
+                         method.args = list(family = gaussian(link = "log"))
+                       ) +
+                       labs(title = "Regression on %Cl",
+                            x = "Chlorination Degree (%)",
+                            y = "Response Factor"
+                            ) +
+                       theme_minimal() +
+                       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+                       scale_color_viridis_d()
+                   },
+                   # Default case to ensure plot is not NULL
+                   {
+                     ggplot() + 
+                     labs(title = "Error in graph creation")
+                   })
 
     # Convertion of graph ggplot into interactive plotly graph
     output$plot_output <- renderPlotly({
-      ggplotly(plot)
+      if (inherits(plot, "gg")) {  # Vérifie si l'objet est bien un ggplot
+        ggplotly(plot)
+      } else {
+        plotly_empty()  # Affiche un graphique vide si plot n'est pas un objet ggplot valide
+      }
     })
   }
 })
 
 # Observe change in input$project to reset the cal_data_df reactive value to an empty data frame
 observeEvent(input$project, {
-  cal_data_df_rv(data.frame())
+  graph_data(data.frame())
 })

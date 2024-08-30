@@ -128,7 +128,7 @@ shinydashboard::tabItem(
         column(width = 10, offset = 1,
           shinyWidgets::radioGroupButtons(
             inputId = 'graph_selector',
-            choices = c('Pre-Normalization', 'Standard Boxplot', 'Concentration Boxplot', 'Post-Normalization', 'Exponential regression'),
+            choices = c('Pre-Normalization', 'Post-Normalization', 'Regression on %Cl'),
             justified = TRUE,
             checkIcon = list(
               yes = shiny::tags$i(class = "fa fa-circle", style = "color: steelblue"),
