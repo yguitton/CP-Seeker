@@ -51,7 +51,7 @@ var sLogPath = oFSO.GetParentFolderName(oFSO.GetParentFolderName(oFSO.GetParentF
 if (!oFSO.FolderExists(sLogPath)) {
     try {
         oFSO.CreateFolder(sLogPath);
-        WScript.Echo("Directory created: " + sLogPath);
+        // WScript.Echo("Directory created: " + sLogPath); // Specify the directory was created
     } catch(e) {
         WScript.Echo("Error creating directory: " + sLogPath);
         WScript.Quit(1); // Quit the script if directory creation fails
