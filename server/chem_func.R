@@ -311,36 +311,54 @@ get_type_pattern <- function(colX, colY, chemical_type, chemicals, profile_mat){
 #' @param na_empty boolean if TRUE, na will be replaced by "" else by 0
 #' 
 #' @return matrix, reduced matrix
-reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE){
-  reducted_mat <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), 
-    dimnames = list(row.names(mat), colnames(mat)))
-  for(i in 1:nrow(mat)){
-   	for(j in 1:ncol(mat)){
-     	splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
-     	if(!is.na(splitted_cell) & splitted_cell != "NA" & !is.na(suppressWarnings(as.numeric(splitted_cell)))){
-     		reducted_mat[i,j] <- as.numeric(splitted_cell)
-     	}else if(is.na(splitted_cell) | splitted_cell == "NA"){
-       	if(na_empty) reducted_mat[i,j] <- ""
-       	else reducted_mat[i,j] <- NA # change to NA to not have 0 everywhere
-     	}else if(is.na(suppressWarnings(as.numeric(splitted_cell)))){
-     		reducted_mat[i,j] <- splitted_cell
-     	}
-   	}
-  }
-  if(greycells){
-  	for(i in 1:nrow(mat)){
-   		for(j in 1:ncol(mat)){
-   			splitted_cell <- unlist(str_split(mat[i,j], "/"))[4]
-   			if(!is.na(splitted_cell) & splitted_cell != "NA"){
-     			reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", splitted_cell)
-     		}else if(is.na(splitted_cell) | splitted_cell == "NA"){
-       		if(na_empty) reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", "")
-       		else reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", NA) # change to NA to not have 0 everywhere
-     		}
-     	}
+reduce_matrix <- function(mat, val, greycells = FALSE, na_empty = FALSE) {
+  withProgress(message = 'Reduce matrice...', value = 0, {
+    reducted_mat <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), 
+                            dimnames = list(row.names(mat), colnames(mat)))
+    total_iterations <- nrow(mat) * ncol(mat)
+    
+    for (i in 1:nrow(mat)) {
+      for (j in 1:ncol(mat)) {
+        splitted_cell <- unlist(str_split(mat[i,j], "/"))[val]
+        
+        if (!is.na(splitted_cell) & splitted_cell != "NA" & !is.na(suppressWarnings(as.numeric(splitted_cell)))) {
+          reducted_mat[i,j] <- as.numeric(splitted_cell)
+        } else if (is.na(splitted_cell) | splitted_cell == "NA") {
+          if (na_empty) {
+            reducted_mat[i,j] <- ""
+          } else {
+            reducted_mat[i,j] <- NA
+          }
+        } else if (is.na(suppressWarnings(as.numeric(splitted_cell)))) {
+          reducted_mat[i,j] <- splitted_cell
+        }
+        
+        incProgress(1 / total_iterations, detail = sprintf("Processing %d/%d", (i - 1) * ncol(mat) + j, total_iterations))
+      }
     }
-  }
-  return(reducted_mat)
+    
+    if (greycells) {
+      for (i in 1:nrow(mat)) {
+        for (j in 1:ncol(mat)) {
+          splitted_cell <- unlist(str_split(mat[i,j], "/"))[4]
+          
+          if (!is.na(splitted_cell) & splitted_cell != "NA") {
+            reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", splitted_cell)
+          } else if (is.na(splitted_cell) | splitted_cell == "NA") {
+            if (na_empty) {
+              reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", "")
+            } else {
+              reducted_mat[i,j] <- paste0(reducted_mat[i,j], "/", NA)
+            }
+          }
+
+          incProgress(1 / total_iterations, detail = sprintf("Processing %d/%d", (i - 1) * ncol(mat) + j, total_iterations))
+        }
+      }
+    }
+    
+    return(reducted_mat)
+  })
 }
 
 #' @title Get TIC
