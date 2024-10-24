@@ -56,6 +56,17 @@ final_mat <- reactive({
     if("Error" %in% colnames(table)){
       data.frame(Error = paste("This adduct doesn't exist for this chemical type sorry !",3,sep="/"))
     }else{
+      print("##########################################")
+      print("########### REDUCE_MATRIX DATA ###########")
+      print("##########################################")
+      print(file)
+      print("##########################################")
+      print(input$process_results_study)
+      print("##########################################")
+      print(input$process_results_chemical_adduct)
+      print("##########################################")
+      print(select_choice)
+      print("##########################################")
       table
     }
   }else{
@@ -516,7 +527,11 @@ shiny::observeEvent(input$export_button,{
       pbValue <- 0 # When add unique is when we considered all chem type in one family
       maxBar <- length(unique(allDeconv$adduct))
       shinyWidgets::progressSweetAlert(session, 'exportBar', value = pbValue, title = "Export...", striped = TRUE, display_pct = TRUE)
-      full_mat <- mat(export = TRUE)
+
+      values$export <- TRUE
+      full_mat <- mat()
+      values$export <- FALSE
+
       finalResult <- NULL
       for(adduct in unique(allDeconv$adduct)){
         pbValue <- pbValue + 1

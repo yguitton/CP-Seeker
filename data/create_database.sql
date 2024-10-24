@@ -20,7 +20,11 @@ CREATE TABLE `sample` (
 	`number_of_scan_range` TEXT, 
 	`scan_range` TEXT,
 	`mz_min` REAL,
-	`mz_max` REAL
+	`mz_max` REAL,
+	`sample_type` TEXT,
+	`subclass_name` TEXT,
+	`chlorination_degree` INTEGER,
+	`concentration` INTEGER
 );
 CREATE TABLE `project_sample` ( 
 	`project_sample` INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -94,4 +98,17 @@ CREATE TABLE `deconvolution_infos` (
 	`memory_speed`	TEXT,
 	FOREIGN KEY(`project`) REFERENCES `project`(`project`),
 	PRIMARY KEY(`project`)
+);
+CREATE TABLE `cal_data` (
+ 	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+ 	`sample` TEXT,
+ 	`subclass` INTEGER,
+ 	`concentration` REAL,
+ 	`chlorination` REAL
+);
+CREATE TABLE `subclass` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+	`project` INTEGER,
+	`subclass_name`	TEXT,
+	FOREIGN KEY(`project`) REFERENCES `project`(`project`)
 );
