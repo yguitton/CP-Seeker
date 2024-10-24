@@ -11,6 +11,6 @@
   "sqlite_path": "database.sqlite",
   "sqlite_lighted_path": "database_lighted.sqlite",
   "dll_file": "utils/cppFuncs.dll",
-  "documentation_file": "NOT-SCI-004 v003 CP-Seeker Documentation.pdf",
-  "error_log_path": "C:\\Users\\DRA\\Desktop\\CP-Seeker\\Error_log\\error_2024-10-24-10h-42min.log"
+  "documentation_file": "NOT-SCI-004 v004 CP-Seeker Documentation.pdf",
+  "error_log_path": "C:\\Users\\DRA\\Desktop\\CP-Seeker\\Error_log\\error_2024-04-16-14h-47min.log"
 }
